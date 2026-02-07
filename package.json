@@ -1,0 +1,17 @@
+{
+  "name": "afiliateecommerce-root",
+  "private": true,
+  "scripts": {
+    "test"  : "echo \"Error: no test specified\" && exit 1",
+    "server": "pnpm --filter server dev",
+    "client": "pnpm --filter clint dev",
+    "all"   : "pnpm -r dev",
+    "seed"  : "pnpm --filter server seed",
+    "seed:procedure" : "pnpm --filter server seedProcedure",
+    "expectedOutput" : "pnpm --filter server expectedOutput"
+  },
+  "packageManager": "pnpm@10.19.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

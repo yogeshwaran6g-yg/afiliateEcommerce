@@ -1,0 +1,290 @@
+{
+  "success": true,
+  "message": "Referral overview fetched successfully",
+  "data": {
+    "totalLevels": 6,
+    "overallCount": 30,
+    "overallEarnings": 310,
+    "levels": [
+      {
+        "level": 1,
+        "referralCount": 5,
+        "totalEarnings": 100,
+        "members": [
+          {
+            "id": 2001,
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "joinedAt": "2026-02-07T10:00:00.000Z",
+            "totalAmount": 20
+          },
+          {
+            "id": 2002,
+            "name": "Jane Smith",
+            "email": "jane.smith@example.com",
+            "joinedAt": "2026-02-07T11:00:00.000Z",
+            "totalAmount": 20
+          },
+          {
+            "id": 2003,
+            "name": "Bob Wilson",
+            "email": "bob.wilson@example.com",
+            "joinedAt": "2026-02-07T12:00:00.000Z",
+            "totalAmount": 20
+          },
+          {
+            "id": 2004,
+            "name": "Mary Johnson",
+            "email": "mary.johnson@example.com",
+            "joinedAt": "2026-02-07T13:00:00.000Z",
+            "totalAmount": 20
+          },
+          {
+            "id": 2005,
+            "name": "Alice Brown",
+            "email": "alice.brown@example.com",
+            "joinedAt": "2026-02-07T14:00:00.000Z",
+            "totalAmount": 20
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "referralCount": 5,
+        "totalEarnings": 80,
+        "members": [
+          {
+            "id": 2006,
+            "name": "Tom Harris",
+            "email": "tom.harris@example.com",
+            "joinedAt": "2026-02-07T15:00:00.000Z",
+            "totalAmount": 16
+          },
+          {
+            "id": 2007,
+            "name": "Charlie Davis",
+            "email": "charlie.davis@example.com",
+            "joinedAt": "2026-02-07T16:00:00.000Z",
+            "totalAmount": 16
+          },
+          {
+            "id": 2008,
+            "name": "Lucy Miller",
+            "email": "lucy.miller@example.com",
+            "joinedAt": "2026-02-07T17:00:00.000Z",
+            "totalAmount": 16
+          },
+          {
+            "id": 2009,
+            "name": "Eve Evans",
+            "email": "eve.evans@example.com",
+            "joinedAt": "2026-02-07T18:00:00.000Z",
+            "totalAmount": 16
+          },
+          {
+            "id": 2010,
+            "name": "Rick Sanchez",
+            "email": "rick.sanchez@example.com",
+            "joinedAt": "2026-02-07T19:00:00.000Z",
+            "totalAmount": 16
+          }
+        ]
+      },
+      {
+        "level": 3,
+        "referralCount": 5,
+        "totalEarnings": 60,
+        "members": [
+          {
+            "id": 2011,
+            "name": "Frank Foster",
+            "email": "frank.foster@example.com",
+            "joinedAt": "2026-02-07T20:00:00.000Z",
+            "totalAmount": 12
+          },
+          {
+            "id": 2012,
+            "name": "Sarah Connor",
+            "email": "sarah.connor@example.com",
+            "joinedAt": "2026-02-07T21:00:00.000Z",
+            "totalAmount": 12
+          },
+          {
+            "id": 2013,
+            "name": "David Miller",
+            "email": "david.miller@example.com",
+            "joinedAt": "2026-02-07T22:00:00.000Z",
+            "totalAmount": 12
+          },
+          {
+            "id": 2014,
+            "name": "Emma Wilson",
+            "email": "emma.wilson@example.com",
+            "joinedAt": "2026-02-07T23:00:00.000Z",
+            "totalAmount": 12
+          },
+          {
+            "id": 2015,
+            "name": "James Brown",
+            "email": "james.brown@example.com",
+            "joinedAt": "2026-02-08T00:00:00.000Z",
+            "totalAmount": 12
+          }
+        ]
+      },
+      {
+        "level": 4,
+        "referralCount": 5,
+        "totalEarnings": 40,
+        "members": [
+          {
+            "id": 2016,
+            "name": "Olivia Taylor",
+            "email": "olivia.taylor@example.com",
+            "joinedAt": "2026-02-08T01:00:00.000Z",
+            "totalAmount": 8
+          },
+          {
+            "id": 2017,
+            "name": "William Jones",
+            "email": "william.jones@example.com",
+            "joinedAt": "2026-02-08T02:00:00.000Z",
+            "totalAmount": 8
+          },
+          {
+            "id": 2018,
+            "name": "Sophia Garcia",
+            "email": "sophia.garcia@example.com",
+            "joinedAt": "2026-02-08T03:00:00.000Z",
+            "totalAmount": 8
+          },
+          {
+            "id": 2019,
+            "name": "Michael Smith",
+            "email": "michael.smith@example.com",
+            "joinedAt": "2026-02-08T04:00:00.000Z",
+            "totalAmount": 8
+          },
+          {
+            "id": 2020,
+            "name": "Isabella Martinez",
+            "email": "isabella.martinez@example.com",
+            "joinedAt": "2026-02-08T05:00:00.000Z",
+            "totalAmount": 8
+          }
+        ]
+      },
+      {
+        "level": 5,
+        "referralCount": 5,
+        "totalEarnings": 20,
+        "members": [
+          {
+            "id": 2021,
+            "name": "Alexander Lopez",
+            "email": "alexander.lopez@example.com",
+            "joinedAt": "2026-02-08T06:00:00.000Z",
+            "totalAmount": 4
+          },
+          {
+            "id": 2022,
+            "name": "Mia Gonzalez",
+            "email": "mia.gonzalez@example.com",
+            "joinedAt": "2026-02-08T07:00:00.000Z",
+            "totalAmount": 4
+          },
+          {
+            "id": 2023,
+            "name": "Ethan Rodriguez",
+            "email": "ethan.rodriguez@example.com",
+            "joinedAt": "2026-02-08T08:00:00.000Z",
+            "totalAmount": 4
+          },
+          {
+            "id": 2024,
+            "name": "Charlotte Wilson",
+            "email": "charlotte.wilson@example.com",
+            "joinedAt": "2026-02-08T09:00:00.000Z",
+            "totalAmount": 4
+          },
+          {
+            "id": 2025,
+            "name": "Benjamin Anderson",
+            "email": "benjamin.anderson@example.com",
+            "joinedAt": "2026-02-08T10:00:00.000Z",
+            "totalAmount": 4
+          }
+        ]
+      },
+      {
+        "level": 6,
+        "referralCount": 5,
+        "totalEarnings": 10,
+        "members": [
+          {
+            "id": 2026,
+            "name": "Amelia Thomas",
+            "email": "amelia.thomas@example.com",
+            "joinedAt": "2026-02-08T11:00:00.000Z",
+            "totalAmount": 2
+          },
+          {
+            "id": 2027,
+            "name": "Lucas Taylor",
+            "email": "lucas.taylor@example.com",
+            "joinedAt": "2026-02-08T12:00:00.000Z",
+            "totalAmount": 2
+          },
+          {
+            "id": 2028,
+            "name": "Harper Moore",
+            "email": "harper.moore@example.com",
+            "joinedAt": "2026-02-08T13:00:00.000Z",
+            "totalAmount": 2
+          },
+          {
+            "id": 2029,
+            "name": "Mason Jackson",
+            "email": "mason.jackson@example.com",
+            "joinedAt": "2026-02-08T14:00:00.000Z",
+            "totalAmount": 2
+          },
+          {
+            "id": 2030,
+            "name": "Evelyn White",
+            "email": "evelyn.white@example.com",
+            "joinedAt": "2026-02-08T15:00:00.000Z",
+            "totalAmount": 2
+          }
+        ],
+        "contributions": [
+          { "memberId": 2001, "amount": 10 }
+        ]
+      }
+    ]
+  }
+}
+
+
+
+    
+lvl1 
+    12345
+    
+lvl2 
+    12345
+
+lvl3 
+    12345
+
+lvl4 
+    12345
+
+lvl5 
+    12345
+
+lvl6 
+    12345
+        
+    
+    

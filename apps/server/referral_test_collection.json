@@ -1,0 +1,219 @@
+{
+	"info": {
+		"_postman_id": "referral-test-flow-001",
+		"name": "Referral System Flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Get Global Referral ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.success && jsonData.data && jsonData.data.referralId) {",
+							"    pm.environment.set(\"global_referral_id\", jsonData.data.referralId);",
+							"    console.log(\"Global Referral ID set to: \" + jsonData.data.referralId);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/referral/global",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"referral",
+						"global"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Signup User A (Upline)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.success && jsonData.data && jsonData.data.id) {",
+							"    pm.environment.set(\"user_a_id\", jsonData.data.id);",
+							"    console.log(\"User A ID set to: \" + jsonData.data.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"User A\",\n    \"email\": \"user_a_{{$timestamp}}@test.com\",\n    \"password\": \"password123\",\n    \"referralId\": \"{{global_referral_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Signup User B (Downline of A)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.success && jsonData.data && jsonData.data.id) {",
+							"    pm.environment.set(\"user_b_id\", jsonData.data.id);",
+							"    console.log(\"User B ID set to: \" + jsonData.data.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"User B\",\n    \"email\": \"user_b_{{$timestamp}}@test.com\",\n    \"password\": \"password123\",\n    \"referralId\": \"{{user_a_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Create Order for User B",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.success && jsonData.data && jsonData.data.orderId) {",
+							"    pm.environment.set(\"last_order_id\", jsonData.data.orderId);",
+							"    console.log(\"Order ID set to: \" + jsonData.data.orderId);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"{{user_b_id}}\",\n    \"amount\": 1000,\n    \"status\": \"COMPLETED\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/orders",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Distribute Commissions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"orderId\": \"{{last_order_id}}\",\n    \"userId\": \"{{user_b_id}}\",\n    \"amount\": 1000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/referral/distribute-commissions",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"referral",
+						"distribute-commissions"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "global_referral_id",
+			"value": ""
+		},
+		{
+			"key": "user_a_id",
+			"value": ""
+		},
+		{
+			"key": "user_b_id",
+			"value": ""
+		},
+		{
+			"key": "last_order_id",
+			"value": ""
+		}
+	]
+}
