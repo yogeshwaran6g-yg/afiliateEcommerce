@@ -4,7 +4,7 @@
   "scripts": {
     "test"  : "echo \"Error: no test specified\" && exit 1",
     "server": "pnpm --filter server dev",
-    "client": "pnpm --filter clint dev",
+    "client": "pnpm --filter client dev",
     "all"   : "pnpm -r dev",
     "seed"  : "pnpm --filter server seed",
     "seed:procedure" : "pnpm --filter server seedProcedure",

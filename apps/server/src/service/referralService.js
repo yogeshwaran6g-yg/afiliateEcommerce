@@ -95,12 +95,14 @@ export const getReferralStats = async (uplineId) => {
  * Groups data by level.
  */
 export const getReferralOverview = async (uplineId) => {
-  try {
-    // 1. Get Summary Stats (counts and earnings)
+  try {    
+    const rootUserSql = `SELECT id, name FROM users WHERE id = ?`;
+    const [rootUser] = await queryRunner(rootUserSql, [uplineId]);
+
     const statsResult = await getReferralStats(uplineId);
     if (!statsResult.success) throw new Error("Failed to fetch stats");
 
-    // 2. Get All Referrals for this upline (all levels)
+    // 3. Get All Referrals with Referrer and Downline Earnings
     const sql = `
       SELECT
         u.id                    AS downline_id,
@@ -108,45 +110,30 @@ export const getReferralOverview = async (uplineId) => {
         u.email,
         u.created_at            AS joined_at,
         rt.level,
-        COALESCE(SUM(rcd.amount), 0) AS total_amount
+        referrer.id             AS referrer_id,
+        referrer.name           AS referrer_name,
+        (
+            SELECT COALESCE(SUM(rcd_inner.amount), 0)
+            FROM referral_commission_distribution rcd_inner
+            JOIN referral_tree descendant_tree ON rcd_inner.downline_id = descendant_tree.downline_id
+            WHERE rcd_inner.upline_id = ? 
+              AND descendant_tree.upline_id = u.id
+              AND rcd_inner.status = 'APPROVED'
+        ) AS downline_earnings
       FROM referral_tree rt
       JOIN users u ON u.id = rt.downline_id
-      LEFT JOIN referral_commission_distribution rcd
-        ON rcd.upline_id = rt.upline_id
-       AND rcd.downline_id = rt.downline_id
-       AND rcd.level = rt.level
-       AND rcd.status = 'APPROVED'
+      LEFT JOIN referral_tree direct_referrer_tree 
+        ON direct_referrer_tree.downline_id = u.id AND direct_referrer_tree.level = 1
+      LEFT JOIN users referrer 
+        ON referrer.id = direct_referrer_tree.upline_id
       WHERE rt.upline_id = ?
-      GROUP BY u.id, u.name, u.email, u.created_at, rt.level
       ORDER BY rt.level ASC, u.created_at DESC;
     `;
 
-    const allReferrals = await queryRunner(sql, [uplineId]);
+    const allReferrals = await queryRunner(sql, [uplineId, uplineId]);
     
-    // 2.5 Get Per-Member Contributions (Depth-Limited)
-    // This query finds who (among Level 1 direct referrals) is responsible for the earnings in each level.
-    const contributionSql = `
-      SELECT 
-        COALESCE(ancestor.downline_id, rcd.downline_id) as l1_id,
-        rcd.level as target_level,
-        SUM(rcd.amount) as amount
-      FROM referral_commission_distribution rcd
-      LEFT JOIN referral_tree ancestor 
-        ON ancestor.upline_id = rcd.upline_id 
-        AND ancestor.level = 1
-        AND EXISTS (
-            SELECT 1 FROM referral_tree rt 
-            WHERE rt.upline_id = ancestor.downline_id 
-            AND rt.downline_id = rcd.downline_id 
-            AND rt.level = rcd.level - 1
-        )
-      WHERE rcd.upline_id = ? AND rcd.status = 'APPROVED'
-      GROUP BY l1_id, target_level;
-    `;
-    const contributionRows = await queryRunner(contributionSql, [uplineId]);
-
-    // 3. Map status and referrals into a single integrated structure
-    const overview = statsResult.data.map(lvlStat => {
+    // 4. Group referrals by level
+    const levelsData = statsResult.data.map(lvlStat => {
       const levelMembers = allReferrals 
         ? allReferrals
             .filter(r => r.level === lvlStat.level)
@@ -155,34 +142,28 @@ export const getReferralOverview = async (uplineId) => {
               name: r.name,
               email: r.email,
               joinedAt: r.joined_at,
-              totalAmount: Number(r.total_amount)
-            }))
-        : [];
-
-      // Filter contributions for this specific level
-      const distributions = contributionRows
-        ? contributionRows
-            .filter(c => c.target_level === lvlStat.level)
-            .map(c => ({
-              memberId: c.l1_id,
-              amount: Number(c.amount)
+              referrer: r.referrer_id ? {
+                id: r.referrer_id,
+                name: r.referrer_name
+              } : null,
+              downlineEarnings: Number(r.downline_earnings)
             }))
         : [];
 
       return {
         ...lvlStat,
-        members: levelMembers,
-        contributions: distributions
+        members: levelMembers
       };
     });
 
     return {
       success: true,
       data: {
+        root: rootUser ? { id: rootUser.id, name: rootUser.name } : null,
         totalLevels: 6,
-        overallCount: overview.reduce((sum, l) => sum + l.referralCount, 0),
-        overallEarnings: overview.reduce((sum, l) => sum + l.totalEarnings, 0),
-        levels: overview
+        overallCount: levelsData.reduce((sum, l) => sum + l.referralCount, 0),
+        overallEarnings: levelsData.reduce((sum, l) => sum + l.totalEarnings, 0),
+        levels: levelsData
       }
     };
   } catch (error) {

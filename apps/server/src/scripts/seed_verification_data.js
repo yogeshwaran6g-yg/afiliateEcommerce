@@ -6,7 +6,7 @@ async function seed() {
   try {
     log("Clearing existing data...", "info");
 
-    // 0. Clear tables (order matters)
+    // 0. Clear tables
     await queryRunner("SET FOREIGN_KEY_CHECKS = 0");
     await queryRunner("TRUNCATE TABLE referral_commission_distribution");
     await queryRunner("TRUNCATE TABLE referral_tree");
@@ -23,86 +23,87 @@ async function seed() {
     );
     log("Root user 'yg' ensured (ID: 1)", "info");
 
-    // 2. Create users for each level (3 per level)
-    const levels = 6;
-    const membersPerLevel = 3;
+    // 2. Build Ultra Tree Branching
+    // Level 1: 5 members
+    // Level 2: Each L1 refers 2 (10)
+    // Level 3: Each L2 refers 2 (20)
+    // Level 4-6: Each parent refers 1 (20 each)
+    
     let userIdCounter = 1000;
+    const levelUsers = { 0: [{ id: 1, name: 'yg' }] };
 
-    const levelUsers = {};
+    const branchingMap = {
+      1: 5, // Root refers 5
+      2: 2, // Each L1 refers 2
+      3: 2, // Each L2 refers 2
+      4: 1, // Each L3 refers 1
+      5: 1, // Each L4 refers 1
+      6: 1  // Each L5 refers 1
+    };
 
-    for (let level = 1; level <= levels; level++) {
+    for (let level = 1; level <= 6; level++) {
       levelUsers[level] = [];
+      const parents = levelUsers[level - 1];
+      const branchFactor = level === 1 ? branchingMap[1] : branchingMap[level];
 
-      for (let i = 1; i <= membersPerLevel; i++) {
-        userIdCounter++;
-        const user = {
-          id: userIdCounter,
-          name: `L${level}-User-${i}`,
-          email: `l${level}_user_${i}@test.com`,
-        };
+      for (const parent of parents) {
+        for (let i = 1; i <= branchFactor; i++) {
+          userIdCounter++;
+          const user = {
+            id: userIdCounter,
+            name: `L${level}-U${userIdCounter}`,
+            email: `user${userIdCounter}@test.com`
+          };
 
-        await queryRunner(
-          "INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, 'hashedpassword')",
-          [user.id, user.name, user.email]
-        );
+          await queryRunner(
+            "INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, 'hashedpassword')",
+            [user.id, user.name, user.email]
+          );
 
-        levelUsers[level].push(user);
+          await createReferral(parent.id, user.id);
+          levelUsers[level].push(user);
+        }
       }
+      log(`Created ${levelUsers[level].length} users for Level ${level}`, "info");
     }
 
-    log("Created users for levels 1–6 (3 each)", "info");
+    log("Ultra Referral tree created with complex branching", "info");
 
-    // 3. Build referral tree (REAL TREE, NOT FLAT)
-    // Level 1 → referred by root
-    for (const user of levelUsers[1]) {
-      await createReferral(1, user.id);
-    }
-
-    // Level 2–6 → each user refers ONE child
-    for (let level = 1; level < levels; level++) {
-      for (let i = 0; i < membersPerLevel; i++) {
-        const parent = levelUsers[level][i];
-        const child = levelUsers[level + 1][i];
-        await createReferral(parent.id, child.id);
-      }
-    }
-
-    log("Referral tree created (branch-preserving)", "info");
-
-    // 4. Commission config (1–6)
+    // 3. Commission config (1–6)
+    const configPercents = [10, 8, 5, 3, 2, 1];
     for (let i = 1; i <= 6; i++) {
       await queryRunner(
         "INSERT INTO referral_commission_config (level, percent, is_active) VALUES (?, ?, 1)",
-        [i, 10 - i] // 9% → 4%
+        [i, configPercents[i-1]]
+      );
+    }
+    log("Commission config ensured", "info");
+
+    // 4. Create multiple orders for earnings
+    const orderScenarios = [
+      { userId: levelUsers[6][0].id, amount: 1000, desc: "Level 6 User Branch A" },
+      { userId: levelUsers[6][levelUsers[6].length - 1].id, amount: 2000, desc: "Level 6 User Branch Z" },
+      { userId: levelUsers[3][5].id, amount: 500, desc: "Level 3 User Mid-Tree" },
+      { userId: levelUsers[6][10].id, amount: 3000, desc: "Level 6 User Branch Middle" }
+    ];
+
+    for (const scenario of orderScenarios) {
+      const orderResult = await queryRunner(
+        "INSERT INTO orders (user_id, amount, status) VALUES (?, ?, 'COMPLETED')",
+        [scenario.userId, scenario.amount]
+      );
+      const orderId = orderResult.insertId;
+      log(`Order ${orderId} ($${scenario.amount}) created for ${scenario.desc}`, "info");
+
+      await distributeCommission(orderId, scenario.userId, scenario.amount);
+      await queryRunner(
+        "UPDATE referral_commission_distribution SET status = 'APPROVED' WHERE order_id = ?",
+        [orderId]
       );
     }
 
-    log("Commission config ensured", "info");
-
-    // 5. Create order at deepest level (Level 6, first member)
-    const deepestUser = levelUsers[6][0];
-
-    const orderResult = await queryRunner(
-      "INSERT INTO orders (user_id, amount, status) VALUES (?, ?, 'COMPLETED')",
-      [deepestUser.id, 1000]
-    );
-
-    const orderId = orderResult.insertId;
-    log(`Order ${orderId} created for ${deepestUser.name}`, "info");
-
-    // 6. Distribute commission
-    await distributeCommission(orderId, deepestUser.id, 1000);
-    log("Commission distributed", "info");
-
-    // 7. Approve commissions
-    await queryRunner(
-      "UPDATE referral_commission_distribution SET status = 'APPROVED' WHERE order_id = ?",
-      [orderId]
-    );
-
-    log("Commissions approved", "info");
-
-    log("Mock seeding COMPLETE. Now run verify_referral_stats.js", "success");
+    log("Multiple commissions distributed and approved across branches", "info");
+    log("Ultra seeding COMPLETE.", "success");
   } catch (error) {
     log(`Seeding failed: ${error.message}`, "error");
   } finally {
