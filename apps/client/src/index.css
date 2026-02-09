@@ -6,6 +6,7 @@
 
 @theme {
   --color-primary: #1754cf;
+  --color-primary-light: #e8f0fe;
   --color-accent: #f97316;
   --color-background-light: #f6f6f8;
   --color-background-dark: #111621;
@@ -16,15 +17,23 @@
   --color-silver: #C0C0C0;
   --color-bronze: #CD7F32;
   --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
 
   --font-display: "Inter", sans-serif;
 
   --radius-default: 0.25rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
   --radius-full: 9999px;
 
   --shadow-podium: 0 10px 25px -5px rgba(23, 84, 207, 0.1), 0 8px 10px -6px rgba(23, 84, 207, 0.1);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
 @layer base {
@@ -39,10 +48,41 @@
     color: #1754cf;
     border-right: 3px solid #1754cf;
   }
+
   .glass-header {
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .badge-completed {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .badge-processing {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #1754cf 0%, #2563eb 100%);
+  }
+
+  .stat-increase {
+    color: var(--color-success);
+  }
+
+  .stat-decrease {
+    color: var(--color-danger);
   }
 }
 
