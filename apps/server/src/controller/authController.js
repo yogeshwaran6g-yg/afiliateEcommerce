@@ -2,6 +2,7 @@ import authService from '#service/authService.js';
 import { createUser } from '#service/userService.js';
 import { rtnRes } from '#utils/helper.js';
 
+
 const authController = {
 
     signup: async function (req, res){
