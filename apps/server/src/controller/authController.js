@@ -1,5 +1,5 @@
 import authService from '#service/authService.js';
-import { createUser } from '#service/userService.js';
+import { createUser, existinguserFieldsCheck } from '#service/userService.js';
 import { rtnRes } from '#utils/helper.js';
 
 
@@ -12,6 +12,12 @@ const authController = {
                 return rtnRes(res, 400, "name, phone, and password are required");
             }
             
+            
+            const existingUser = await existinguserFieldsCheck({ name, phone });
+            if(existingUser.isExisting){
+                return rtnRes(res, 400, `User already exists with ${existingUser.field}`);
+            }
+
             // Create User
             const user = await createUser({ name, phone, email, password, referralId });
             
