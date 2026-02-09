@@ -1,5 +1,5 @@
-import { rtnRes } from "../utils/helper.js";
-import { queryRunner } from "../config/db.js";
+import { rtnRes } from "#utils/helper.js";
+import { queryRunner } from "#config/db.js";
 
 const comisssionController = {
 

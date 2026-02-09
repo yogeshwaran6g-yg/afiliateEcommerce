@@ -1,4 +1,4 @@
-import { queryRunner } from "../config/db.js";
+import { queryRunner } from "#config/db.js";
 
 const comissionConfigService = {
 

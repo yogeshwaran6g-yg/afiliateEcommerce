@@ -1,6 +1,6 @@
-import pool from '../config/db.js';
-import { distributeCommission } from './referralService.js';
-import { log } from '../utils/helper.js';
+import pool from '#config/db.js';
+import { distributeCommission } from '#service/referralService.js';
+import { log } from '#utils/helper.js';
 
 export const createOrder = async (orderData) => {
     const { userId, amount, status = 'PENDING' } = orderData;

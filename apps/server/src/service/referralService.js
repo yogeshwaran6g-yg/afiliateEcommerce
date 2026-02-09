@@ -1,5 +1,5 @@
-import { callSP, queryRunner } from "../config/db.js";
-import { log, rtnRes } from "../utils/helper.js";
+import { callSP, queryRunner } from "#config/db.js";
+import { log, rtnRes } from "#utils/helper.js";
 
 export const createReferral = async (
   referrerId,

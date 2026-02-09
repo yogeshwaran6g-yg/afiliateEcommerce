@@ -4,12 +4,21 @@
   "description": "Node.js Express Server",
   "main": "index.js",
   "type": "module",
+  "imports": {
+    "#src/*": "./src/*",
+    "#config/*": "./src/config/*",
+    "#controller/*": "./src/controller/*",
+    "#routes/*": "./src/routes/*",
+    "#service/*": "./src/service/*",
+    "#utils/*": "./src/utils/*",
+    "#scripts/*": "./src/scripts/*"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "seed": "node src/scripts/seed.js",
     "seedProcedure": "node src/scripts/create_procedures.js",
-    "expectedOutput":"node  generate_mocks.cjs"
+    "expectedOutput": "node  generate_mocks.cjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -25,6 +34,7 @@
     "treeify": "^1.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "undici": "^7.21.0"
   }
 }

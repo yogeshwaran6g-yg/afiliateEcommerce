@@ -1,5 +1,5 @@
 import express from 'express';
-import comissionConfigController from '../controller/commissionConfigController.js';
+import comissionConfigController from '#controller/commissionConfigController.js';
 
 const router = express.Router();
 

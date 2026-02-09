@@ -1,5 +1,5 @@
-import { getReferralOverview } from "../service/referralService.js";
-import { log } from "../utils/helper.js";
+import { getReferralOverview } from "#service/referralService.js";
+import { log } from "#utils/helper.js";
 
 async function verify() {
     try {

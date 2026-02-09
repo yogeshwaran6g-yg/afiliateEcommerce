@@ -1,9 +1,9 @@
-import { rtnRes } from "../utils/helper.js";
+import { rtnRes } from "#utils/helper.js";
 import {
   createReferral,
   distributeCommission,
   getReferralOverview,
-} from "../service/referralService.js";
+} from "#service/referralService.js";
 
 const referalController = {
   createReferral: async (req, res) => {

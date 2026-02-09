@@ -1,5 +1,5 @@
-import { env } from "../config/env"
-import { queryRunner,transactionRunner } from "../config/db"
+import { env } from "#config/env.js";
+import { queryRunner,transactionRunner } from "#config/db.js";
 
 export default comissionService = {
 

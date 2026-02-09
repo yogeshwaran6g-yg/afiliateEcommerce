@@ -1,5 +1,5 @@
-import pool from '../config/db.js';
-import { log } from '../utils/helper.js';
+import pool from '#config/db.js';
+import { log } from '#utils/helper.js';
 
 const createProcedures = async () => {
     log("Creating Stored Procedures...", "info");

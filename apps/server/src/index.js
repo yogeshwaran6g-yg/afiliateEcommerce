@@ -2,10 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import passport from 'passport';
-import { env } from './config/env.js';
-import { connectDB } from './config/db.js';
-import './utils/passport.js';
-import { rtnRes, log } from './utils/helper.js';
+import { env } from '#config/env.js';
+import { connectDB } from '#config/db.js';
+import '#utils/passport.js';
+import { rtnRes, log } from '#utils/helper.js';
 
 const app = express();
 const port = env.PORT;
@@ -20,7 +20,7 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 
 // Routes
-import router from './routes/routes.js';
+import router from '#routes/routes.js';
 app.use('/api', router);
 
 app.get('/', (req, res) => {

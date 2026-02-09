@@ -30,6 +30,15 @@ export const rtnRes = (res, code, msg = null, data = null) => {
   }
 };
 
+export const srvRes = (code, msg, data = null) => {
+  return { 
+    code, 
+    msg, 
+    data, 
+    success: code >= 200 && code < 300 
+  };
+};
+
 const COLORS = {
   info: "\x1b[36m",     // cyan
   success: "\x1b[32m",  // green
