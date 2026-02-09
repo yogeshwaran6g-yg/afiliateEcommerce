@@ -1,25 +1,55 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Dashboard from './components/Dashboard'
-import Leaderboard from './components/Leaderboard'
-import CommunicationCenter from './components/CommunicationCenter'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Placeholder components for other routes
-const Inventory = () => <div className="p-8 text-2xl font-bold">Inventory Page (Coming Soon)</div>
-const Teams = () => <div className="p-8 text-2xl font-bold">Teams Page (Coming Soon)</div>
+import Dashboard from "./pages/Dashboard";
+import Leaderboard from "./components/Leaderboard";
+import CommunicationCenter from "./components/CommunicationCenter";
+import Orders from "./pages/Orders";
+import Checkout from "./pages/Checkout";
+import Products from "./pages/Products";
+import Ranks from "./pages/Ranks";
+import Network from "./pages/Network";
+import Cart from "./pages/Cart";
+import Support from "./pages/Support";
+import Profile from "./pages/Profile";
+import Wallet from "./pages/Wallet";
+import Withdrawals from "./pages/Withdrawals";
+
+// Temporary placeholder pages
+const Inventory = () => (
+  <div className="p-8 text-2xl font-bold">Inventory Page (Coming Soon)</div>
+);
+
+const Teams = () => (
+  <div className="p-8 text-2xl font-bold">Teams Page (Coming Soon)</div>
+);
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* redirect root */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* main routes */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/ranks" element={<Ranks />} />
+        <Route path="/network" element={<Network />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/wallet" element={<Wallet />} />
+        <Route path="/withdrawals" element={<Withdrawals />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/teams" element={<Teams />} />
         <Route path="/notifications" element={<CommunicationCenter />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
+

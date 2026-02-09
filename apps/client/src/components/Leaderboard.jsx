@@ -1,11 +1,13 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import NavHeader from "./NavHeader";
+import React, { useState } from "react";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 import PodiumCard from "./PodiumCard";
 import RankingTable from "./RankingTable";
-import Footer from "./Footer";
 
 const Leaderboard = () => {
+  const [timePeriod, setTimePeriod] = useState("Monthly");
+  const [region, setRegion] = useState("Global Ranking");
+
   const tableData = [
     {
       rank: 4,
@@ -55,56 +57,67 @@ const Leaderboard = () => {
       pv: "26,900",
       growth: "+21.0%",
       trend: "up",
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDbUpNv3D4MI1HqzmLnP_AnJ297wcT_CScJCvQEm2ku7tF6oXqySLlscQp63pUrUwGHLMjXzeTcBb52kN60eqlwA7vtnxXg7V3OsW4tG9068lYGvF-Oq0kuRN5PPhAatMvTIhvijuySXxBtWl_qXhBUDTOwsy6gqP7_aIFHkPd-6v8PmTi5u7aQvYu9xWTUcTe0MwzGDD3n4aSLkQb_3IDUqvsCFBQWjkCqBqg3rFPOnzux3kiFHOxkv4BSEX69rpwk3B7Twk8kgw4"
+      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDbUpNv3D4MI1HqzmLnP_AnJ297wcT_CScJCvQEm2ku7tF6oXqySLlscQp63pUrUwGHLMjXzeTcBb52kN60eqlwA7vtnxXg7V3OsW4tG9068lYGvF-Oq0kuRN5PPhAatMvTIHvijuySXxBtWl_qXhBUDTOwsy6gqP7_aIFHkPd-6v8PmTi5u7aQvYu9xWTUcTe0MwzGDD3n4aSLkQb_3IDUqvsCFBQWjkCqBqg3rFPOnzux3kiFHOxkv4BSEX69rpwk3B7Twk8kgw4"
     }
   ];
 
+  const timePeriods = ["Monthly", "Weekly", "All-time"];
+  const regions = ["Global Ranking", "North America", "Europe", "Asia Pacific", "Latin America"];
+
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden font-display text-slate-900 dark:text-slate-100">
-      <div className="layout-container flex h-full grow flex-col">
-        <NavHeader />
-        
-        <main className="flex flex-1 flex-col px-4 md:px-10 lg:px-40 py-8">
-          {/* Page Title & Primary Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
+    <div className="flex min-h-screen bg-slate-50 font-display">
+      <Sidebar />
+
+      <main className="flex-1 flex flex-col min-w-0">
+        <Header />
+
+        <div className="p-8 space-y-6">
+          {/* Page Title & Time Period Filters */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
-              <h1 className="text-slate-900 dark:text-white text-4xl font-black tracking-tight mb-2">
+              <h1 className="text-4xl font-bold text-slate-900 mb-2">
                 Distributor Leaderboard
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-base">
+              <p className="text-slate-500">
                 Real-time performance rankings based on Personal Volume (PV).
               </p>
             </div>
-            <div className="flex flex-col gap-3 w-full md:w-auto">
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                <button className="px-6 py-1.5 text-sm font-semibold rounded-md bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-white">
-                  Monthly
+            <div className="flex items-center bg-slate-100 p-1 rounded-lg gap-1">
+              {timePeriods.map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setTimePeriod(period)}
+                  className={`px-6 py-2 text-sm font-semibold rounded-md transition-all ${timePeriod === period
+                      ? "bg-white shadow-sm text-primary"
+                      : "text-slate-500 hover:text-primary"
+                    }`}
+                >
+                  {period}
                 </button>
-                <button className="px-6 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
-                  Weekly
-                </button>
-                <button className="px-6 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
-                  All-time
-                </button>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Secondary Filter Bar (Global/Regional) */}
-          <div className="flex border-b border-slate-200 dark:border-slate-800 mb-10 overflow-x-auto whitespace-nowrap">
-            {["Global Ranking", "North America", "Europe", "Asia Pacific", "Latin America"].map((region, idx) => (
+          {/* Region Tabs */}
+          <div className="flex border-b border-slate-200 overflow-x-auto">
+            {regions.map((reg) => (
               <button
-                key={region}
-                className={`px-6 py-3 border-b-2 text-sm transition-colors ${idx === 0 ? "border-primary text-primary font-bold" : "border-transparent text-slate-500 dark:text-slate-400 font-medium hover:text-primary"}`}
+                key={reg}
+                onClick={() => setRegion(reg)}
+                className={`px-6 py-3 border-b-2 text-sm font-semibold whitespace-nowrap transition-colors ${region === reg
+                    ? "border-primary text-primary"
+                    : "border-transparent text-slate-500 hover:text-primary"
+                  }`}
               >
-                {region}
+                {reg}
               </button>
             ))}
           </div>
 
-          {/* Top 3 Podium Spotlight */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 items-end">
-            <div className="order-2 md:order-1 h-[280px]">
+          {/* Top 3 Podium */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            {/* 2nd Place - Silver */}
+            <div className="order-2 md:order-1">
               <PodiumCard
                 rank={2}
                 name="Sarah Jenkins"
@@ -114,7 +127,9 @@ const Leaderboard = () => {
                 imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCYUM0k6CqKzTLUMK3dzCNB6T_Sm851RhnEJG4ECLrJpbXD4WHMpDo0h-deZgrTKbYxlIlRWwzR9T4wzmFueOPPBgFBt_O-XJVr8RHmC46b8ihDFFSMW8cqdsdlJkALf-NwdmK4ykSL_qpvGN8zKXu2pSluo5rodccYLRWOXQXuWq37XDmeJqKGNxAQVMQGG_y7RHnCkmDm1Nd_-ybTpSh9kDzQM8dsqEIPM-8bOQhG2LtJ9FkP6OpiFSNTvIieAP35zA9vYKqllMI"
               />
             </div>
-            <div className="order-1 md:order-2 h-[340px]">
+
+            {/* 1st Place - Champion */}
+            <div className="order-1 md:order-2">
               <PodiumCard
                 rank={1}
                 name="Michael Chen"
@@ -125,7 +140,9 @@ const Leaderboard = () => {
                 isChampion
               />
             </div>
-            <div className="order-3 md:order-3 h-[280px]">
+
+            {/* 3rd Place - Bronze */}
+            <div className="order-3 md:order-3">
               <PodiumCard
                 rank={3}
                 name="David Rodriguez"
@@ -137,11 +154,10 @@ const Leaderboard = () => {
             </div>
           </div>
 
+          {/* Top 100 Distributors Table */}
           <RankingTable rankings={tableData} />
-        </main>
-        
-        <Footer />
-      </div>
+        </div>
+      </main>
     </div>
   );
 };
