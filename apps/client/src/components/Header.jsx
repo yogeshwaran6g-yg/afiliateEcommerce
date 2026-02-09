@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Header() {
     return (
         <header className="glass-header sticky top-0 z-10 px-8 py-4 border-b border-slate-200">
@@ -31,15 +33,22 @@ export default function Header() {
                     </button>
 
                     {/* Action Buttons */}
-                    <button className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg">download</span>
-                        <span>Export Data</span>
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <Link to="/login" className="px-4 py-2 border border-primary text-primary rounded-lg font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2">
+                            <span className="material-symbols-outlined text-lg">login</span>
+                            <span>Login</span>
+                        </Link>
 
-                    <button className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg">add</span>
-                        <span>New Order</span>
-                    </button>
+                        <button className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
+                            <span className="material-symbols-outlined text-lg">download</span>
+                            <span>Export</span>
+                        </button>
+
+                        <button className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
+                            <span className="material-symbols-outlined text-lg">add</span>
+                            <span>New Order</span>
+                        </button>
+                    </div>
 
                     {/* User Profile */}
                     <div className="flex items-center gap-3 pl-4 border-l border-slate-200">

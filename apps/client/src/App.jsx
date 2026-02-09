@@ -13,6 +13,8 @@ import Support from "./pages/Support";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Withdrawals from "./pages/Withdrawals";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 // Temporary placeholder pages
 const Inventory = () => (
@@ -46,6 +48,8 @@ function App() {
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/teams" element={<Teams />} />
         <Route path="/notifications" element={<CommunicationCenter />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </BrowserRouter>
   );
