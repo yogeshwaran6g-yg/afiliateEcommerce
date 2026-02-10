@@ -14,7 +14,7 @@ export default function ClientLayout({ children }) {
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                 <Header
-                    onMenuToggle={() => setSidebarOpen(!isSidebarOpen)}
+                    toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
                 />
 
                 <main className="flex-1 overflow-y-auto w-full">
