@@ -51,7 +51,7 @@ export const sendOtp = async (userId, phone) => {
     try {
         // Generate 6 digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
+
         // Mocking: Log OTP to console for testing
         log(`[MOCK OTP] OTP for ${phone} (User ID: ${userId}): ${otp}`, "warn");
 
@@ -80,13 +80,13 @@ export const sendOtp = async (userId, phone) => {
 export const verifyOtp = async (userId, otp) => {
     try {
         const [rows] = await pool.query('SELECT * FROM otp WHERE user_id = ?', [userId]);
-        
+
         if (rows.length === 0) {
             return { code: 400, message: "OTP not found or expired" };
         }
 
         const otpRecord = rows[0];
-        
+
         if (new Date() > new Date(otpRecord.expires_at)) {
             return { code: 400, message: "OTP expired" };
         }
@@ -98,7 +98,7 @@ export const verifyOtp = async (userId, otp) => {
 
         // Mark user as verified
         await pool.query('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
-        
+
         // Clear OTP
         await pool.query('DELETE FROM otp WHERE user_id = ?', [userId]);
 
@@ -145,19 +145,19 @@ export const updateProfile = async (userId, profileData, addressData) => {
             // Upsert profile
             const { kyc_pan, kyc_aadhar, profile_image } = profileData;
             // Check if profile exists
-             const [existing] = await connection.query('SELECT id FROM profiles WHERE user_id = ?', [userId]);
-             
-             if(existing.length > 0){
-                 await connection.query(
+            const [existing] = await connection.query('SELECT id FROM profiles WHERE user_id = ?', [userId]);
+
+            if (existing.length > 0) {
+                await connection.query(
                     'UPDATE profiles SET kyc_pan = COALESCE(?, kyc_pan), kyc_aadhar = COALESCE(?, kyc_aadhar), profile_image = COALESCE(?, profile_image) WHERE user_id = ?',
                     [kyc_pan, kyc_aadhar, profile_image, userId]
-                 );
-             } else {
-                 await connection.query(
+                );
+            } else {
+                await connection.query(
                     'INSERT INTO profiles (user_id, kyc_pan, kyc_aadhar, profile_image) VALUES (?, ?, ?, ?)',
                     [userId, kyc_pan, kyc_aadhar, profile_image]
-                 );
-             }
+                );
+            }
         }
 
         if (addressData) {
@@ -165,8 +165,8 @@ export const updateProfile = async (userId, profileData, addressData) => {
             // The prompt asked for "Full controller and signup based functions". 
             // I'll assume adding an address for now if provided.
             const { address_line1, address_line2, city, state, country, pincode, is_default } = addressData;
-            if(address_line1 && city && state && country && pincode){
-                 await connection.query(
+            if (address_line1 && city && state && country && pincode) {
+                await connection.query(
                     'INSERT INTO addresses (user_id, address_line1, address_line2, city, state, country, pincode, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                     [userId, address_line1, address_line2, city, state, country, pincode, is_default || false]
                 );

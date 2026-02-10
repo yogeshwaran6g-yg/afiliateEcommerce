@@ -1,24 +1,44 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const Signup = () => {
+    const { signup, loading, error } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        fullName: "",
+        name: "",
         email: "",
+        phone: "",
         password: "",
         confirmPassword: "",
         referralId: ""
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [localError, setLocalError] = useState("");
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Signup attempt:", formData);
-        // Handle signup logic here
+        setLocalError("");
+
+        if (formData.password !== formData.confirmPassword) {
+            setLocalError("Passwords do not match");
+            return;
+        }
+
+        try {
+            const response = await signup(formData);
+            if (response.success && response.data?.userId) {
+                // Store userId for OTP verification
+                sessionStorage.setItem("pendingUserId", response.data.userId);
+                navigate("/verify-otp", { state: { userId: response.data.userId } });
+            }
+        } catch (err) {
+            console.error("Signup failed:", err);
+        }
     };
 
     return (
@@ -39,6 +59,11 @@ const Signup = () => {
 
                 <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
                     <div className="space-y-4">
+                        {(localError || error) && (
+                            <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium border border-red-100 mb-4 animate-shake">
+                                {localError || error}
+                            </div>
+                        )}
                         {/* Full Name Field */}
                         <div>
                             <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
@@ -47,11 +72,31 @@ const Signup = () => {
                                     person
                                 </span>
                                 <input
-                                    name="fullName"
+                                    name="name"
                                     type="text"
                                     required
                                     className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
                                     placeholder="Alex Thompson"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Phone Field */}
+                        <div>
+                            <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+                            <div className="mt-1 relative">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
+                                    phone
+                                </span>
+                                <input
+                                    name="phone"
+                                    type="tel"
+                                    required
+                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
+                                    placeholder="9876543210"
+                                    value={formData.phone}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -137,9 +182,21 @@ const Signup = () => {
                     <div>
                         <button
                             type="submit"
-                            className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/20 mt-4"
+                            disabled={loading}
+                            className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/20 mt-4 ${loading ? "opacity-70 cursor-not-allowed" : ""
+                                }`}
                         >
-                            Create Account
+                            {loading ? (
+                                <span className="flex items-center gap-2">
+                                    <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Creating Account...
+                                </span>
+                            ) : (
+                                "Create Account"
+                            )}
                         </button>
                     </div>
                 </form>
