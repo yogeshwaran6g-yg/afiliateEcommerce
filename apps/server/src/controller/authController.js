@@ -5,10 +5,10 @@ import { rtnRes } from '#utils/helper.js';
 
 const authController = {
 
-    signup: async function (req, res){
-        try{    
+    signup: async function (req, res) {
+        try {
             const { name, phone, email, password, referralId } = req.body;
-            if(!phone || !name || !password){
+            if (!phone || !name || !password) {
                 return rtnRes(res, 400, "name, phone, and password are required");
             }
             
@@ -20,13 +20,13 @@ const authController = {
 
             // Create User
             const user = await createUser({ name, phone, email, password, referralId });
-            
+
             // Send OTP
             await authService.sendOtp(user.id, user.phone);
 
             return rtnRes(res, 201, "User registered successfully. OTP sent.", { userId: user.id });
 
-        }catch(e){
+        } catch (e) {
             console.log("err from signup ", e);
             if (e.code === 'ER_DUP_ENTRY') {
                 return rtnRes(res, 400, "Phone or Email already exists");
@@ -97,4 +97,3 @@ const authController = {
 }
 
 export default authController;
- 

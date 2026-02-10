@@ -11,7 +11,7 @@ const app = express();
 const port = env.PORT;
 
 // Connect to Database
-await  connectDB();
+await connectDB();
 
 // Middleware
 app.use(cors());
@@ -27,6 +27,6 @@ app.get('/', (req, res) => {
   rtnRes(res, 200, 'Server is running!');
 });
 
-app.listen(port, () => { 
+app.listen(port || 4000, () => {
   log(`Server running on http://localhost:${port}`, "success");
 });
