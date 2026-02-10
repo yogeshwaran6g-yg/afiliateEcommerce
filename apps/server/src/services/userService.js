@@ -3,29 +3,37 @@ import { createReferral } from '#services/referralService.js';
 import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 
+const generateReferralId = () => {
+    return 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();
+};
+
 export const createUser = async (userData) => {
     const { name, phone, email, password, referralId } = userData;
+    const userRefID = generateReferralId();
     
     return await transactionRunner(async (connection) => {
-        log(`Creating user: ${name} (${phone})`, "info");
-        
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        log(`Creating user: ${name} (${phone}) with referral ID: ${userRefID}`, "info");
+
+        let hashedPassword = null;
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            hashedPassword = await bcrypt.hash(password, salt);
+        }
 
         const [result] = await connection.execute(
-            'INSERT INTO users (name, phone, email, password) VALUES (?, ?, ?, ?)',
-            [name, phone, email || null, hashedPassword]
+            'INSERT INTO users (name, phone, email, password, referral_id) VALUES (?, ?, ?, ?, ?)',
+            [name, phone, email || null, hashedPassword, userRefID]
         );
-        
+
         const newUserId = result.insertId;
-        
+
         if (referralId) {
             log(`Linking referral: ${referralId} -> ${newUserId}`, "info");
             // Pass the same connection to keep it in the same transaction
             await createReferral(referralId, newUserId, connection);
         }
-        
-        return { id: newUserId, name, phone, email };
+
+        return { id: newUserId, name, phone, email, referral_id: userRefID };
     });
 };
 
@@ -59,34 +67,34 @@ export const getFirstUser = async () => {
     }
 };
 
-export const existinguserFieldsCheck = async ({name = null, phone = null})=>{
-    try{
-        if(phone){
+export const existinguserFieldsCheck = async ({ name = null, phone = null }) => {
+    try {
+        if (phone) {
             const user = await findUserByPhone(phone);
-            if(user){
+            if (user) {
                 return {
                     isExisting: true,
-                    field : "phone"
+                    field: "phone"
                 };
-            }            
+            }
         }
-        if(name){
+        if (name) {
             const user = await queryRunner(`
-                    select * from users where name = ?`
-                    [name]
-                )
-            if(user){
+                    select * from users where name = ?`,
+                [name]
+            )
+            if (user) {
                 return {
                     isExisting: true,
-                    field : "name"
+                    field: "name"
                 };
-            }            
+            }
         }
-        return  {
-            isExisting : false,
-            field :null
+        return {
+            isExisting: false,
+            field: null
         }
-    }catch(e){
+    } catch (e) {
         console.log(e)
         throw e;
     }

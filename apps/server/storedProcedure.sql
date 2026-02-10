@@ -27,6 +27,8 @@ BEGIN
     COMMIT;
 END //
 
+
+
 -- Procedure: sp_distribute_commission
 -- Calculates and inserts commissions for an order
 CREATE PROCEDURE sp_distribute_commission(

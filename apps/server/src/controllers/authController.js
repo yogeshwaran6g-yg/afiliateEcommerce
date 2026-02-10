@@ -1,28 +1,56 @@
 import authService from '#services/authService.js';
 import { createUser, existinguserFieldsCheck } from '#services/userService.js';
-import { rtnRes } from '#utils/helper.js';
+import { rtnRes, log } from '#utils/helper.js';
+import { queryRunner } from '#config/db.js';
 
 
 const authController = {
 
     signup: async function (req, res) {
         try {
-            const { name, phone, email, password, referralId } = req.body;
-            if (!phone || !name || !password) {
-                return rtnRes(res, 400, "name, phone, and password are required");
+            const { name, phone, email, password, referrerId:referralId } = req.body;
+            if (!phone || !name) {
+                return rtnRes(res, 400, "name and phone are required");
             }
             
-            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const phoneRegex = /^[6-9]\d{9}$/;
+            if(email){
+
+                if (!emailRegex.test(email)) {
+                    return rtnRes(res, 400, "Invalid email format");
+                }
+            }
+            if (!phoneRegex.test(phone)) {
+                return rtnRes(res, 400, "Invalid phone format");
+            }
             const existingUser = await existinguserFieldsCheck({ name, phone });
             if(existingUser.isExisting){
                 return rtnRes(res, 400, `User already exists with ${existingUser.field}`);
             }
 
-            // Create User
-            const user = await createUser({ name, phone, email, password, referralId });
+            if (referralId) {
+                const results = await queryRunner(`select id from users where referral_id = ?`, [referralId]);
+                console.log(results)
+                if (!results || results.length === 0) {
+                    return rtnRes(res, 400, "Invalid referral id");
+                }
+                const referrerId = results[0].id;
+                console.log("here the referral user", referrerId);
+                req.body.referralId = referrerId; 
+                
+            }
+
+            const user = await createUser({ 
+                name, 
+                phone, 
+                email, 
+                password, 
+                referralId 
+            });
 
             // Send OTP
-            await authService.sendOtp(user.id, user.phone);
+            await authService.sendOtp(user.id, user.phone, 'signup');
 
             return rtnRes(res, 201, "User registered successfully. OTP sent.", { userId: user.id });
 
@@ -38,8 +66,8 @@ const authController = {
     login: async function (req, res) {
         try {
             const { phone, password } = req.body;
-            if (!phone || !password) {
-                return rtnRes(res, 400, "phone and password are required");
+            if (!phone) {
+                return rtnRes(res, 400, "phone is required");
             }
 
             const result = await authService.login(phone, password);
@@ -53,16 +81,32 @@ const authController = {
 
     verifyOtp: async function (req, res) {
         try {
-            const { userId, otp } = req.body;
+            const { userId, otp, purpose } = req.body;
             if (!userId || !otp) {
                 return rtnRes(res, 400, "userId and otp are required");
             }
 
-            const result = await authService.verifyOtp(userId, otp);
+            const result = await authService.verifyOtp(userId, otp, purpose);
             return rtnRes(res, result.code, result.message, result.data);
 
         } catch (e) {
             console.log("err from verifyOtp ", e);
+            rtnRes(res, 500, "internal error");
+        }
+    },
+
+    resendOtp: async function (req, res) {
+        try {
+            const { userId, phone, purpose } = req.body;
+            if (!userId || !phone || !purpose) {
+                return rtnRes(res, 400, "userId, phone and purpose are required");
+            }
+
+            const result = await authService.resendOtp(userId, phone, purpose);
+            return rtnRes(res, result.code, result.message, result.data);
+
+        } catch (e) {
+            console.log("err from resendOtp ", e);
             rtnRes(res, 500, "internal error");
         }
     },

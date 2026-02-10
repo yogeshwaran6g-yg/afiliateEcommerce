@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-export default function ClientLayout({ children }) {
+export default function ClientLayout() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
     return (
@@ -18,7 +19,7 @@ export default function ClientLayout({ children }) {
                 />
 
                 <main className="flex-1 overflow-y-auto w-full">
-                    {children}
+                    <Outlet />
                 </main>
             </div>
         </div>

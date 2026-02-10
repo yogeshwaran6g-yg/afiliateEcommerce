@@ -7,6 +7,7 @@ export const rtnRes = (res, code, msg = null, data = null) => {
     const responses = {
       200: { success: true, defaultMsg: "OK" },
       201: { success: true, defaultMsg: "Created" },
+      202: { success: true, defaultMsg: "Accepted" },
       400: { success: false, defaultMsg: "Bad Request" },
       401: { success: false, defaultMsg: "Unauthorized" },
       404: { success: false, defaultMsg: "Not Found" },

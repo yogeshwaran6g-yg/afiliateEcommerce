@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
+import ClientLayout from "./components/ClientLayout";
 import Dashboard from "./pages/Dashboard";
 import Leaderboard from "./components/Leaderboard";
 import CommunicationCenter from "./components/CommunicationCenter";
@@ -35,22 +36,26 @@ function App() {
           {/* redirect root */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* main routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/ranks" element={<Ranks />} />
-          <Route path="/network" element={<Network />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/withdrawals" element={<Withdrawals />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/teams" element={<Teams />} />
-          <Route path="/notifications" element={<CommunicationCenter />} />
+          {/* routes with ClientLayout */}
+          <Route element={<ClientLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/ranks" element={<Ranks />} />
+            <Route path="/network" element={<Network />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/wallet" element={<Wallet />} />
+            <Route path="/withdrawals" element={<Withdrawals />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/teams" element={<Teams />} />
+            <Route path="/notifications" element={<CommunicationCenter />} />
+          </Route>
+
+          {/* auth routes without layout */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-otp" element={<Otp />} />

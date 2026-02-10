@@ -9,8 +9,9 @@ CREATE TABLE `users` (
   `name` VARCHAR(255) NOT NULL,
   `phone` VARCHAR(15) UNIQUE NOT NULL,
   `email` VARCHAR(255) NULL,
-  `password` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NULL,
   `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+  `referral_id` VARCHAR(255) NOT NULL,
   `is_verified` BOOLEAN NOT NULL DEFAULT FALSE,
   `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -22,6 +23,7 @@ CREATE TABLE `otp` (
   `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `user_id` BIGINT UNSIGNED NOT NULL,
   `otp_hash` VARCHAR(255) NOT NULL,
+  `purpose` ENUM('signup', 'login', 'forgot') NOT NULL DEFAULT 'login',
   `expires_at` DATETIME NOT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -127,35 +129,33 @@ CREATE TABLE `addresses` (
 
 
 CREATE TABLE category(
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  image VARCHAR(255) NULL,
-  parent_id BIGINT UNSIGNED DEFAULT 0 NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `image` VARCHAR(255) NULL,
+  `parent_id` BIGINT UNSIGNED DEFAULT 0 NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (parent_id) REFERENCES category(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
 
 CREATE TABLE products (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  slug VARCHAR(255) NOT NULL,
-  short_desc VARCHAR(255) NOT NULL,
-  long_desc TEXT NOT NULL,
-  category_id BIGINT UNSIGNED NOT NULL,
-  original_price DECIMAL(10,2) NOT NULL,
-  sale_price DECIMAL(10,2) NOT NULL,
-  --bv DECIMAL(10,2) NOT NULL DEFAULT 0,   -- Business Volume
-  --pv DECIMAL(10,2) NOT NULL DEFAULT 0,   -- Point Value
-  stock INT NOT NULL DEFAULT 0,
-  stock_status ENUM('IN_STOCK','OUT_OF_STOCK','BACKORDER') DEFAULT 'IN_STOCK',
-  low_stock_alert INT DEFAULT 5,
-  images JSON NULL,
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `slug` VARCHAR(255) NOT NULL,
+  `short_desc` VARCHAR(255) NOT NULL,
+  `long_desc` TEXT NOT NULL,
+  `category_id` BIGINT UNSIGNED NOT NULL,
+  `original_price` DECIMAL(10,2) NOT NULL,
+  `sale_price` DECIMAL(10,2) NOT NULL,
+  `stock` INT NOT NULL DEFAULT 0,
+  `stock_status` ENUM('IN_STOCK','OUT_OF_STOCK','BACKORDER') DEFAULT 'IN_STOCK',
+  `low_stock_alert` INT DEFAULT 5,
+  `images` JSON NULL,
+  `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT uk_products_slug UNIQUE (slug),
   CONSTRAINT chk_price_valid CHECK (
     original_price >= 0 AND
@@ -172,8 +172,3 @@ CREATE TABLE products (
   INDEX idx_active (is_active),
   INDEX idx_price (sale_price)
 ) ENGINE=InnoDB;
-
--- =============================================
--- Stored Procedures
--- Extracted from: apps/server/src/scripts/create_procedures.js
--- =============================================
