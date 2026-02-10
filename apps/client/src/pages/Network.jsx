@@ -65,252 +65,156 @@ export default function Network() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 font-display">
-            {/* Top Navigation */}
-            <header className="bg-white border-b border-slate-200 px-8 py-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
-                                F
-                            </div>
-                            <span className="text-xl font-bold text-slate-900">Fintech<span className="text-primary">MLM</span></span>
-                        </div>
-                        <nav className="flex items-center gap-6">
-                            <a href="/dashboard" className="text-sm font-medium text-slate-600 hover:text-primary">Dashboard</a>
-                            <a href="/network" className="text-sm font-bold text-primary border-b-2 border-primary pb-4">Network</a>
-                            <a href="/earnings" className="text-sm font-medium text-slate-600 hover:text-primary">Earnings</a>
-                            <a href="/settings" className="text-sm font-medium text-slate-600 hover:text-primary">Settings</a>
-                        </nav>
+        <div className="p-4 md:p-8 space-y-6">
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Network Management</h1>
+                    <p className="text-sm md:text-base text-slate-500 mt-1">
+                        Monitor downline performance and expand your network across 6 levels.
+                    </p>
+                </div>
+                <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
+                    <button className="flex-1 md:flex-none p-2 border border-slate-300 rounded-lg hover:bg-slate-50 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-slate-600 text-lg md:text-xl">download</span>
+                    </button>
+                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+                        <span className="material-symbols-outlined text-lg">person_add</span>
+                        Member
+                    </button>
+                </div>
+            </div>
+
+            {/* Referral Link & QR Code */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Referral Link Card */}
+                <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm">
+                    <h2 className="text-lg font-bold text-slate-900 mb-2">Referral Link</h2>
+                    <p className="text-sm text-slate-500 mb-4 whitespace-normal">
+                        Invite members to your Level 1 network.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-6">
+                        <input
+                            type="text"
+                            value={referralLink}
+                            readOnly
+                            className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs md:text-sm font-mono text-slate-700 overflow-hidden text-ellipsis"
+                        />
+                        <button
+                            onClick={copyToClipboard}
+                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-all"
+                        >
+                            <span className="material-symbols-outlined text-lg">content_copy</span>
+                            Copy
+                        </button>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Search members..."
-                                className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            />
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
-                                search
-                            </span>
+
+                    <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                        <div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Referrals</div>
+                            <div className="text-2xl md:text-3xl font-black text-slate-900">{totalReferrals.toLocaleString()}</div>
                         </div>
-                        <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white font-bold">
-                            U
+                        <div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Today</div>
+                            <div className="text-2xl md:text-3xl font-black text-emerald-600">{activeToday}</div>
                         </div>
                     </div>
                 </div>
-            </header>
 
-            {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-8 py-8">
-                {/* Page Header */}
-                <div className="flex items-start justify-between mb-8">
-                    <div>
-                        <h1 className="text-4xl font-bold text-slate-900 mb-2">Referral & Team Management</h1>
-                        <p className="text-slate-500">
-                            Monitor your downline performance and expand your network across 6 levels.
-                        </p>
+                {/* QR Code Card */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center shadow-sm">
+                    <div className="w-32 h-32 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center mb-4">
+                        <span className="material-symbols-outlined text-5xl text-slate-300">qr_code_2</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button className="p-2 border border-slate-300 rounded-lg hover:bg-slate-50">
-                            <span className="material-symbols-outlined text-slate-600">download</span>
-                        </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-                            <span className="material-symbols-outlined">person_add</span>
-                            Add Partner
-                        </button>
-                    </div>
+                    <h3 className="text-base font-bold text-slate-900 mb-1">Network QR</h3>
+                    <button className="flex items-center gap-2 text-primary font-bold text-sm hover:underline">
+                        <span className="material-symbols-outlined text-lg">share</span>
+                        Share QR
+                    </button>
                 </div>
+            </div>
 
-                {/* Referral Link & QR Code */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    {/* Referral Link Card */}
-                    <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6">
-                        <h2 className="text-lg font-bold text-slate-900 mb-2">Your Unique Referral Link</h2>
-                        <p className="text-sm text-slate-500 mb-4">
-                            Invite new members to join your Level 1 network and earn commissions on every trade they make.
-                        </p>
-
-                        {/* Link Input */}
-                        <div className="flex items-center gap-3 mb-6">
-                            <input
-                                type="text"
-                                value={referralLink}
-                                readOnly
-                                className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-700"
-                            />
-                            <button
-                                onClick={copyToClipboard}
-                                className="flex items-center gap-2 px-4 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-lg">content_copy</span>
-                                Copy
-                            </button>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Total Referrals</div>
-                                <div className="text-3xl font-bold text-slate-900">{totalReferrals.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Active Today</div>
-                                <div className="text-3xl font-bold text-success">{activeToday}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* QR Code Card */}
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center">
-                        <div className="w-40 h-40 bg-slate-100 rounded-xl flex items-center justify-center mb-4">
-                            <span className="material-symbols-outlined text-6xl text-slate-300">qr_code_2</span>
-                        </div>
-                        <h3 className="text-lg font-bold text-slate-900 mb-1">Network QR Code</h3>
-                        <p className="text-sm text-slate-500 mb-4">Scan to register under user789</p>
-                        <button className="flex items-center gap-2 text-primary font-semibold text-sm hover:underline">
-                            <span className="material-symbols-outlined text-lg">share</span>
-                            Share QR Code
+            {/* Level Tabs */}
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div className="flex items-center gap-0 overflow-x-auto no-scrollbar border-b border-slate-100">
+                    {levels.map((level) => (
+                        <button
+                            key={level.level}
+                            onClick={() => setActiveLevel(level.level)}
+                            className={`flex-1 px-4 md:px-6 py-4 text-xs md:text-sm font-bold whitespace-nowrap transition-colors relative ${activeLevel === level.level
+                                ? "text-primary bg-primary/5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                                }`}
+                        >
+                            Lvl {level.level}
+                            <span className="ml-1 opacity-50">({level.count})</span>
                         </button>
-                    </div>
-                </div>
-
-                {/* Level Tabs */}
-                <div className="bg-white rounded-t-2xl border border-b-0 border-slate-200 px-6">
-                    <div className="flex items-center gap-1 overflow-x-auto">
-                        {levels.map((level) => (
-                            <button
-                                key={level.level}
-                                onClick={() => setActiveLevel(level.level)}
-                                className={`px-6 py-4 text-sm font-semibold whitespace-nowrap transition-colors ${activeLevel === level.level
-                                        ? "text-primary border-b-2 border-primary"
-                                        : "text-slate-500 hover:text-slate-700"
-                                    }`}
-                            >
-                                Level {level.level}
-                                <span className="ml-2 text-slate-400">({level.count})</span>
-                            </button>
-                        ))}
-                    </div>
+                    ))}
                 </div>
 
                 {/* Team Members Table */}
-                <div className="bg-white rounded-b-2xl border border-slate-200 overflow-hidden">
-                    {/* Table Header */}
-                    <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                        <div className="relative flex-1 max-w-xs">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
-                                search
-                            </span>
-                            <input
-                                type="text"
-                                placeholder="Filter Level 1..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <span className="font-semibold text-slate-600">SORT BY:</span>
-                            <select className="px-3 py-2 border border-slate-300 rounded-lg font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                <option>Recently Joined</option>
-                                <option>Highest Contribution</option>
-                                <option>Name (A-Z)</option>
-                                <option>Status</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Table */}
-                    <table className="w-full">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50/50 border-b border-slate-100">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Member
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Join Date
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Contribution
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
+                                <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Member</th>
+                                <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:table-cell">Join Date</th>
+                                <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contribution</th>
+                                <th className="px-6 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-200">
+                        <tbody className="divide-y divide-slate-100">
                             {members.map((member) => (
-                                <tr key={member.id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-6 py-4">
+                                <tr key={member.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-4 md:px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 ${member.avatarColor} rounded-full flex items-center justify-center text-slate-700 font-bold text-sm`}>
+                                            <div className={`w-8 h-8 md:w-10 md:h-10 ${member.avatarColor} rounded-full flex items-center justify-center text-slate-700 font-bold text-xs md:text-sm shadow-inner`}>
                                                 {member.avatar}
                                             </div>
                                             <div>
-                                                <div className="font-semibold text-slate-900">{member.name}</div>
-                                                <div className="text-xs text-slate-500">ID: {member.id}</div>
+                                                <div className="font-bold text-slate-900 text-sm">{member.name}</div>
+                                                <div className="text-[10px] text-slate-400 font-medium">ID: {member.id}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">
+                                    <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">
                                         {member.joinDate}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${member.statusColor}`}>
-                                            ● {member.status}
+                                    <td className="px-4 md:px-6 py-4">
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${member.statusColor}`}>
+                                            {member.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-900">
+                                    <td className="px-4 md:px-6 py-4 text-sm font-black text-slate-900">
                                         {member.contribution}
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                                            <span className="material-symbols-outlined text-slate-400">more_vert</span>
+                                    <td className="px-4 md:px-6 py-4 text-right">
+                                        <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400">
+                                            <span className="material-symbols-outlined">more_horiz</span>
                                         </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                </div>
 
-                    {/* Pagination */}
-                    <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
-                        <div className="text-sm text-slate-500">
-                            Showing 1 to 4 of 24 members
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button className="px-3 py-1 bg-primary text-white rounded-lg font-semibold text-sm">
-                                1
-                            </button>
-                            <button className="px-3 py-1 border border-slate-300 rounded-lg font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                                2
-                            </button>
-                            <button className="px-3 py-1 border border-slate-300 rounded-lg font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                                3
-                            </button>
-                            <button className="p-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                                <span className="material-symbols-outlined text-slate-600">chevron_right</span>
-                            </button>
-                        </div>
+                {/* Pagination */}
+                <div className="px-6 py-4 bg-slate-50/50 flex items-center justify-between">
+                    <div className="text-[10px] md:text-xs text-slate-400 font-bold">
+                        PAGE 1 OF 6
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button className="h-8 w-8 bg-primary text-white rounded-lg font-bold text-xs">1</button>
+                        <button className="h-8 w-8 border border-slate-200 rounded-lg font-bold text-xs text-slate-500 hover:bg-white">2</button>
+                        <button className="h-8 w-8 border border-slate-200 rounded-lg font-bold text-xs text-slate-500 hover:bg-white flex items-center justify-center">
+                            <span className="material-symbols-outlined text-base">chevron_right</span>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            {/* Footer */}
-            <footer className="bg-white border-t border-slate-200 mt-12 py-6">
-                <div className="max-w-7xl mx-auto px-8 flex items-center justify-between text-sm text-slate-500">
-                    <div>© 2023 FintechMLM Inc. All rights reserved.</div>
-                    <div className="flex items-center gap-6">
-                        <a href="#" className="hover:text-primary">Privacy Policy</a>
-                        <a href="#" className="hover:text-primary">Terms of Service</a>
-                        <a href="#" className="hover:text-primary">Support</a>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

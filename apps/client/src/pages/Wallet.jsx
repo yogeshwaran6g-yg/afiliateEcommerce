@@ -63,54 +63,6 @@ export default function Wallet() {
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-display">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
-                {/* Logo */}
-                <div className="p-6 border-b border-slate-200">
-                    <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
-                            F
-                        </div>
-                        <div>
-                            <div className="font-bold text-slate-900">FinTrack MLM</div>
-                            <div className="text-xs text-slate-500">DISTRIBUTOR PORTAL</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Navigation */}
-                <nav className="flex-1 p-4">
-                    <a href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">dashboard</span>
-                        <span className="font-medium">Dashboard</span>
-                    </a>
-                    <a href="/wallet" className="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">account_balance_wallet</span>
-                        <span className="font-semibold">Wallet & Earnings</span>
-                    </a>
-                    <a href="/team" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">groups</span>
-                        <span className="font-medium">My Team</span>
-                    </a>
-                    <a href="/products" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">inventory_2</span>
-                        <span className="font-medium">Products</span>
-                    </a>
-                    <a href="/reports" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">bar_chart</span>
-                        <span className="font-medium">Reports</span>
-                    </a>
-                </nav>
-
-                {/* Settings */}
-                <div className="p-4 border-t border-slate-200">
-                    <a href="/settings" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg">
-                        <span className="material-symbols-outlined text-xl">settings</span>
-                        <span className="font-medium">Settings</span>
-                    </a>
-                </div>
-            </aside>
-
             {/* Main Content */}
             <main className="flex-1 overflow-auto">
                 <div className="max-w-7xl mx-auto px-8 py-8">

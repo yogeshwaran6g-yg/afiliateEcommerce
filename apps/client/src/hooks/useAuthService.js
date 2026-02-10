@@ -7,21 +7,6 @@ import authService from "../services/authService";
 export const USER_QUERY_KEY = ["user"];
 
 /**
- * Hook to fetch the current user profile.
- * It relies on the token stored in localStorage (handled by authService/axios).
- */
-export const useUserQuery = () => {
-    return useQuery({
-        queryKey: USER_QUERY_KEY,
-        queryFn: () => authService.getProfile(),
-        // Only fetch if we have a token (simple check, or rely on API failure)
-        enabled: authService.isAuthenticated(),
-        retry: false,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-    });
-};
-
-/**
  * Hook for user login.
  */
 export const useLoginMutation = () => {
@@ -30,9 +15,9 @@ export const useLoginMutation = () => {
         mutationFn: ({ phone, password, otp }) =>
             authService.login(phone, password, otp),
         onSuccess: (data) => {
-            // Invalidate user query to refetch profile or set data immediately
-            queryClient.setQueryData(USER_QUERY_KEY, { data: data.data?.user });
-            // queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+            // Invalidate user query or set data immediately if Profile query is using the same key
+            // However, it's better to let ProfileContext handle the user data.
+            // But for immediate feedback, we can set query data if keys match.
         },
     });
 };
@@ -89,30 +74,6 @@ export const useResendOtpMutation = () => {
 
 
 /**
- * Hook for updating user profile.
- */
-export const useUpdateProfileMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({ profile, address }) =>
-            authService.updateProfile(profile, address),
-        onSuccess: (data) => {
-            // Optimistically update or invalidate
-            if (data.success && data.data) {
-                queryClient.setQueryData(USER_QUERY_KEY, (oldData) => {
-                    if (!oldData) return { data: data.data };
-                    return {
-                        ...oldData,
-                        data: { ...oldData.data, ...data.data }
-                    }
-                });
-            }
-            queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-        },
-    });
-};
-
-/**
  * Hook for logging out.
  */
 export const useLogoutMutation = () => {
@@ -122,7 +83,6 @@ export const useLogoutMutation = () => {
             authService.logout();
         },
         onSuccess: () => {
-            queryClient.setQueryData(USER_QUERY_KEY, null);
             queryClient.clear();
         },
     });

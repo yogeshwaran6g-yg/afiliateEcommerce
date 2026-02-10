@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
 
     const mainItems = [
@@ -19,65 +19,94 @@ export default function Sidebar() {
     const isActive = (path) => location.pathname === path;
 
     return (
-        <aside className="w-64 hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800">
-            {/* Logo */}
-            <div className="p-6 flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                    F
-                </div>
-                <div>
-                    <div className="font-bold text-lg">FinMLM</div>
-                    <div className="text-xs text-slate-500">DISTRIBUTOR</div>
-                </div>
-            </div>
+        <>
+            {/* Mobile Overlay */}
+            <div
+                className={`fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                onClick={onClose}
+            ></div>
 
-            {/* Main Navigation */}
-            <nav className="flex-1 px-4 space-y-1">
-                {mainItems.map((item, i) => (
-                    <Link
-                        key={i}
-                        to={item.path}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive(item.path)
-                                ? "bg-primary/10 text-primary border-r-4 border-primary"
-                                : "text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
-                            }`}
-                    >
-                        <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                        <span>{item.label}</span>
-                    </Link>
-                ))}
-
-                {/* Support Section */}
-                <div className="pt-6 pb-2">
-                    <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                        Support
+            {/* Sidebar Drawer */}
+            <aside
+                className={`fixed lg:static inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50 transform lg:transform-none transition-transform duration-300 flex flex-col h-screen ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+            >
+                {/* Logo & Close Button */}
+                <div className="p-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                            F
+                        </div>
+                        <div>
+                            <div className="font-bold text-lg dark:text-white">FinMLM</div>
+                            <div className="text-xs text-slate-500">DISTRIBUTOR</div>
+                        </div>
                     </div>
-                    {supportItems.map((item, i) => (
+                    {/* Mobile Close Button */}
+                    <button
+                        onClick={onClose}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg lg:hidden text-slate-500"
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+
+                {/* Main Navigation */}
+                <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+                    {mainItems.map((item, i) => (
                         <Link
                             key={i}
                             to={item.path}
+                            onClick={() => {
+                                if (window.innerWidth < 1024) onClose();
+                            }}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive(item.path)
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                ? "bg-primary/10 text-primary border-r-4 border-primary"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                                 }`}
                         >
                             <span className="material-symbols-outlined text-xl">{item.icon}</span>
                             <span>{item.label}</span>
                         </Link>
                     ))}
-                </div>
-            </nav>
 
-            {/* Invite Button */}
-            <div className="p-4">
-                <Link
-                    to="/network"
-                    className="w-full bg-accent hover:bg-accent/90 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm"
-                >
-                    <span className="material-symbols-outlined">person_add</span>
-                    <span>Invite Member</span>
-                </Link>
-            </div>
-        </aside>
+                    {/* Support Section */}
+                    <div className="pt-6 pb-2">
+                        <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                            Support
+                        </div>
+                        {supportItems.map((item, i) => (
+                            <Link
+                                key={i}
+                                to={item.path}
+                                onClick={() => {
+                                    if (window.innerWidth < 1024) onClose();
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive(item.path)
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    }`}
+                            >
+                                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
+
+                {/* Invite Button */}
+                <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link
+                        to="/network"
+                        onClick={() => {
+                            if (window.innerWidth < 1024) onClose();
+                        }}
+                        className="w-full bg-accent hover:bg-accent/90 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm"
+                    >
+                        <span className="material-symbols-outlined">person_add</span>
+                        <span>Invite Member</span>
+                    </Link>
+                </div>
+            </aside>
+        </>
     );
 }
