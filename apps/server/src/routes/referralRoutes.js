@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import referalController from '#controller/referalController.js';
+import referalController from '#controllers/referalController.js';
 
 const router = express.Router();
 

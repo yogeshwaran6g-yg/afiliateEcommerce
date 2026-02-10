@@ -1,4 +1,4 @@
-import * as orderService from '#service/orderService.js';
+import * as orderService from '#services/orderService.js';
 import { rtnRes, log } from '#utils/helper.js';
 
 const createOrder = async (req, res) => {

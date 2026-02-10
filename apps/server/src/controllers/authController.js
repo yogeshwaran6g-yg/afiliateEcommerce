@@ -1,5 +1,5 @@
-import authService from '#service/authService.js';
-import { createUser, existinguserFieldsCheck } from '#service/userService.js';
+import authService from '#services/authService.js';
+import { createUser, existinguserFieldsCheck } from '#services/userService.js';
 import { rtnRes } from '#utils/helper.js';
 
 

@@ -3,7 +3,7 @@ import {
   createReferral,
   distributeCommission,
   getReferralOverview,
-} from "#service/referralService.js";
+} from "#services/referralService.js";
 
 const referalController = {
   createReferral: async (req, res) => {

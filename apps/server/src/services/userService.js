@@ -1,5 +1,5 @@
 import { queryRunner, transactionRunner } from '#config/db.js';
-import { createReferral } from '#service/referralService.js';
+import { createReferral } from '#services/referralService.js';
 import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 

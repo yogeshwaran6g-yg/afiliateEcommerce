@@ -6,16 +6,17 @@
   "type": "module",
   "imports": {
     "#src/*": "./src/*",
-    "#config/*": "./src/config/*",
-    "#controller/*": "./src/controller/*",
+    "#config/*": "./src/config/*",    
+    "#controllers/*": "./src/controllers/*",
     "#routes/*": "./src/routes/*",
-    "#service/*": "./src/service/*",
-    "#utils/*": "./src/utils/*",
+    "#services/*": "./src/services/*",
+    "#utils/*": "./src/utils/*",    
+    "#middlewares/*": "./src/middlewares/*",
     "#scripts/*": "./src/scripts/*"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "seed": "node src/scripts/seed.js",
     "seedProcedure": "node src/scripts/create_procedures.js",
     "expectedOutput": "node  generate_mocks.cjs"
@@ -28,6 +29,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "mysql2": "^3.16.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
