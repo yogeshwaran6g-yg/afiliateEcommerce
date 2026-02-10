@@ -1,4 +1,4 @@
-import * as userService from '#service/userService.js';
+import * as userService from '#services/userService.js';
 import { rtnRes, log } from '#utils/helper.js';
 
 const signup = async (req, res) => {

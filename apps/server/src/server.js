@@ -18,9 +18,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(passport.initialize());
+app.use('/uploads', express.static('src/uploads'));
 
 // Routes
-import router from '#routes/routes.js';
+import router from '#src/routes/appRoutes.js';
 app.use('/api', router);
 
 app.get('/', (req, res) => {

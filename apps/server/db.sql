@@ -26,7 +26,7 @@ CREATE TABLE otp (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE (user_id,otp_hash),
-  UNIQUE (user_id)
+  UNIQUE (user_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -127,69 +127,55 @@ CREATE TABLE addresses (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+
+CREATE TABLE category(
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  image VARCHAR(255) NULL,
+  parent_id BIGINT UNSIGNED DEFAULT 0 NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (parent_id) REFERENCES category(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+
+
+CREATE TABLE products (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL,
+  short_desc VARCHAR(255) NOT NULL,
+  long_desc TEXT NOT NULL,
+  category_id BIGINT UNSIGNED NOT NULL,
+  original_price DECIMAL(10,2) NOT NULL,
+  sale_price DECIMAL(10,2) NOT NULL,
+  --bv DECIMAL(10,2) NOT NULL DEFAULT 0,   -- Business Volume
+  --pv DECIMAL(10,2) NOT NULL DEFAULT 0,   -- Point Value
+  stock INT NOT NULL DEFAULT 0,
+  stock_status ENUM('IN_STOCK','OUT_OF_STOCK','BACKORDER') DEFAULT 'IN_STOCK',
+  low_stock_alert INT DEFAULT 5,
+  images JSON NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT uk_products_slug UNIQUE (slug),
+  CONSTRAINT chk_price_valid CHECK (
+    original_price >= 0 AND
+    sale_price >= 0 AND
+    sale_price <= original_price
+  ),
+
+  CONSTRAINT fk_product_category
+    FOREIGN KEY (category_id)
+    REFERENCES category(id)
+    ON DELETE RESTRICT,
+
+  INDEX idx_category (category_id),
+  INDEX idx_active (is_active),
+  INDEX idx_price (sale_price)
+) ENGINE=InnoDB;
+
 -- =============================================
 -- Stored Procedures
 -- Extracted from: apps/server/src/scripts/create_procedures.js
 -- =============================================
-
-DELIMITER //
-
--- Procedure: sp_add_referral
--- Adds a user to the referral tree
-CREATE PROCEDURE sp_add_referral(
-    IN p_referrer_id BIGINT UNSIGNED,
-    IN p_new_user_id BIGINT UNSIGNED
-)
-BEGIN
-    START TRANSACTION;
-    
-    -- Level 1
-    INSERT IGNORE INTO referral_tree (upline_id, downline_id, level)
-    VALUES (p_referrer_id, p_new_user_id, 1);
-    
-    -- Levels 2-6
-    INSERT IGNORE INTO referral_tree (upline_id, downline_id, level)
-    SELECT 
-        rt.upline_id,
-        p_new_user_id,
-        rt.level + 1
-    FROM referral_tree rt
-    WHERE rt.downline_id = p_referrer_id
-      AND rt.level < 6;
-    
-    COMMIT;
-END //
-
--- Procedure: sp_distribute_commission
--- Calculates and inserts commissions for an order
-CREATE PROCEDURE sp_distribute_commission(
-    IN p_order_id BIGINT UNSIGNED,
-    IN p_payment_id BIGINT UNSIGNED,
-    IN p_user_id BIGINT UNSIGNED,
-    IN p_amount DECIMAL(10,2)
-)
-BEGIN
-    START TRANSACTION;
-
-    INSERT IGNORE INTO referral_commission_distribution
-    (upline_id, downline_id, order_id, payment_id, level, percent, amount, status)
-    SELECT 
-        rt.upline_id,
-        p_user_id,
-        p_order_id,
-        p_payment_id,
-        rt.level,
-        rcc.percent,
-        ROUND(p_amount * rcc.percent / 100, 2),
-        'PENDING'
-    FROM referral_tree rt
-    JOIN referral_commission_config rcc 
-        ON rt.level = rcc.level
-    WHERE rt.downline_id = p_user_id
-      AND rcc.is_active = 1;
-
-    COMMIT;
-END //
-
-DELIMITER ;
-

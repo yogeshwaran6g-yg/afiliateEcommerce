@@ -1,5 +1,5 @@
 import { rtnRes } from "#utils/helper.js";
-import comissionConfigService from "#service/comissionConfigService.js";
+import comissionConfigService from "#services/comissionConfigService.js";
 
 const comissionConfigController = {
 

@@ -3,7 +3,7 @@ import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '#config/env.js';
-import { findUserByPhone, findUserById } from './userService.js';
+import { findUserByPhone, findUserById } from '#services/userService.js';
 
 const generateToken = (user) => {
     return jwt.sign(

@@ -4,6 +4,8 @@ import userRoutes from './userRoutes.js';
 import orderRoutes from './orderRoutes.js';
 import referralRoutes from './referralRoutes.js';
 import authRoutes from './authRoutes.js';
+import categoryRoutes from './categoryRoutes.js';
+import productRoutes from './productRoutes.js';
 
 const router = express.Router();
 
@@ -12,5 +14,7 @@ router.use('/users', userRoutes); // Changed from / to /users to avoid conflict 
 router.use('/auth', authRoutes);
 router.use('/orders', orderRoutes);
 router.use('/referral', referralRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/products', productRoutes);
 
 export default router;
