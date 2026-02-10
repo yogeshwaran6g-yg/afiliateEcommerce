@@ -1,13 +1,10 @@
-import React, { createContext, useCallback } from "react";
-import authService from "../services/authService";
+import React, { createContext, useCallback, useContext } from "react";
 import {
-    useUserQuery,
     useLoginMutation,
     useSignupMutation,
     useRequestLoginOtpMutation,
     useVerifyOtpMutation,
     useResendOtpMutation,
-    useUpdateProfileMutation,
     useLogoutMutation,
 } from "../hooks/useAuthService";
 
@@ -15,42 +12,32 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     // Use TanStack Query hooks
-    const { data: userProfile, isLoading: isLoadingUser, error: userError } =
-        useUserQuery();
-
     const loginMutation = useLoginMutation();
     const signupMutation = useSignupMutation();
     const requestOtpMutation = useRequestLoginOtpMutation();
     const verifyOtpMutation = useVerifyOtpMutation();
     const resendOtpMutation = useResendOtpMutation();
-    const updateProfileMutation = useUpdateProfileMutation();
     const logoutMutation = useLogoutMutation();
 
     // Derived state
-    // userProfile?.data usually contains { user, profile, addresses }
-    const userData = userProfile?.data || null;
-    const user = userData?.user || userData;
-    const profile = userData?.profile || null;
-    const addresses = userData?.addresses || [];
+    // We check authentication based on whether we have a token or not
+    // The actual user data will be handled by ProfileContext
+    const isAuthenticated = !!localStorage.getItem("token");
 
     const loading =
-        isLoadingUser ||
         loginMutation.isPending ||
         signupMutation.isPending ||
         requestOtpMutation.isPending ||
         verifyOtpMutation.isPending ||
         resendOtpMutation.isPending ||
-        updateProfileMutation.isPending ||
         logoutMutation.isPending;
 
     const error =
-        userError ||
         loginMutation.error ||
         signupMutation.error ||
         requestOtpMutation.error ||
         verifyOtpMutation.error ||
         resendOtpMutation.error ||
-        updateProfileMutation.error ||
         logoutMutation.error;
 
     const login = async (phone, password, otp) => {
@@ -75,28 +62,21 @@ export const AuthProvider = ({ children }) => {
 
     const logout = useCallback(() => {
         logoutMutation.mutate();
-        // No need to manually clear local storage here, the mutation onSuccess handles it
     }, [logoutMutation]);
 
-    const updateProfile = async (profile, address) => {
-        return updateProfileMutation.mutateAsync({ profile, address });
-    };
-
     const value = {
-        user,
-        profile,
-        addresses,
         loading,
         error: error ? (error.message || "An error occurred") : null,
-        isAuthenticated: !!user,
+        isAuthenticated,
         login,
         requestLoginOtp,
         signup,
         verifyOtp,
         resendOtp,
         logout,
-        updateProfile,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export const useAuth = () => useContext(AuthContext);

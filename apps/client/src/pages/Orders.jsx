@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 
 export default function Orders() {
   const [activeTab, setActiveTab] = useState("All Orders");
@@ -89,273 +87,242 @@ export default function Orders() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-display">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+    <div className="p-4 md:p-8 space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 uppercase tracking-tight">Order History</h1>
+          <p className="text-sm md:text-base text-slate-500 mt-1">
+            Monitor your personal orders and distribution logistics.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-xs md:text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+            <span className="material-symbols-outlined text-base md:text-lg">calendar_month</span>
+            Last 30 Days
+          </button>
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg text-xs md:text-sm font-semibold hover:bg-primary/90 transition-colors">
+            <span className="material-symbols-outlined text-base md:text-lg">download</span>
+            Export CSV
+          </button>
+        </div>
+      </div>
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <Header toggleSidebar={() => setIsSidebarOpen(true)} />
+      {/* Status Tabs */}
+      <div className="flex border-b border-slate-200 overflow-x-auto no-scrollbar">
+        {tabs.map((tab) => (
+          <button
+            key={tab.name}
+            onClick={() => setActiveTab(tab.name)}
+            className={`px-4 md:px-6 py-3 text-xs md:text-sm font-semibold whitespace-nowrap transition-colors relative ${activeTab === tab.name
+              ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+              : "text-slate-500 hover:text-slate-700"
+              }`}
+          >
+            {tab.name}
+            <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
+              {tab.count}
+            </span>
+          </button>
+        ))}
+      </div>
 
-        <div className="p-8 space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900">Order History</h1>
-              <p className="text-slate-500 mt-1">
-                Monitor your personal orders and distribution logistics.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                <span className="material-symbols-outlined text-lg">calendar_month</span>
-                Last 30 Days
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
-                <span className="material-symbols-outlined text-lg">download</span>
-                Export CSV
-              </button>
-            </div>
-          </div>
-
-          {/* Status Tabs */}
-          <div className="flex border-b border-slate-200 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.name}
-                onClick={() => setActiveTab(tab.name)}
-                className={`px-6 py-3 text-sm font-semibold whitespace-nowrap transition-colors ${activeTab === tab.name
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-slate-500 hover:text-slate-700"
-                  }`}
-              >
-                {tab.name}
-                <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Orders Table */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Order ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    PV Value
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Total Amount
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {orders.map((order) => (
-                  <React.Fragment key={order.id}>
-                    <tr className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-8 bg-primary rounded-full"></div>
-                          <span className="font-bold text-slate-900">{order.id}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{order.date}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
-                          <span className="material-symbols-outlined text-amber-500 text-base">
-                            stars
-                          </span>
-                          {order.pv} PV
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-bold text-slate-900">
-                        {order.amount}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.statusColor}`}>
-                          {order.status}
+      {/* Orders Table - Wrapped in overflow-x-auto */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Order ID
+                </th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">
+                  Date
+                </th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  PV Value
+                </th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Total
+                </th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {orders.map((order) => (
+                <React.Fragment key={order.id}>
+                  <tr className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 md:px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-6 bg-primary rounded-full hidden xs:block"></div>
+                        <span className="font-bold text-slate-900 text-sm">{order.id}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">{order.date}</td>
+                    <td className="px-4 md:px-6 py-4">
+                      <div className="flex items-center gap-1 text-xs md:text-sm font-semibold text-slate-700">
+                        <span className="material-symbols-outlined text-amber-500 text-base">
+                          stars
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        {order.tracking ? (
-                          <button
-                            onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                            className="text-primary font-semibold text-sm hover:underline"
-                          >
-                            {expandedOrder === order.id ? "Hide" : "Tracking"}
-                          </button>
-                        ) : order.status === "Cancelled" ? (
-                          <button className="text-primary font-semibold text-sm hover:underline">
-                            Reorder
-                          </button>
-                        ) : (
-                          <button className="text-slate-600 font-semibold text-sm hover:underline">
-                            Details
-                          </button>
-                        )}
-                      </td>
-                    </tr>
+                        {order.pv} PV
+                      </div>
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-bold text-slate-900">
+                      {order.amount}
+                    </td>
+                    <td className="px-4 md:px-6 py-4">
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${order.statusColor}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-right">
+                      {order.tracking ? (
+                        <button
+                          onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                          className="text-primary font-bold text-xs md:text-sm hover:underline"
+                        >
+                          {expandedOrder === order.id ? "Hide" : "Track"}
+                        </button>
+                      ) : (
+                        <button className="text-slate-400 font-bold text-xs md:text-sm h-8 w-8 hover:bg-slate-100 rounded-full flex items-center justify-center">
+                          <span className="material-symbols-outlined text-base">arrow_forward</span>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
 
-                    {/* Expanded Tracking Details */}
-                    {expandedOrder === order.id && order.tracking && (
-                      <tr>
-                        <td colSpan="6" className="px-6 py-6 bg-slate-50">
-                          <div className="flex gap-8">
-                            {/* Left: Tracking Info */}
-                            <div className="w-1/3 space-y-4">
-                              <div className="flex items-center gap-2 text-slate-900 font-bold mb-4">
-                                <span className="material-symbols-outlined text-primary">
-                                  local_shipping
-                                </span>
-                                Tracking Detail - {order.id}
-                              </div>
-
-                              <div className="space-y-3">
-                                <div className="flex justify-between">
-                                  <span className="text-sm text-slate-500">Courier</span>
-                                  <span className="text-sm font-semibold text-slate-900">
-                                    {order.tracking.courier}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-sm text-slate-500">Tracking ID</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-slate-900">
-                                      {order.tracking.trackingId}
-                                    </span>
-                                    <button className="text-primary">
-                                      <span className="material-symbols-outlined text-base">
-                                        content_copy
-                                      </span>
-                                    </button>
-                                  </div>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-sm text-slate-500">Est. Delivery</span>
-                                  <span className="text-sm font-semibold text-slate-900">
-                                    {order.tracking.estDelivery}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <button className="w-full mt-4 px-4 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-white transition-colors">
-                                View Full Invoice
-                              </button>
+                  {/* Expanded Tracking Details - Responsive Grid */}
+                  {expandedOrder === order.id && order.tracking && (
+                    <tr className="bg-slate-50">
+                      <td colSpan="6" className="px-4 md:px-8 py-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                          {/* Left: Tracking Info */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 text-slate-900 font-bold mb-4">
+                              <span className="material-symbols-outlined text-primary">
+                                local_shipping
+                              </span>
+                              Tracking Detail
                             </div>
 
-                            {/* Right: Timeline */}
-                            <div className="flex-1">
-                              <div className="space-y-4">
-                                {order.tracking.timeline.map((event, index) => (
-                                  <div key={index} className="flex gap-4">
-                                    <div className="flex flex-col items-center">
-                                      <div
-                                        className={`w-3 h-3 rounded-full ${event.completed
-                                          ? event.current
-                                            ? "bg-primary ring-4 ring-primary/20"
-                                            : "bg-primary"
-                                          : "bg-slate-300"
-                                          }`}
-                                      ></div>
-                                      {index < order.tracking.timeline.length - 1 && (
-                                        <div
-                                          className={`w-0.5 h-16 ${event.completed ? "bg-primary" : "bg-slate-200"
-                                            }`}
-                                        ></div>
-                                      )}
-                                    </div>
-                                    <div className="flex-1 pb-8">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <h4 className="font-bold text-slate-900">{event.title}</h4>
-                                        {event.current && (
-                                          <span className="px-2 py-0.5 bg-primary text-white text-[10px] font-bold uppercase rounded">
-                                            Current
-                                          </span>
-                                        )}
-                                      </div>
-                                      <p className="text-xs text-slate-400 mb-1">{event.date}</p>
-                                      {event.description && (
-                                        <p className="text-sm text-slate-600">{event.description}</p>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
+                            <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-200">
+                              <div className="flex justify-between">
+                                <span className="text-xs text-slate-500">Courier</span>
+                                <span className="text-xs font-bold text-slate-900">
+                                  {order.tracking.courier}
+                                </span>
                               </div>
+                              <div className="flex justify-between">
+                                <span className="text-xs text-slate-500">Tracking ID</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-900">
+                                    {order.tracking.trackingId}
+                                  </span>
+                                  <button className="text-primary">
+                                    <span className="material-symbols-outlined text-base">
+                                      content_copy
+                                    </span>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-xs text-slate-500">Est. Delivery</span>
+                                <span className="text-xs font-bold text-slate-900">
+                                  {order.tracking.estDelivery}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                              View Full Invoice
+                            </button>
+                          </div>
+
+                          {/* Right: Timeline */}
+                          <div className="lg:col-span-2">
+                            <div className="space-y-0 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                              {order.tracking.timeline.map((event, index) => (
+                                <div key={index} className="flex gap-4 relative">
+                                  <div className="z-10 bg-slate-50 py-1">
+                                    <div
+                                      className={`w-3.5 h-3.5 rounded-full border-2 border-white ${event.completed
+                                        ? event.current
+                                          ? "bg-primary ring-4 ring-primary/20"
+                                          : "bg-primary"
+                                        : "bg-slate-300"
+                                        }`}
+                                    ></div>
+                                  </div>
+                                  <div className="flex-1 pb-6">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="font-bold text-slate-900 text-sm">{event.title}</h4>
+                                      {event.current && (
+                                        <span className="px-1.5 py-0.5 bg-primary text-white text-[9px] font-bold uppercase rounded">
+                                          Current
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 mb-1">{event.date}</p>
+                                    {event.description && (
+                                      <p className="text-xs text-slate-600 line-clamp-2">{event.description}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-            {/* Pagination */}
-            <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
-              <div className="text-sm text-slate-500">
-                Showing 1-4 of 24 orders
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                  <span className="material-symbols-outlined text-slate-600">chevron_left</span>
-                </button>
-                <button className="px-3 py-1 bg-primary text-white rounded-lg font-semibold text-sm">
-                  1
-                </button>
-                <button className="px-3 py-1 border border-slate-300 rounded-lg font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                  2
-                </button>
-                <button className="px-3 py-1 border border-slate-300 rounded-lg font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                  3
-                </button>
-                <button className="p-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                  <span className="material-symbols-outlined text-slate-600">chevron_right</span>
-                </button>
-              </div>
-            </div>
+        {/* Pagination - Simplified on mobile */}
+        <div className="px-4 md:px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50/50">
+          <div className="text-[10px] md:text-sm text-slate-500 font-medium">
+            Showing 1-4 of 24
           </div>
-
-          {/* Support Banner */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col md:flex-row items-center gap-6">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-primary">help</span>
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h6 className="font-bold text-slate-900">Need assistance with an order?</h6>
-              <p className="text-sm text-slate-500">
-                Our 24/7 support team can help with logistics or PV discrepancies.
-              </p>
-            </div>
-            <button className="w-full md:w-auto px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors whitespace-nowrap">
-              Contact Support
+          <div className="flex items-center gap-1 md:gap-2">
+            <button className="p-1.5 border border-slate-300 rounded-lg hover:bg-white transition-colors">
+              <span className="material-symbols-outlined text-slate-600 text-lg">chevron_left</span>
+            </button>
+            <button className="h-8 w-8 bg-primary text-white rounded-lg font-bold text-xs md:text-sm">
+              1
+            </button>
+            <button className="h-8 w-8 border border-slate-300 rounded-lg font-bold text-xs md:text-sm text-slate-600 hover:bg-white transition-colors">
+              2
+            </button>
+            <button className="p-1.5 border border-slate-300 rounded-lg hover:bg-white transition-colors">
+              <span className="material-symbols-outlined text-slate-600 text-lg">chevron_right</span>
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-slate-200 mt-auto py-6">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs md:text-sm text-slate-500">
-            <div className="text-center md:text-left">© 2024 Fintech MLM Dashboard. All rights reserved.</div>
-            <div className="flex items-center gap-4 md:gap-6">
-              <a href="#" className="hover:text-primary">Privacy Policy</a>
-              <a href="#" className="hover:text-primary">Terms of Service</a>
-              <a href="#" className="hover:text-primary">Help Center</a>
-            </div>
-          </div>
-        </footer>
-      </main>
+      {/* Support Banner - Stacked on mobile */}
+      <div className="bg-linear-to-r from-slate-900 to-slate-800 rounded-xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-white">support_agent</span>
+        </div>
+        <div className="flex-1">
+          <h6 className="font-bold text-white text-base">Need assistance with an order?</h6>
+          <p className="text-sm text-slate-400">
+            Our 24/7 support team can help with logistics or PV discrepancies.
+          </p>
+        </div>
+        <button className="w-full md:w-auto px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+          Get Help
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
 import PodiumCard from "./PodiumCard";
 import RankingTable from "./RankingTable";
 
@@ -65,99 +63,93 @@ const Leaderboard = () => {
   const regions = ["Global Ranking", "North America", "Europe", "Asia Pacific", "Latin America"];
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-display">
-      <Sidebar />
-
-      <main className="flex-1 flex flex-col min-w-0">
-        <Header />
-
-        <div className="p-8 space-y-6">
-          {/* Page Title & Time Period Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">
-                Distributor Leaderboard
-              </h1>
-              <p className="text-slate-500">
-                Real-time performance rankings based on Personal Volume (PV).
-              </p>
-            </div>
-            <div className="flex items-center bg-slate-100 p-1 rounded-lg gap-1">
-              {timePeriods.map((period) => (
-                <button
-                  key={period}
-                  onClick={() => setTimePeriod(period)}
-                  className={`px-6 py-2 text-sm font-semibold rounded-md transition-all ${timePeriod === period
-                      ? "bg-white shadow-sm text-primary"
-                      : "text-slate-500 hover:text-primary"
-                    }`}
-                >
-                  {period}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Region Tabs */}
-          <div className="flex border-b border-slate-200 overflow-x-auto">
-            {regions.map((reg) => (
-              <button
-                key={reg}
-                onClick={() => setRegion(reg)}
-                className={`px-6 py-3 border-b-2 text-sm font-semibold whitespace-nowrap transition-colors ${region === reg
-                    ? "border-primary text-primary"
-                    : "border-transparent text-slate-500 hover:text-primary"
-                  }`}
-              >
-                {reg}
-              </button>
-            ))}
-          </div>
-
-          {/* Top 3 Podium */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-            {/* 2nd Place - Silver */}
-            <div className="order-2 md:order-1">
-              <PodiumCard
-                rank={2}
-                name="Sarah Jenkins"
-                pv="42,850"
-                change="+8.2%"
-                rankTitle="Silver Rank"
-                imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCYUM0k6CqKzTLUMK3dzCNB6T_Sm851RhnEJG4ECLrJpbXD4WHMpDo0h-deZgrTKbYxlIlRWwzR9T4wzmFueOPPBgFBt_O-XJVr8RHmC46b8ihDFFSMW8cqdsdlJkALf-NwdmK4ykSL_qpvGN8zKXu2pSluo5rodccYLRWOXQXuWq37XDmeJqKGNxAQVMQGG_y7RHnCkmDm1Nd_-ybTpSh9kDzQM8dsqEIPM-8bOQhG2LtJ9FkP6OpiFSNTvIieAP35zA9vYKqllMI"
-              />
-            </div>
-
-            {/* 1st Place - Champion */}
-            <div className="order-1 md:order-2">
-              <PodiumCard
-                rank={1}
-                name="Michael Chen"
-                pv="58,500"
-                change="+14.5%"
-                rankTitle="Gold Diamond"
-                imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCnOcDAzXbndb7IKNVsh8QAY8jJB8_wWeMvbAbIZxj7UKx-cp1TB62wYyxTLWsPcUpD7yyRI4S0xzw9YB26wATLYBcGUkt3rWOD2N2dC7krel0Gv82ZjyB2eoiuMIXEOA0IQ1OtwGbjEMn8g-T73xiRtNXdDjC2X6aep8IY-4UWtCh7wHuYdhpZ_AzWodj-d0ea3RaTm8bB_59YVOsBK52blVlnK5ekn6yRmCwKXxpCVQoxydPajcB-M68bx4b6wGAOuQ2QVBmxq3A"
-                isChampion
-              />
-            </div>
-
-            {/* 3rd Place - Bronze */}
-            <div className="order-3 md:order-3">
-              <PodiumCard
-                rank={3}
-                name="David Rodriguez"
-                pv="39,200"
-                change="+5.1%"
-                rankTitle="Bronze Elite"
-                imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAIAzBK98IfcAeMI2Ay_5bbu4IRyqoRFXxOnt1AMOQJkXQ-9-oMMo1xyRF6lufk8SK6vOWphcIwwP4D6ASPsC6-VvwMXztTCP1x28uL084F7RpNwShB_scRXWOz-FI5Yc1ObkxrBbfNwGkLWv_XjdJi5ACvpKh3tpgjsQPXqLK_S50dJyxOkOh9-E3IvbwCHjx525puk62qByNGEntdCP-zzWC3v6JAlHdMAOtyMaZKro-n2CfcjIz2_NcsPuAPITqI7igDRCX-QAY"
-              />
-            </div>
-          </div>
-
-          {/* Top 100 Distributors Table */}
-          <RankingTable rankings={tableData} />
+    <div className="p-4 md:p-8 space-y-6">
+      {/* Page Title & Time Period Filters */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">
+            Distributor Leaderboard
+          </h1>
+          <p className="text-sm md:text-base text-slate-500">
+            Real-time performance rankings based on Personal Volume (PV).
+          </p>
         </div>
-      </main>
+        <div className="flex items-center bg-slate-100 p-1 rounded-lg gap-1 w-full md:w-auto">
+          {timePeriods.map((period) => (
+            <button
+              key={period}
+              onClick={() => setTimePeriod(period)}
+              className={`flex-1 md:flex-none px-4 md:px-6 py-2 text-xs md:text-sm font-semibold rounded-md transition-all ${timePeriod === period
+                ? "bg-white shadow-sm text-primary"
+                : "text-slate-500 hover:text-primary"
+                }`}
+            >
+              {period}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Region Tabs */}
+      <div className="flex border-b border-slate-200 overflow-x-auto no-scrollbar">
+        {regions.map((reg) => (
+          <button
+            key={reg}
+            onClick={() => setRegion(reg)}
+            className={`px-4 md:px-6 py-3 border-b-2 text-xs md:text-sm font-semibold whitespace-nowrap transition-colors ${region === reg
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-primary"
+              }`}
+          >
+            {reg}
+          </button>
+        ))}
+      </div>
+
+      {/* Top 3 Podium */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+        {/* 2nd Place - Silver */}
+        <div className="order-2 md:order-1">
+          <PodiumCard
+            rank={2}
+            name="Sarah Jenkins"
+            pv="42,850"
+            change="+8.2%"
+            rankTitle="Silver Rank"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCYUM0k6CqKzTLUMK3dzCNB6T_Sm851RhnEJG4ECLrJpbXD4WHMpDo0h-deZgrTKbYxlIlRWwzR9T4wzmFueOPPBgFBt_O-XJVr8RHmC46b8ihDFFSMW8cqdsdlJkALf-NwdmK4ykSL_qpvGN8zKXu2pSluo5rodccYLRWOXQXuWq37XDmeJqKGNxAQVMQGG_y7RHnCkmDm1Nd_-ybTpSh9kDzQM8dsqEIPM-8bOQhG2LtJ9FkP6OpiFSNTvIieAP35zA9vYKqllMI"
+          />
+        </div>
+
+        {/* 1st Place - Champion */}
+        <div className="order-1 md:order-2">
+          <PodiumCard
+            rank={1}
+            name="Michael Chen"
+            pv="58,500"
+            change="+14.5%"
+            rankTitle="Gold Diamond"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCnOcDAzXbndb7IKNVsh8QAY8jJB8_wWeMvbAbIZxj7UKx-cp1TB62wYyxTLWsPcUpD7yyRI4S0xzw9YB26wATLYBcGUkt3rWOD2N2dC7krel0Gv82ZjyB2eoiuMIXEOA0IQ1OtwGbjEMn8g-T73xiRtNXdDjC2X6aep8IY-4UWtCh7wHuYdhpZ_AzWodj-d0ea3RaTm8bB_59YVOsBK52blVlnK5ekn6yRmCwKXxpCVQoxydPajcB-M68bx4b6wGAOuQ2QVBmxq3A"
+            isChampion
+          />
+        </div>
+
+        {/* 3rd Place - Bronze */}
+        <div className="order-3 md:order-3">
+          <PodiumCard
+            rank={3}
+            name="David Rodriguez"
+            pv="39,200"
+            change="+5.1%"
+            rankTitle="Bronze Elite"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAIAzBK98IfcAeMI2Ay_5bbu4IRyqoRFXxOnt1AMOQJkXQ-9-oMMo1xyRF6lufk8SK6vOWphcIwwP4D6ASPsC6-VvwMXztTCP1x28uL084F7RpNwShB_scRXWOz-FI5Yc1ObkxrBbfNwGkLWv_XjdJi5ACvpKh3tpgjsQPXqLK_S50dJyxOkOh9-E3IvbwCHjx525puk62qByNGEntdCP-zzWC3v6JAlHdMAOtyMaZKro-n2CfcjIz2_NcsPuAPITqI7igDRCX-QAY"
+          />
+        </div>
+      </div>
+
+      {/* Top 100 Distributors Table */}
+      <div className="overflow-x-auto">
+        <RankingTable rankings={tableData} />
+      </div>
     </div>
   );
 };

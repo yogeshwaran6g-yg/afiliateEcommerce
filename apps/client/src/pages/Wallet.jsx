@@ -66,9 +66,6 @@ export default function Wallet() {
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-display">
-            {/* Sidebar */}
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0">
                 {/* Top Header */}

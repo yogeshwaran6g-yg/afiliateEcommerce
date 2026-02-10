@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 
 export default function Support() {
+    const [activeTab, setActiveTab] = useState("faq");
+
     const supportOptions = [
         {
             icon: "menu_book",
@@ -47,179 +47,161 @@ export default function Support() {
             lastUpdate: "Yesterday, 4:30 PM",
             status: "Resolved",
             statusColor: "bg-green-100 text-green-700"
+        }
+    ];
+
+    const faqs = [
+        {
+            q: "How do I track my order?",
+            a: "Go to your Orders page and click on 'Track Shipment' next to the relevant order. You'll receive real-time updates."
         },
         {
-            id: "#TK-8712",
-            subject: "Wallet Authentication Error",
-            lastUpdate: "Oct 12, 2023",
-            status: "Open",
-            statusColor: "bg-slate-100 text-slate-700"
+            q: "What is the return policy?",
+            a: "We offer a 30-day return policy for unopened items. Digital products and starter kits are non-refundable once activated."
         },
         {
-            id: "#TK-8650",
-            subject: "Missing Tier Bonus Achievement",
-            lastUpdate: "Oct 10, 2023",
-            status: "Resolved",
+            q: "How do PV earnings work?",
+            a: "Personal Volume (PV) is earned on every purchase. Your total PV determines your rank and commission eligibility for each cycle."
+        },
+        {
+            q: "Locked out of my account?",
+            a: "Use the 'Forgot Password' link on the login page. An OTP will be sent to your registered email or mobile number."
         }
     ];
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <div className="flex min-h-screen bg-slate-50 font-display">
-            {/* Sidebar */}
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Top Navigation */}
-                <Header toggleSidebar={() => setIsSidebarOpen(true)} />
-
-                {/* Hero Section */}
-                <div className="bg-white border-b border-slate-200 py-16">
-                    <div className="max-w-3xl mx-auto px-8 text-center">
-                        <h1 className="text-5xl font-bold text-slate-900 mb-4">How can we help you?</h1>
-                        <p className="text-slate-500 text-lg mb-8">
-                            Search our knowledge base or reach out to our team for assistance.
-                        </p>
-
-                        {/* Search Bar */}
-                        <div className="relative">
-                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
-                                search
-                            </span>
-                            <input
-                                type="text"
-                                placeholder="Search for articles, guides, and FAQs..."
-                                className="w-full pl-14 pr-4 py-4 bg-slate-50 border border-slate-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            />
-                        </div>
-                    </div>
+        <div className="p-4 md:p-8 space-y-8">
+            {/* Hero Section - Simplified */}
+            <div className="text-center py-8">
+                <h1 className="text-2xl md:text-5xl font-bold text-slate-900 mb-4">How can we help?</h1>
+                <p className="text-sm md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto">
+                    Search our knowledge base or reach out to our team for assistance.
+                </p>
+                <div className="flex bg-slate-100 p-1 rounded-xl w-fit mx-auto mb-8">
+                    <button
+                        onClick={() => setActiveTab("faq")}
+                        className={`px-6 md:px-8 py-2 md:py-2.5 text-xs md:text-sm font-bold rounded-lg transition-all ${activeTab === "faq" ? "bg-white shadow-sm text-primary" : "text-slate-500"}`}
+                    >
+                        FAQ
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("contact")}
+                        className={`px-6 md:px-8 py-2 md:py-2.5 text-xs md:text-sm font-bold rounded-lg transition-all ${activeTab === "contact" ? "bg-white shadow-sm text-primary" : "text-slate-500"}`}
+                    >
+                        Tickets
+                    </button>
                 </div>
 
+                {/* Search Bar */}
+                <div className="relative max-w-2xl mx-auto">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
+                        search
+                    </span>
+                    <input
+                        type="text"
+                        placeholder="Search for articles, guides, and FAQs..."
+                        className="w-full pl-12 pr-4 py-3 md:py-4 bg-white border border-slate-300 rounded-xl text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-8 py-12">
-                    {/* Support Options */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        {supportOptions.map((option, index) => (
-                            <div
-                                key={index}
-                                className="bg-white rounded-2xl border border-slate-200 p-8 hover:shadow-lg transition-all"
-                            >
-                                <div className={`w-14 h-14 ${option.iconBg} rounded-xl flex items-center justify-center mb-4`}>
-                                    <span className={`material-symbols-outlined text-3xl ${option.iconColor}`}>
-                                        {option.icon}
-                                    </span>
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-2">{option.title}</h3>
-                                <p className="text-slate-600 text-sm mb-4">{option.description}</p>
-                                <a
-                                    href={option.link}
-                                    className="inline-flex items-center gap-1 text-primary font-semibold text-sm hover:gap-2 transition-all"
-                                >
-                                    {option.action}
-                                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                                </a>
+                <div className="lg:col-span-2 space-y-4">
+                    {activeTab === "faq" ? (
+                        <div className="space-y-4">
+                            {faqs.map((faq, i) => (
+                                <details key={i} className="group bg-white border border-slate-200 rounded-2xl overflow-hidden [&_summary::-webkit-details-marker]:hidden shadow-sm">
+                                    <summary className="flex items-center justify-between p-4 md:p-6 cursor-pointer hover:bg-slate-50 transition-colors">
+                                        <h3 className="text-sm md:text-lg font-bold text-slate-900">{faq.q}</h3>
+                                        <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                                    </summary>
+                                    <div className="px-4 md:px-6 pb-4 md:pb-6 text-sm md:text-base text-slate-500 leading-relaxed">
+                                        {faq.a}
+                                    </div>
+                                </details>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                                <h2 className="text-lg md:text-xl font-bold text-slate-900">Support Tickets</h2>
+                                <button className="text-primary font-semibold text-sm hover:underline">
+                                    New Ticket
+                                </button>
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Recent Support Tickets */}
-                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-slate-900">Recent Support Tickets</h2>
-                            <a href="#" className="text-primary font-semibold text-sm hover:underline">
-                                View all tickets
-                            </a>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-50 border-b border-slate-200">
+                                        <tr>
+                                            <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase">ID</th>
+                                            <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Subject</th>
+                                            <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase hidden md:table-cell">Status</th>
+                                            <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase text-right">View</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200">
+                                        {tickets.map((ticket) => (
+                                            <tr key={ticket.id} className="hover:bg-slate-50 transition-colors">
+                                                <td className="px-6 py-4 text-xs md:text-sm font-semibold text-primary">{ticket.id}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-xs md:text-sm font-medium text-slate-900">{ticket.subject}</div>
+                                                    <div className="text-[10px] md:text-xs text-slate-400">{ticket.lastUpdate}</div>
+                                                </td>
+                                                <td className="px-6 py-4 hidden md:table-cell">
+                                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${ticket.statusColor}`}>
+                                                        {ticket.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400">
+                                                        <span className="material-symbols-outlined text-lg">visibility</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-
-                        {/* Table */}
-                        <table className="w-full">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Ticket ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Subject
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Last Update
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                                {tickets.map((ticket) => (
-                                    <tr key={ticket.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <span className="font-semibold text-primary">{ticket.id}</span>
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-900 font-medium">
-                                            {ticket.subject}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">
-                                            {ticket.lastUpdate}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${ticket.statusColor}`}>
-                                                {ticket.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button className="p-2 hover:bg-slate-100 rounded-lg">
-                                                <span className="material-symbols-outlined text-slate-400">visibility</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        {/* Load More */}
-                        <div className="px-6 py-4 border-t border-slate-200 text-center">
-                            <button className="text-slate-600 font-semibold text-sm hover:text-primary">
-                                Load more history
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Still Need Help Banner */}
-                    <div className="bg-blue-50 rounded-2xl border border-blue-100 p-8 mt-12 flex items-center justify-between">
-                        <div className="flex-1">
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">
-                                Still can't find what you're looking for?
-                            </h3>
-                            <p className="text-slate-600">
-                                Our dedicated support managers are available 24/7 to help you grow your distribution network.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <button className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">
-                                Contact Sales
-                            </button>
-                            <button className="px-6 py-3 border border-slate-300 bg-white text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors">
-                                Call Support
-                            </button>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
-                {/* Footer */}
-                <footer className="bg-white border-t border-slate-200 mt-auto py-6">
-                    <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs md:text-sm text-slate-500">
-                        <div className="text-center md:text-left">© 2024 Fintech MLM Dashboard. All rights reserved.</div>
-                        <div className="flex items-center gap-4 md:gap-6">
-                            <a href="#" className="hover:text-primary">Privacy Policy</a>
-                            <a href="#" className="hover:text-primary">Terms of Service</a>
-                            <a href="#" className="hover:text-primary">Help Center</a>
-                        </div>
+                {/* Sidebar Info */}
+                <div className="space-y-6">
+                    <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                        <h3 className="text-lg md:text-xl font-bold mb-4 relative z-10">Distributor Hotline</h3>
+                        <p className="text-slate-400 text-xs md:text-sm mb-6 relative z-10">Direct line for Platinum and above rank distributors. Available 24/7 for urgent matters.</p>
+                        <a href="tel:1800FINTECH" className="flex items-center gap-2 text-primary font-black text-lg hover:underline whitespace-nowrap relative z-10">
+                            <span className="material-symbols-outlined">call</span>
+                            1-800-FINTECH
+                        </a>
                     </div>
-                </footer>
+
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <h3 className="font-bold text-slate-900 mb-2">Community Support</h3>
+                        <p className="text-slate-500 text-xs md:text-sm mb-6">Join our official telegram group for community tips and fast updates.</p>
+                        <button className="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm">
+                            <span className="material-symbols-outlined">send</span>
+                            Join Telegram
+                        </button>
+                    </div>
+
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <span className="text-[10px] font-bold text-emerald-600 uppercase">Live Now</span>
+                        </div>
+                        <h3 className="font-bold text-slate-900 mb-1">Live Chat Support</h3>
+                        <p className="text-slate-500 text-xs md:text-sm mb-4">Connect with a real person in less than 2 minutes.</p>
+                        <button className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
+                            Start Chat
+                            <span className="material-symbols-outlined text-sm">open_in_new</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

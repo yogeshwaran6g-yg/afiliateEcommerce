@@ -1,4 +1,4 @@
-import pool from '#config/db.js';
+import pool, { queryRunner } from '#config/db.js';
 import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -20,13 +20,28 @@ export const login = async (phone, password) => {
             return { code: 404, message: "User not found" };
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return { code: 401, message: "Invalid credentials" };
-        }
-
         if (!user.is_active) {
             return { code: 403, message: "Account is inactive" };
+        }
+
+        if (password) {
+            if (!user.password) {
+                return { code: 401, message: "Password not set for this account" };
+            }
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return { code: 401, message: "Invalid credentials" };
+            }
+        } else {
+            // Password not provided, trigger OTP login
+            const otpRes = await sendOtp(user.id, user.phone, 'login');
+            if (otpRes.code !== 200) return otpRes;
+
+            return {
+                code: 202,
+                message: "OTP sent successfully",
+                data: { userId: user.id }
+            };
         }
 
         const token = generateToken(user);
@@ -46,14 +61,61 @@ export const login = async (phone, password) => {
     }
 };
 
-export const sendOtp = async (userId, phone) => {
+async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    options.signal = controller.signal;
+
+    try {
+        const res = await fetch(url, options);
+        clearTimeout(id);
+        return { result: true, res };
+    } catch (err) {
+        log("OTP Fetch Error", "error", err.message || "unknown error");
+        clearTimeout(id);
+        return { result: false };
+    }
+}
+export const sendOtp = async (userId, phone, purpose = 'login') => {
     const connection = await pool.getConnection();
     try {
         // Generate 6 digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Mocking: Log OTP to console for testing
-        log(`[MOCK OTP] OTP for ${phone} (User ID: ${userId}): ${otp}`, "warn");
+        log(`Sending OTP for ${phone} (User ID: ${userId}, Purpose: ${purpose}): ${otp}`, "info");
+
+         const payload = {
+            phone_number: `91${phone}`, // Assuming phone is passed without country code, adding 91 prefix
+            template_name: "app_verify",
+            template_language: "en_US",
+            field_1: `${otp}`,
+            button_0: `${otp}`
+        };
+
+        const token = env.WHATSUP_OTP_TOKEN;
+        const headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+        };
+        
+       try{
+            const response = await fetchWithTimeout(env.WHATSUP_BASE_URL, {
+                method: "POST",
+                headers,
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (!result.resposne) {
+                log(`error: ${JSON.stringify(result)}`, "error");
+                return { code: 500, message: "Failed to send OTP" };
+
+            }
+        } catch (fetchErr) {
+            log(`fetch error: ${fetchErr.message}`, "error");
+        return { code: 500, message: "Failed to send OTP" };
+
+        }
 
         // Hash OTP before storing
         const salt = await bcrypt.genSalt(10);
@@ -61,10 +123,14 @@ export const sendOtp = async (userId, phone) => {
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
         await connection.query(
-            `INSERT INTO otp (user_id, otp_hash, expires_at) 
-             VALUES (?, ?, ?) 
-             ON DUPLICATE KEY UPDATE otp_hash = VALUES(otp_hash), expires_at = VALUES(expires_at)`,
-            [userId, otpHash, expiresAt]
+            `INSERT INTO otp (user_id, otp_hash, purpose, expires_at) 
+             VALUES (?, ?, ?, ?) 
+             ON DUPLICATE KEY UPDATE 
+                otp_hash = VALUES(otp_hash), 
+                purpose = VALUES(purpose), 
+                expires_at = VALUES(expires_at),
+                updated_at = CURRENT_TIMESTAMP`,
+            [userId, otpHash, purpose, expiresAt]
         );
 
         return { code: 200, message: "OTP sent successfully" };
@@ -77,9 +143,35 @@ export const sendOtp = async (userId, phone) => {
     }
 };
 
-export const verifyOtp = async (userId, otp) => {
+export const resendOtp = async (userId, phone, purpose) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM otp WHERE user_id = ?', [userId]);
+        const [rows] = await pool.query('SELECT updated_at FROM otp WHERE user_id = ?', [userId]);
+        
+        if (rows.length > 0) {
+            const lastSent = new Date(rows[0].updated_at).getTime();
+            const now = Date.now();
+            const cooldownMs = (env.OTP_RESEND_COOLDOWN || 100) * 1000;
+
+            if (now - lastSent < cooldownMs) {
+                const remaining = Math.ceil((cooldownMs - (now - lastSent)) / 1000);
+                return { 
+                    code: 429, 
+                    message: `Please wait ${remaining} seconds before resending OTP` 
+                };
+            }
+        }
+
+        return await sendOtp(userId, phone, purpose);
+
+    } catch (e) {
+        log(`Resend OTP error: ${e.message}`, "error");
+        return { code: 500, message: "Internal server error" };
+    }
+};
+
+export const verifyOtp = async (userId, otp, purpose) => {
+    try {
+        const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ?', [userId]);
 
         if (rows.length === 0) {
             return { code: 400, message: "OTP not found or expired" };
@@ -91,18 +183,38 @@ export const verifyOtp = async (userId, otp) => {
             return { code: 400, message: "OTP expired" };
         }
 
+        if (purpose && otpRecord.purpose !== purpose) {
+            return { code: 400, message: "OTP purpose mismatch" };
+        }
+
         const isMatch = await bcrypt.compare(otp, otpRecord.otp_hash);
         if (!isMatch) {
             return { code: 400, message: "Invalid OTP" };
         }
 
         // Mark user as verified
-        await pool.query('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
+        await queryRunner('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
 
         // Clear OTP
-        await pool.query('DELETE FROM otp WHERE user_id = ?', [userId]);
+        await queryRunner('DELETE FROM otp WHERE user_id = ?', [userId]);
 
-        return { code: 200, message: "OTP verified successfully" };
+        const user = await findUserById(userId);
+        delete user.password;
+
+        if (otpRecord.purpose === 'login' || purpose === 'login') {
+            const token = generateToken(user);
+            return { 
+                code: 200, 
+                message: "OTP verified successfully", 
+                data: { user, token } 
+            };
+        }
+
+        return { 
+            code: 200, 
+            message: "OTP verified successfully", 
+            data: { user } 
+        };
 
     } catch (e) {
         log(`Verify OTP error: ${e.message}`, "error");
@@ -142,9 +254,7 @@ export const updateProfile = async (userId, profileData, addressData) => {
         await connection.beginTransaction();
 
         if (profileData) {
-            // Upsert profile
             const { kyc_pan, kyc_aadhar, profile_image } = profileData;
-            // Check if profile exists
             const [existing] = await connection.query('SELECT id FROM profiles WHERE user_id = ?', [userId]);
 
             if (existing.length > 0) {
@@ -161,9 +271,6 @@ export const updateProfile = async (userId, profileData, addressData) => {
         }
 
         if (addressData) {
-            // For simplicity, let's say we add a new address or update default. 
-            // The prompt asked for "Full controller and signup based functions". 
-            // I'll assume adding an address for now if provided.
             const { address_line1, address_line2, city, state, country, pincode, is_default } = addressData;
             if (address_line1 && city && state && country && pincode) {
                 await connection.query(
@@ -185,12 +292,10 @@ export const updateProfile = async (userId, profileData, addressData) => {
     }
 };
 
-
-
-
 export default {
     login,
     sendOtp,
+    resendOtp,
     verifyOtp,
     getProfile,
     updateProfile

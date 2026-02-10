@@ -97,48 +97,10 @@ class AuthService {
     }
 
     /**
-       * Fetches the current user's profile.
-       * @returns {Promise<Object>} The profile data.
-       */
-    async getProfile() {
-        try {
-            const response = await api.get("/api/auth/profile");
-            return response;
-        } catch (error) {
-            console.error("Get Profile Error:", error);
-            throw error;
-        }
-    }
-
-    /**
-     * Updates the current user's profile and address information.
-     * @param {Object} profile 
-     * @param {Object} address 
-     * @returns {Promise<Object>} The updated response data.
-     */
-    async updateProfile(profile, address) {
-        try {
-            const response = await api.put("/api/auth/profile", { profile, address });
-
-            // Update local storage user if needed
-            if (response.success && response.data) {
-                const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-                const updatedUser = { ...currentUser, ...response.data };
-                localStorage.setItem("user", JSON.stringify(updatedUser));
-            }
-
-            return response;
-        } catch (error) {
-            console.error("Update Profile Error:", error);
-            throw error;
-        }
-    }
-
-    /**
      * Logs out the user by clearing local storage.
      */
     logout() {
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
         localStorage.removeItem("user");
         // Reload or redirect could be handled by the interceptor or caller
     }
@@ -148,7 +110,7 @@ class AuthService {
      * @returns {boolean}
      */
     isAuthenticated() {
-        return !!localStorage.getItem("accessToken");
+        return !!localStorage.getItem("token");
     }
 
     /**

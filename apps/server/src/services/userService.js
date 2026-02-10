@@ -3,18 +3,26 @@ import { createReferral } from '#services/referralService.js';
 import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 
+const generateReferralId = () => {
+    return 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();
+};
+
 export const createUser = async (userData) => {
     const { name, phone, email, password, referralId } = userData;
-
+    const userRefID = generateReferralId();
+    
     return await transactionRunner(async (connection) => {
-        log(`Creating user: ${name} (${phone})`, "info");
+        log(`Creating user: ${name} (${phone}) with referral ID: ${userRefID}`, "info");
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        let hashedPassword = null;
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            hashedPassword = await bcrypt.hash(password, salt);
+        }
 
         const [result] = await connection.execute(
-            'INSERT INTO users (name, phone, email, password) VALUES (?, ?, ?, ?)',
-            [name, phone, email || null, hashedPassword]
+            'INSERT INTO users (name, phone, email, password, referral_id) VALUES (?, ?, ?, ?, ?)',
+            [name, phone, email || null, hashedPassword, userRefID]
         );
 
         const newUserId = result.insertId;
@@ -25,7 +33,7 @@ export const createUser = async (userData) => {
             await createReferral(referralId, newUserId, connection);
         }
 
-        return { id: newUserId, name, phone, email };
+        return { id: newUserId, name, phone, email, referral_id: userRefID };
     });
 };
 

@@ -4,6 +4,7 @@ import Header from "./Header";
 
 const CommunicationCenter = () => {
   const [activeTab, setActiveTab] = useState("All");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const notifications = [
     {
@@ -60,10 +61,10 @@ const CommunicationCenter = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-display">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <Header />
+        <Header toggleSidebar={() => setIsSidebarOpen(true)} />
 
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Activity Feed */}
@@ -81,8 +82,8 @@ const CommunicationCenter = () => {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`pb-3 text-sm font-semibold transition-colors ${activeTab === tab
-                        ? "border-b-2 border-primary text-primary"
-                        : "text-slate-500 hover:text-slate-700"
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-slate-500 hover:text-slate-700"
                       }`}
                   >
                     {tab}
@@ -96,8 +97,8 @@ const CommunicationCenter = () => {
                 <div
                   key={notif.id}
                   className={`p-4 rounded-xl border shadow-sm cursor-pointer hover:border-primary/30 transition-all ${notif.unread
-                      ? "bg-white border-slate-100"
-                      : "bg-white/60 border-slate-100 grayscale-[0.5] opacity-80"
+                    ? "bg-white border-slate-100"
+                    : "bg-white/60 border-slate-100 grayscale-[0.5] opacity-80"
                     }`}
                 >
                   <div className="flex gap-4">
