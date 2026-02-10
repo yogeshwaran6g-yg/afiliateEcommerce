@@ -5,6 +5,7 @@ import Header from "../components/Header";
 export default function Orders() {
   const [activeTab, setActiveTab] = useState("All Orders");
   const [expandedOrder, setExpandedOrder] = useState("#ORD-7721");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const tabs = [
     { name: "All Orders", count: 24 },
@@ -89,10 +90,10 @@ export default function Orders() {
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-display">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <Header />
+        <Header toggleSidebar={() => setIsSidebarOpen(true)} />
 
         <div className="p-8 space-y-6">
           {/* Page Header */}
@@ -122,8 +123,8 @@ export default function Orders() {
                 key={tab.name}
                 onClick={() => setActiveTab(tab.name)}
                 className={`px-6 py-3 text-sm font-semibold whitespace-nowrap transition-colors ${activeTab === tab.name
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-slate-500 hover:text-slate-700"
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-slate-500 hover:text-slate-700"
                   }`}
               >
                 {tab.name}
@@ -261,10 +262,10 @@ export default function Orders() {
                                     <div className="flex flex-col items-center">
                                       <div
                                         className={`w-3 h-3 rounded-full ${event.completed
-                                            ? event.current
-                                              ? "bg-primary ring-4 ring-primary/20"
-                                              : "bg-primary"
-                                            : "bg-slate-300"
+                                          ? event.current
+                                            ? "bg-primary ring-4 ring-primary/20"
+                                            : "bg-primary"
+                                          : "bg-slate-300"
                                           }`}
                                       ></div>
                                       {index < order.tracking.timeline.length - 1 && (
@@ -327,21 +328,33 @@ export default function Orders() {
           </div>
 
           {/* Support Banner */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 flex items-center gap-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col md:flex-row items-center gap-6">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
               <span className="material-symbols-outlined text-primary">help</span>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 text-center md:text-left">
               <h6 className="font-bold text-slate-900">Need assistance with an order?</h6>
               <p className="text-sm text-slate-500">
                 Our 24/7 support team can help with logistics or PV discrepancies.
               </p>
             </div>
-            <button className="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors whitespace-nowrap">
+            <button className="w-full md:w-auto px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors whitespace-nowrap">
               Contact Support
             </button>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="bg-white border-t border-slate-200 mt-auto py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs md:text-sm text-slate-500">
+            <div className="text-center md:text-left">© 2024 Fintech MLM Dashboard. All rights reserved.</div>
+            <div className="flex items-center gap-4 md:gap-6">
+              <a href="#" className="hover:text-primary">Privacy Policy</a>
+              <a href="#" className="hover:text-primary">Terms of Service</a>
+              <a href="#" className="hover:text-primary">Help Center</a>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );

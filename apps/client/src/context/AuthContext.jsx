@@ -27,12 +27,11 @@ export const AuthProvider = ({ children }) => {
     const logoutMutation = useLogoutMutation();
 
     // Derived state
-    // userProfile might be the response object or the user object depending on API return
-    // Adjust based on your API response structure. 
-    // Assuming authService.getProfile() returns { success: true, data: { user: ... } } or similar
-    // If api returns directly the data, adjust accordingly.
-    // Based on authService.js: getProfile returns response. 
-    const user = userProfile?.data?.user || userProfile?.data || null;
+    // userProfile?.data usually contains { user, profile, addresses }
+    const userData = userProfile?.data || null;
+    const user = userData?.user || userData;
+    const profile = userData?.profile || null;
+    const addresses = userData?.addresses || [];
 
     const loading =
         isLoadingUser ||
@@ -85,6 +84,8 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        profile,
+        addresses,
         loading,
         error: error ? (error.message || "An error occurred") : null,
         isAuthenticated: !!user,

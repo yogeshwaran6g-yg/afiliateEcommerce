@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 
 export default function Wallet() {
     const [dateFilter, setDateFilter] = useState("Last 30 Days");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const transactions = [
         {
@@ -64,72 +67,30 @@ export default function Wallet() {
     return (
         <div className="flex min-h-screen bg-slate-50 font-display">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
-                {/* Logo */}
-                <div className="p-6 border-b border-slate-200">
-                    <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
-                            F
-                        </div>
-                        <div>
-                            <div className="font-bold text-slate-900">FinTrack MLM</div>
-                            <div className="text-xs text-slate-500">DISTRIBUTOR PORTAL</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Navigation */}
-                <nav className="flex-1 p-4">
-                    <a href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">dashboard</span>
-                        <span className="font-medium">Dashboard</span>
-                    </a>
-                    <a href="/wallet" className="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">account_balance_wallet</span>
-                        <span className="font-semibold">Wallet & Earnings</span>
-                    </a>
-                    <a href="/team" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">groups</span>
-                        <span className="font-medium">My Team</span>
-                    </a>
-                    <a href="/products" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">inventory_2</span>
-                        <span className="font-medium">Products</span>
-                    </a>
-                    <a href="/reports" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg mb-1">
-                        <span className="material-symbols-outlined text-xl">bar_chart</span>
-                        <span className="font-medium">Reports</span>
-                    </a>
-                </nav>
-
-                {/* Settings */}
-                <div className="p-4 border-t border-slate-200">
-                    <a href="/settings" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg">
-                        <span className="material-symbols-outlined text-xl">settings</span>
-                        <span className="font-medium">Settings</span>
-                    </a>
-                </div>
-            </aside>
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto">
-                <div className="max-w-7xl mx-auto px-8 py-8">
+            <main className="flex-1 flex flex-col min-w-0">
+                {/* Top Header */}
+                <Header toggleSidebar={() => setIsSidebarOpen(true)} />
+
+                <div className="flex-1 px-4 md:px-8 py-4 md:py-8">
                     {/* Page Header */}
-                    <div className="flex items-start justify-between mb-8">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6 md:mb-8">
                         <div>
-                            <h1 className="text-4xl font-bold text-slate-900 mb-2">Wallet & Earnings History</h1>
-                            <p className="text-slate-500">
+                            <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Wallet & Earnings History</h1>
+                            <p className="text-sm md:text-base text-slate-500">
                                 Manage your commissions, monitor pending holds, and withdraw your funds.
                             </p>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg font-semibold text-slate-700 hover:bg-slate-50">
+                        <div className="flex items-center gap-2 md:gap-3">
+                            <button className="flex items-center gap-2 px-3 md:px-4 py-2 border border-slate-300 rounded-lg font-semibold text-slate-700 hover:bg-slate-50 text-sm">
                                 <span className="material-symbols-outlined text-lg">download</span>
-                                Export CSV
+                                <span className="hidden sm:inline">Export CSV</span>
                             </button>
-                            <button className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90">
+                            <button className="flex items-center gap-2 px-4 md:px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 text-sm">
                                 <span className="material-symbols-outlined text-lg">account_balance_wallet</span>
-                                Withdraw Funds
+                                <span className="hidden sm:inline">Withdraw Funds</span>
                             </button>
                         </div>
                     </div>
@@ -273,6 +234,18 @@ export default function Wallet() {
                         </div>
                     </div>
                 </div>
+
+                {/* Footer */}
+                <footer className="bg-white border-t border-slate-200 mt-auto py-6">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs md:text-sm text-slate-500">
+                        <div className="text-center md:text-left">© 2024 Fintech MLM Dashboard. All rights reserved.</div>
+                        <div className="flex items-center gap-4 md:gap-6">
+                            <a href="#" className="hover:text-primary">Privacy Policy</a>
+                            <a href="#" className="hover:text-primary">Terms of Service</a>
+                            <a href="#" className="hover:text-primary">Help Center</a>
+                        </div>
+                    </div>
+                </footer>
             </main>
         </div>
     );

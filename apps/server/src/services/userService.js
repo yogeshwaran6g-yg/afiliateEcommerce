@@ -5,10 +5,10 @@ import bcrypt from 'bcrypt';
 
 export const createUser = async (userData) => {
     const { name, phone, email, password, referralId } = userData;
-    
+
     return await transactionRunner(async (connection) => {
         log(`Creating user: ${name} (${phone})`, "info");
-        
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -16,15 +16,15 @@ export const createUser = async (userData) => {
             'INSERT INTO users (name, phone, email, password) VALUES (?, ?, ?, ?)',
             [name, phone, email || null, hashedPassword]
         );
-        
+
         const newUserId = result.insertId;
-        
+
         if (referralId) {
             log(`Linking referral: ${referralId} -> ${newUserId}`, "info");
             // Pass the same connection to keep it in the same transaction
             await createReferral(referralId, newUserId, connection);
         }
-        
+
         return { id: newUserId, name, phone, email };
     });
 };
@@ -59,34 +59,34 @@ export const getFirstUser = async () => {
     }
 };
 
-export const existinguserFieldsCheck = async ({name = null, phone = null})=>{
-    try{
-        if(phone){
+export const existinguserFieldsCheck = async ({ name = null, phone = null }) => {
+    try {
+        if (phone) {
             const user = await findUserByPhone(phone);
-            if(user){
+            if (user) {
                 return {
                     isExisting: true,
-                    field : "phone"
+                    field: "phone"
                 };
-            }            
+            }
         }
-        if(name){
+        if (name) {
             const user = await queryRunner(`
-                    select * from users where name = ?`
-                    [name]
-                )
-            if(user){
+                    select * from users where name = ?`,
+                [name]
+            )
+            if (user) {
                 return {
                     isExisting: true,
-                    field : "name"
+                    field: "name"
                 };
-            }            
+            }
         }
-        return  {
-            isExisting : false,
-            field :null
+        return {
+            isExisting: false,
+            field: null
         }
-    }catch(e){
+    } catch (e) {
         console.log(e)
         throw e;
     }

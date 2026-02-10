@@ -103,7 +103,7 @@ CREATE TABLE `profiles` (
   `user_id` BIGINT UNSIGNED NOT NULL,
   `kyc_pan` VARCHAR(20),
   `kyc_aadhar` VARCHAR(20),
-  `profile_image` VARCHAR(255),
+  `profile_image` MEDIUMTEXT,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT `fk_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE

@@ -7,7 +7,7 @@ const pool = mysql.createPool({
   host: env.DB_HOST,
   user: env.DB_USER,
   password: env.DB_PASSWORD,
-  port : env.DB_PORT,
+  port: env.DB_PORT,
   database: env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
@@ -26,29 +26,31 @@ export const connectDB = async () => {
 };
 
 export const getConnection = async () => {
-    try {
-        const connection = await pool.getConnection();
-        return connection;
-    } catch (err) {
-        log(`Database Connection Failed: ${err.message}`, "error");
-        throw err;
-    }
+  try {
+    const connection = await pool.getConnection();
+    return connection;
+  } catch (err) {
+    log(`Database Connection Failed: ${err.message}`, "error");
+    throw err;
+  }
 };
 
 
 
 export const queryRunner = async (sql, params = []) => {
+  let connection;
   try {
-    const connection = await getConnection();
+    connection = await getConnection();
     const [rows, fields] = await connection.execute(sql, params);
-    connection.release();
-    if(rows.length === 0){
-        return null;
+    if (rows.length === 0) {
+      return null;
     }
     return rows;
   } catch (error) {
     log(`Query Error: ${error.message}`, "error", { sql });
     throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -72,9 +74,9 @@ export const transactionRunner = async (callback) => {
   try {
     await connection.beginTransaction();
     log("Transaction Started", "debug");
-    
+
     const result = await callback(connection);
-    
+
     await connection.commit();
     log("Transaction Committed", "debug");
     return result;

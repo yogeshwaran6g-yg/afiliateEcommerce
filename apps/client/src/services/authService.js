@@ -15,7 +15,7 @@ class AuthService {
    */
     async login(phone, password, otp = null) {
         try {
-            const response = await api.post("/auth/login", { phone, password, otp });
+            const response = await api.post("/api/auth/login", { phone, password, otp });
             // Store token and user data in local storage
             if (response.data?.token) {
                 localStorage.setItem("token", response.data.token);
@@ -35,7 +35,7 @@ class AuthService {
      */
     async requestLoginOtp(phone) {
         try {
-            const response = await api.post("/auth/login-otp", { phone });
+            const response = await api.post("/api/auth/login-otp", { phone });
             return response;
         } catch (error) {
             console.error("Login OTP Request Error:", error);
@@ -50,7 +50,7 @@ class AuthService {
      */
     async signup(userDetails) {
         try {
-            const response = await api.post("/auth/signup", userDetails);
+            const response = await api.post("/api/auth/signup", userDetails);
             return response;
         } catch (error) {
             console.error("Signup Error:", error);
@@ -66,7 +66,7 @@ class AuthService {
      */
     async verifyOtp(userId, otp) {
         try {
-            const response = await api.post("/auth/verify-otp", { userId, otp });
+            const response = await api.post("/api/auth/verify-otp", { userId, otp });
 
             // If OTP verification also returns tokens, store them
             if (response.success && response.data?.token) {
@@ -88,7 +88,7 @@ class AuthService {
    */
     async resendOtp(userId) {
         try {
-            const response = await api.post("/auth/resend-otp", { userId });
+            const response = await api.post("/api/auth/resend-otp", { userId });
             return response;
         } catch (error) {
             console.error("Resend OTP Error:", error);
@@ -102,7 +102,7 @@ class AuthService {
        */
     async getProfile() {
         try {
-            const response = await api.get("/auth/profile");
+            const response = await api.get("/api/auth/profile");
             return response;
         } catch (error) {
             console.error("Get Profile Error:", error);
@@ -118,7 +118,7 @@ class AuthService {
      */
     async updateProfile(profile, address) {
         try {
-            const response = await api.put("/auth/profile", { profile, address });
+            const response = await api.put("/api/auth/profile", { profile, address });
 
             // Update local storage user if needed
             if (response.success && response.data) {

@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 
 export default function Products() {
     const [viewMode, setViewMode] = useState("grid");
     const [sortBy, setSortBy] = useState("newest");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const products = [
         {
@@ -100,132 +103,28 @@ export default function Products() {
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-display">
-            {/* Left Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
-                {/* Logo */}
-                <div className="p-6 border-b border-slate-200">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
-                            M
-                        </div>
-                        <div>
-                            <div className="font-bold text-lg">MLM Pro</div>
-                            <div className="text-xs text-slate-500">Distributor Portal</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Main Menu */}
-                <div className="p-4">
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">
-                        Main Menu
-                    </div>
-                    <nav className="space-y-1">
-                        <a href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-                            <span className="material-symbols-outlined text-xl">dashboard</span>
-                            <span className="text-sm font-medium">Dashboard</span>
-                        </a>
-                        <a href="/products" className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg">
-                            <span className="material-symbols-outlined text-xl">shopping_bag</span>
-                            <span className="text-sm font-semibold">Shop Products</span>
-                        </a>
-                        <a href="/team" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-                            <span className="material-symbols-outlined text-xl">group</span>
-                            <span className="text-sm font-medium">My Team</span>
-                        </a>
-                        <a href="/earnings" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-                            <span className="material-symbols-outlined text-xl">account_balance_wallet</span>
-                            <span className="text-sm font-medium">Earnings</span>
-                        </a>
-                    </nav>
-                </div>
-
-                {/* Categories */}
-                <div className="p-4 border-t border-slate-200">
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">
-                        Categories
-                    </div>
-                    <nav className="space-y-1">
-                        {categories.map((cat) => (
-                            <button
-                                key={cat.name}
-                                className="w-full flex items-center justify-between px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-xl">{cat.icon}</span>
-                                    <span className="text-sm font-medium">{cat.name}</span>
-                                </div>
-                                <span className="text-xs font-semibold text-slate-400">{cat.count}</span>
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-
-                {/* User Profile */}
-                <div className="mt-auto p-4 border-t border-slate-200">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white font-bold">
-                            AM
-                        </div>
-                        <div className="flex-1">
-                            <div className="text-sm font-semibold text-slate-900">Alex Morgan</div>
-                            <div className="text-xs text-amber-600 font-semibold">PLATINUM</div>
-                        </div>
-                        <button className="p-1 hover:bg-slate-100 rounded">
-                            <span className="material-symbols-outlined text-slate-400">settings</span>
-                        </button>
-                    </div>
-                </div>
-            </aside>
+            {/* Sidebar */}
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0">
                 {/* Top Bar */}
-                <header className="bg-white border-b border-slate-200 px-8 py-4">
-                    <div className="flex items-center justify-between gap-6">
-                        {/* Search */}
-                        <div className="flex-1 max-w-xl">
-                            <div className="relative">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                    search
-                                </span>
-                                <input
-                                    type="text"
-                                    placeholder="Search products, categories..."
-                                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Right Actions */}
-                        <div className="flex items-center gap-4">
-                            <button className="relative p-2 hover:bg-slate-100 rounded-lg">
-                                <span className="material-symbols-outlined text-slate-600">notifications</span>
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                            </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-                                <span className="material-symbols-outlined">shopping_cart</span>
-                                <span>$0.00</span>
-                                <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">0</span>
-                            </button>
-                        </div>
-                    </div>
-                </header>
+                <Header toggleSidebar={() => setIsSidebarOpen(true)} />
 
                 {/* Page Content */}
-                <div className="flex-1 p-8">
+                <div className="flex-1 p-4 md:p-8">
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-4 md:mb-6">
                         <a href="/" className="hover:text-primary">Home</a>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
                         <span className="text-slate-900 font-medium">Shop</span>
                     </div>
 
                     {/* Page Header */}
-                    <div className="flex items-end justify-between mb-8">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 md:mb-8">
                         <div>
-                            <h1 className="text-4xl font-bold text-slate-900 mb-2">Products & Shop</h1>
-                            <p className="text-slate-500">
+                            <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Products & Shop</h1>
+                            <p className="text-sm md:text-base text-slate-500">
                                 Empowering your business with high-quality inventory and great PV points.
                             </p>
                         </div>
@@ -250,7 +149,7 @@ export default function Products() {
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                className="px-3 md:px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
                             >
                                 <option value="newest">Newest Arrivals</option>
                                 <option value="price-low">Price: Low to High</option>
@@ -261,7 +160,7 @@ export default function Products() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                         {products.map((product) => (
                             <div
                                 key={product.id}
@@ -306,7 +205,19 @@ export default function Products() {
                         ))}
                     </div>
                 </div>
+
+                {/* Footer */}
+                <footer className="bg-white border-t border-slate-200 mt-auto py-6">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs md:text-sm text-slate-500">
+                        <div className="text-center md:text-left">© 2024 Fintech MLM Dashboard. All rights reserved.</div>
+                        <div className="flex items-center gap-4 md:gap-6">
+                            <a href="#" className="hover:text-primary">Privacy Policy</a>
+                            <a href="#" className="hover:text-primary">Terms of Service</a>
+                            <a href="#" className="hover:text-primary">Help Center</a>
+                        </div>
+                    </div>
+                </footer>
             </main>
-        </div>
+        </div >
     );
 }
