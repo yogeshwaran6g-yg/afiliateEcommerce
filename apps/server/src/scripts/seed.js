@@ -13,12 +13,16 @@ const seed = async (connection) => {
   // 1. Drop Tables (Reverse Order to handle Foreign Keys)
   await connection.execute("SET FOREIGN_KEY_CHECKS = 0");
   const tables = [
+    'cart_items',
+    'carts',
     'addresses',
     'profiles',
     'otp',
     'referral_commission_distribution',
     'referral_tree',
     'referral_commission_config',
+    'products',
+    'category',
     'orders',
     'users'
   ];

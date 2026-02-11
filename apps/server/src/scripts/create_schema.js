@@ -13,6 +13,8 @@ const createSchema = async (connection) => {
   // 1. Drop Tables (Reverse Order to handle Foreign Keys)
   await connection.query("SET FOREIGN_KEY_CHECKS = 0");
   const tables = [
+    'cart_items',
+    'carts',
     'addresses',
     'profiles',
     'otp',

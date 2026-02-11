@@ -147,7 +147,7 @@ CREATE TABLE category(
   `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
   `image` VARCHAR(255) NULL,
-  `parent_id` BIGINT UNSIGNED DEFAULT 0 NULL,
+  `parent_id` BIGINT UNSIGNED DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (parent_id) REFERENCES category(id) ON DELETE CASCADE
@@ -187,3 +187,30 @@ CREATE TABLE products (
   INDEX idx_active (is_active),
   INDEX idx_price (sale_price)
 ) ENGINE=InnoDB;
+
+-- 8. Carts Table
+CREATE TABLE `carts` (
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `status` ENUM('active', 'processed') NOT NULL DEFAULT 'active',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_carts_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_user_status` (`user_id`, `status`)
+) ENGINE=InnoDB;
+
+-- 9. Cart Items Table
+CREATE TABLE `cart_items` (
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `cart_id` BIGINT UNSIGNED NOT NULL,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `quantity` INT NOT NULL DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_cart_items_cart` FOREIGN KEY (`cart_id`) REFERENCES `carts`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_cart_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE CASCADE,
+  UNIQUE KEY `uq_cart_product` (`cart_id`, `product_id`)
+) ENGINE=InnoDB;
+
+
+
