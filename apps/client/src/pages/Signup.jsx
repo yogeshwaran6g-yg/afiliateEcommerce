@@ -37,9 +37,18 @@ const Signup = () => {
         try {
             const response = await signupMutation.mutateAsync(formData);
             if (response.success && response.data?.userId) {
-                // Store userId for OTP verification
+                // Store userId, phone, purpose for OTP verification
                 sessionStorage.setItem("pendingUserId", response.data.userId);
-                navigate("/verify-otp", { state: { userId: response.data.userId } });
+                sessionStorage.setItem("pendingPhone", formData.phone);
+                sessionStorage.setItem("pendingPurpose", "signup");
+
+                navigate("/verify-otp", {
+                    state: {
+                        userId: response.data.userId,
+                        phone: formData.phone,
+                        purpose: "signup"
+                    }
+                });
             }
         } catch (err) {
             console.error("Signup failed:", err);

@@ -1,11 +1,23 @@
 import React, { useContext } from "react";
 import { ProfileContext } from "../context/ProfileContext";
 import { useCart } from "../hooks/useCart";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLogoutMutation } from "../hooks/useAuthService";
 
 export default function Header({ toggleSidebar }) {
   const { user, isLoading } = useContext(ProfileContext);
   const { totalItemsCount } = useCart();
+  const logoutMutation = useLogoutMutation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   const getInitials = (name) => {
     if (!name) return "??";
@@ -89,6 +101,16 @@ export default function Header({ toggleSidebar }) {
                 <span className="material-symbols-outlined text-lg">login</span>
                 <span className="hidden md:inline">Login</span>
               </Link>
+            )}
+
+            {user && !isLoading && (
+              <button
+                onClick={handleLogout}
+                className="p-2 md:px-4 md:py-2 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-100 transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">logout</span>
+                <span className="hidden md:inline">Logout</span>
+              </button>
             )}
 
             <button className="p-2 md:px-4 md:py-2 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">

@@ -4,23 +4,33 @@ import { useVerifyOtpMutation, useResendOtpMutation } from "../hooks/useAuthServ
 import useAuth from "../hooks/useAuth";
 
 const Otp = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get userId, phone, purpose from session storage or location state
+    const userId = location.state?.userId || sessionStorage.getItem("pendingUserId");
+    const phone = location.state?.phone || sessionStorage.getItem("pendingPhone");
+    const purpose = location.state?.purpose || sessionStorage.getItem("pendingPurpose");
+
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-    const [timer, setTimer] = useState(100);
+    const [timer, setTimer] = useState(() => {
+        const storedExpiry = sessionStorage.getItem("otpExpiry");
+        if (storedExpiry) {
+            const remaining = Math.ceil((parseInt(storedExpiry) - Date.now()) / 1000);
+            return remaining > 0 ? remaining : 0;
+        }
+        return 100;
+    });
     const [localError, setLocalError] = useState("");
 
     const { error: authError } = useAuth();
     const verifyOtpMutation = useVerifyOtpMutation();
     const resendOtpMutation = useResendOtpMutation();
 
-    const navigate = useNavigate();
-    const location = useLocation();
     const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
     const loading = verifyOtpMutation.isPending || resendOtpMutation.isPending;
     const error = verifyOtpMutation.error?.message || resendOtpMutation.error?.message || authError;
-
-    // Get userId from session storage or location state
-    const userId = location.state?.userId || sessionStorage.getItem("pendingUserId");
 
     useEffect(() => {
         if (!userId) {
@@ -29,10 +39,24 @@ const Otp = () => {
     }, [userId, navigate]);
 
     useEffect(() => {
+        // Init expiry if not present
+        if (!sessionStorage.getItem("otpExpiry")) {
+            const expiry = Date.now() + 100 * 1000;
+            sessionStorage.setItem("otpExpiry", expiry.toString());
+        }
+    }, []);
+
+    useEffect(() => {
         let interval;
         if (timer > 0) {
             interval = setInterval(() => {
-                setTimer((prev) => prev - 1);
+                const storedExpiry = sessionStorage.getItem("otpExpiry");
+                if (storedExpiry) {
+                    const remaining = Math.ceil((parseInt(storedExpiry) - Date.now()) / 1000);
+                    setTimer(remaining > 0 ? remaining : 0);
+                } else {
+                    setTimer((prev) => prev - 1);
+                }
             }, 1000);
         }
         return () => clearInterval(interval);
@@ -67,9 +91,18 @@ const Otp = () => {
 
     const handleResend = async () => {
         if (timer > 0) return;
+
+        if (!userId || !phone || !purpose) {
+            setLocalError("Session expired. Please restart the signup process.");
+            console.error("Missing OTP parameters. userId:", userId, "phone:", phone, "purpose:", purpose);
+            return;
+        }
+
         try {
-            await resendOtpMutation.mutateAsync({ userId });
-            setTimer(100);
+            await resendOtpMutation.mutateAsync({ userId, phone, purpose });
+            const newTimer = 100;
+            setTimer(newTimer);
+            sessionStorage.setItem("otpExpiry", (Date.now() + newTimer * 1000).toString());
             setLocalError("");
         } catch (err) {
             console.error("Resend Error:", err);
@@ -90,6 +123,9 @@ const Otp = () => {
             const response = await verifyOtpMutation.mutateAsync({ userId, otp: otpString });
             if (response.success) {
                 sessionStorage.removeItem("pendingUserId");
+                sessionStorage.removeItem("pendingPhone");
+                sessionStorage.removeItem("pendingPurpose");
+                sessionStorage.removeItem("otpExpiry");
                 navigate("/dashboard");
             }
         } catch (err) {
