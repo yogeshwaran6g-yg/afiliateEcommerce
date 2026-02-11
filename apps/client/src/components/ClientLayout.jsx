@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 
 export default function ClientLayout() {
-    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
 
     return (
         <div className="flex h-screen bg-[#f8fafc] font-display overflow-hidden">
@@ -13,7 +13,7 @@ export default function ClientLayout() {
                 onClose={() => setSidebarOpen(false)}
             />
 
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+            <div className={`flex-1 flex flex-col min-w-0 overflow-hidden relative transition-all duration-300 ${isSidebarOpen ? "lg:ml-64" : "ml-0"}`}>
                 <Header
                     toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
                 />

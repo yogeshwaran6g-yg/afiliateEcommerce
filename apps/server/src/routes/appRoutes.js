@@ -6,6 +6,7 @@ import referralRoutes from './referralRoutes.js';
 import authRoutes from './authRoutes.js';
 import categoryRoutes from './categoryRoutes.js';
 import productRoutes from './productRoutes.js';
+import profileRoutes from './profileRoutes.js';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.use('/orders', orderRoutes);
 router.use('/referral', referralRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/products', productRoutes);
+router.use('/profile', profileRoutes);
 
 export default router;
 

@@ -20,14 +20,13 @@ class ProfileService {
     }
 
     /**
-     * Updates the current user's profile and address information.
+     * Updates the current user's profile information.
      * @param {Object} profile 
-     * @param {Object} address 
      * @returns {Promise<Object>} The updated response data.
      */
-    async updateProfile(profile, address) {
+    async updateProfile(profile) {
         try {
-            const response = await api.put("/auth/profile", { profile, address });
+            const response = await api.put("/auth/profile", { profile });
 
             // Update local storage user if needed
             if (response.success && response.data) {
@@ -39,6 +38,68 @@ class ProfileService {
             return response;
         } catch (error) {
             console.error("Update Profile Error:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates Identity documents/details
+     */
+    async updateIdentity(idType, idNumber, file) {
+        try {
+            const formData = new FormData();
+            formData.append('idType', idType);
+            formData.append('idNumber', idNumber);
+            if (file) formData.append('identityProof', file);
+
+            const response = await api.post("/auth/kyc/identity", formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return response;
+        } catch (error) {
+            console.error("Update Identity Error:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates Address details and proof
+     */
+    async updateAddress(addressData, file) {
+        try {
+            const formData = new FormData();
+            Object.keys(addressData).forEach(key => {
+                formData.append(key, addressData[key]);
+            });
+            if (file) formData.append('addressProof', file);
+
+            const response = await api.post("/auth/kyc/address", formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return response;
+        } catch (error) {
+            console.error("Update Address Error:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates Bank details and proof
+     */
+    async updateBank(bankData, file) {
+        try {
+            const formData = new FormData();
+            Object.keys(bankData).forEach(key => {
+                formData.append(key, bankData[key]);
+            });
+            if (file) formData.append('bankProof', file);
+
+            const response = await api.post("/auth/kyc/bank", formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return response;
+        } catch (error) {
+            console.error("Update Bank Error:", error);
             throw error;
         }
     }

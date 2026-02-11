@@ -103,8 +103,23 @@ CREATE TABLE `referral_commission_distribution` (
 CREATE TABLE `profiles` (
   `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `user_id` BIGINT UNSIGNED NOT NULL,
-  `kyc_pan` VARCHAR(20),
-  `kyc_aadhar` VARCHAR(20),
+  `dob` DATE NULL,
+  -- Identity Verification
+  `id_type` VARCHAR(50) NULL,
+  `id_number` VARCHAR(100) NULL,
+  `id_document_url` TEXT NULL,
+  `identity_status` ENUM('NOT_SUBMITTED', 'PENDING', 'VERIFIED', 'REJECTED') DEFAULT 'NOT_SUBMITTED',
+  -- Address Verification (Status related to address proof)
+  `address_document_url` TEXT NULL,
+  `address_status` ENUM('NOT_SUBMITTED', 'PENDING', 'VERIFIED', 'REJECTED') DEFAULT 'NOT_SUBMITTED',
+  -- Bank Details
+  `bank_account_name` VARCHAR(255) NULL,
+  `bank_name` VARCHAR(255) NULL,
+  `bank_account_number` VARCHAR(100) NULL,
+  `bank_ifsc` VARCHAR(20) NULL,
+  `bank_document_url` TEXT NULL,
+  `bank_status` ENUM('NOT_SUBMITTED', 'PENDING', 'VERIFIED', 'REJECTED') DEFAULT 'NOT_SUBMITTED',
+  -- Appearance
   `profile_image` MEDIUMTEXT,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

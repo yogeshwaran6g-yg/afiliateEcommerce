@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { ProfileContext } from "../context/ProfileContext";
 import { useCart } from "../hooks/useCart";
+import { Link } from "react-router-dom";
 
 export default function Header({ toggleSidebar }) {
   const { user, isLoading } = useContext(ProfileContext);
@@ -23,7 +24,7 @@ export default function Header({ toggleSidebar }) {
           {/* Mobile Menu Toggle */}
           <button
             onClick={toggleSidebar}
-            className="p-2 hover:bg-slate-100 rounded-lg lg:hidden text-slate-600 transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
           >
             <span className="material-symbols-outlined">menu</span>
           </button>

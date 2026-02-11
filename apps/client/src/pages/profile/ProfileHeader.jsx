@@ -1,6 +1,8 @@
 import React from "react";
 
-export default function ProfileHeader({ name, distributorId, tier, joinDate, profileImage }) {
+export default function ProfileHeader({ name, distributorId, tier, joinDate, profileImage, onImageChange }) {
+    const fileInputRef = React.useRef(null);
+
     return (
         <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 mb-8 pb-8 border-b border-slate-200 text-center md:text-left">
             <div className="relative">
@@ -25,7 +27,17 @@ export default function ProfileHeader({ name, distributorId, tier, joinDate, pro
                     <span className="text-slate-400 text-xs md:text-sm">Joined {joinDate}</span>
                 </div>
             </div>
-            <button className="w-full md:w-auto px-4 py-2 border border-slate-300 rounded-lg text-xs md:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={onImageChange}
+                className="hidden"
+                accept="image/*"
+            />
+            <button 
+                onClick={() => fileInputRef.current.click()}
+                className="w-full md:w-auto px-4 py-2 border border-slate-300 rounded-lg text-xs md:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            >
                 Change Photo
             </button>
         </div>

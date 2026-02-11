@@ -22,8 +22,8 @@ export const useProfileQuery = (enabled = true) => {
 export const useUpdateProfileMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ profile, address }) =>
-            profileService.updateProfile(profile, address),
+        mutationFn: ({ profile }) =>
+            profileService.updateProfile(profile),
         onSuccess: (data) => {
             if (data.success && data.data) {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, (oldData) => {
@@ -34,6 +34,48 @@ export const useUpdateProfileMutation = () => {
                     };
                 });
             }
+            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        },
+    });
+};
+
+/**
+ * Hook for updating Identity verification.
+ */
+export const useUpdateIdentityMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ idType, idNumber, file }) =>
+            profileService.updateIdentity(idType, idNumber, file),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        },
+    });
+};
+
+/**
+ * Hook for updating Address verification.
+ */
+export const useUpdateAddressMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ addressData, file }) =>
+            profileService.updateAddress(addressData, file),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        },
+    });
+};
+
+/**
+ * Hook for updating Bank verification.
+ */
+export const useUpdateBankMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ bankData, file }) =>
+            profileService.updateBank(bankData, file),
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
         },
     });

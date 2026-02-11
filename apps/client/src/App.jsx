@@ -15,7 +15,7 @@ import Ranks from "./pages/Ranks";
 import Network from "./pages/Network";
 import Cart from "./pages/Cart";
 import Support from "./pages/Support";
-import Profile from "./pages/Profile";
+import Profile from "./pages/profile/index";
 import Wallet from "./pages/Wallet";
 import Withdrawals from "./pages/Withdrawals";
 import Login from "./pages/Login";

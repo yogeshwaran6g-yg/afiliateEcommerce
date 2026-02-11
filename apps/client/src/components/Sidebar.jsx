@@ -28,7 +28,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
             {/* Sidebar Drawer */}
             <aside
-                className={`fixed lg:static inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50 transform lg:transform-none transition-transform duration-300 flex flex-col h-screen ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+                className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50 transform transition-transform duration-300 flex flex-col h-screen ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
                 {/* Logo & Close Button */}
                 <div className="p-6 flex items-center justify-between">
