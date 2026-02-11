@@ -108,7 +108,7 @@ const Signup = () => {
                         </div>
 
                         {/* Email Field */}
-                        <div>
+                        {/* <div>
                             <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
                             <div className="mt-1 relative">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
@@ -123,7 +123,7 @@ const Signup = () => {
                                     onChange={handleChange}
                                 />
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Referral ID Field (Optional) */}
                         <div>

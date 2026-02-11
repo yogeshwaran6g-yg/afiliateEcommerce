@@ -7,7 +7,7 @@ const Login = () => {
     const { error: authError } = useAuth();
     const loginMutation = useLoginMutation();
     const requestOtpMutation = useRequestLoginOtpMutation();
-    
+
     const navigate = useNavigate();
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
