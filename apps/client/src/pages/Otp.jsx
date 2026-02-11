@@ -5,7 +5,7 @@ import useAuth from "../hooks/useAuth";
 
 const Otp = () => {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-    const [timer, setTimer] = useState(30);
+    const [timer, setTimer] = useState(100);
     const [localError, setLocalError] = useState("");
 
     const { error: authError } = useAuth();
@@ -69,7 +69,7 @@ const Otp = () => {
         if (timer > 0) return;
         try {
             await resendOtpMutation.mutateAsync({ userId });
-            setTimer(30);
+            setTimer(100);
             setLocalError("");
         } catch (err) {
             console.error("Resend Error:", err);
