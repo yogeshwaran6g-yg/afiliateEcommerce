@@ -28,12 +28,12 @@ async function migrate() {
         try {
             await queryRunner('ALTER TABLE `profiles` DROP COLUMN `kyc_pan`');
             log("Dropped legacy column kyc_pan", "success");
-        } catch (e) {}
+        } catch (e) { }
 
         try {
             await queryRunner('ALTER TABLE `profiles` DROP COLUMN `kyc_aadhar`');
             log("Dropped legacy column kyc_aadhar", "success");
-        } catch (e) {}
+        } catch (e) { }
 
         log("Migration Completed!", "success");
         process.exit(0);

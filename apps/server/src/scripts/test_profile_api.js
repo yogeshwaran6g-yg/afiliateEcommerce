@@ -21,7 +21,7 @@ async function testProfileApi() {
         log(`Testing GET ${BASE_URL}/profile/me...`, "info");
         const getRes = await fetch(`${BASE_URL}/profile/me`, { headers });
         const getData = await getRes.json();
-        
+
         if (getRes.status === 200) {
             log("GET /profile/me Success", "success");
             // console.log(JSON.stringify(getData, null, 2));
