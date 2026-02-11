@@ -27,7 +27,7 @@ export const protect = async (req, res, next) => {
       const users = await queryRunner(`
                         select * from users where id = ?`
                     , [decoded.id])
-      req.user = users && users.length > 0 ? users[0] : null;
+      req.user = (users && users.length > 0) ? users[0] : null;
 
       if (!req.user) {
         console.warn(`Auth Middleware: User not found for ID ${decoded.id}`);

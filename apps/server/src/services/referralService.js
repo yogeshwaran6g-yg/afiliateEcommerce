@@ -74,7 +74,7 @@ export const getReferralStats = async (uplineId) => {
 
     const rows = await queryRunner(sql, [uplineId]);
     
-    const data = rows.map(row => ({
+    const data = (rows || []).map(row => ({
       level: row.level,
       referralCount: row.referral_count,
       totalEarnings: Number(row.total_earnings)

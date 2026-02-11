@@ -40,7 +40,7 @@ export const createUser = async (userData) => {
 export const findUserByPhone = async (phone) => {
     try {
         const rows = await queryRunner('SELECT * FROM users WHERE phone = ?', [phone]);
-        return rows ? rows[0] : null;
+        return rows && rows.length > 0 ? rows[0] : null;
     } catch (error) {
         log(`Error finding user by phone: ${error.message}`, "error");
         throw error;
@@ -50,7 +50,7 @@ export const findUserByPhone = async (phone) => {
 export const findUserById = async (id) => {
     try {
         const rows = await queryRunner('SELECT * FROM users WHERE id = ?', [id]);
-        return rows ? rows[0] : null;
+        return rows && rows.length > 0 ? rows[0] : null;
     } catch (error) {
         log(`Error finding user by id: ${error.message}`, "error");
         throw error;
@@ -60,7 +60,7 @@ export const findUserById = async (id) => {
 export const getFirstUser = async () => {
     try {
         const rows = await queryRunner('SELECT id FROM users ORDER BY id ASC LIMIT 1');
-        return rows ? rows[0] : null;
+        return rows && rows.length > 0 ? rows[0] : null;
     } catch (error) {
         log(`Error fetching first user: ${error.message}`, "error");
         throw error;
@@ -83,7 +83,7 @@ export const existinguserFieldsCheck = async ({ name = null, phone = null }) => 
                     select * from users where name = ?`,
                 [name]
             )
-            if (user) {
+            if (user && user.length > 0) {
                 return {
                     isExisting: true,
                     field: "name"

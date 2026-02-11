@@ -49,7 +49,7 @@ export const login = async (phone, password, otp) => {
 
         if (otp) {
             const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [user.id, 'login']);
-            if (rows.length === 0) {
+            if (!rows || rows.length === 0) {
                 return { code: 400, message: "OTP not found or expired" };
             }
             const otpRecord = rows[0];
@@ -191,7 +191,7 @@ export const verifyOtp = async (userId, otp, purpose) => {
     try {
         const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ?', [userId]);
 
-        if (rows.length === 0) {
+        if (!rows || rows.length === 0) {
             return { code: 400, message: "OTP not found or expired" };
         }
 
@@ -329,7 +329,7 @@ export const resetPassword = async (userId, otp, newPassword) => {
     try {
         // 1. Verify OTP first
         const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot_password']);
-        if (rows.length === 0) {
+        if (!rows || rows.length === 0) {
             return { code: 400, message: "OTP not found or expired" };
         }
 
