@@ -11,7 +11,7 @@ class ProfileService {
      */
     async getProfile() {
         try {
-            const response = await api.get("/auth/profile");
+            const response = await api.get("/profile/me");
             return response;
         } catch (error) {
             console.error("Get Profile Error:", error);
@@ -26,7 +26,7 @@ class ProfileService {
      */
     async updateProfile(profile) {
         try {
-            const response = await api.put("/auth/profile", { profile });
+            const response = await api.put("/profile/personal", profile);
 
             // Update local storage user if needed
             if (response.success && response.data) {
@@ -50,9 +50,9 @@ class ProfileService {
             const formData = new FormData();
             formData.append('idType', idType);
             formData.append('idNumber', idNumber);
-            if (file) formData.append('identityProof', file);
+            if (file) formData.append('file', file);
 
-            const response = await api.post("/auth/kyc/identity", formData, {
+            const response = await api.put("/profile/identity", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return response;
@@ -68,12 +68,10 @@ class ProfileService {
     async updateAddress(addressData, file) {
         try {
             const formData = new FormData();
-            Object.keys(addressData).forEach(key => {
-                formData.append(key, addressData[key]);
-            });
-            if (file) formData.append('addressProof', file);
+            formData.append('addressData', JSON.stringify(addressData));
+            if (file) formData.append('file', file);
 
-            const response = await api.post("/auth/kyc/address", formData, {
+            const response = await api.put("/profile/address", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return response;
@@ -89,12 +87,10 @@ class ProfileService {
     async updateBank(bankData, file) {
         try {
             const formData = new FormData();
-            Object.keys(bankData).forEach(key => {
-                formData.append(key, bankData[key]);
-            });
-            if (file) formData.append('bankProof', file);
+            formData.append('bankData', JSON.stringify(bankData));
+            if (file) formData.append('file', file);
 
-            const response = await api.post("/auth/kyc/bank", formData, {
+            const response = await api.put("/profile/bank", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return response;

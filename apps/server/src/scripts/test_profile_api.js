@@ -8,9 +8,9 @@ async function testProfileApi() {
     try {
         log("Starting Profile API Integration Test...", "info");
 
-        // 1. Generate a test token for User ID 3 (known from previous tests)
-        const token = jwt.sign({ id: 3 }, env.JWT_SECRET, { expiresIn: '1h' });
-        log("Generated test JWT for User ID 3", "info");
+        // 1. Generate a test token for User ID 13 (known to exist)
+        const token = jwt.sign({ id: 13 }, env.JWT_SECRET, { expiresIn: '1h' });
+        log("Generated test JWT for User ID 13", "info");
 
         const headers = {
             'Authorization': `Bearer ${token}`,
