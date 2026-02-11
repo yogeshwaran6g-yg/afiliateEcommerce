@@ -102,7 +102,7 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
 
         log(`Sending OTP for ${phone} (User ID: ${userId}, Purpose: ${purpose}): ${otp}`, "info");
 
-         const payload = {
+        const payload = {
             phone_number: `91${phone}`, // Assuming phone is passed without country code, adding 91 prefix
             template_name: "app_verify",
             template_language: "en_US",
@@ -116,8 +116,8 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
             "Accept": "application/json",
             "Authorization": `Bearer ${token}`,
         };
-        
-       try{
+
+        try {
             const response = await fetchWithTimeout(env.WHATSUP_BASE_URL, {
                 method: "POST",
                 headers,
@@ -131,7 +131,7 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
             }
         } catch (fetchErr) {
             log(`fetch error: ${fetchErr.message}`, "error");
-        return { code: 500, message: "Failed to send OTP" };
+            return { code: 500, message: "Failed to send OTP" };
 
         }
 
@@ -163,8 +163,8 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
 
 export const resendOtp = async (userId, phone, purpose) => {
     try {
-        const [rows] = await pool.query('SELECT updated_at FROM otp WHERE user_id = ?', [userId]);
-        
+        const rows = await pool.query('SELECT updated_at FROM otp WHERE user_id = ?', [userId]);
+
         if (rows.length > 0) {
             const lastSent = new Date(rows[0].updated_at).getTime();
             const now = Date.now();
@@ -172,9 +172,9 @@ export const resendOtp = async (userId, phone, purpose) => {
 
             if (now - lastSent < cooldownMs) {
                 const remaining = Math.ceil((cooldownMs - (now - lastSent)) / 1000);
-                return { 
-                    code: 429, 
-                    message: `Please wait ${remaining} seconds before resending OTP` 
+                return {
+                    code: 400,
+                    message: `Please wait ${remaining} seconds before resending OTP`
                 };
             }
         }

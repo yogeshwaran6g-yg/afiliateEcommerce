@@ -20,8 +20,8 @@ export const env = {
 
   ENABLE_LOGS: process.env.ENABLE_LOGS !== "false",
 
-  WHATSUP_BASE_URL :process.env.WHATSUP_BASE_URL,  
-  WHATSUP_OTP_TOKEN :process.env.WHATSUP_OTP_TOKEN,
+  WHATSUP_BASE_URL: process.env.WHATSUP_BASE_URL,
+  WHATSUP_OTP_TOKEN: process.env.WHATSUP_OTP_TOKEN,
 
   OTP_RESEND_COOLDOWN: Number(process.env.OTP_RESEND_COOLDOWN) || 100
 

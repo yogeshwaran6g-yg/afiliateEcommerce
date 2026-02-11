@@ -7,11 +7,11 @@ const Otp = () => {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [timer, setTimer] = useState(30);
     const [localError, setLocalError] = useState("");
-    
+
     const { error: authError } = useAuth();
     const verifyOtpMutation = useVerifyOtpMutation();
     const resendOtpMutation = useResendOtpMutation();
-    
+
     const navigate = useNavigate();
     const location = useLocation();
     const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
