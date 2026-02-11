@@ -40,6 +40,51 @@ const categoryController = {
             return rtnRes(res, 500, "Internal Error");
         }
     },
+
+    createCategory: async function(req, res) {
+        try {
+            const { name } = req.body;
+            if (!name) {
+                return rtnRes(res, 400, "Category name is required");
+            }
+
+            const result = await categoryService.create(req.body);
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (err) {
+            console.log("err from createCategory ", err);
+            return rtnRes(res, 500, "Internal Error");
+        }
+    },
+
+    updateCategory: async function(req, res) {
+        try {
+            const id = req.params.id;
+            if (!id) {
+                return rtnRes(res, 400, "Category id is required");
+            }
+
+            const result = await categoryService.update(id, req.body);
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (err) {
+            console.log("err from updateCategory ", err);
+            return rtnRes(res, 500, "Internal Error");
+        }
+    },
+
+    deleteCategory: async function(req, res) {
+        try {
+            const id = req.params.id;
+            if (!id) {
+                return rtnRes(res, 400, "Category id is required");
+            }
+
+            const result = await categoryService.delete(id);
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (err) {
+            console.log("err from deleteCategory ", err);
+            return rtnRes(res, 500, "Internal Error");
+        }
+    },
 }
 
 export default categoryController;

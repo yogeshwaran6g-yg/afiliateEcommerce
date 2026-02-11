@@ -13,7 +13,7 @@ const generateToken = (user) => {
     );
 };
 
-export const login = async (phone, password) => {
+export const login = async (phone, password, otp) => {
     try {
         const user = await findUserByPhone(phone);
         if (!user) {
@@ -24,16 +24,8 @@ export const login = async (phone, password) => {
             return { code: 403, message: "Account is inactive" };
         }
 
-        if (password) {
-            if (!user.password) {
-                return { code: 401, message: "Password not set for this account" };
-            }
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return { code: 401, message: "Invalid credentials" };
-            }
-        } else {
-            // Password not provided, trigger OTP login
+        // 1. If password/otp are NOT provided, trigger Stage 1 (request OTP)
+        if (!password && !otp) {
             const otpRes = await sendOtp(user.id, user.phone, 'login');
             if (otpRes.code !== 200) return otpRes;
 
@@ -44,9 +36,35 @@ export const login = async (phone, password) => {
             };
         }
 
-        const token = generateToken(user);
+        // 2. If password/otp ARE provided, verify them (Stage 2)
+        if (password) {
+            if (!user.password) {
+                return { code: 401, message: "Password not set for this account" };
+            }
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return { code: 401, message: "Invalid credentials" };
+            }
+        }
 
-        // Remove password from response
+        if (otp) {
+            const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [user.id, 'login']);
+            if (rows.length === 0) {
+                return { code: 400, message: "OTP not found or expired" };
+            }
+            const otpRecord = rows[0];
+            if (new Date() > new Date(otpRecord.expires_at)) {
+                return { code: 400, message: "OTP expired" };
+            }
+            const isOtpMatch = await bcrypt.compare(otp, otpRecord.otp_hash);
+            if (!isOtpMatch) {
+                return { code: 400, message: "Invalid OTP" };
+            }
+            // Clear OTP after successful use
+            await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [user.id, 'login']);
+        }
+
+        const token = generateToken(user);
         delete user.password;
 
         return {
@@ -201,19 +219,12 @@ export const verifyOtp = async (userId, otp, purpose) => {
         const user = await findUserById(userId);
         delete user.password;
 
-        if (otpRecord.purpose === 'login' || purpose === 'login') {
-            const token = generateToken(user);
-            return { 
-                code: 200, 
-                message: "OTP verified successfully", 
-                data: { user, token } 
-            };
-        }
-
+        // Generate token for all successful verifications (signup or login)
+        const token = generateToken(user);
         return { 
             code: 200, 
             message: "OTP verified successfully", 
-            data: { user } 
+            data: { user, token } 
         };
 
     } catch (e) {
@@ -292,11 +303,70 @@ export const updateProfile = async (userId, profileData, addressData) => {
     }
 };
 
+export const forgotPassword = async (phone) => {
+    try {
+        const user = await findUserByPhone(phone);
+        if (!user) {
+            return { code: 404, message: "User not found with this phone number" };
+        }
+
+        const otpRes = await sendOtp(user.id, user.phone, 'forgot_password');
+        if (otpRes.code !== 200) return otpRes;
+
+        return {
+            code: 200,
+            message: "OTP sent successfully for password reset",
+            data: { userId: user.id }
+        };
+
+    } catch (e) {
+        log(`Forgot Password error: ${e.message}`, "error");
+        return { code: 500, message: "Internal server error" };
+    }
+};
+
+export const resetPassword = async (userId, otp, newPassword) => {
+    try {
+        // 1. Verify OTP first
+        const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot_password']);
+        if (rows.length === 0) {
+            return { code: 400, message: "OTP not found or expired" };
+        }
+
+        const otpRecord = rows[0];
+        if (new Date() > new Date(otpRecord.expires_at)) {
+            return { code: 400, message: "OTP expired" };
+        }
+
+        const isMatch = await bcrypt.compare(otp, otpRecord.otp_hash);
+        if (!isMatch) {
+            return { code: 400, message: "Invalid OTP" };
+        }
+
+        // 2. Hash and update new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await queryRunner('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+
+        // 3. Clear OTP
+        await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot_password']);
+
+        return { code: 200, message: "Password reset successful" };
+
+    } catch (e) {
+        log(`Reset Password error: ${e.message}`, "error");
+        return { code: 500, message: "Internal server error" };
+    }
+};
+
 export default {
     login,
     sendOtp,
     resendOtp,
     verifyOtp,
     getProfile,
-    updateProfile
+    updateProfile,
+    forgotPassword,
+    resetPassword
 };

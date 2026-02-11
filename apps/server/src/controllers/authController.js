@@ -65,12 +65,12 @@ const authController = {
 
     login: async function (req, res) {
         try {
-            const { phone, password } = req.body;
+            const { phone, password, otp } = req.body;
             if (!phone) {
                 return rtnRes(res, 400, "phone is required");
             }
 
-            const result = await authService.login(phone, password);
+            const result = await authService.login(phone, password, otp);
             return rtnRes(res, result.code, result.message, result.data);
 
         } catch (e) {
@@ -134,6 +134,34 @@ const authController = {
 
         } catch (e) {
             console.log("err from updateProfile ", e);
+            rtnRes(res, 500, "internal error");
+        }
+    },
+
+    forgotPassword: async function (req, res) {
+        try {
+            const { phone } = req.body;
+            if (!phone) {
+                return rtnRes(res, 400, "phone is required");
+            }
+            const result = await authService.forgotPassword(phone);
+            return rtnRes(res, result.code, result.message, result.data);
+        } catch (e) {
+            console.log("err from forgotPassword ", e);
+            rtnRes(res, 500, "internal error");
+        }
+    },
+
+    resetPassword: async function (req, res) {
+        try {
+            const { userId, otp, newPassword } = req.body;
+            if (!userId || !otp || !newPassword) {
+                return rtnRes(res, 400, "userId, otp and newPassword are required");
+            }
+            const result = await authService.resetPassword(userId, otp, newPassword);
+            return rtnRes(res, result.code, result.message, result.data);
+        } catch (e) {
+            console.log("err from resetPassword ", e);
             rtnRes(res, 500, "internal error");
         }
     }

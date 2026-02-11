@@ -32,6 +32,60 @@ const categoryService = {
         } catch (e) {
             throw e;
         }
+    },
+
+    create: async function(categoryData) {
+        try {
+            const { name, image, parent_id } = categoryData;
+            const sql = `INSERT INTO category (name, image, parent_id) VALUES (?, ?, ?)`;
+            const params = [name, image || null, parent_id || null];
+            
+            const result = await queryRunner(sql, params);
+            if (result && result.affectedRows > 0) {
+                return srvRes(201, "Category created successfully", { id: result.insertId, ...categoryData });
+            }
+            return srvRes(400, "Failed to create category");
+        } catch (e) {
+            throw e;
+        }
+    },
+
+    update: async function(id, categoryData) {
+        try {
+            const fields = [];
+            const params = [];
+            
+            for (const [key, value] of Object.entries(categoryData)) {
+                fields.push(`${key} = ?`);
+                params.push(value);
+            }
+
+            if (fields.length === 0) return srvRes(400, "No fields to update");
+
+            const sql = `UPDATE category SET ${fields.join(', ')} WHERE id = ?`;
+            params.push(id);
+
+            const result = await queryRunner(sql, params);
+            if (result && result.affectedRows > 0) {
+                return srvRes(200, "Category updated successfully");
+            }
+            return srvRes(404, "Category not found or no changes made");
+        } catch (e) {
+            throw e;
+        }
+    },
+
+    delete: async function(id) {
+        try {
+            const sql = `DELETE FROM category WHERE id = ?`;
+            const result = await queryRunner(sql, [id]);
+            if (result && result.affectedRows > 0) {
+                return srvRes(200, "Category deleted successfully");
+            }
+            return srvRes(404, "Category not found or already deleted");
+        } catch (e) {
+            throw e;
+        }
     }
 }
 

@@ -99,6 +99,22 @@ const productController = {
             console.log("err from deleteProduct ", err);
             return rtnRes(res, 500, "Internal Error");
         }
+    },
+
+    toggleProductStatus: async function(req, res) {
+        try {
+            const id = req.params.id;
+            if (!id || isNaN(parseInt(id))) return rtnRes(res, 400, "Valid Product ID is required");
+
+            const { is_active } = req.body;
+            if (is_active === undefined) return rtnRes(res, 400, "is_active is required");
+
+            const result = await productService.update(id, { is_active: !!is_active });
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (err) {
+            console.log("err from toggleProductStatus ", err);
+            return rtnRes(res, 500, "Internal Error");
+        }
     }
 };
 

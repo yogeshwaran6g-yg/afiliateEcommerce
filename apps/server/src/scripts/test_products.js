@@ -7,9 +7,11 @@ const runProductTest = async () => {
 
     try {
         // 1. Setup - Ensure we have a category
+        await queryRunner("SET FOREIGN_KEY_CHECKS = 0");
         await queryRunner("DELETE FROM products");
         await queryRunner("DELETE FROM category");
         await queryRunner("INSERT INTO category (id, name) VALUES (1, 'Test Category')");
+        await queryRunner("SET FOREIGN_KEY_CHECKS = 1");
         log("Setup category for product testing.", "success");
 
         // 2. Test Create
