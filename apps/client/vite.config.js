@@ -12,4 +12,9 @@ export default defineConfig({
     port:3000,
     hmr:true,
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+  },
 })

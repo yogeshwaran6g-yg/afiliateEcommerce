@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from "react";
-import { useProfileQuery, useUpdateProfileMutation } from "../hooks/useProfile";
+import { useProfileQuery } from "../hooks/useProfile";
 import { AuthContext } from "./AuthContext";
 
 export const ProfileContext = createContext();
@@ -15,21 +15,14 @@ export const ProfileProvider = ({ children }) => {
         refetch
     } = useProfileQuery(isAuthenticated);
 
-    const updateProfileMutation = useUpdateProfileMutation();
-
     const user = profileData?.data?.user || profileData?.data || null;
-
-    const updateProfile = async (profile, address) => {
-        return updateProfileMutation.mutateAsync({ profile, address });
-    };
 
     const value = useMemo(() => ({
         user,
-        isLoading: isLoading || updateProfileMutation.isPending,
-        error: profileError || updateProfileMutation.error,
-        updateProfile,
+        isLoading,
+        error: profileError,
         refetchProfile: refetch
-    }), [user, isLoading, profileError, updateProfileMutation.isPending, updateProfileMutation.error, refetch]);
+    }), [user, isLoading, profileError, refetch]);
 
     return (
         <ProfileContext.Provider value={value}>

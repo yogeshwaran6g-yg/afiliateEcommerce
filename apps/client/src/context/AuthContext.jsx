@@ -1,80 +1,21 @@
-import React, { createContext, useCallback, useContext } from "react";
-import {
-    useLoginMutation,
-    useSignupMutation,
-    useRequestLoginOtpMutation,
-    useVerifyOtpMutation,
-    useResendOtpMutation,
-    useLogoutMutation,
-} from "../hooks/useAuthService";
+import React, { createContext, useMemo } from "react";
+import { useUser } from "../hooks/useAuthService";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    // Use TanStack Query hooks
-    const loginMutation = useLoginMutation();
-    const signupMutation = useSignupMutation();
-    const requestOtpMutation = useRequestLoginOtpMutation();
-    const verifyOtpMutation = useVerifyOtpMutation();
-    const resendOtpMutation = useResendOtpMutation();
-    const logoutMutation = useLogoutMutation();
+    // Current user query - the source of truth for auth state
+    const { data: user, isLoading, error } = useUser();
 
     // Derived state
-    // We check authentication based on whether we have a token or not
-    // The actual user data will be handled by ProfileContext
-    const isAuthenticated = !!localStorage.getItem("token");
+    const isAuthenticated = !!user && !!localStorage.getItem("accessToken");
 
-    const loading =
-        loginMutation.isPending ||
-        signupMutation.isPending ||
-        requestOtpMutation.isPending ||
-        verifyOtpMutation.isPending ||
-        resendOtpMutation.isPending ||
-        logoutMutation.isPending;
-
-    const error =
-        loginMutation.error ||
-        signupMutation.error ||
-        requestOtpMutation.error ||
-        verifyOtpMutation.error ||
-        resendOtpMutation.error ||
-        logoutMutation.error;
-
-    const login = async (phone, password, otp) => {
-        return loginMutation.mutateAsync({ phone, password, otp });
-    };
-
-    const requestLoginOtp = async (phone) => {
-        return requestOtpMutation.mutateAsync(phone);
-    };
-
-    const signup = async (userDetails) => {
-        return signupMutation.mutateAsync(userDetails);
-    };
-
-    const verifyOtp = async (userId, otp) => {
-        return verifyOtpMutation.mutateAsync({ userId, otp });
-    };
-
-    const resendOtp = async (userId) => {
-        return resendOtpMutation.mutateAsync(userId);
-    };
-
-    const logout = useCallback(() => {
-        logoutMutation.mutate();
-    }, [logoutMutation]);
-
-    const value = {
-        loading,
-        error: error ? (error.message || "An error occurred") : null,
+    const value = useMemo(() => ({
+        user,
         isAuthenticated,
-        login,
-        requestLoginOtp,
-        signup,
-        verifyOtp,
-        resendOtp,
-        logout,
-    };
+        loading: isLoading,
+        error: error ? (error.message || "An error occurred") : null,
+    }), [user, isAuthenticated, isLoading, error]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

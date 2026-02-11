@@ -22,7 +22,7 @@ app.use('/uploads', express.static('src/uploads'));
 
 // Routes
 import router from '#src/routes/appRoutes.js';
-app.use('/api', router);
+app.use('/api/v1', router);
 
 app.get('/', (req, res) => {
   rtnRes(res, 200, 'Server is running!');

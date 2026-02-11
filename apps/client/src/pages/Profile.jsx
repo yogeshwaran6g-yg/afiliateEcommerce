@@ -1,12 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import { useLogoutMutation } from "../hooks/useAuthService";
+import { useUpdateProfileMutation } from "../hooks/useProfile";
+import { ProfileContext } from "../context/ProfileContext";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 
 export default function Profile() {
     const navigate = useNavigate();
-    const { user, profile, addresses, updateProfile, logout } = useAuth();
+    const { user } = useAuth();
+    const { user: profileUser, updateProfile: updateProfileLegacy } = useContext(ProfileContext);
+    const logoutMutation = useLogoutMutation();
+    const updateProfileMutation = useUpdateProfileMutation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const fileInputRef = useRef(null);
 
@@ -56,11 +62,11 @@ export default function Profile() {
 
     const handleUpdateProfile = async () => {
         try {
-            await updateProfile(
-                {
+            await updateProfileMutation.mutateAsync({
+                profile: {
                     profile_image: formData.profile_image
                 },
-                {
+                address: {
                     address_line1: formData.address_line1,
                     city: formData.city,
                     state: formData.state,
@@ -68,7 +74,7 @@ export default function Profile() {
                     country: "USA", // Default
                     is_default: true
                 }
-            );
+            });
             alert("Profile updated successfully!");
         } catch (err) {
             console.error("Failed to update profile:", err);
@@ -77,7 +83,7 @@ export default function Profile() {
     };
 
     const handleLogout = () => {
-        logout();
+        logoutMutation.mutate();
         navigate("/login");
     };
 

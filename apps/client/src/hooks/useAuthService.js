@@ -1,13 +1,44 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import authService from "../services/authService";
+import authService from "../services/authApiService";
+import profileService from "../services/profileService";
 
 /**
- * Key for caching user profile data
+ * Key for caching user profile data.
+ * Used by React Query to identify and manage user-related cache.
  */
 export const USER_QUERY_KEY = ["user"];
 
 /**
+ * Hook to fetch the current user's profile.
+ * Only fetches if the user is authenticated.
+ * 
+ * @returns {import('@tanstack/react-query').UseQueryResult}
+ */
+export const useUser = () => {
+    return useQuery({
+        queryKey: USER_QUERY_KEY,
+        queryFn: async () => {
+            try {
+                const response = await profileService.getProfile();
+                // Backend returns { success, data: { user, ... } }
+                return response.data?.user || response.data;
+            } catch (error) {
+                // Fallback to local storage if API fails or we are offline
+                const localUser = authService.getCurrentUser();
+                if (localUser) return localUser;
+                throw error;
+            }
+        },
+        enabled: authService.isAuthenticated(),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+};
+
+/**
  * Hook for user login.
+ * Handles phone/password or phone/OTP login flows.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useLoginMutation = () => {
     const queryClient = useQueryClient();
@@ -15,32 +46,36 @@ export const useLoginMutation = () => {
         mutationFn: ({ phone, password, otp }) =>
             authService.login(phone, password, otp),
         onSuccess: (data) => {
-            // Invalidate user query or set data immediately if Profile query is using the same key
-            // However, it's better to let ProfileContext handle the user data.
-            // But for immediate feedback, we can set query data if keys match.
+            if (data.success && data.data?.user) {
+                // Update local cache immediately
+                queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
+            }
         },
     });
 };
 
 /**
  * Hook for user signup.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useSignupMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (userDetails) => authService.signup(userDetails),
         onSuccess: (data) => {
-            // If signup logs the user in immediately
-            if (data.data?.token) {
-                queryClient.setQueryData(USER_QUERY_KEY, { data: data.data?.user });
+            // If signup logs the user in immediately (returns token/user)
+            if (data.success && data.data?.token) {
+                queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
             }
         },
     });
 };
 
-
 /**
- * Hook for requesting login OTP.
+ * Hook for requesting a login OTP.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useRequestLoginOtpMutation = () => {
     return useMutation({
@@ -49,32 +84,39 @@ export const useRequestLoginOtpMutation = () => {
 };
 
 /**
- * Hook for verifying OTP.
+ * Hook for verifying OTP (usually for signup).
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useVerifyOtpMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ userId, otp }) => authService.verifyOtp(userId, otp),
+        mutationFn: ({ userId, otp, purpose }) => authService.verifyOtp(userId, otp, purpose),
         onSuccess: (data) => {
             if (data.success && data.data?.user) {
-                queryClient.setQueryData(USER_QUERY_KEY, { data: data.data.user });
+                // Sync user data to cache if verification results in a login
+                queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
             }
         },
     });
 };
 
 /**
- * Hook for resending OTP.
+ * Hook for resending an OTP.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useResendOtpMutation = () => {
     return useMutation({
-        mutationFn: (userId) => authService.resendOtp(userId),
+        mutationFn: ({ userId, phone, purpose }) => authService.resendOtp(userId, phone, purpose),
     });
 };
 
-
 /**
  * Hook for logging out.
+ * Clears local storage and all query cache.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useLogoutMutation = () => {
     const queryClient = useQueryClient();
@@ -83,7 +125,10 @@ export const useLogoutMutation = () => {
             authService.logout();
         },
         onSuccess: () => {
+            // Clear all queries and reset state
             queryClient.clear();
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("user");
         },
     });
 };

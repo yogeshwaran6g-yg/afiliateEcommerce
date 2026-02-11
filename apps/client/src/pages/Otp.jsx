@@ -1,15 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useVerifyOtpMutation, useResendOtpMutation } from "../hooks/useAuthService";
 import useAuth from "../hooks/useAuth";
 
 const Otp = () => {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [timer, setTimer] = useState(30);
     const [localError, setLocalError] = useState("");
-    const { verifyOtp, resendOtp, loading, error: authError } = useAuth();
+    
+    const { error: authError } = useAuth();
+    const verifyOtpMutation = useVerifyOtpMutation();
+    const resendOtpMutation = useResendOtpMutation();
+    
     const navigate = useNavigate();
     const location = useLocation();
     const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+
+    const loading = verifyOtpMutation.isPending || resendOtpMutation.isPending;
+    const error = verifyOtpMutation.error?.message || resendOtpMutation.error?.message || authError;
 
     // Get userId from session storage or location state
     const userId = location.state?.userId || sessionStorage.getItem("pendingUserId");
@@ -60,7 +68,7 @@ const Otp = () => {
     const handleResend = async () => {
         if (timer > 0) return;
         try {
-            await resendOtp(userId);
+            await resendOtpMutation.mutateAsync({ userId });
             setTimer(30);
             setLocalError("");
         } catch (err) {
@@ -79,7 +87,7 @@ const Otp = () => {
         }
 
         try {
-            const response = await verifyOtp(userId, otpString);
+            const response = await verifyOtpMutation.mutateAsync({ userId, otp: otpString });
             if (response.success) {
                 sessionStorage.removeItem("pendingUserId");
                 navigate("/dashboard");

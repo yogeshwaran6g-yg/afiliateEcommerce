@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSignupMutation } from "../hooks/useAuthService";
 import useAuth from "../hooks/useAuth";
 
 const Signup = () => {
-    const { signup, loading, error } = useAuth();
+    const { error: authError } = useAuth();
+    const signupMutation = useSignupMutation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
@@ -15,6 +17,9 @@ const Signup = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [localError, setLocalError] = useState("");
+
+    const loading = signupMutation.isPending;
+    const error = signupMutation.error?.message || authError;
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,7 +35,7 @@ const Signup = () => {
         }
 
         try {
-            const response = await signup(formData);
+            const response = await signupMutation.mutateAsync(formData);
             if (response.success && response.data?.userId) {
                 // Store userId for OTP verification
                 sessionStorage.setItem("pendingUserId", response.data.userId);

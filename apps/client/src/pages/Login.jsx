@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useLoginMutation, useRequestLoginOtpMutation } from "../hooks/useAuthService";
 import useAuth from "../hooks/useAuth";
 
 const Login = () => {
-    const { login, requestLoginOtp, loading, error } = useAuth();
+    const { error: authError } = useAuth();
+    const loginMutation = useLoginMutation();
+    const requestOtpMutation = useRequestLoginOtpMutation();
+    
     const navigate = useNavigate();
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
@@ -11,10 +15,13 @@ const Login = () => {
     const [otpSent, setOtpSent] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    const loading = loginMutation.isPending || requestOtpMutation.isPending;
+    const error = loginMutation.error?.message || requestOtpMutation.error?.message || authError;
+
     const handleSendOtp = async () => {
         if (!phone) return;
         try {
-            const response = await requestLoginOtp(phone);
+            const response = await requestOtpMutation.mutateAsync(phone);
             if (response.success) {
                 setOtpSent(true);
             }
@@ -31,7 +38,7 @@ const Login = () => {
         }
 
         try {
-            const response = await login(phone, password, otp);
+            const response = await loginMutation.mutateAsync({ phone, password, otp });
             if (response.success) {
                 navigate("/dashboard");
             }

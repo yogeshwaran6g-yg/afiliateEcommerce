@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import StatsCards from "../components/StatsCards";
 import Charts from "../components/Charts";
 import TransactionsTable from "../components/TransactionsTable";
