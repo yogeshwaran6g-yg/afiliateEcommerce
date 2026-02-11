@@ -50,7 +50,10 @@ const authController = {
             });
 
             // Send OTP
-            await authService.sendOtp(user.id, user.phone, 'signup');
+            const otpRes = await authService.sendOtp(user.id, user.phone, 'signup');
+            if (otpRes.code !== 200) {
+                return rtnRes(res, otpRes.code, otpRes.message);
+            }
 
             return rtnRes(res, 201, "User registered successfully. OTP sent.", { userId: user.id });
 

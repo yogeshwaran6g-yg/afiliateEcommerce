@@ -123,16 +123,20 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
                 headers,
                 body: JSON.stringify(payload)
             });
-            const result = await response.json();
-            if (!result.resposne) {
-                log(`error: ${JSON.stringify(result)}`, "error");
-                return { code: 500, message: "Failed to send OTP" };
 
+            if (!response.result) {
+                log(`Fetch failed: ${env.WHATSUP_BASE_URL}`, "error");
+                return { code: 500, message: "Failed to connect to OTP service" };
+            }
+
+            const result = await response.res.json();
+            if (result.result !== 'success' && !result.response) {
+                log(`OTP service error: ${JSON.stringify(result)}`, "error");
+                return { code: 500, message: "OTP service provider error" };
             }
         } catch (fetchErr) {
             log(`fetch error: ${fetchErr.message}`, "error");
-            return { code: 500, message: "Failed to send OTP" };
-
+            return { code: 500, message: "Failed to send OTP (fetch error)" };
         }
 
         // Hash OTP before storing
@@ -190,7 +194,7 @@ export const resendOtp = async (userId, phone, purpose) => {
 export const verifyOtp = async (userId, otp, purpose) => {
     try {
         const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ?', [userId]);
-
+        console.log(rows)
         if (!rows || rows.length === 0) {
             return { code: 400, message: "OTP not found or expired" };
         }
