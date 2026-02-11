@@ -113,6 +113,28 @@ export const useResendOtpMutation = () => {
 };
 
 /**
+ * Hook for initiating forgot password flow.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
+ */
+export const useForgotPasswordMutation = () => {
+    return useMutation({
+        mutationFn: (phone) => authService.forgotPassword(phone),
+    });
+};
+
+/**
+ * Hook for resetting password.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
+ */
+export const useResetPasswordMutation = () => {
+    return useMutation({
+        mutationFn: ({ userId, otp, newPassword }) => authService.resetPassword(userId, otp, newPassword),
+    });
+};
+
+/**
  * Hook for logging out.
  * Clears local storage and all query cache.
  * 

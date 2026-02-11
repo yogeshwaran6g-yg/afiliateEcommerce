@@ -14,13 +14,13 @@ const handleApiError = (error, context) => {
 export const login = async (phone, password = null, otp = null) => {
     try {
         const response = await api.post(authEndpoints.login, { phone, password, otp });
-        
+
         // Backend returns: { success, message, data: { user, token } }
         if (response.success && response.data?.token) {
             localStorage.setItem("accessToken", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
         }
-        
+
         return response;
     } catch (error) {
         handleApiError(error, "Login");
@@ -73,6 +73,26 @@ export const resendOtp = async (userId, phone, purpose) => {
     }
 };
 
+
+export const forgotPassword = async (phone) => {
+    try {
+        const response = await api.post(authEndpoints.forgotPassword, { phone });
+        return response;
+    } catch (error) {
+        handleApiError(error, "Forgot Password");
+    }
+};
+
+
+export const resetPassword = async (userId, otp, newPassword) => {
+    try {
+        const response = await api.post(authEndpoints.resetPassword, { userId, otp, newPassword });
+        return response;
+    } catch (error) {
+        handleApiError(error, "Reset Password");
+    }
+};
+
 export const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
@@ -95,6 +115,8 @@ export default {
     requestLoginOtp,
     verifyOtp,
     resendOtp,
+    forgotPassword,
+    resetPassword,
     logout,
     isAuthenticated,
     getCurrentUser

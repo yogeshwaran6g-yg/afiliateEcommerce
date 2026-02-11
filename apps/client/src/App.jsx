@@ -21,6 +21,8 @@ import Withdrawals from "./pages/Withdrawals";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Otp from "./pages/Otp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 // Temporary placeholder pages
 const Inventory = () => (
@@ -64,7 +66,10 @@ function App() {
                 {/* auth routes without layout */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/signup" element={<Signup />} />
                 <Route path="/verify-otp" element={<Otp />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
               </Routes>
             </BrowserRouter>
           </CartProvider>

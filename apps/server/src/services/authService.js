@@ -225,10 +225,10 @@ export const verifyOtp = async (userId, otp, purpose) => {
 
         // Generate token for all successful verifications (signup or login)
         const token = generateToken(user);
-        return { 
-            code: 200, 
-            message: "OTP verified successfully", 
-            data: { user, token } 
+        return {
+            code: 200,
+            message: "OTP verified successfully",
+            data: { user, token }
         };
 
     } catch (e) {
@@ -314,7 +314,7 @@ export const forgotPassword = async (phone) => {
             return { code: 404, message: "User not found with this phone number" };
         }
 
-        const otpRes = await sendOtp(user.id, user.phone, 'forgot_password');
+        const otpRes = await sendOtp(user.id, user.phone, 'forgot');
         if (otpRes.code !== 200) return otpRes;
 
         return {
@@ -332,7 +332,7 @@ export const forgotPassword = async (phone) => {
 export const resetPassword = async (userId, otp, newPassword) => {
     try {
         // 1. Verify OTP first
-        const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot_password']);
+        const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot']);
         if (!rows || rows.length === 0) {
             return { code: 400, message: "OTP not found or expired" };
         }
@@ -354,7 +354,7 @@ export const resetPassword = async (userId, otp, newPassword) => {
         await queryRunner('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
 
         // 3. Clear OTP
-        await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot_password']);
+        await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [userId, 'forgot']);
 
         return { code: 200, message: "Password reset successful" };
 

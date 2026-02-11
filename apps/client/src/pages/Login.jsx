@@ -160,7 +160,7 @@ const Login = () => {
                                 Remember me
                             </label>
                         </div>
-                        <Link to="/forgot-password" size="sm" className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">
+                        <Link to="/forgot-password" className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">
                             Forgot password?
                         </Link>
                     </div>
