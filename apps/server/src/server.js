@@ -7,6 +7,12 @@ import { connectDB } from '#config/db.js';
 import '#utils/passport.js';
 import { rtnRes, log } from '#utils/helper.js';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const port = env.PORT;
 
@@ -18,7 +24,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(passport.initialize());
-app.use('/uploads', express.static('src/uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 import router from '#src/routes/appRoutes.js';
