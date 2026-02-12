@@ -3,7 +3,7 @@ import React from "react";
 const SupportHeader = ({ activeTab, setActiveTab }) => {
     return (
         <div className="text-center py-8">
-            <h1 className="text-2xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
                 How can we help?
             </h1>
             <p className="text-sm md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto">

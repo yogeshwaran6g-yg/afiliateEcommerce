@@ -67,7 +67,7 @@ const Leaderboard = () => {
       {/* Page Title & Time Period Filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
             Distributor Leaderboard
           </h1>
           <p className="text-sm md:text-base text-slate-500">
