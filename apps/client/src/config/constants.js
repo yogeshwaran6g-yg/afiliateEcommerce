@@ -1,7 +1,7 @@
 
 
 export const constants = {
-    endpointBase: "http://localhost:8000",
+    endpointBase: import.meta.env.VITE_API_URL,
     endpoints: {
         auth: {
             login: "/api/v1/auth/login",
@@ -12,6 +12,27 @@ export const constants = {
             logout: "/api/v1/auth/logout",
             forgotPassword: "/api/v1/auth/forgot-password",
             resetPassword: "/api/v1/auth/reset-password",
+            profile: "/api/v1/auth/profile",
+        },
+        categories: {
+            base: "/api/v1/categories",
+        },
+        products: {
+            base: "/api/v1/products",
+        },
+        profile: {
+            base: "/api/v1/profile",
+            me: "/api/v1/profile/me",
+            personal: "/api/v1/profile/personal",
+            identity: "/api/v1/profile/identity",
+            address: "/api/v1/profile/address",
+            bank: "/api/v1/profile/bank",
+        },
+        cart: {
+            base: "/api/v1/cart",
+            add: "/api/v1/cart/add",
+            update: "/api/v1/cart/update",
+            remove: "/api/v1/cart/remove",
         }
     }
 }

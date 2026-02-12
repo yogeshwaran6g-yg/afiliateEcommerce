@@ -5,8 +5,8 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const PORT = process.env.PORT || 4001;
-const BASE_URL = `http://localhost:${PORT}/api/v1`;
+const PORT = process.env.PORT || 4002;
+const BASE_URL = `http://localhost:${PORT}/api`;
 
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',

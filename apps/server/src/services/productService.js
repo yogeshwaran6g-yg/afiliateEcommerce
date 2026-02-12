@@ -100,7 +100,23 @@ const productService = {
                 params.push(filters.is_active);
             }
 
-            sql += ` ORDER BY p.created_at DESC`;
+            // Implementation of sorting
+            const sort = filters.sort || 'newest';
+            switch (sort) {
+                case 'price-low':
+                    sql += ` ORDER BY p.sale_price ASC`;
+                    break;
+                case 'price-high':
+                    sql += ` ORDER BY p.sale_price DESC`;
+                    break;
+                case 'pv':
+                    sql += ` ORDER BY p.pv DESC`;
+                    break;
+                case 'newest':
+                default:
+                    sql += ` ORDER BY p.created_at DESC`;
+                    break;
+            }
 
             const result = await queryRunner(sql, params);
             if (result && result.length > 0) {

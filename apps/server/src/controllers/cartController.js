@@ -4,6 +4,9 @@ import { rtnRes } from '#utils/helper.js';
 export const getCart = async (req, res) => {
     try {
         const userId = req.user.id;
+        if (!userId) {
+            return rtnRes(res, 400, "unable to find userID")
+        }
         const cart = await cartService.getCart(userId);
         return rtnRes(res, 200, 'Cart retrieved successfully', cart);
     } catch (error) {

@@ -1,93 +1,103 @@
-/**
- * Cart Service
- * Handles shopping cart persistence and logic.
- * Currently using localStorage to emulate a backend API.
- */
+import { api } from "../util/axios";
+import constants from "../config/constants";
 
-const CART_STORAGE_KEY = "afiliate_cart_items";
+const { cart: cartEndpoints } = constants.endpoints;
 
 const cartService = {
-    // Get all cart items
+    // Get all cart items from backend
     async getCart() {
         try {
-            const items = localStorage.getItem(CART_STORAGE_KEY);
-            return items ? JSON.parse(items) : [];
+            const response = await api.get(cartEndpoints.base);
+            if (response.success && response.data && Array.isArray(response.data.items)) {
+                // Map backend fields to frontend expected fields
+                return response.data.items.map(item => ({
+                    ...item,
+                    id: item.product_id, // Map product_id to id for local consistency
+                    price: parseFloat(item.sale_price) || 0, // Map sale_price to price
+                    image: item.images && item.images.length > 0 ? item.images[0] : "", // Use first image
+                }));
+            }
+            return [];
         } catch (error) {
             console.error("Get Cart Error:", error);
             return [];
         }
     },
 
-    // Save cart items
-    async saveCart(items) {
-        try {
-            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-            return true;
-        } catch (error) {
-            console.error("Save Cart Error:", error);
-            return false;
-        }
-    },
-
-    // Add item to cart
+    // Add item to cart on backend
     async addToCart(product, quantity = 1) {
-        const items = await this.getCart();
-        const existingItemIndex = items.findIndex(item => item.id === product.id);
-
-        if (existingItemIndex > -1) {
-            items[existingItemIndex].quantity += quantity;
-        } else {
-            items.push({
-                id: product.id,
-                name: product.name,
-                sku: product.sku || `SKU-${product.id}`, // Fallback if SKU is missing
-                price: parseFloat(product.sale_price) || 0,
-                pv: product.pv || 0,
-                image: product.image || (product.images ? JSON.parse(product.images)[0] : ""),
+        try {
+            const response = await api.post(cartEndpoints.add, {
+                productId: product.id,
                 quantity: quantity
             });
+            
+            if (response.success) {
+                return await this.getCart();
+            }
+            throw new Error(response.message || "Failed to add to cart");
+        } catch (error) {
+            console.error("Add to Cart Error:", error);
+            throw error;
         }
-
-        await this.saveCart(items);
-        return items;
     },
 
-    // Remove item from cart
+    // Remove item from cart on backend
     async removeFromCart(productId) {
-        const items = await this.getCart();
-        const filteredItems = items.filter(item => item.id !== productId);
-        await this.saveCart(filteredItems);
-        return filteredItems;
+        try {
+            const response = await api.delete(`${cartEndpoints.remove}/${productId}`);
+            if (response.success) {
+                return await this.getCart();
+            }
+            throw new Error(response.message || "Failed to remove from cart");
+        } catch (error) {
+            console.error("Remove from Cart Error:", error);
+            throw error;
+        }
     },
 
-    // Update item quantity
+    // Update item quantity on backend
     async updateQuantity(productId, delta) {
-        const items = await this.getCart();
-        const itemIndex = items.findIndex(item => item.id === productId);
-
-        if (itemIndex > -1) {
-            items[itemIndex].quantity = Math.max(1, items[itemIndex].quantity + delta);
-            await this.saveCart(items);
+        try {
+            const items = await this.getCart();
+            const item = items.find(i => i.id === productId);
+            if (item) {
+                const newQuantity = Math.max(1, item.quantity + delta);
+                return await this.setQuantity(productId, newQuantity);
+            }
+            return items;
+        } catch (error) {
+            console.error("Update Quantity Error:", error);
+            throw error;
         }
-        return items;
     },
 
-    // Set absolute quantity
+    // Set absolute quantity on backend
     async setQuantity(productId, quantity) {
-        const items = await this.getCart();
-        const itemIndex = items.findIndex(item => item.id === productId);
-
-        if (itemIndex > -1) {
-            items[itemIndex].quantity = Math.max(1, quantity);
-            await this.saveCart(items);
+        try {
+            const response = await api.put(cartEndpoints.update, {
+                productId: productId,
+                quantity: Math.max(1, quantity)
+            });
+            if (response.success) {
+                return await this.getCart();
+            }
+            throw new Error(response.message || "Failed to update quantity");
+        } catch (error) {
+            console.error("Set Quantity Error:", error);
+            throw error;
         }
-        return items;
     },
 
-    // Clear cart
+    // Clear cart (placeholder)
     async clearCart() {
-        await this.saveCart([]);
-        return [];
+        try {
+            // Placeholder: currently returning empty
+            return [];
+        } catch (error) {
+            console.error("Clear Cart Error:", error);
+            return [];
+        }
     }
 };
 

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import productService from "../services/productService";
-import categoryService from "../services/categoryService";
+import { getProducts } from "../services/productService";
+import { getCategories } from "../services/categoryService";
 
 export const ProductContext = createContext();
 
@@ -20,7 +20,7 @@ export const ProductProvider = ({ children }) => {
         refetch: refetchProducts
     } = useQuery({
         queryKey: ["products", filters],
-        queryFn: () => productService.getProducts(filters),
+        queryFn: () => getProducts(filters),
     });
 
     // Fetch Categories
@@ -30,7 +30,7 @@ export const ProductProvider = ({ children }) => {
         isError: isCategoriesError
     } = useQuery({
         queryKey: ["categories"],
-        queryFn: () => categoryService.getCategories(),
+        queryFn: () => getCategories(),
     });
 
     const products = productsData?.success ? productsData.data : [];

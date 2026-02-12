@@ -2,7 +2,14 @@ import pool from '#config/db.js';
 import { log } from '#utils/helper.js';
 
 
-export const getOrCreateActiveCart = async (userId, connection = null) => {
+export const getOrCreateActiveCart = async (userId, connection ) => {
+    if(!userId){
+        return {
+            code :400,
+            success:false,
+            message:"Internal Error"
+        }
+    }
     const db = connection || pool;
     
     // Check for existing active cart
@@ -70,26 +77,42 @@ export const addToCart = async (userId, productId, quantity = 1) => {
 
 
 export const getCart = async (userId) => {
-    const activeCart = await getOrCreateActiveCart(userId);
-    const cartId = activeCart.id;
-
-    const [items] = await pool.query(
-        `SELECT ci.id as cart_item_id, ci.product_id, ci.quantity, 
-                p.name, p.slug, p.sale_price, p.images, p.stock
-         FROM cart_items ci
-         JOIN products p ON ci.product_id = p.id
-         WHERE ci.cart_id = ?`,
-        [cartId]
-    );
-
-    return {
-        cartId,
-        userId,
-        items: items.map(item => ({
-            ...item,
-            images: typeof item.images === 'string' ? JSON.parse(item.images) : item.images
-        }))
-    };
+    try {
+        if(!userId){
+            return {
+                code :400,
+                success:false,
+                message:"Internal Error"
+            }
+        }
+        const activeCart = await getOrCreateActiveCart(userId);
+        const cartId = activeCart.id;
+    
+        const [items] = await pool.query(
+            `SELECT ci.id as cart_item_id, ci.product_id, ci.quantity, 
+                    p.name, p.slug, p.sale_price, p.images, p.stock
+             FROM cart_items ci
+             JOIN products p ON ci.product_id = p.id
+             WHERE ci.cart_id = ?`,
+            [cartId]
+        );
+    
+        return {
+            cartId,
+            userId,
+            items: items.map(item => ({
+                ...item,
+                images: typeof item.images === 'string' ? JSON.parse(item.images) : item.images
+            }))
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            code :400,
+            success:false,
+            message:"Internal Error"
+        }
+    }
 };
 
 

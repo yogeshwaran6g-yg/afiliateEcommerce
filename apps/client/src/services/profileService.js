@@ -1,4 +1,7 @@
 import { api } from "../util/axios";
+import constants from "../config/constants";
+
+const { profile: profileEndpoints, auth: authEndpoints } = constants.endpoints;
 
 /**
  * ProfileService provides methods to interact with the user profile-related
@@ -11,7 +14,7 @@ class ProfileService {
      */
     async getProfile() {
         try {
-            const response = await api.get("/auth/profile");
+            const response = await api.get(authEndpoints.profile);
             return response;
         } catch (error) {
             console.error("Get Profile Error:", error);
@@ -26,7 +29,7 @@ class ProfileService {
      */
     async updateProfile(profile) {
         try {
-            const response = await api.put("/auth/profile", { profile });
+            const response = await api.put(authEndpoints.profile, { profile });
 
             // Update local storage user if needed
             if (response.success && response.data) {
@@ -52,7 +55,7 @@ class ProfileService {
             formData.append('idNumber', idNumber);
             if (file) formData.append('identityProof', file);
 
-            const response = await api.post("/auth/kyc/identity", formData, {
+            const response = await api.put(profileEndpoints.identity, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return response;
@@ -73,7 +76,7 @@ class ProfileService {
             });
             if (file) formData.append('addressProof', file);
 
-            const response = await api.post("/auth/kyc/address", formData, {
+            const response = await api.put(profileEndpoints.address, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return response;
@@ -94,7 +97,7 @@ class ProfileService {
             });
             if (file) formData.append('bankProof', file);
 
-            const response = await api.post("/auth/kyc/bank", formData, {
+            const response = await api.put(profileEndpoints.bank, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return response;
