@@ -53,7 +53,7 @@ class ProfileService {
             const formData = new FormData();
             formData.append('idType', idType);
             formData.append('idNumber', idNumber);
-            if (file) formData.append('identityProof', file);
+            if (file) formData.append('file', file);
 
             const response = await api.put(profileEndpoints.identity, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -71,10 +71,8 @@ class ProfileService {
     async updateAddress(addressData, file) {
         try {
             const formData = new FormData();
-            Object.keys(addressData).forEach(key => {
-                formData.append(key, addressData[key]);
-            });
-            if (file) formData.append('addressProof', file);
+            formData.append('addressData', JSON.stringify(addressData));
+            if (file) formData.append('file', file);
 
             const response = await api.put(profileEndpoints.address, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -92,10 +90,8 @@ class ProfileService {
     async updateBank(bankData, file) {
         try {
             const formData = new FormData();
-            Object.keys(bankData).forEach(key => {
-                formData.append(key, bankData[key]);
-            });
-            if (file) formData.append('bankProof', file);
+            formData.append('bankData', JSON.stringify(bankData));
+            if (file) formData.append('file', file);
 
             const response = await api.put(profileEndpoints.bank, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }

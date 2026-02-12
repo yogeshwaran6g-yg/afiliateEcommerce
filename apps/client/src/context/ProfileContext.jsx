@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from "react";
-import { 
-    useProfileQuery, 
+import {
+    useProfileQuery,
     useUpdateProfileMutation,
     useUpdateIdentityMutation,
     useUpdateAddressMutation,
@@ -68,8 +68,8 @@ export const ProfileProvider = ({ children }) => {
         updateAddress: updateAddressMutation.mutateAsync,
         updateBank: updateBankMutation.mutateAsync
     }), [
-        user, profile, addresses, kycStatus, overallKycStatus, kycProgress, 
-        isLoading, profileError, refetch, 
+        user, profile, addresses, kycStatus, overallKycStatus, kycProgress,
+        isLoading, profileError, refetch,
         updateProfileMutation, updateIdentityMutation, updateAddressMutation, updateBankMutation
     ]);
 

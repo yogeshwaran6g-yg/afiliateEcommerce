@@ -1,0 +1,51 @@
+export const levels = [
+    { level: 1, count: 24 },
+    { level: 2, count: 142 },
+    { level: 3, count: 310 },
+    { level: 4, count: 604 },
+    { level: 5, count: 189 },
+    { level: 6, count: 15 },
+];
+
+export const members = [
+    {
+        id: "#44921",
+        name: "Alex Thompson",
+        avatar: "AT",
+        avatarColor: "bg-slate-300",
+        joinDate: "Oct 12, 2023",
+        status: "Active",
+        statusColor: "bg-green-100 text-green-700",
+        contribution: "$12,450.00",
+    },
+    {
+        id: "#44890",
+        name: "Sarah Jenkins",
+        avatar: "SJ",
+        avatarColor: "bg-amber-300",
+        joinDate: "Oct 09, 2023",
+        status: "Active",
+        statusColor: "bg-green-100 text-green-700",
+        contribution: "$8,120.50",
+    },
+    {
+        id: "#44872",
+        name: "Michael Vane",
+        avatar: "MV",
+        avatarColor: "bg-orange-300",
+        joinDate: "Sep 28, 2023",
+        status: "Inactive",
+        statusColor: "bg-slate-100 text-slate-600",
+        contribution: "$2,400.00",
+    },
+    {
+        id: "#44855",
+        name: "Lily Chen",
+        avatar: "LC",
+        avatarColor: "bg-amber-300",
+        joinDate: "Sep 25, 2023",
+        status: "Active",
+        statusColor: "bg-green-100 text-green-700",
+        contribution: "$19,200.00",
+    },
+];

@@ -1,0 +1,32 @@
+export const transactions = [
+    {
+        date: "Oct 24, 2023",
+        time: "14:32 PM",
+        id: "#TRX-8829-XP",
+        method: "Bank Transfer",
+        methodIcon: "account_balance",
+        amount: "$1,200.00",
+        status: "Pending",
+        statusColor: "bg-amber-100 text-amber-700",
+    },
+    {
+        date: "Oct 20, 2023",
+        time: "09:19 AM",
+        id: "#TRX-8791-LA",
+        method: "Bank Transfer",
+        methodIcon: "account_balance",
+        amount: "$850.00",
+        status: "Approved",
+        statusColor: "bg-blue-100 text-blue-700",
+    },
+    {
+        date: "Oct 15, 2023",
+        time: "18:45 PM",
+        id: "#TRX-8649-QT",
+        method: "Crypto Wallet",
+        methodIcon: "currency_bitcoin",
+        amount: "$3,100.00",
+        status: "Paid",
+        statusColor: "bg-green-100 text-green-700",
+    },
+];
