@@ -22,7 +22,7 @@ export const verifyOtp = async (userId, otp, purpose, phone = null) => {
         }
 
         // Mark user as verified
-        await queryRunner('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
+        await queryRunner('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);
 
         // Clear OTP
         await queryRunner('DELETE FROM otp WHERE user_id = ?', [userId]);

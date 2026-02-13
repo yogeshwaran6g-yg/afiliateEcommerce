@@ -4,11 +4,6 @@ import Charts from "../components/Charts";
 import TransactionsTable from "../components/TransactionsTable";
 
 export default function Dashboard() {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-    const closeSidebar = () => setIsSidebarOpen(false);
-
     return (
         <div className="p-4 md:p-8 space-y-6">
             {/* Greeting */}

@@ -8,7 +8,7 @@ import ClientLayout from "./components/ClientLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Leaderboard from "./components/Leaderboard";
-import CommunicationCenter from "./components/CommunicationCenter";
+import CommunicationCenter from "./components/CommunicationCenter/index.jsx";
 import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
 import Products from "./pages/Products";
@@ -48,24 +48,24 @@ function App() {
 
                 {/* routes with ClientLayout */}
                 {/* <Route element={<ProtectedRoute />}> */}
-                  <Route path="/complete-registration" element={<CompleteRegistration />} />
-                  <Route element={<ClientLayout />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route path="/orders" element={<Orders />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/ranks" element={<Ranks />} />
-                    <Route path="/network" element={<Network />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/support" element={<Support />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/wallet" element={<Wallet />} />
-                    <Route path="/withdrawals" element={<Withdrawals />} />
-                    <Route path="/inventory" element={<Inventory />} />
-                    <Route path="/teams" element={<Teams />} />
-                    <Route path="/notifications" element={<CommunicationCenter />} />
-                  </Route>
+                <Route path="/complete-registration" element={<CompleteRegistration />} />
+                <Route element={<ClientLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/ranks" element={<Ranks />} />
+                  <Route path="/network" element={<Network />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/support" element={<Support />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/wallet" element={<Wallet />} />
+                  <Route path="/withdrawals" element={<Withdrawals />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/teams" element={<Teams />} />
+                  <Route path="/notifications" element={<CommunicationCenter />} />
+                </Route>
                 {/* </Route> */}
 
                 {/* auth routes without layout */}

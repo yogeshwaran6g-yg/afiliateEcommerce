@@ -1,9 +1,11 @@
-import React, { createContext, useState, useEffect, useMemo, useCallback } from "react";
+import React, { createContext, useState, useEffect, useMemo, useCallback, useContext } from "react";
 import cartService from "../services/cartService";
+import { AuthContext } from "./AuthContext";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
+    const { isAuthenticated, user } = useContext(AuthContext);
     const [cartItems, setCartItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -11,59 +13,98 @@ export const CartProvider = ({ children }) => {
     const shipping = 12.00;
     const taxRate = 0.08;
 
-    // Load cart on mount
+    // Load cart when authentication status changes
     useEffect(() => {
         const loadCart = async () => {
-            const items = await cartService.getCart();
-            setCartItems(items);
-            setIsLoading(false);
+            if (!isAuthenticated) {
+                setCartItems([]);
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                setIsLoading(true);
+                const items = await cartService.getCart();
+                setCartItems(Array.isArray(items) ? items : []);
+            } catch (error) {
+                console.error("Failed to load cart:", error);
+                setCartItems([]);
+            } finally {
+                setIsLoading(false);
+            }
         };
         loadCart();
-    }, []);
+    }, [isAuthenticated, user]);
 
     // Add item
     const addToCart = useCallback(async (product, quantity = 1) => {
-        const updatedItems = await cartService.addToCart(product, quantity);
-        setCartItems([...updatedItems]);
-    }, []);
+        if (!isAuthenticated) {
+            alert("Please login to add items to cart");
+            return;
+        }
+        try {
+            const updatedItems = await cartService.addToCart(product, quantity);
+            setCartItems([...updatedItems]);
+        } catch (error) {
+            console.error("Add to cart failed:", error);
+            alert(error.message || "Failed to add item to cart");
+        }
+    }, [isAuthenticated]);
 
     // Remove item
     const removeFromCart = useCallback(async (productId) => {
-        const updatedItems = await cartService.removeFromCart(productId);
-        setCartItems([...updatedItems]);
+        try {
+            const updatedItems = await cartService.removeFromCart(productId);
+            setCartItems([...updatedItems]);
+        } catch (error) {
+            console.error("Remove from cart failed:", error);
+        }
     }, []);
 
     // Update quantity (delta)
     const updateQuantity = useCallback(async (productId, delta) => {
-        const updatedItems = await cartService.updateQuantity(productId, delta);
-        setCartItems([...updatedItems]);
+        try {
+            const updatedItems = await cartService.updateQuantity(productId, delta);
+            setCartItems([...updatedItems]);
+        } catch (error) {
+            console.error("Update quantity failed:", error);
+        }
     }, []);
 
     // Set quantity
     const setQuantity = useCallback(async (productId, quantity) => {
-        const updatedItems = await cartService.setQuantity(productId, quantity);
-        setCartItems([...updatedItems]);
+        try {
+            const updatedItems = await cartService.setQuantity(productId, quantity);
+            setCartItems([...updatedItems]);
+        } catch (error) {
+            console.error("Set quantity failed:", error);
+        }
     }, []);
 
     // Clear cart
     const clearCart = useCallback(async () => {
-        const updatedItems = await cartService.clearCart();
-        setCartItems([...updatedItems]);
+        try {
+            const updatedItems = await cartService.clearCart();
+            setCartItems([...updatedItems]);
+        } catch (error) {
+            console.error("Clear cart failed:", error);
+        }
     }, []);
 
-    // Calculations
+    // Calculations - ensure numbers are handled correctly
     const subtotal = useMemo(() =>
-        cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        cartItems.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity || 0)), 0),
         [cartItems]);
 
     const tax = useMemo(() => subtotal * taxRate, [subtotal]);
     const total = useMemo(() => subtotal + shipping + tax, [subtotal, tax]);
+
     const totalPV = useMemo(() =>
-        cartItems.reduce((sum, item) => sum + (item.pv * item.quantity), 0),
+        cartItems.reduce((sum, item) => sum + (parseInt(item.pv || 0) * parseInt(item.quantity || 0)), 0),
         [cartItems]);
 
     const totalItemsCount = useMemo(() =>
-        cartItems.reduce((sum, item) => sum + item.quantity, 0),
+        cartItems.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0),
         [cartItems]);
 
     const value = useMemo(() => ({

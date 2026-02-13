@@ -6,7 +6,7 @@ import { log } from '#utils/helper.js';
  */
 export const getProfileByUserId = async (userId) => {
     try {
-        const users = await queryRunner('SELECT id, name, phone, email, referral_id, is_verified FROM users WHERE id = ?', [userId]);
+        const users = await queryRunner('SELECT id, name, phone, email, referral_id, is_phone_verified FROM users WHERE id = ?', [userId]);
         if (!users || users.length === 0) return null;
 
         const profiles = await queryRunner('SELECT * FROM profiles WHERE user_id = ?', [userId]);
@@ -86,7 +86,7 @@ export const updateAddress = async (userId, { addressData, addressDocumentUrl = 
 
         // Update or Insert address in addresses table
         const [existingAddresses] = await connection.execute('SELECT id FROM addresses WHERE user_id = ? AND is_default = 1', [userId]);
-        
+
         if (existingAddresses.length > 0) {
             await connection.execute(
                 'UPDATE addresses SET address_line1 = ?, city = ?, state = ?, pincode = ?, country = ? WHERE id = ?',

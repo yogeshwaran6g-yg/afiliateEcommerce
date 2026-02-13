@@ -6,10 +6,23 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:px-6 md:py-6 items-center">
                 {/* Product */}
                 <div className="md:col-span-5 flex items-center gap-4">
-                    <div className={`w-16 h-16 md:w-20 md:h-20 ${item.image} rounded-lg shrink-0`}></div>
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-lg shrink-0 overflow-hidden flex items-center justify-center">
+                        {item.image ? (
+                            <img
+                                src={`${import.meta.env.VITE_API_BASE_URL}${item.image}`}
+                                alt={item.name}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                    e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBXStPgVjo_e1K5n-KuNNAVTw9TjpFH2zABBeKg1XiX7STgBS9Eq38RsVuanZMQnE-Cm-XR_gyWIHEcLYtr1VRDOw6RUn9pHJWzWTNFis_bVk5QS4KAHZCsU9EIVSAe3oIHrHiEGkGGSwHS8MVRFXFN0hyBcxI855jchrFw6zm4ot7qKq-NEuWqyw71MM15nPYmvfk_ptK13p7B9wsjH2TvnwPPYOgX8nX8B4XK3v0JdvuKJMsxCMX91Yw8A8IueA8SSSCaFEHTJGM";
+                                }}
+                            />
+                        ) : (
+                            <span className="material-symbols-outlined text-slate-300">inventory_2</span>
+                        )}
+                    </div>
                     <div className="min-w-0">
                         <h3 className="font-bold text-slate-900 text-sm md:text-base truncate">{item.name}</h3>
-                        <p className="text-xs text-slate-500">SKU: {item.sku}</p>
+                        {item.sku && <p className="text-xs text-slate-500">SKU: {item.sku}</p>}
                     </div>
                 </div>
 

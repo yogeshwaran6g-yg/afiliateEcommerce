@@ -61,3 +61,13 @@ export const removeFromCart = async (req, res) => {
         return rtnRes(res, 500, error.message);
     }
 };
+
+export const clearCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const result = await cartService.clearCart(userId);
+        return rtnRes(res, 200, 'Cart cleared successfully', result);
+    } catch (error) {
+        return rtnRes(res, 500, error.message);
+    }
+};

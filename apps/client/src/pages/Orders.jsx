@@ -3,7 +3,6 @@ import React, { useState } from "react";
 export default function Orders() {
   const [activeTab, setActiveTab] = useState("All Orders");
   const [expandedOrder, setExpandedOrder] = useState("#ORD-7721");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const tabs = [
     { name: "All Orders", count: 24 },

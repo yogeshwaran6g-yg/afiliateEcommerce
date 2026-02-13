@@ -13,6 +13,7 @@ CREATE TABLE `users` (
   `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
   `referral_id` VARCHAR(255) NOT NULL,
   `is_phone_verified` BOOLEAN NOT NULL DEFAULT FALSE,
+  `is_active` BOOLEAN NOT NULL DEFAULT FALSE,
   `is_blocked` BOOLEAN NOT NULL DEFAULT FALSE,
   `account_activation_status` ENUM('NOT_STARTED', 'PAYMENT_PENDING', 'UNDER_REVIEW', 'ACTIVATED', 'REJECTED') DEFAULT 'NOT_STARTED',
   `selected_product_id` BIGINT UNSIGNED NULL,
@@ -188,6 +189,7 @@ CREATE TABLE products (
   `low_stock_alert` INT DEFAULT 5,
   `images` JSON NULL,
   `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `pv` INT NOT NULL DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT uk_products_slug UNIQUE (slug),
@@ -206,6 +208,8 @@ CREATE TABLE products (
   INDEX idx_active (is_active),
   INDEX idx_price (sale_price)
 ) ENGINE=InnoDB;
+
+
 
 -- 8. Carts Table
 CREATE TABLE `carts` (
@@ -231,5 +235,14 @@ CREATE TABLE `cart_items` (
   UNIQUE KEY `uq_cart_product` (`cart_id`, `product_id`)
 ) ENGINE=InnoDB;
 
-
-
+-- 10. Notifications Table
+CREATE TABLE `notifications` (
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `heading` VARCHAR(255) NOT NULL,
+  `short_description` VARCHAR(255) NOT NULL,
+  `long_description` TEXT NOT NULL,
+  `image_url` VARCHAR(255) NULL,
+  `advertisement_end_time` DATETIME NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;

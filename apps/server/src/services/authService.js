@@ -208,6 +208,9 @@ export const verifyOtp = async (userId, otp, purpose) => {
         await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [userId, purpose || otpRecord.purpose]);
 
         const user = await findUserById(userId);
+        if (!user) {
+            return { code: 404, message: "User not found after verification" };
+        }
         delete user.password;
 
         // Generate token for all successful verifications (signup or login)
