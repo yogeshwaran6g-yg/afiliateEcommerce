@@ -231,3 +231,15 @@ CREATE TABLE `cart_items` (
   CONSTRAINT `fk_cart_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE CASCADE,
   UNIQUE KEY `uq_cart_product` (`cart_id`, `product_id`)
 ) ENGINE=InnoDB;
+
+-- 10. Notifications Table
+CREATE TABLE `notifications` (
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `heading` VARCHAR(255) NOT NULL,
+  `short_description` VARCHAR(255) NOT NULL,
+  `long_description` TEXT NOT NULL,
+  `image_url` VARCHAR(255) NULL,
+  `advertisement_end_time` DATETIME NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;

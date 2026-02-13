@@ -33,6 +33,9 @@ export const constants = {
             add: "/api/v1/cart/add",
             update: "/api/v1/cart/update",
             remove: "/api/v1/cart/remove",
+        },
+        notifications: {
+            base: "/api/v1/notifications",
         }
     }
 }

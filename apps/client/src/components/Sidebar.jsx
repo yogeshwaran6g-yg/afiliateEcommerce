@@ -3,17 +3,46 @@ import { Link, useLocation } from "react-router-dom";
 export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
 
-    const mainItems = [
-        { icon: "dashboard", label: "Dashboard", path: "/dashboard" },
-        { icon: "share", label: "My Network", path: "/network" },
-        { icon: "account_balance_wallet", label: "Wallet", path: "/wallet" },
-        { icon: "bar_chart", label: "Reports", path: "/leaderboard" },
-        { icon: "inventory_2", label: "Products", path: "/products" },
-    ];
-
-    const supportItems = [
-        { icon: "settings", label: "Settings", path: "/profile" },
-        { icon: "help_center", label: "Help Center", path: "/support" },
+    const navigationGroups = [
+        {
+            title: "Overview",
+            items: [
+                { icon: "dashboard", label: "Dashboard", path: "/dashboard" },
+                { icon: "notifications", label: "Notifications", path: "/notifications" },
+            ]
+        },
+        {
+            title: "Store",
+            items: [
+                { icon: "storefront", label: "Products", path: "/products" },
+                { icon: "shopping_bag", label: "Orders", path: "/orders" },
+                { icon: "shopping_cart", label: "Cart", path: "/cart" },
+                { icon: "inventory_2", label: "Inventory", path: "/inventory" },
+            ]
+        },
+        {
+            title: "Network",
+            items: [
+                { icon: "share", label: "My Network", path: "/network" },
+                { icon: "groups", label: "Teams", path: "/teams" },
+                { icon: "military_tech", label: "Ranks", path: "/ranks" },
+                { icon: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
+            ]
+        },
+        {
+            title: "Finance",
+            items: [
+                { icon: "account_balance_wallet", label: "Wallet", path: "/wallet" },
+                { icon: "payments", label: "Withdrawals", path: "/withdrawals" },
+            ]
+        },
+        {
+            title: "System",
+            items: [
+                { icon: "settings", label: "Settings", path: "/profile" },
+                { icon: "help_center", label: "Help Center", path: "/support" },
+            ]
+        }
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -50,47 +79,38 @@ export default function Sidebar({ isOpen, onClose }) {
                     </button>
                 </div>
 
-                {/* Main Navigation */}
-                <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-                    {mainItems.map((item, i) => (
-                        <Link
-                            key={i}
-                            to={item.path}
-                            onClick={() => {
-                                if (window.innerWidth < 1024) onClose();
-                            }}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive(item.path)
-                                ? "bg-primary/10 text-primary border-r-4 border-primary"
-                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                }`}
-                        >
-                            <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                            <span>{item.label}</span>
-                        </Link>
-                    ))}
-
-                    {/* Support Section */}
-                    <div className="pt-6 pb-2">
-                        <div className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                            Support
+                {/* Navigation Groups */}
+                <nav className="flex-1 px-4 space-y-6 overflow-y-auto custom-scrollbar pb-6">
+                    {navigationGroups.map((group, groupIdx) => (
+                        <div key={groupIdx}>
+                            <h3 className="px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                                {group.title}
+                            </h3>
+                            <div className="space-y-1">
+                                {group.items.map((item, itemIdx) => (
+                                    <Link
+                                        key={itemIdx}
+                                        to={item.path}
+                                        onClick={() => {
+                                            if (window.innerWidth < 1024) onClose();
+                                        }}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${isActive(item.path)
+                                            ? "bg-primary/10 text-primary"
+                                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                            }`}
+                                    >
+                                        <span className={`material-symbols-outlined text-xl transition-colors ${isActive(item.path) ? "text-primary" : "text-slate-400 group-hover:text-slate-600"}`}>
+                                            {item.icon}
+                                        </span>
+                                        <span>{item.label}</span>
+                                        {isActive(item.path) && (
+                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"></div>
+                                        )}
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                        {supportItems.map((item, i) => (
-                            <Link
-                                key={i}
-                                to={item.path}
-                                onClick={() => {
-                                    if (window.innerWidth < 1024) onClose();
-                                }}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive(item.path)
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                    }`}
-                            >
-                                <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                                <span>{item.label}</span>
-                            </Link>
-                        ))}
-                    </div>
+                    ))}
                 </nav>
 
                 {/* Invite Button */}
@@ -100,10 +120,10 @@ export default function Sidebar({ isOpen, onClose }) {
                         onClick={() => {
                             if (window.innerWidth < 1024) onClose();
                         }}
-                        className="w-full bg-accent hover:bg-accent/90 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm"
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
                     >
-                        <span className="material-symbols-outlined">person_add</span>
-                        <span>Invite Member</span>
+                        <span className="material-symbols-outlined text-lg">person_add</span>
+                        <span className="text-sm">Invite Member</span>
                     </Link>
                 </div>
             </aside>

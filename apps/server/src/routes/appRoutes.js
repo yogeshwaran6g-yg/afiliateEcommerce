@@ -9,6 +9,7 @@ import categoryRoutes from './categoryRoutes.js';
 import productRoutes from './productRoutes.js';
 import profileRoutes from './profileRoutes.js';
 import cartRoutes from './cartRoutes.js';
+import notificationRoutes from './notificationRoutes.js';
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.use('/categories', categoryRoutes);
 router.use('/products', productRoutes);
 router.use('/profile', profileRoutes);
 router.use('/cart', cartRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;
 

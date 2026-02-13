@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 
 export default function Checkout() {
     const [selectedAddress, setSelectedAddress] = useState("main");
     const [paymentMethod, setPaymentMethod] = useState("card");
     const [useWallet, setUseWallet] = useState(true);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const walletBalance = 1450.00;
     const subtotal = 628.00;
