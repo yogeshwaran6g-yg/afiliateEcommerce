@@ -12,7 +12,7 @@ const Signup = () => {
         email: "",
         phone: "",
         password: "",
-        confirmPassword: "",
+        confirmPassword: " ",
         referralId: ""
     });
     const [showPassword, setShowPassword] = useState(false);

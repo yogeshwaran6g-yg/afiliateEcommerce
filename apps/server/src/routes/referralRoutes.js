@@ -1,11 +1,13 @@
 import express from 'express';
-import passport from 'passport';
+import { protect, checkActivated } from '#src/middlewares/authenticatorMiddleware.js';
 import referalController from '#controllers/referalController.js';
 
 const router = express.Router();
 
+router.use(protect);
+router.use(checkActivated);
+
 router.post('/create', referalController.createReferral);
-router.post('/distribute-commissions', referalController.distributeCommissions);
-router.get('/overview', passport.authenticate('jwt', { session: false }), referalController.getUserReferralOverview);
+router.get('/overview', referalController.getUserReferralOverview);
 
 export default router;

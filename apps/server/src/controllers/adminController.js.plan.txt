@@ -1,0 +1,13 @@
+# Admin Controller Implementation
+
+Implement endpoints for admin to approve or reject activation payments.
+
+## Admin Actions
+
+- **approvePayment**:
+    - Updates payment status to 'APPROVED'.
+    - Calls `activateUser` from `userService.js`.
+- **rejectPayment**:
+    - Updates payment status to 'REJECTED'.
+    - Updates user `activation_status` to 'REJECTED'.
+    - Optionally adds an admin comment.

@@ -24,7 +24,9 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(passport.initialize());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/products', express.static(path.join(__dirname, 'uploads/products')));
+app.use('/uploads/kyc', express.static(path.join(__dirname, 'uploads/kyc')));
+app.use('/uploads/payments', express.static(path.join(__dirname, 'uploads/payments')));
 
 // Routes
 import router from '#src/routes/appRoutes.js';

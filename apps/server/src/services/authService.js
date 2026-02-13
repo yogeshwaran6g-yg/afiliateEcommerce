@@ -1,4 +1,4 @@
-import pool, { queryRunner } from '#config/db.js';
+import pool, { queryRunner, transactionRunner } from '#config/db.js';
 import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -94,6 +94,7 @@ async function fetchWithTimeout(url, options = {}, timeout = 10000) {
         return { result: false };
     }
 }
+
 export const sendOtp = async (userId, phone, purpose = 'login') => {
     const connection = await pool.getConnection();
     try {
@@ -363,6 +364,7 @@ export const resetPassword = async (userId, otp, newPassword) => {
         return { code: 500, message: "Internal server error" };
     }
 };
+
 
 export default {
     login,

@@ -1,10 +1,11 @@
 import express from 'express';
 import * as cartController from '#controllers/cartController.js';
-import { protect } from '#middlewares/authenticatorMiddleware.js';
+import { protect, checkActivated } from '#middlewares/authenticatorMiddleware.js';
 
 const router = express.Router();
 
 router.use(protect);
+router.use(checkActivated);
 
 router.get('/', cartController.getCart);
 router.post('/add', cartController.addToCart);
