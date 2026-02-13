@@ -29,7 +29,7 @@ const testCart = async () => {
         await addToCart(userId, productId, 2);
 
         // 4. Verify Cart is Active
-        const cart = await getCart(userId);c
+        const cart = await getCart(userId);
         log(`Cart retrieved. ID: ${cart.cartId}, Items: ${cart.items.length}`, "success");
         console.log("Cart Items:", cart.items);
 

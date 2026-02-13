@@ -15,6 +15,7 @@ const cartService = {
                     id: item.product_id, // Map product_id to id for local consistency
                     price: parseFloat(item.sale_price) || 0, // Map sale_price to price
                     image: item.images && item.images.length > 0 ? item.images[0] : "", // Use first image
+                    pv: parseInt(item.pv) || 0, // Map pv
                 }));
             }
             return [];
@@ -31,7 +32,7 @@ const cartService = {
                 productId: product.id,
                 quantity: quantity
             });
-            
+
             if (response.success) {
                 return await this.getCart();
             }
@@ -89,11 +90,14 @@ const cartService = {
         }
     },
 
-    // Clear cart (placeholder)
+    // Clear cart
     async clearCart() {
         try {
-            // Placeholder: currently returning empty
-            return [];
+            const response = await api.delete(cartEndpoints.base);
+            if (response.success) {
+                return [];
+            }
+            throw new Error(response.message || "Failed to clear cart");
         } catch (error) {
             console.error("Clear Cart Error:", error);
             return [];

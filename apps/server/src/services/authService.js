@@ -216,12 +216,15 @@ export const verifyOtp = async (userId, otp, purpose) => {
         }
 
         // Mark user as verified
-        await queryRunner('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
+        await queryRunner('UPDATE users SET is_phone_verified = TRUE, activation_status = "PAYMENT_PENDING" WHERE id = ?', [userId]);
 
         // Clear OTP
         await queryRunner('DELETE FROM otp WHERE user_id = ?', [userId]);
 
         const user = await findUserById(userId);
+        if (!user) {
+            return { code: 404, message: "User not found after verification" };
+        }
         delete user.password;
 
         // Generate token for all successful verifications (signup or login)

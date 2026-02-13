@@ -13,9 +13,9 @@ CREATE TABLE `users` (
   `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
   `referral_id` VARCHAR(255) NOT NULL,
   `is_phone_verified` BOOLEAN NOT NULL DEFAULT FALSE,
+  `is_active` BOOLEAN NOT NULL DEFAULT FALSE,
   `is_blocked` BOOLEAN NOT NULL DEFAULT FALSE,
-  --`activation_status` ENUM('NOT_STARTED', 'PAYMENT_PENDING', 'UNDER_REVIEW', 'ACTIVATED', 'REJECTED') DEFAULT 'NOT_STARTED',
-  `account_activation_status` ENUM('PAYMENT_PENDING', 'UNDER_REVIEW', 'ACTIVATED', 'REJECTED') DEFAULT 'PAYMENT_PENDING',
+  `activation_status` ENUM('NOT_STARTED', 'PAYMENT_PENDING', 'UNDER_REVIEW', 'ACTIVATED', 'REJECTED') DEFAULT 'NOT_STARTED',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -186,6 +186,7 @@ CREATE TABLE products (
   `low_stock_alert` INT DEFAULT 5,
   `images` JSON NULL,
   `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `pv` INT NOT NULL DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT uk_products_slug UNIQUE (slug),
@@ -204,6 +205,8 @@ CREATE TABLE products (
   INDEX idx_active (is_active),
   INDEX idx_price (sale_price)
 ) ENGINE=InnoDB;
+
+
 
 -- 8. Carts Table
 CREATE TABLE `carts` (
@@ -228,6 +231,3 @@ CREATE TABLE `cart_items` (
   CONSTRAINT `fk_cart_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE CASCADE,
   UNIQUE KEY `uq_cart_product` (`cart_id`, `product_id`)
 ) ENGINE=InnoDB;
-
-
-

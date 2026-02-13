@@ -2,16 +2,16 @@ import pool from '#config/db.js';
 import { log } from '#utils/helper.js';
 
 
-export const getOrCreateActiveCart = async (userId, connection ) => {
-    if(!userId){
+export const getOrCreateActiveCart = async (userId, connection) => {
+    if (!userId) {
         return {
-            code :400,
-            success:false,
-            message:"Internal Error"
+            code: 400,
+            success: false,
+            message: "Internal Error"
         }
     }
     const db = connection || pool;
-    
+
     // Check for existing active cart
     const [carts] = await db.query(
         'SELECT id, status FROM carts WHERE user_id = ? ORDER BY created_at DESC LIMIT 1',
@@ -78,25 +78,25 @@ export const addToCart = async (userId, productId, quantity = 1) => {
 
 export const getCart = async (userId) => {
     try {
-        if(!userId){
+        if (!userId) {
             return {
-                code :400,
-                success:false,
-                message:"Internal Error"
+                code: 400,
+                success: false,
+                message: "Internal Error"
             }
         }
         const activeCart = await getOrCreateActiveCart(userId);
         const cartId = activeCart.id;
-    
+
         const [items] = await pool.query(
             `SELECT ci.id as cart_item_id, ci.product_id, ci.quantity, 
-                    p.name, p.slug, p.sale_price, p.images, p.stock
+                    p.name, p.slug, p.sale_price, p.images, p.stock, p.pv
              FROM cart_items ci
              JOIN products p ON ci.product_id = p.id
              WHERE ci.cart_id = ?`,
             [cartId]
         );
-    
+
         return {
             cartId,
             userId,
@@ -108,9 +108,9 @@ export const getCart = async (userId) => {
     } catch (error) {
         console.log(error);
         return {
-            code :400,
-            success:false,
-            message:"Internal Error"
+            code: 400,
+            success: false,
+            message: "Internal Error"
         }
     }
 };
@@ -132,6 +132,19 @@ export const updateCartItem = async (userId, productId, quantity) => {
     if (result.affectedRows === 0) {
         throw new Error('Product not found in cart');
     }
+
+    return { success: true };
+};
+
+
+export const clearCart = async (userId) => {
+    const activeCart = await getOrCreateActiveCart(userId);
+    const cartId = activeCart.id;
+
+    await pool.query(
+        'DELETE FROM cart_items WHERE cart_id = ?',
+        [cartId]
+    );
 
     return { success: true };
 };
