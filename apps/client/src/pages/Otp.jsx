@@ -126,7 +126,7 @@ const Otp = () => {
                 sessionStorage.removeItem("pendingPhone");
                 sessionStorage.removeItem("pendingPurpose");
                 sessionStorage.removeItem("otpExpiry");
-                navigate("/dashboard");
+                navigate("/complete-registration");
             }
         } catch (err) {
             console.error("OTP Error:", err);

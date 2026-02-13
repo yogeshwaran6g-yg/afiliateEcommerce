@@ -29,15 +29,18 @@ const Signup = () => {
         e.preventDefault();
         setLocalError("");
 
-        if (formData.password !== formData.confirmPassword) {
-            setLocalError("Passwords do not match");
-            return;
-        }
-
         try {
-            const response = await signupMutation.mutateAsync(formData);
+            // Using a placeholder name for initial signup
+            const signupData = {
+                ...formData,
+                name: `User_${formData.phone}`,
+                email: `${formData.phone}@temp.com`, // Temporary email
+                password: "tempPassword123", // Temporary password
+                confirmPassword: "tempPassword123"
+            };
+            const response = await signupMutation.mutateAsync(signupData);
             if (response.success && response.data?.userId) {
-                // Store userId, phone, purpose for OTP verification
+                // Store phone for OTP verification
                 sessionStorage.setItem("pendingUserId", response.data.userId);
                 sessionStorage.setItem("pendingPhone", formData.phone);
                 sessionStorage.setItem("pendingPurpose", "signup");
@@ -64,38 +67,20 @@ const Signup = () => {
                         F
                     </div>
                     <h2 className="mt-6 text-3xl font-bold text-slate-900 tracking-tight">
-                        Join FintechMLM
+                        Create Account
                     </h2>
                     <p className="mt-2 text-sm text-slate-500 font-medium">
-                        Start your journey as a first-class distributor today.
+                        Enter your phone number to get started.
                     </p>
                 </div>
 
-                <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         {(localError || error) && (
                             <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium border border-red-100 mb-4 animate-shake">
                                 {localError || error}
                             </div>
                         )}
-                        {/* Full Name Field */}
-                        <div>
-                            <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
-                            <div className="mt-1 relative">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
-                                    person
-                                </span>
-                                <input
-                                    name="name"
-                                    type="text"
-                                    required
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
-                                    placeholder="Alex Thompson"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
 
                         {/* Phone Field */}
                         <div>
@@ -115,82 +100,6 @@ const Signup = () => {
                                 />
                             </div>
                         </div>
-
-                        {/* Email Field */}
-                        {/* <div>
-                            <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                            <div className="mt-1 relative">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
-                                    mail
-                                </span>
-                                <input
-                                    name="email"
-                                    type="email"
-                                    required
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
-                                    placeholder="alex@example.com"
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div> */}
-
-                        {/* Referral ID Field (Optional) */}
-                        <div>
-                            <label className="text-sm font-bold text-slate-700 ml-1">Referral ID (Optional)</label>
-                            <div className="mt-1 relative">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
-                                    link
-                                </span>
-                                <input
-                                    name="referralId"
-                                    type="text"
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
-                                    placeholder="REF-12345"
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Password Field */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
-                                <div className="mt-1 relative">
-                                    <input
-                                        name="password"
-                                        type={showPassword ? "text" : "password"}
-                                        required
-                                        className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
-                                        placeholder="••••••••"
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-sm font-bold text-slate-700 ml-1">Confirm</label>
-                                <div className="mt-1 relative">
-                                    <input
-                                        name="confirmPassword"
-                                        type={showPassword ? "text" : "password"}
-                                        required
-                                        className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
-                                        placeholder="••••••••"
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2 px-1">
-                        <input
-                            type="checkbox"
-                            required
-                            className="h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded-md"
-                        />
-                        <label className="text-xs text-slate-600 font-medium">
-                            I agree to the <a href="#" className="font-bold text-primary">Terms of Service</a> and <a href="#" className="font-bold text-primary">Privacy Policy</a>
-                        </label>
                     </div>
 
                     <div>
@@ -206,10 +115,10 @@ const Signup = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Creating Account...
+                                    Sending OTP...
                                 </span>
                             ) : (
-                                "Create Account"
+                                "Send OTP"
                             )}
                         </button>
                     </div>

@@ -190,7 +190,7 @@ export default function Profile() {
 
             {/* Page Header */}
             <div className="mb-8 md:mb-12">
-                <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-3 tracking-tight">Account verification</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Account verification</h1>
                 <p className="text-slate-500 max-w-2xl leading-relaxed">
                     Complete your profile and identity verification to unlock full platform features including withdrawals and higher transaction limits.
                 </p>
