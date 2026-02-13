@@ -54,8 +54,13 @@ BEGIN
     FROM referral_tree rt
     JOIN referral_commission_config rcc 
         ON rt.level = rcc.level
+    JOIN users u_upline
+        ON rt.upline_id = u_upline.id
     WHERE rt.downline_id = p_user_id
-      AND rcc.is_active = 1;
+      AND rcc.is_active = 1
+      AND u_upline.is_phone_verified = TRUE
+      AND u_upline.is_blocked = FALSE
+      AND u_upline.account_activation_status = 'ACTIVATED';
 
     COMMIT;
 END //

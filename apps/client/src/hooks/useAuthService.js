@@ -43,8 +43,8 @@ export const useUser = () => {
 export const useLoginMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ phone, password, otp }) =>
-            authService.login(phone, password, otp),
+        mutationFn: ({ phone, password }) =>
+            authService.login(phone, password),
         onSuccess: (data) => {
             if (data.success && data.data?.user) {
                 // Update local cache immediately
@@ -72,16 +72,6 @@ export const useSignupMutation = () => {
     });
 };
 
-/**
- * Hook for requesting a login OTP.
- * 
- * @returns {import('@tanstack/react-query').UseMutationResult}
- */
-export const useRequestLoginOtpMutation = () => {
-    return useMutation({
-        mutationFn: (phone) => authService.requestLoginOtp(phone),
-    });
-};
 
 /**
  * Hook for verifying OTP (usually for signup).

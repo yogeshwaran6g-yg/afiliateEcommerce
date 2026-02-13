@@ -122,10 +122,14 @@ const Otp = () => {
         try {
             const response = await verifyOtpMutation.mutateAsync({ userId, otp: otpString });
             if (response.success) {
+                // If the backend returns token/user (it should now), 
+                // authApiService.verifyOtp already stored them in localStorage.
+                
                 sessionStorage.removeItem("pendingUserId");
                 sessionStorage.removeItem("pendingPhone");
                 sessionStorage.removeItem("pendingPurpose");
                 sessionStorage.removeItem("otpExpiry");
+                
                 navigate("/complete-registration");
             }
         } catch (err) {

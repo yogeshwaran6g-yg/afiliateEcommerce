@@ -13,6 +13,7 @@ export const constants = {
             forgotPassword: "/api/v1/auth/forgot-password",
             resetPassword: "/api/v1/auth/reset-password",
             profile: "/api/v1/auth/profile",
+            completeRegistration: "/api/v1/auth/complete-registration",
         },
         categories: {
             base: "/api/v1/categories",

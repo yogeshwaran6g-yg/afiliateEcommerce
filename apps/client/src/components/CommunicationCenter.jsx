@@ -64,7 +64,6 @@ const CommunicationCenter = () => {
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <Header toggleSidebar={() => setIsSidebarOpen(true)} />
 
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Activity Feed */}

@@ -8,11 +8,7 @@ const Signup = () => {
     const signupMutation = useSignupMutation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        name: "",
-        email: "",
         phone: "",
-        password: "",
-        confirmPassword: " ",
         referralId: ""
     });
     const [showPassword, setShowPassword] = useState(false);
@@ -30,13 +26,9 @@ const Signup = () => {
         setLocalError("");
 
         try {
-            // Using a placeholder name for initial signup
             const signupData = {
-                ...formData,
-                name: `User_${formData.phone}`,
-                email: `${formData.phone}@temp.com`, // Temporary email
-                password: "tempPassword123", // Temporary password
-                confirmPassword: "tempPassword123"
+                phone: formData.phone,
+                referralId: formData.referralId || undefined
             };
             const response = await signupMutation.mutateAsync(signupData);
             if (response.success && response.data?.userId) {
@@ -96,6 +88,24 @@ const Signup = () => {
                                     className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
                                     placeholder="9876543210"
                                     value={formData.phone}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Referral ID Field */}
+                        <div>
+                            <label className="text-sm font-bold text-slate-700 ml-1">Referral ID (Optional)</label>
+                            <div className="mt-1 relative">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
+                                    group
+                                </span>
+                                <input
+                                    name="referralId"
+                                    type="text"
+                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
+                                    placeholder="REF123456"
+                                    value={formData.referralId}
                                     onChange={handleChange}
                                 />
                             </div>

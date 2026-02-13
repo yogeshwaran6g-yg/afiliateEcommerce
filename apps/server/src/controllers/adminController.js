@@ -8,15 +8,14 @@ const adminController = {
             const { paymentId } = req.body;
             if (!paymentId) return rtnRes(res, 400, "paymentId is required");
 
-            const [payment] = await queryRunner('SELECT * FROM activation_payments WHERE id = ?', [paymentId]);
+            const [payment] = await queryRunner('SELECT * FROM activation_payments_details WHERE id = ?', [paymentId]);
             if (!payment) return rtnRes(res, 404, "Payment record not found");
 
             if (payment.status !== 'PENDING') {
                 return rtnRes(res, 400, `Payment is already ${payment.status}`);
             }
 
-            await queryRunner('UPDATE activation_payments SET status = "APPROVED" WHERE id = ?', [paymentId]);
-            await activateUser(payment.user_id);
+            await activateUser(payment.user_id, paymentId);
 
             return rtnRes(res, 200, "Payment approved and user activated successfully");
 
@@ -31,11 +30,11 @@ const adminController = {
             const { paymentId, reason } = req.body;
             if (!paymentId) return rtnRes(res, 400, "paymentId is required");
 
-            const [payment] = await queryRunner('SELECT * FROM activation_payments WHERE id = ?', [paymentId]);
+            const [payment] = await queryRunner('SELECT * FROM activation_payments_details WHERE id = ?', [paymentId]);
             if (!payment) return rtnRes(res, 404, "Payment record not found");
 
-            await queryRunner('UPDATE activation_payments SET status = "REJECTED", admin_comment = ? WHERE id = ?', [reason || "Rejected by admin", paymentId]);
-            await queryRunner('UPDATE users SET activation_status = "REJECTED" WHERE id = ?', [payment.user_id]);
+            await queryRunner('UPDATE activation_payments_details SET status = "REJECTED", admin_comment = ? WHERE id = ?', [reason || "Rejected by admin", paymentId]);
+            await queryRunner('UPDATE users SET account_activation_status = "REJECTED" WHERE id = ?', [payment.user_id]);
 
             return rtnRes(res, 200, "Payment rejected and user notified");
 

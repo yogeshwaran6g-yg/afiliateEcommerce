@@ -6,62 +6,41 @@ import { env } from '#config/env.js';
 import { findUserByPhone, findUserById } from '#services/userService.js';
 
 const generateToken = (user) => {
+    if(!env.JWT_SECRET){
+        throw new Error("jwt seceret not found");
+    }
     return jwt.sign(
         { id: user.id, role: user.role },
-        env.JWT_SECRET || 'your_jwt_secret',
+        env.JWT_SECRET ,
         { expiresIn: '1d' }
     );
 };
 
-export const login = async (phone, password, otp) => {
+export const login = async (phone, password) => {
     try {
         const user = await findUserByPhone(phone);
         if (!user) {
             return { code: 404, message: "User not found" };
         }
 
-        if (!user.is_active) {
-            return { code: 403, message: "Account is inactive" };
+        if (user.is_blocked) {
+            return { code: 403, message: "Account is blocked" };
         }
 
-        // 1. If password/otp are NOT provided, trigger Stage 1 (request OTP)
-        if (!password && !otp) {
-            const otpRes = await sendOtp(user.id, user.phone, 'login');
-            if (otpRes.code !== 200) return otpRes;
-
-            return {
-                code: 202,
-                message: "OTP sent successfully",
-                data: { userId: user.id }
-            };
+        if (!password) {
+            return { code: 400, message: "Password is required" };
         }
 
-        // 2. If password/otp ARE provided, verify them (Stage 2)
-        if (password) {
-            if (!user.password) {
-                return { code: 401, message: "Password not set for this account" };
-            }
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return { code: 401, message: "Invalid credentials" };
-            }
+        if (!user.password) {
+            return { 
+                    code: 401, 
+                    message: "Password not set for this account. Please use OTP to reset password if supported." 
+                };
         }
 
-        if (otp) {
-            const rows = await queryRunner('SELECT * FROM otp WHERE user_id = ? AND purpose = ?', [user.id, 'login']);
-            if (!rows || rows.length === 0) {
-                return { code: 400, message: "OTP not found or expired" };
-            }
-            const otpRecord = rows[0];
-            if (new Date() > new Date(otpRecord.expires_at)) {
-                return { code: 400, message: "OTP expired" };
-            }
-            const isOtpMatch = await bcrypt.compare(otp, otpRecord.otp_hash);
-            if (!isOtpMatch) {
-                return { code: 400, message: "Invalid OTP" };
-            }
-            // Clear OTP after successful use
-            await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [user.id, 'login']);
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return { code: 401, message: "Invalid credentials" };
         }
 
         const token = generateToken(user);
@@ -215,11 +194,18 @@ export const verifyOtp = async (userId, otp, purpose) => {
             return { code: 400, message: "Invalid OTP" };
         }
 
-        // Mark user as verified
-        await queryRunner('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
+        // Mark user as verified and update activation status if purpose is signup
+        if (purpose === 'signup') {
+            await queryRunner(
+                'UPDATE users SET is_phone_verified = TRUE, account_activation_status = ? WHERE id = ?',
+                ['PAYMENT_PENDING', userId]
+            );
+        } else {
+            await queryRunner('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);
+        }
 
         // Clear OTP
-        await queryRunner('DELETE FROM otp WHERE user_id = ?', [userId]);
+        await queryRunner('DELETE FROM otp WHERE user_id = ? AND purpose = ?', [userId, purpose || otpRecord.purpose]);
 
         const user = await findUserById(userId);
         delete user.password;
@@ -231,7 +217,7 @@ export const verifyOtp = async (userId, otp, purpose) => {
             message: "OTP verified successfully",
             data: { user, token }
         };
-
+        
     } catch (e) {
         log(`Verify OTP error: ${e.message}`, "error");
         return { code: 500, message: "Internal server error" };

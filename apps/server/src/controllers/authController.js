@@ -1,5 +1,5 @@
 import authService from '#services/authService.js';
-import { createUser, existinguserFieldsCheck } from '#services/userService.js';
+import { createUser, existinguserFieldsCheck, findUserByPhone, updateRegistrationDetails } from '#services/userService.js';
 import { rtnRes, log } from '#utils/helper.js';
 import { queryRunner } from '#config/db.js';
 
@@ -8,72 +8,118 @@ const authController = {
 
     signup: async function (req, res) {
         try {
-            const { name, phone, email, password, referrerId:referralId } = req.body;
-            if (!phone || !name) {
-                return rtnRes(res, 400, "name and phone are required");
+            const { phone, referralId: referralCode } = req.body;
+            if (!phone) {
+                return rtnRes(res, 400, "phone is required");
             }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const phoneRegex = /^[6-9]\d{9}$/;
-            if(email){
 
-                if (!emailRegex.test(email)) {
-                    return rtnRes(res, 400, "Invalid email format");
-                }
-            }
+            const phoneRegex = /^[6-9]\d{9}$/;
             if (!phoneRegex.test(phone)) {
                 return rtnRes(res, 400, "Invalid phone format");
             }
-            const existingUser = await existinguserFieldsCheck({ name, phone });
-            if(existingUser.isExisting){
-                return rtnRes(res, 400, `User already exists with ${existingUser.field}`);
+
+            const existingUser = await findUserByPhone(phone);
+            
+            if (existingUser) {
+                if (!existingUser.is_phone_verified) {
+                    // Resend OTP for unverified user
+                    const otpRes = await authService.sendOtp(existingUser.id, existingUser.phone, 'signup');
+                    if (otpRes.code !== 200) {
+                        return rtnRes(res, otpRes.code, otpRes.message);
+                    }
+                    return rtnRes(res, 201, "OTP resent for verification.", { userId: existingUser.id });
+                }
+                return rtnRes(res, 400, "User already exists and is verified. Please login.");
             }
 
-            if (referralId) {
-                const results = await queryRunner(`select id from users where referral_id = ?`, [referralId]);
-                console.log(results)
-                if (!results || results.length === 0) {
+            let referredBy = null;
+            if (referralCode) {
+                const results = await queryRunner(`select id from users where referral_id = ?`, [referralCode]);
+                if (results && results.length > 0) {
+                    referredBy = results[0].id;
+                } else {
                     return rtnRes(res, 400, "Invalid referral id");
                 }
-                const referrerId = results[0].id;
-                console.log("here the referral user", referrerId);
-                req.body.referralId = referrerId; 
-                
             }
 
             const user = await createUser({ 
-                name, 
                 phone, 
-                email, 
-                password, 
-                referralId 
+                referredBy 
             });
-
+            if(!user.id){
+                return rtnRes(res, 500, "Internal error");
+            }
             // Send OTP
             const otpRes = await authService.sendOtp(user.id, user.phone, 'signup');
             if (otpRes.code !== 200) {
                 return rtnRes(res, otpRes.code, otpRes.message);
             }
 
-            return rtnRes(res, 201, "User registered successfully. OTP sent.", { userId: user.id });
+            return rtnRes(res, 201, "OTP sent successfully.", { userId: user.id });
 
         } catch (e) {
-            console.log("err from signup ", e);
-            if (e.code === 'ER_DUP_ENTRY') {
-                return rtnRes(res, 400, "Phone or Email already exists");
+            log(`Signup error: ${e.message}`, "error");
+            rtnRes(res, 500, "internal error");
+        }
+    },
+
+    completeRegistration: async function (req, res) {
+        try {
+            const userId = req.user.id; // From protection middleware
+            const { name, email, password, selectedProductId, paymentType } = req.body;
+            const proofFile = req.file;
+
+            if (!name || !password || !selectedProductId || !paymentType || !proofFile) {
+                return rtnRes(res, 400, "Missing required fields or payment proof");
             }
+
+            // 1. Check if user is verified
+            const userRows = await queryRunner(`SELECT is_phone_verified, account_activation_status FROM users WHERE id = ?`, [userId]);
+            if (!userRows || userRows.length === 0 || !userRows[0].is_phone_verified) {
+                return rtnRes(res, 403, "Mobile not verified. Access denied.");
+            }
+
+            // 1b. Check for existing pending payment
+            const pendingPayments = await queryRunner(
+                'SELECT id FROM activation_payments_details WHERE user_id = ? AND status = ?',
+                [userId, 'PENDING']
+            );
+            if (pendingPayments && pendingPayments.length > 0) {
+                return rtnRes(res, 400, "You already have a payment proof under review.");
+            }
+
+            // 2. Update user details
+            await updateRegistrationDetails(userId, {
+                name,
+                email,
+                password,
+                selectedProductId
+            });
+
+            // 3. Create payment record
+            const proofUrl = `/uploads/${proofFile.filename}`;
+            await queryRunner(
+                `INSERT INTO activation_payments_details (user_id, product_id, payment_type, proof_url, status) 
+                 VALUES (?, ?, ?, ?, ?)`,
+                [userId, selectedProductId, paymentType, proofUrl, 'PENDING']
+            );
+
+            return rtnRes(res, 200, "Registration and payment proof submitted successfully. Under review.");
+
+        } catch (e) {
+            log(`CompleteRegistration error: ${e.message}`, "error");
             rtnRes(res, 500, "internal error");
         }
     },
 
     login: async function (req, res) {
         try {
-            const { phone, password, otp } = req.body;
-            if (!phone) {
-                return rtnRes(res, 400, "phone is required");
+            const { phone, password } = req.body;
+            if (!phone || !password) {
+                return rtnRes(res, 400, "phone and password are required");
             }
 
-            const result = await authService.login(phone, password, otp);
+            const result = await authService.login(phone, password);
             return rtnRes(res, result.code, result.message, result.data);
 
         } catch (e) {

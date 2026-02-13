@@ -11,9 +11,9 @@ const handleApiError = (error, context) => {
 };
 
 
-export const login = async (phone, password = null, otp = null) => {
+export const login = async (phone, password) => {
     try {
-        const response = await api.post(authEndpoints.login, { phone, password, otp });
+        const response = await api.post(authEndpoints.login, { phone, password });
 
         // Backend returns: { success, message, data: { user, token } }
         if (response.success && response.data?.token) {
@@ -28,14 +28,6 @@ export const login = async (phone, password = null, otp = null) => {
 };
 
 
-export const requestLoginOtp = async (phone) => {
-    try {
-        const response = await api.post(authEndpoints.login, { phone });
-        return response;
-    } catch (error) {
-        handleApiError(error, "Request Login OTP");
-    }
-};
 
 
 export const signup = async (userDetails) => {
@@ -108,11 +100,32 @@ export const getCurrentUser = () => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
 };
+ 
+export const completeRegistration = async (registrationData) => {
+    try {
+        const formData = new FormData();
+        Object.keys(registrationData).forEach(key => {
+            if (registrationData[key] !== null && registrationData[key] !== undefined) {
+                formData.append(key, registrationData[key]);
+            }
+        });
+
+        // Debug log to verify FormData contents before sending
+        // console.log("Sending registration FormData:");
+        // for (let pair of formData.entries()) {
+        //     console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
+        // }
+
+        const response = await api.post(authEndpoints.completeRegistration || '/auth/complete-registration', formData);
+        return response;
+    } catch (error) {
+        handleApiError(error, "Complete Registration");
+    }
+};
 
 export default {
     login,
     signup,
-    requestLoginOtp,
     verifyOtp,
     resendOtp,
     forgotPassword,
