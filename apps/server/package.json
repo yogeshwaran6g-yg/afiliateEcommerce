@@ -17,9 +17,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed": "node src/scripts/seed.js",
-    "seedProcedure": "node src/scripts/create_procedures.js",
-    "expectedOutput": "node  generate_mocks.cjs"
+    "db:setup": "node src/scripts/setup-db.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

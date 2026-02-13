@@ -4,22 +4,6 @@ import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 
 
-export const activateUser = async (userId) => {
-    try {
-        await queryRunner(
-            'UPDATE users SET activation_status = "APPROVED" WHERE id = ?',
-            [userId]
-        );
-
-        log(`User ${userId} activated`, "info");
-        return true;
-    } catch (error) {
-        log(`Error activating user: ${error.message}`, "error");
-        throw error;
-    }
-};
-
-
 const generateReferralId = () => {
     return 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();
 };

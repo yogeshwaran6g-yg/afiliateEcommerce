@@ -6,7 +6,7 @@
     "server": "pnpm --filter server dev",
     "client": "pnpm --filter client dev",
     "all": "pnpm -r dev",
-    "seed": "pnpm --filter server seed",
+    "seed": "pnpm --filter server db:setup",
     "seed:procedure": "pnpm --filter server seedProcedure",
     "expectedOutput": "pnpm --filter server expectedOutput"
   },
