@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import profileService from "../services/profileService";
 
-export const PROFILE_QUERY_KEY = ["user"];
+export const PROFILE_QUERY_KEY = ["profile"];
 
 /**
  * Hook to fetch the current user profile.
@@ -22,8 +22,8 @@ export const useProfileQuery = (enabled = true) => {
 export const useUpdateProfileMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ profile }) =>
-            profileService.updateProfile(profile),
+        mutationFn: (personalData) =>
+            profileService.updatePersonal(personalData),
         onSuccess: (data) => {
             if (data.success && data.data) {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, (oldData) => {
@@ -35,6 +35,7 @@ export const useUpdateProfileMutation = () => {
                 });
             }
             queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: ["user"] });
         },
     });
 };

@@ -21,9 +21,9 @@ export const ProfileProvider = ({ children }) => {
         refetch
     } = useProfileQuery(isAuthenticated);
 
-    const user = profileData?.data?.user || null;
-    const profile = profileData?.data?.profile || null;
-    const addresses = profileData?.data?.addresses || [];
+    const user = profileData?.data?.user || profileData?.user || null;
+    const profile = profileData?.data?.profile || profileData?.profile || null;
+    const addresses = profileData?.data?.addresses || profileData?.addresses || [];
 
     const updateProfileMutation = useUpdateProfileMutation();
     const updateIdentityMutation = useUpdateIdentityMutation();
@@ -31,8 +31,6 @@ export const ProfileProvider = ({ children }) => {
     const updateBankMutation = useUpdateBankMutation();
 
     // Calculate KYC status and progress (derived from backend data)
-    // For now, these might be in profile or specific kyc fields
-    // Assuming backend returns: profile.identity_status, profile.address_status, profile.bank_status
     const kycStatus = {
         identity: profile?.identity_status || 'NOT_SUBMITTED',
         address: profile?.address_status || 'NOT_SUBMITTED',

@@ -1,173 +1,63 @@
 import React, { useState, useContext, useEffect } from "react";
 import { ProfileContext } from "../../context/ProfileContext";
 import PersonalDetails from "./sections/PersonalDetails";
-import IdentityVerification from "./sections/IdentityVerification";
-import AddressVerification from "./sections/AddressVerification";
-import BankDetails from "./sections/BankDetails";
-import KycSummary from "./sections/KycSummary";
+import VerificationStatus from "./VerificationStatus";
 
 export default function Profile() {
-    const { 
-        user, 
-        profile, 
-        addresses, 
-        kycStatus,
-        overallKycStatus,
-        kycProgress,
-        isLoading, 
-        updateProfile,
-        updateIdentity,
-        updateAddress,
-        updateBank
+    const {
+        user,
+        profile,
+        isLoading,
+        updateProfile
     } = useContext(ProfileContext);
 
-    const [sectionsData, setSectionsData] = useState({
-        personal: {
-            name: "",
-            email: "",
-            phone: "",
-            dob: "",
-            profile_image: ""
-        },
-        identity: {
-            idType: "",
-            idNumber: "",
-            identityFile: null
-        },
-        address: {
-            address_line1: "",
-            city: "",
-            state: "",
-            pincode: "",
-            country: "",
-            addressFile: null
-        },
-        bank: {
-            account_name: "",
-            bank_name: "",
-            account_number: "",
-            ifsc_code: "",
-            bankFile: null
-        }
+    const [personalData, setPersonalData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        dob: "",
+        profile_image: ""
     });
 
-    const [isUpdating, setIsUpdating] = useState({
-        personal: false,
-        identity: false,
-        address: false,
-        bank: false
-    });
+    const [isUpdatingPersonal, setIsUpdatingPersonal] = useState(false);
 
     useEffect(() => {
         if (user) {
-            const defaultAddress = addresses?.find(a => a.is_default) || addresses?.[0] || {};
-            setSectionsData(prev => ({
-                ...prev,
-                personal: {
-                    ...prev.personal,
-                    name: user.name || "",
-                    email: user.email || "",
-                    phone: user.phone || "",
-                    dob: profile?.dob || "",
-                    profile_image: profile?.profile_image || ""
-                },
-                identity: {
-                    ...prev.identity,
-                    idType: profile?.id_type || "",
-                    idNumber: profile?.id_number || ""
-                },
-                address: {
-                    ...prev.address,
-                    address_line1: defaultAddress.address_line1 || "",
-                    city: defaultAddress.city || "",
-                    state: defaultAddress.state || "",
-                    pincode: defaultAddress.pincode || "",
-                    country: defaultAddress.country || ""
-                },
-                bank: {
-                    ...prev.bank,
-                    account_name: profile?.bank_account_name || "",
-                    bank_name: profile?.bank_name || "",
-                    account_number: profile?.bank_account_number || "",
-                    ifsc_code: profile?.bank_ifsc || ""
-                }
-            }));
+            setPersonalData({
+                name: user.name || "",
+                email: user.email || "",
+                phone: user.phone || "",
+                dob: profile?.dob || "",
+                profile_image: profile?.profile_image || ""
+            });
         }
-    }, [user, profile, addresses]);
+    }, [user, profile]);
 
-    const handleSectionChange = (section, e) => {
+    const handlePersonalChange = (e) => {
         const { name, value } = e.target;
-        setSectionsData(prev => ({
+        setPersonalData(prev => ({
             ...prev,
-            [section]: {
-                ...prev[section],
-                [name]: value
-            }
+            [name]: value
         }));
     };
 
-    const handleFileChange = (section, file) => {
-        setSectionsData(prev => ({
-            ...prev,
-            [section]: {
-                ...prev[section],
-                [`${section}File`]: file
-            }
-        }));
-    };
-
-    const handleUpdate = async (section) => {
-        setIsUpdating(prev => ({ ...prev, [section]: true }));
+    const handleUpdatePersonal = async () => {
+        setIsUpdatingPersonal(true);
         try {
-            switch (section) {
-                case 'personal':
-                    await updateProfile({
-                        profile: {
-                            dob: sectionsData.personal.dob,
-                            profile_image: sectionsData.personal.profile_image
-                        },
-                        name: sectionsData.personal.name,
-                        phone: sectionsData.personal.phone
-                    });
-                    break;
-                case 'identity':
-                    await updateIdentity({
-                        idType: sectionsData.identity.idType,
-                        idNumber: sectionsData.identity.idNumber,
-                        file: sectionsData.identity.identityFile
-                    });
-                    break;
-                case 'address':
-                    await updateAddress({
-                        addressData: {
-                            address_line1: sectionsData.address.address_line1,
-                            city: sectionsData.address.city,
-                            state: sectionsData.address.state,
-                            pincode: sectionsData.address.pincode,
-                            country: sectionsData.address.country
-                        },
-                        file: sectionsData.address.addressFile
-                    });
-                    break;
-                case 'bank':
-                    await updateBank({
-                        bankData: {
-                            account_name: sectionsData.bank.account_name,
-                            bank_name: sectionsData.bank.bank_name,
-                            account_number: sectionsData.bank.account_number,
-                            ifsc_code: sectionsData.bank.ifsc_code
-                        },
-                        file: sectionsData.bank.bankFile
-                    });
-                    break;
-                default:
-                    break;
-            }
-            alert(`${section.charAt(0).toUpperCase() + section.slice(1)} updated successfully!`);
+            await updateProfile({
+                profile: {
+                    dob: personalData.dob,
+                    profile_image: personalData.profile_image
+                },
+                name: personalData.name,
+                email: personalData.email,
+                phone: personalData.phone
+            });
+            alert(`Personal details updated successfully!`);
         } catch (error) {
-            alert(`Failed to update ${section}: ${error.message || "Unknown error"}`);
+            alert(`Failed to update personal details: ${error.message || "Unknown error"}`);
         } finally {
-            setIsUpdating(prev => ({ ...prev, [section]: false }));
+            setIsUpdatingPersonal(false);
         }
     };
 
@@ -191,51 +81,33 @@ export default function Profile() {
             {/* Page Header */}
             <div className="mb-8 md:mb-12">
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Account verification</h1>
-                <p className="text-slate-500 max-w-2xl leading-relaxed">
-                    Complete your profile and identity verification to unlock full platform features including withdrawals and higher transaction limits.
+                <p className="text-slate-500 max-w-2xl leading-relaxed mt-2">
+                    To fully access all features, please complete the identity verification process below.
                 </p>
             </div>
 
-            <div className="space-y-8 md:space-y-12">
-                <PersonalDetails 
-                    data={sectionsData.personal} 
-                    onChange={(e) => handleSectionChange('personal', e)}
-                    onUpdate={handleUpdate}
-                    isUpdating={isUpdating.personal}
-                />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column: Personal, Identity, Address */}
+                <div className="lg:col-span-7 space-y-8">
+                    <PersonalDetails
+                        data={personalData}
+                        onChange={handlePersonalChange}
+                        onUpdate={handleUpdatePersonal}
+                        isUpdating={isUpdatingPersonal}
+                        isLoading={isLoading}
+                    />
 
-                <IdentityVerification 
-                    data={sectionsData.identity}
-                    status={kycStatus.identity}
-                    onChange={(e) => handleSectionChange('identity', e)}
-                    onFileChange={handleFileChange}
-                    onUpdate={handleUpdate}
-                    isUpdating={isUpdating.identity}
-                />
+                    <VerificationStatus section="identity" />
 
-                <AddressVerification 
-                    data={sectionsData.address}
-                    status={kycStatus.address}
-                    onChange={(e) => handleSectionChange('address', e)}
-                    onFileChange={handleFileChange}
-                    onUpdate={handleUpdate}
-                    isUpdating={isUpdating.address}
-                />
+                    <VerificationStatus section="address" />
+                </div>
 
-                <BankDetails 
-                    data={sectionsData.bank}
-                    status={kycStatus.bank}
-                    onChange={(e) => handleSectionChange('bank', e)}
-                    onFileChange={handleFileChange}
-                    onUpdate={handleUpdate}
-                    isUpdating={isUpdating.bank}
-                />
+                {/* Right Column: Status Summary, Bank */}
+                <div className="lg:col-span-5 space-y-8">
+                    <VerificationStatus section="summary" />
 
-                <KycSummary 
-                    status={overallKycStatus}
-                    progress={kycProgress}
-                    canWithdraw={overallKycStatus === 'VERIFIED'}
-                />
+                    <VerificationStatus section="bank" />
+                </div>
             </div>
 
             <footer className="mt-20 py-8 border-t border-slate-200">

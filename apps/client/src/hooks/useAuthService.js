@@ -49,6 +49,7 @@ export const useLoginMutation = () => {
             if (data.success && data.data?.user) {
                 // Update local cache immediately
                 queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
+                queryClient.invalidateQueries({ queryKey: ["profile"] });
             }
         },
     });
@@ -67,6 +68,7 @@ export const useSignupMutation = () => {
             // If signup logs the user in immediately (returns token/user)
             if (data.success && data.data?.token) {
                 queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
+                queryClient.invalidateQueries({ queryKey: ["profile"] });
             }
         },
     });
