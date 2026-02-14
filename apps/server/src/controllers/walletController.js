@@ -16,11 +16,14 @@ const walletController = {
   getTransactions: async function (req, res) {
     try {
       const userId = req.user.id;
-      const { limit = 20, offset = 0 } = req.query;
+      const { limit = 20, offset = 0, searchTerm, status, type } = req.query;
       const transactions = await walletService.getWalletTransactions(
         userId,
         limit,
         offset,
+        searchTerm,
+        status,
+        type,
       );
       return rtnRes(
         res,

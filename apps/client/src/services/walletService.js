@@ -17,10 +17,16 @@ export const getWallet = async () => {
   }
 };
 
-export const getTransactions = async (limit = 20, offset = 0) => {
+export const getTransactions = async (
+  limit = 20,
+  offset = 0,
+  searchTerm = null,
+  status = null,
+  type = null,
+) => {
   try {
     const response = await api.get(walletEndpoints.transactions, {
-      params: { limit, offset },
+      params: { limit, offset, searchTerm, status, type },
     });
     return response;
   } catch (error) {

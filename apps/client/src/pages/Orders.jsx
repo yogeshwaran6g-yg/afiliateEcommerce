@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import OrderTable from "./ordertable";
-import SupportBanner from "./supportbanner";
-
+import OrderTable from "./OrderTable";
+import SupportBanner from "./SupportBanner";
 export default function Orders() {
   const [activeTab, setActiveTab] = useState("All Orders");
   const [expandedOrder, setExpandedOrder] = useState("#ORD-7721");

@@ -8,17 +8,12 @@ export default function StatsCards() {
         <div className="grid md:grid-cols-3 gap-6">
           {/* Total Income */}
           <div className="bg-gradient-to-br from-teal-50 to-cyan-50/40 rounded-2xl p-6 border border-teal-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-teal-50 rounded-xl flex items-center justify-center shadow-sm">
-                  <span className="material-symbols-outlined text-teal-700 text-3xl">show_chart</span>
-                </div>
-                <div>
-                  <div className="text-sm text-slate-600 font-semibold tracking-wide">Total Income</div>
-                  <div className="text-4xl font-extrabold text-slate-900 mt-1">$18,750<span className="text-xl font-bold">.00</span></div>
-                </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-sm text-slate-600 font-semibold tracking-wide">Total Income</div>
+                <div className="text-4xl font-extrabold text-slate-900 mt-2">$18,750<span className="text-xl font-bold">.00</span></div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-teal-100/70 text-teal-800 font-semibold text-sm rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-teal-100/70 text-teal-800 font-semibold text-sm rounded-full">
                 <span className="material-symbols-outlined text-base">show_chart</span>11.5%
               </div>
             </div>
@@ -26,30 +21,20 @@ export default function StatsCards() {
 
           {/* This Month Income */}
           <div className="bg-gradient-to-br from-teal-50 to-cyan-50/40 rounded-2xl p-6 border border-teal-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-teal-50 rounded-xl flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-teal-700 text-3xl">date_range</span>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 font-semibold tracking-wide">This Month Income</div>
-                <div className="text-4xl font-extrabold text-slate-900 mt-1">$3,450<span className="text-xl font-bold">.75</span></div>
-              </div>
+            <div>
+              <div className="text-sm text-slate-600 font-semibold tracking-wide">This Month Income</div>
+              <div className="text-4xl font-extrabold text-slate-900 mt-2">$3,450<span className="text-xl font-bold">.75</span></div>
             </div>
           </div>
 
           {/* Today Income */}
           <div className="bg-gradient-to-br from-teal-50 to-cyan-50/40 rounded-2xl p-6 border border-teal-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-teal-50 rounded-xl flex items-center justify-center shadow-sm">
-                  <span className="material-symbols-outlined text-teal-700 text-3xl">calendar_today</span>
-                </div>
-                <div>
-                  <div className="text-sm text-slate-600 font-semibold tracking-wide">Today Income</div>
-                  <div className="text-4xl font-extrabold text-slate-900 mt-1">$420<span className="text-xl font-bold">.30</span></div>
-                </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-sm text-slate-600 font-semibold tracking-wide">Today Income</div>
+                <div className="text-4xl font-extrabold text-slate-900 mt-2">$420<span className="text-xl font-bold">.30</span></div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-teal-100/70 text-teal-800 font-semibold text-sm rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-teal-100/70 text-teal-800 font-semibold text-sm rounded-full">
                 <span className="material-symbols-outlined text-base">show_chart</span>13.5%
               </div>
             </div>
@@ -66,46 +51,31 @@ export default function StatsCards() {
 
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-br from-indigo-50 to-blue-50/40 rounded-2xl p-6 border border-indigo-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center shadow-sm">
-                  <span className="material-symbols-outlined text-indigo-700 text-3xl">diversity_3</span>
-                </div>
-                <div>
-                  <div className="text-sm text-slate-600 font-semibold tracking-wide">Total Team Members</div>
-                  <div className="text-4xl font-extrabold text-slate-900 mt-1">1,458</div>
-                </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-sm text-slate-600 font-semibold tracking-wide">Total Team Members</div>
+                <div className="text-4xl font-extrabold text-slate-900 mt-2">1,458</div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-indigo-100/70 text-indigo-800 font-semibold text-sm rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100/70 text-indigo-800 font-semibold text-sm rounded-full">
                 <span className="material-symbols-outlined text-base">show_chart</span>5.2%
               </div>
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-indigo-50 to-blue-50/40 rounded-2xl p-6 border border-indigo-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-indigo-700 text-3xl">date_range</span>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 font-semibold tracking-wide">This Month Joined</div>
-                <div className="text-4xl font-extrabold text-slate-900 mt-1">+187</div>
-              </div>
+            <div>
+              <div className="text-sm text-slate-600 font-semibold tracking-wide">This Month Joined</div>
+              <div className="text-4xl font-extrabold text-slate-900 mt-2">+187</div>
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-indigo-50 to-blue-50/40 rounded-2xl p-6 border border-indigo-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center shadow-sm">
-                  <span className="material-symbols-outlined text-indigo-700 text-3xl">calendar_today</span>
-                </div>
-                <div>
-                  <div className="text-sm text-slate-600 font-semibold tracking-wide">Today Joined</div>
-                  <div className="text-4xl font-extrabold text-slate-900 mt-1">+24</div>
-                </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-sm text-slate-600 font-semibold tracking-wide">Today Joined</div>
+                <div className="text-4xl font-extrabold text-slate-900 mt-2">+24</div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-indigo-100/70 text-indigo-800 font-semibold text-sm rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100/70 text-indigo-800 font-semibold text-sm rounded-full">
                 <span className="material-symbols-outlined text-base">show_chart</span>12.1%
               </div>
             </div>
@@ -122,43 +92,32 @@ export default function StatsCards() {
 
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50/40 rounded-2xl p-6 border border-purple-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative">
-            <div className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1 bg-purple-100/70 text-purple-800 font-semibold text-sm rounded-full">
-              <span className="material-symbols-outlined text-base">show_chart</span>9.8%
-            </div>
-            <div className="flex items-center gap-4 pr-32">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-fuchsia-100 rounded-xl flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-purple-700 text-3xl">shopping_basket</span>
-              </div>
+            <div className="flex items-start justify-between">
               <div>
                 <div className="text-sm text-slate-600 font-semibold tracking-wide">Total Team Purchase</div>
-                <div className="text-4xl font-extrabold text-slate-900 mt-1">$47,820<span className="text-xl font-bold">.00</span></div>
+                <div className="text-4xl font-extrabold text-slate-900 mt-2">$47,820<span className="text-xl font-bold">.00</span></div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-100/70 text-purple-800 font-semibold text-sm rounded-full">
+                <span className="material-symbols-outlined text-base">show_chart</span>9.8%
               </div>
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50/40 rounded-2xl p-6 border border-purple-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-fuchsia-100 rounded-xl flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-purple-700 text-3xl">date_range</span>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 font-semibold tracking-wide">This Month Purchase</div>
-                <div className="text-4xl font-extrabold text-slate-900 mt-1">$8,950<span className="text-xl font-bold">.40</span></div>
-              </div>
+            <div>
+              <div className="text-sm text-slate-600 font-semibold tracking-wide">This Month Purchase</div>
+              <div className="text-4xl font-extrabold text-slate-900 mt-2">$8,950<span className="text-xl font-bold">.40</span></div>
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50/40 rounded-2xl p-6 border border-purple-100 shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative">
-            <div className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1 bg-purple-100/70 text-purple-800 font-semibold text-sm rounded-full">
-              <span className="material-symbols-outlined text-base">show_chart</span>18.3%
-            </div>
-            <div className="flex items-center gap-4 pr-32">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-fuchsia-100 rounded-xl flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-purple-700 text-3xl">calendar_today</span>
-              </div>
+            <div className="flex items-start justify-between">
               <div>
                 <div className="text-sm text-slate-600 font-semibold tracking-wide">Today Purchase</div>
-                <div className="text-4xl font-extrabold text-slate-900 mt-1">$1,240<span className="text-xl font-bold">.75</span></div>
+                <div className="text-4xl font-extrabold text-slate-900 mt-2">$1,240<span className="text-xl font-bold">.75</span></div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-100/70 text-purple-800 font-semibold text-sm rounded-full">
+                <span className="material-symbols-outlined text-base">show_chart</span>18.3%
               </div>
             </div>
             <div className="mt-4 text-xs text-purple-700 font-medium flex items-center gap-1.5">

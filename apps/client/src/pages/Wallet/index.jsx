@@ -9,7 +9,17 @@ import AddFunds from './AddFunds';
 
 function Wallet() {
     const { data: walletData, isLoading: isWalletLoading, error: walletError } = useWallet();
-    const { data: transactionsData, isLoading: isTransactionsLoading } = useTransactions();
+    const [page, setPage] = useState(1);
+    const [filters, setFilters] = useState({
+        searchTerm: "",
+        status: "",
+        type: ""
+    });
+    
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    const { data: transactionsData, isLoading: isTransactionsLoading } = useTransactions(limit, offset, filters);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
     if (isWalletLoading || isTransactionsLoading) {
@@ -52,7 +62,14 @@ function Wallet() {
                     <WalletStats wallet={walletData} transactions={transactionsData} />
                     
                     <div className="w-full">
-                        <TransactionHistory transactions={transactionsData} />
+                        <TransactionHistory 
+                            transactions={transactionsData} 
+                            filters={filters}
+                            onFilterChange={setFilters}
+                            page={page}
+                            onPageChange={setPage}
+                            limit={limit}
+                        />
                     </div>
                 </div>
                 <WalletFooter />
@@ -73,7 +90,7 @@ function Wallet() {
     );
 }
 
-// Named export for the AddFunds page
+
 Wallet.AddFunds = AddFunds;
 
 export default Wallet;

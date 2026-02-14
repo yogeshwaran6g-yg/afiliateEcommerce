@@ -1,12 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function TransactionHistory({ transactions = [] }) {
-    const [searchTerm, setSearchTerm] = useState("");
 
-    const filteredTransactions = transactions.filter(t => 
-        t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.reference_id?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    );
+
+export default function TransactionHistory({ 
+    transactions = [], 
+    filters, 
+    onFilterChange, 
+    page, 
+    onPageChange,
+    limit 
+}) {
+    const [localSearch, setLocalSearch] = useState(filters.searchTerm);
+    const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+
+    // Debounce search term update
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            onFilterChange(prev => ({ ...prev, searchTerm: localSearch }));
+            onPageChange(1); // Reset to first page on search
+        }, 500);
+
+        return () => clearTimeout(handler);
+    }, [localSearch]);
+
+    const handleFilterUpdate = (key, value) => {
+        onFilterChange(prev => ({ ...prev, [key]: value }));
+        onPageChange(1); // Reset to first page on filter change
+        setIsFilterMenuOpen(false);
+    };
 
     const getStatusStyles = (status) => {
         const s = status?.toUpperCase();
@@ -108,20 +129,70 @@ export default function TransactionHistory({ transactions = [] }) {
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
                         <input 
                             className="pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-lg text-sm w-full md:w-64 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all dark:text-slate-100" 
-                            placeholder="Search transactions..." 
+                            placeholder="Search by description or ref ID..." 
                             type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            value={localSearch}
+                            onChange={(e) => setLocalSearch(e.target.value)}
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400">
-                        <span className="material-symbols-outlined text-lg">calendar_today</span>
-                        Last 30 Days
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400">
-                        <span className="material-symbols-outlined text-lg">filter_list</span>
-                        Filter
-                    </button>
+                    
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                            className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                                filters.status || filters.type 
+                                ? 'bg-primary/10 border-primary text-primary' 
+                                : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-lg">filter_list</span>
+                            {filters.status || filters.type ? 'Filtered' : 'Filter'}
+                        </button>
+
+                        {isFilterMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Status</label>
+                                        <select 
+                                            className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none dark:text-white"
+                                            value={filters.status}
+                                            onChange={(e) => handleFilterUpdate('status', e.target.value)}
+                                        >
+                                            <option value="">All Statuses</option>
+                                            <option value="SUCCESS">Success</option>
+                                            <option value="PENDING">Pending</option>
+                                            <option value="FAILED">Failed</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Transaction Type</label>
+                                        <select 
+                                            className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none dark:text-white"
+                                            value={filters.type}
+                                            onChange={(e) => handleFilterUpdate('type', e.target.value)}
+                                        >
+                                            <option value="">All Types</option>
+                                            <option value="REFERRAL_COMMISSION">Referral</option>
+                                            <option value="WITHDRAWAL_REQUEST">Payout</option>
+                                            <option value="RECHARGE_REQUEST">Deposit</option>
+                                            <option value="ADMIN_ADJUSTMENT">Adjustment</option>
+                                        </select>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            onFilterChange({ searchTerm: "", status: "", type: "" });
+                                            setLocalSearch("");
+                                            setIsFilterMenuOpen(false);
+                                        }}
+                                        className="w-full py-2 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                    >
+                                        Clear All Filters
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -138,8 +209,8 @@ export default function TransactionHistory({ transactions = [] }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                        {filteredTransactions.length > 0 ? (
-                            filteredTransactions.map((transaction, index) => (
+                        {transactions.length > 0 ? (
+                            transactions.map((transaction, index) => (
                                 <tr key={transaction.id || index} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
                                         {formatDate(transaction.created_at)}
@@ -181,21 +252,33 @@ export default function TransactionHistory({ transactions = [] }) {
             </div>
 
             {/* Pagination */}
-            {filteredTransactions.length > 0 && (
-                <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Showing 1 to {filteredTransactions.length} of {filteredTransactions.length} transactions</p>
-                    <div className="flex gap-2">
-                        <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-600 dark:text-slate-400" disabled>
-                            <span className="material-symbols-outlined text-sm leading-none">chevron_left</span>
-                        </button>
-                        <button className="px-3 py-1 bg-primary text-white text-xs font-bold rounded">1</button>
-                        <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400">2</button>
-                        <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400">
-                            <span className="material-symbols-outlined text-sm leading-none">chevron_right</span>
-                        </button>
-                    </div>
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {transactions.length > 0 
+                        ? `Showing current page with ${transactions.length} record(s)`
+                        : 'No records to show'
+                    }
+                </p>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={() => onPageChange(Math.max(1, page - 1))}
+                        disabled={page === 1}
+                        className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-600 dark:text-slate-400 transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-sm leading-none">chevron_left</span>
+                    </button>
+                    <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded flex items-center justify-center min-w-[32px]">
+                        {page}
+                    </span>
+                    <button 
+                        onClick={() => onPageChange(page + 1)}
+                        disabled={transactions.length < limit}
+                        className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-600 dark:text-slate-400 transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-sm leading-none">chevron_right</span>
+                    </button>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
