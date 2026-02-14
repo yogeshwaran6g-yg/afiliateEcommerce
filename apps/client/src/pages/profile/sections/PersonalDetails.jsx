@@ -3,17 +3,25 @@ import React, { useState } from "react";
 export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, isLoading }) {
     const [editMode, setEditMode] = useState(false);
     const [imageFile, setImageFile] = useState(null);
+    const [imgError, setImgError] = useState(false);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
+            setImgError(false);
         }
+    };
+
+    const handleRemoveImage = () => {
+        onChange({ target: { name: 'profile_image', value: null } });
+        setImageFile(null);
+        setImgError(false);
     };
 
     const handleSave = async (e) => {
         if (e) e.preventDefault();
-        await onUpdate();
+        await onUpdate(imageFile);
         setEditMode(false);
         setImageFile(null);
     };
@@ -42,20 +50,36 @@ export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, 
                         {/* Avatar */}
                         <div className="relative">
                             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.08)] bg-slate-100 flex items-center justify-center">
-                                {data.profile_image ? (
-                                    <img src={data.profile_image} alt="Profile" className="w-full h-full object-cover" />
+                                {data.profile_image && !imgError ? (
+                                    <img
+                                        src={data.profile_image.startsWith('http') ? data.profile_image : `${import.meta.env.VITE_API_URL}${data.profile_image}`}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                        onError={() => setImgError(true)}
+                                    />
                                 ) : (
                                     <div className="flex flex-col items-center text-primary/40">
                                         <span className="material-symbols-outlined text-5xl">person</span>
-                                        <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">{data.name?.split(' ')[0] || "User"}</span>
                                     </div>
                                 )}
                             </div>
                             {editMode && (
-                                <label className="absolute bottom-1 right-1 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 shadow-lg transition-all border-2 border-white">
-                                    <span className="material-symbols-outlined text-base">photo_camera</span>
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                                </label>
+                                <div className="absolute -bottom-2 -right-2 flex flex-col gap-2">
+                                    <label className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 shadow-lg transition-all border-2 border-white">
+                                        <span className="material-symbols-outlined text-sm">photo_camera</span>
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                                    </label>
+                                    {(data.profile_image || imageFile) && (
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveImage}
+                                            className="w-9 h-9 bg-rose-500 text-white rounded-full flex items-center justify-center hover:bg-rose-600 shadow-lg transition-all border-2 border-white"
+                                            title="Remove Photo"
+                                        >
+                                            <span className="material-symbols-outlined text-sm">delete</span>
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
 

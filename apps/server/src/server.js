@@ -24,6 +24,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(passport.initialize());
+app.use('/uploads/profiles', express.static(path.join(__dirname, 'uploads/profiles')));
 app.use('/uploads/products', express.static(path.join(__dirname, 'uploads/products')));
 app.use('/uploads/kyc', express.static(path.join(__dirname, 'uploads/kyc')));
 app.use('/uploads/payments', express.static(path.join(__dirname, 'uploads/payments')));

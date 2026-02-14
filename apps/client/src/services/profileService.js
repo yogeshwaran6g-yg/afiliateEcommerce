@@ -52,17 +52,33 @@ class ProfileService {
      * @param {Object} personalData - { name, phone, profile: { dob, profile_image } }
      * @returns {Promise<Object>} The updated response data.
      */
-    async updatePersonal(personalData) {
+    async updatePersonal(personalData, file) {
         try {
             const token = localStorage.getItem("accessToken");
-            console.log("updatePersonal: Token from localStorage:", token ? "Present" : "Missing", token);
-
             const config = {};
             if (token) {
                 config.headers = { Authorization: `Bearer ${token}` };
             }
 
-            const response = await api.put(profileEndpoints.personal, personalData, config);
+            let data;
+            if (file) {
+                data = new FormData();
+                data.append('file', file);
+                data.append('name', personalData.name || '');
+                data.append('phone', personalData.phone || '');
+                data.append('email', personalData.email || '');
+                if (personalData.profile) {
+                    data.append('profile', JSON.stringify(personalData.profile));
+                }
+                config.headers = {
+                    ...config.headers,
+                    'Content-Type': 'multipart/form-data'
+                };
+            } else {
+                data = personalData;
+            }
+
+            const response = await api.put(profileEndpoints.personal, data, config);
             return response;
         } catch (error) {
             console.error("Update Personal Details Error:", error);

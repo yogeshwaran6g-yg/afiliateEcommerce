@@ -20,11 +20,27 @@ const getMyProfile = async (req, res) => {
 const updatePersonal = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { name, phone, email, profile: { dob, profile_image } = {} } = req.body;
+        let { name, phone, email, dob, profile_image } = req.body;
+        const file = req.file;
+
+        // If sent as FormData, profile might be a stringified object or individual fields
+        if (req.body.profile && typeof req.body.profile === 'string') {
+            try {
+                const profileObj = JSON.parse(req.body.profile);
+                dob = dob || profileObj.dob;
+                profile_image = profile_image || profileObj.profile_image;
+            } catch (e) {
+                // Not JSON, ignore
+            }
+        }
+
+        if (file) {
+            profile_image = `/uploads/profiles/${file.filename}`;
+        }
 
         await profileService.updatePersonalProfile(userId, { name, phone, email, dob, profile_image });
 
-        return rtnRes(res, 200, "Personal details updated successfully");
+        return rtnRes(res, 200, "Personal details updated successfully", { profile_image });
     } catch (error) {
         log(`Error in updatePersonal: ${error.message}`, "error");
         return rtnRes(res, 500, "Internal Server Error");

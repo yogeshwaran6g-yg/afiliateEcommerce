@@ -22,8 +22,8 @@ export const useProfileQuery = (enabled = true) => {
 export const useUpdateProfileMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (personalData) =>
-            profileService.updatePersonal(personalData),
+        mutationFn: ({ data, file }) =>
+            profileService.updatePersonal(data, file),
         onSuccess: (data) => {
             if (data.success && data.data) {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, (oldData) => {
