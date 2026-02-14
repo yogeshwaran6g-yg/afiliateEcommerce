@@ -39,10 +39,10 @@ const ensureProfileExists = async (userId, connection) => {
 export const updatePersonalProfile = async (userId, { name = null, phone = null, dob = null, profile_image = null }) => {
     return await transactionRunner(async (connection) => {
         // Update user table
-        if (name || phone) {
+        if (name || phone || email) {
             await connection.execute(
-                'UPDATE users SET name = COALESCE(?, name), phone = COALESCE(?, phone) WHERE id = ?',
-                [name, phone, userId]
+                'UPDATE users SET name = COALESCE(?, name), phone = COALESCE(?, phone), email = COALESCE(?, email) WHERE id = ?',
+                [name, phone, email, userId]
             );
         }
 

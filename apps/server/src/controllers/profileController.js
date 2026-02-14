@@ -20,9 +20,9 @@ const getMyProfile = async (req, res) => {
 const updatePersonal = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { name, phone, profile: { dob, profile_image } = {} } = req.body;
+        const { name, phone, email, profile: { dob, profile_image } = {} } = req.body;
 
-        await profileService.updatePersonalProfile(userId, { name, phone, dob, profile_image });
+        await profileService.updatePersonalProfile(userId, { name, phone, email, dob, profile_image });
 
         return rtnRes(res, 200, "Personal details updated successfully");
     } catch (error) {

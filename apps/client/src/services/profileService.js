@@ -46,6 +46,31 @@ class ProfileService {
     }
 
     /**
+     * Updates the current user's personal details (Name, Phone, DOB, Profile Image).
+    /**
+     * Updates the current user's personal details (Name, Phone, DOB, Profile Image).
+     * @param {Object} personalData - { name, phone, profile: { dob, profile_image } }
+     * @returns {Promise<Object>} The updated response data.
+     */
+    async updatePersonal(personalData) {
+        try {
+            const token = localStorage.getItem("accessToken");
+            console.log("updatePersonal: Token from localStorage:", token ? "Present" : "Missing", token);
+
+            const config = {};
+            if (token) {
+                config.headers = { Authorization: `Bearer ${token}` };
+            }
+
+            const response = await api.put(profileEndpoints.personal, personalData, config);
+            return response;
+        } catch (error) {
+            console.error("Update Personal Details Error:", error);
+            throw error;
+        }
+    }
+
+    /**
      * Updates Identity documents/details
      */
     async updateIdentity(idType, idNumber, file) {
