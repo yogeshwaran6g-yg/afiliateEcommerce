@@ -13,6 +13,10 @@ const TicketsSection = () => {
     attachments: [],
   });
 
+  // View Modal State
+  const [viewModalIsOpen, setViewModalIsOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+
   const getStatusColor = (status) => {
     switch (status) {
       case "OPEN":
@@ -62,6 +66,16 @@ const TicketsSection = () => {
       description: "",
       attachments: [],
     });
+  };
+
+  const openViewModal = (ticket) => {
+    setSelectedTicket(ticket);
+    setViewModalIsOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewModalIsOpen(false);
+    setSelectedTicket(null);
   };
 
   const handleTextChange = (e) => {
@@ -197,7 +211,10 @@ const TicketsSection = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400">
+                    <button
+                      onClick={() => openViewModal(ticket)}
+                      className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
+                    >
                       <span className="material-symbols-outlined text-lg">
                         visibility
                       </span>
@@ -336,6 +353,93 @@ const TicketsSection = () => {
               </button>
             </div>
           </form>
+        </div>
+      </Modal>
+
+      {/* View Ticket Modal */}
+      <Modal
+        isOpen={viewModalIsOpen}
+        onRequestClose={closeViewModal}
+        style={customStyles}
+        contentLabel="View Ticket Details"
+      >
+        <div className="flex flex-col h-full max-h-[90vh]">
+          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">confirmation_number</span>
+              Ticket Details
+            </h3>
+            <button
+              onClick={closeViewModal}
+              className="text-slate-400 hover:text-slate-600 transition-colors rounded-full p-1 hover:bg-slate-200"
+            >
+              <span className="material-symbols-outlined text-xl block">close</span>
+            </button>
+          </div>
+
+          {selectedTicket && (
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Header Info */}
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 mb-1">{selectedTicket.subject}</h2>
+                  <div className="flex items-center gap-3 text-sm text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[16px]">category</span>
+                      Category: {selectedTicket.category}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+                      {new Date(selectedTicket.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusColor(selectedTicket.status)}`}>
+                  {selectedTicket.status}
+                </div>
+              </div>
+
+              <div className="h-px bg-slate-100 w-full"></div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">Description</h4>
+                <div className="bg-slate-50 rounded-xl p-4 text-slate-700 text-sm leading-relaxed border border-slate-100">
+                  {selectedTicket.description}
+                </div>
+              </div>
+
+              {/* Attachments / Images */}
+              {selectedTicket.image && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">attachment</span>
+                    Attachment
+                  </h4>
+                  <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50">
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}${selectedTicket.image}`}
+                      alt="Ticket Attachment"
+                      className="w-full h-auto object-contain max-h-[400px]"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+            <button
+              onClick={closeViewModal}
+              className="px-6 py-2 bg-white border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </Modal>
     </>
