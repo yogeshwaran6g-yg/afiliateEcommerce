@@ -3,6 +3,7 @@ import ActivityFeed from "./ActivityFeed";
 import Announcements from "./Announcements";
 import SupportBanner from "./SupportBanner";
 import { useNotifications } from "../../hooks/useNotificationService";
+import { useUserNotification, useMarkAsReadMutation } from "../../hooks/useUserNotification";
 
 const CommunicationCenter = () => {
     const [activeTab, setActiveTab] = useState("All");
@@ -27,59 +28,65 @@ const CommunicationCenter = () => {
         }
     }, [announcements, selectedAnnouncementId]);
 
-    const activityNotifications = [
-        // ... (existing activityNotifications array remains same)
-        {
-            id: 1,
-            icon: "payments",
-            iconBg: "bg-green-50",
-            iconColor: "text-success",
-            title: "Commission Received",
-            description: "$50.00 USD from Level 2 referral has been added to your wallet.",
-            time: "Just now",
-            unread: true
-        },
-        {
-            id: 2,
-            icon: "person_add",
-            iconBg: "bg-blue-50",
-            iconColor: "text-primary",
-            title: "New Direct Referral",
-            description: "Welcome Sarah Jenkins to your network. Send a welcome message!",
-            time: "15 mins ago",
-            unread: true
-        },
-        {
-            id: 3,
-            icon: "local_shipping",
-            iconBg: "bg-orange-50",
-            iconColor: "text-orange-500",
-            title: "Order Shipped",
-            description: "Your physical marketing kit (Order #MLM-928) is on its way.",
-            time: "2 hours ago",
-            unread: true
-        },
-        {
-            id: 4,
-            icon: "security",
-            iconBg: "bg-slate-100",
-            iconColor: "text-slate-500",
-            title: "Password Changed Successfully",
-            description: "Your security profile was updated yesterday.",
-            time: "Yesterday at 4:30 PM",
-            unread: false
-        },
-        {
-            id: 5,
-            icon: "verified",
-            iconBg: "bg-slate-100",
-            iconColor: "text-slate-500",
-            title: "KYC Verified",
-            description: "Your identity verification has been approved by our compliance team.",
-            time: "2 days ago",
-            unread: false
+    const { data: userNotifications = [], isLoading: isUserNotificationsLoading } = useUserNotification();
+
+    const activityNotifications = React.useMemo(() => {
+        let filtered = userNotifications;
+
+        if (activeTab === "Unread") {
+            filtered = userNotifications.filter(n => !n.is_read);
+        } else if (activeTab === "Earnings") {
+            filtered = userNotifications.filter(n =>
+                n.type?.toLowerCase() === 'earning' ||
+                n.type?.toLowerCase() === 'commission'
+            );
         }
-    ];
+        
+        return filtered.map(notif => {
+            // Helper to get icon and colors based on type
+            const getTypeStyles = (type) => {
+                switch (type?.toLowerCase()) {
+                    case 'earning':
+                    case 'commission':
+                        return { icon: "payments", bg: "bg-green-50", color: "text-success" };
+                    case 'referral':
+                        return { icon: "person_add", bg: "bg-blue-50", color: "text-primary" };
+                    case 'order':
+                    case 'shipping':
+                        return { icon: "local_shipping", bg: "bg-orange-50", color: "text-orange-500" };
+                    case 'security':
+                    case 'password':
+                        return { icon: "security", bg: "bg-slate-100", color: "text-slate-500" };
+                    case 'kyc':
+                    case 'verification':
+                        return { icon: "verified", bg: "bg-slate-100", color: "text-slate-500" };
+                    default:
+                        return { icon: "notifications", bg: "bg-slate-100", color: "text-slate-500" };
+                }
+            };
+
+            const styles = getTypeStyles(notif.type);
+
+            return {
+                ...notif,
+                icon: styles.icon,
+                iconBg: styles.bg,
+                iconColor: styles.color,
+                title: notif.title,
+                description: notif.description || notif.title, // Fallback to title if no description
+                time: new Date(notif.created_at).toLocaleString(),
+                unread: !notif.is_read
+            };
+        });
+    }, [userNotifications]);
+
+    const markAsReadMutation = useMarkAsReadMutation();
+
+    const handleNotificationClick = (notification) => {
+        if (!notification.is_read) {
+            markAsReadMutation.mutate(notification.id);
+        }
+    };
 
     return (
         <div className="flex-1 flex overflow-hidden">
@@ -90,6 +97,8 @@ const CommunicationCenter = () => {
                 setActiveTab={setActiveTab}
                 selectedAnnouncementId={selectedAnnouncementId}
                 setSelectedAnnouncementId={setSelectedAnnouncementId}
+                onNotificationClick={handleNotificationClick}
+                isLoading={isUserNotificationsLoading}
             />
 
             <section className="flex-1 bg-slate-50 overflow-y-auto">

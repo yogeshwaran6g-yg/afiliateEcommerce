@@ -279,7 +279,21 @@ CREATE TABLE `notifications` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB;
 
--- 13. Wallets Table
+-- 13. User Notifications Table
+CREATE TABLE `usernotifications` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `type` VARCHAR(50) NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `is_read` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_user_read`(`user_id`, `is_read`),
+    INDEX `idx_user_created` (`user_id`, `created_at`),
+    INDEX `idx_type` (`type`)
+) ENGINE = InnoDB
+
+-- 14. Wallets Table
 CREATE TABLE `wallets` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -293,7 +307,7 @@ CREATE TABLE `wallets` (
     CONSTRAINT `fk_wallet_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 14. Wallet Transactions Table
+-- 15. Wallet Transactions Table
 CREATE TABLE `wallet_transactions` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `wallet_id` BIGINT UNSIGNED NOT NULL,
@@ -330,7 +344,7 @@ CREATE TABLE `wallet_transactions` (
     CONSTRAINT `fk_reversal` FOREIGN KEY (`reversal_of`) REFERENCES `wallet_transactions` (`id`) ON DELETE SET NULL
 ) ENGINE = InnoDB;
 
--- 15. Withdrawal Requests Table
+-- 16. Withdrawal Requests Table
 CREATE TABLE `withdrawal_requests` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -347,7 +361,7 @@ CREATE TABLE `withdrawal_requests` (
     CONSTRAINT `fk_withdrawal_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 16. Recharge Requests Table
+-- 17. Recharge Requests Table
 CREATE TABLE `recharge_requests` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
