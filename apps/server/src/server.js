@@ -27,6 +27,7 @@ app.use(passport.initialize());
 app.use('/uploads/products', express.static(path.join(__dirname, 'uploads/products')));
 app.use('/uploads/kyc', express.static(path.join(__dirname, 'uploads/kyc')));
 app.use('/uploads/payments', express.static(path.join(__dirname, 'uploads/payments')));
+app.use('/uploads/tickets', express.static(path.join(__dirname, 'uploads/tickets')));
 
 // Routes
 import router from '#src/routes/appRoutes.js';

@@ -11,6 +11,7 @@ import profileRoutes from './profileRoutes.js';
 import cartRoutes from './cartRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
 import walletRoutes from './walletRoutes.js';
+import ticketRoutes from './ticketRoutes.js';
 
 const router = express.Router();
 
@@ -26,6 +27,7 @@ router.use('/profile', profileRoutes);
 router.use('/cart', cartRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/wallet', walletRoutes);
+router.use('/tickets', ticketRoutes);
 
 export default router;
 
