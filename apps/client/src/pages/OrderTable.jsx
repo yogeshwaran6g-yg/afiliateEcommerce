@@ -9,7 +9,7 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder }) 
             <tr>
               <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Order ID</th>
               <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Date</th>
-              <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">PV Value</th>
+              {/* <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">PV Value</th> */}
               <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total</th>
               <th className="px-4 md:px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
               <th className="px-4 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
@@ -29,12 +29,12 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder }) 
                       </div>
                     </td>
                     <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">{order.date}</td>
-                    <td className="px-4 md:px-6 py-4">
+                    {/* <td className="px-4 md:px-6 py-4">
                       <div className="flex items-center gap-1 text-xs md:text-sm font-semibold text-slate-700">
                         <span className="material-symbols-outlined text-amber-500 text-base">stars</span>
                         {order.pv} PV
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-bold text-slate-900">{order.amount}</td>
                     <td className="px-4 md:px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${order.statusColor}`}>
