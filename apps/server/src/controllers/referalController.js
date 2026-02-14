@@ -54,4 +54,5 @@ const referalController = {
   },
 };
 
+
 export default referalController;

@@ -48,6 +48,10 @@ export const constants = {
       base: "/api/v1/tickets",
       myTickets: "/api/v1/tickets/my-tickets",
     },
+    orders: {
+      base: "/api/v1/orders",
+      myOrders: "/api/v1/orders/my-orders",
+    },
   },
 };
 

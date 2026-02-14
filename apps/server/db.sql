@@ -61,19 +61,43 @@ CREATE TABLE `otp` (
 ) ENGINE = InnoDB;
 
 -- 2. Orders Table
-CREATE TABLE `orders` (
-    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `user_id` BIGINT UNSIGNED NOT NULL,
-    `amount` DECIMAL(10, 2) NOT NULL,
-    `status` ENUM(
-        'PENDING',
-        'COMPLETED',
-        'CANCELLED'
-    ) DEFAULT 'PENDING',
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE = InnoDB;
+CREATE TABLE orders (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_number VARCHAR(50) NOT NULL UNIQUE,
+  user_id BIGINT UNSIGNED NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  status ENUM('PROCESSING','SHIPPED','OUT_FOR_DELIVERY','DELIVERED','CANCELLED') NOT NULL DEFAULT 'PROCESSING',
+  payment_status ENUM('PENDING','PAID','FAILED') DEFAULT 'PENDING',
+  shipping_address TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_orders_user_id (user_id),
+  KEY idx_orders_status (status),
+  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE order_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
+  quantity INT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_order_items_order_id (order_id),
+  CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE order_tracking (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_id BIGINT UNSIGNED NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  status_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_tracking_order_id (order_id),
+  CONSTRAINT fk_tracking_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
 
 -- 3. Referral Commission Config Table
 CREATE TABLE `referral_commission_config` (
@@ -90,6 +114,10 @@ CREATE TABLE `referral_commission_config` (
         AND `percent` <= 100
     )
 ) ENGINE = InnoDB;
+
+
+
+
 
 -- 4. Referral Tree Table
 CREATE TABLE `referral_tree` (

@@ -119,11 +119,6 @@ export default function Header({ toggleSidebar }) {
               </span>
               <span className="hidden md:inline">Export</span>
             </button>
-
-            <button className="p-2 md:px-4 md:py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">add</span>
-              <span className="hidden md:inline">New Order</span>
-            </button>
           </div>
 
           {/* User Profile - Simplified on mobile */}
