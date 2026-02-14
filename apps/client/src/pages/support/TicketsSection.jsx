@@ -1,14 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
+import ticketService from "../../services/ticketService";
 
-const TicketsSection = ({ tickets }) => {
+const TicketsSection = () => {
+  const [tickets, setTickets] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     subject: "",
     category: "",
     description: "",
-    attachments: [], 
+    attachments: [],
   });
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "OPEN":
+        return "bg-blue-100 text-blue-800";
+      case "IN_REVIEW":
+        return "bg-yellow-100 text-yellow-800";
+      case "COMPLETED":
+        return "bg-green-100 text-green-800";
+      case "CLOSED":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-slate-100 text-slate-800";
+    }
+  };
+
+  const fetchTickets = async () => {
+    try {
+      const data = await ticketService.getMyTickets();
+      // data is expected to be the response body. 
+      // Based on controller: rtnRes(res, 200, "Tickets fetched successfully", tickets);
+      // So data.data should be the array if axios interceptor returns response.data
+
+      // Let's check ticketService.js again.
+      // It returns axiosInstance.get(...). 
+      // Axios interceptor returns response.data.
+      // So the object returned is { success: true, message: "...", data: [...] }
+
+      if (data.success && Array.isArray(data.data)) {
+        setTickets(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tickets", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
 
   const openModal = () => setModalIsOpen(true);
 
@@ -42,10 +84,30 @@ const TicketsSection = ({ tickets }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    closeModal();
+    setLoading(true);
+
+    try {
+      const submitData = new FormData();
+      submitData.append("subject", formData.subject);
+      submitData.append("category", formData.category);
+      submitData.append("description", formData.description);
+
+      formData.attachments.forEach((file) => {
+        submitData.append("attachments", file);
+      });
+
+      await ticketService.createTicket(submitData);
+      alert("Ticket submitted successfully!");
+      closeModal();
+      fetchTickets();
+    } catch (error) {
+      console.error("Error submitting ticket:", error);
+      alert("Failed to submit ticket. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const customStyles = {
@@ -97,6 +159,9 @@ const TicketsSection = ({ tickets }) => {
                   Subject
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase hidden md:table-cell">
+                  Description
+                </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase hidden md:table-cell">
                   Status
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase text-right">
@@ -118,12 +183,15 @@ const TicketsSection = ({ tickets }) => {
                       {ticket.subject}
                     </div>
                     <div className="text-[10px] md:text-xs text-slate-400">
-                      {ticket.lastUpdate}
+                      {new Date(ticket.updated_at || ticket.created_at).toLocaleDateString()}
                     </div>
+                  </td>
+                  <td className="px-6 py-4 hidden md:table-cell max-w-[200px] truncate text-slate-600 text-xs md:text-sm">
+                    {ticket.description}
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell">
                     <span
-                      className={`px-2 py-1 rounded-full text-[10px] font-bold ${ticket.statusColor}`}
+                      className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}
                     >
                       {ticket.status}
                     </span>
@@ -261,9 +329,10 @@ const TicketsSection = ({ tickets }) => {
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium"
+                disabled={loading}
+                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Ticket
+                {loading ? "Submitting..." : "Submit Ticket"}
               </button>
             </div>
           </form>

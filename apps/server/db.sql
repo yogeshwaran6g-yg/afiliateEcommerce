@@ -365,3 +365,20 @@ CREATE TABLE `recharge_requests` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT `fk_recharge_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+-- 17. Tickets Table
+CREATE TABLE `tickets` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `category` VARCHAR(100) NOT NULL,
+  `subject` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `image` VARCHAR(255) NULL,
+  `priority` ENUM('LOW','MEDIUM','HIGH') NOT NULL DEFAULT 'LOW',
+  `status` ENUM('OPEN','IN_REVIEW','COMPLETED','CLOSED') NOT NULL DEFAULT 'OPEN',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_tickets_user_id` (`user_id`),
+  KEY `idx_tickets_status` (`status`),
+  CONSTRAINT `fk_tickets_user_id` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

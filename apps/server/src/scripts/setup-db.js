@@ -26,6 +26,7 @@ const setupDB = async (connection) => {
   log("Dropping existing tables...", "info");
   await connection.query("SET FOREIGN_KEY_CHECKS = 0");
   const tables = [
+    "tickets",
     "notifications",
     "withdrawal_requests",
     "recharge_requests",

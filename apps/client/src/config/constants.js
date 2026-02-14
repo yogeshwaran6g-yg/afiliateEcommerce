@@ -44,6 +44,10 @@ export const constants = {
       withdrawals: "/api/v1/wallet/withdrawals",
       recharges: "/api/v1/wallet/recharges",
     },
+    tickets: {
+      base: "/api/v1/tickets",
+      myTickets: "/api/v1/tickets/my-tickets",
+    },
   },
 };
 
