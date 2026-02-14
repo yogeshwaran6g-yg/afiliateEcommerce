@@ -1,5 +1,6 @@
-import { callSP, queryRunner } from "#config/db.js";
+import { callSP, queryRunner, transactionRunner } from "#config/db.js";
 import { log, rtnRes } from "#utils/helper.js";
+import walletService from "#services/walletService.js";
 
 export const createReferral = async (
   referrerId,
@@ -26,24 +27,59 @@ export const distributeCommission = async (
   amount,
   connection = null,
 ) => {
-  try {
-    log(
-      `Distributing commission for Order ${orderId}, User ${userId}, Amount ${amount}`,
-      "info",
-    );
-    await callSP(
-      "sp_distribute_commission",
-      [orderId, 0, userId, amount],
-      connection,
-    ); // Added 0 for paymentId as placeholder if not provided
-    return {
-      success: true,
-      message: "Commissions distributed successfully",
-    };
-  } catch (error) {
-    log(`Error distributing commission: ${error.message}`, "error");
-    throw error;
-  }
+  return await transactionRunner(async (conn) => {
+    const runner = connection || conn;
+    try {
+      log(
+        `Distributing commission for Order ${orderId}, User ${userId}, Amount ${amount}`,
+        "info",
+      );
+      
+      // 1. Run the stored procedure to calculate and insert PENDING commissions
+      await callSP(
+        "sp_distribute_commission",
+        [orderId, 0, userId, amount],
+        runner,
+      );
+
+      // 2. Fetch the newly created commissions to credit wallets
+      // Note: We might want them to stay PENDING, but the user asked for "global transaction for both"
+      // suggesting they should hit the wallet now.
+      const [commissions] = await runner.execute(
+        'SELECT upline_id, amount, id FROM referral_commission_distribution WHERE order_id = ? AND downline_id = ?',
+        [orderId, userId]
+      );
+
+      for (const comm of commissions) {
+        log(`Crediting wallet for upline ${comm.upline_id}: ${comm.amount}`, "info");
+        
+        // 3. Update wallet balance
+        await walletService.updateWalletBalance(
+          comm.upline_id,
+          comm.amount,
+          'CREDIT',
+          'COMMISSION',
+          comm.id,
+          `Commission from level downline user ${userId} for order ${orderId}`,
+          runner
+        );
+
+        // 4. Update commission status to APPROVED since it's now in the wallet
+        await runner.execute(
+          "UPDATE referral_commission_distribution SET status = 'APPROVED', approved_at = NOW() WHERE id = ?",
+          [comm.id]
+        );
+      }
+
+      return {
+        success: true,
+        message: "Commissions distributed and wallets credited successfully",
+      };
+    } catch (error) {
+      log(`Error distributing commission: ${error.message}`, "error");
+      throw error;
+    }
+  });
 };
 
 

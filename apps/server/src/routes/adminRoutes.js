@@ -11,4 +11,12 @@ router.use(authorize('ADMIN'));
 router.post('/approve-payment', adminController.approvePayment);
 router.post('/reject-payment', adminController.rejectPayment);
 
+// Withdrawal approvals
+router.post('/approve-withdrawal', adminController.approveWithdrawal);
+router.post('/reject-withdrawal', adminController.rejectWithdrawal);
+
+// Recharge approvals
+router.post('/approve-recharge', adminController.approveRecharge);
+router.post('/reject-recharge', adminController.rejectRecharge);
+
 export default router;

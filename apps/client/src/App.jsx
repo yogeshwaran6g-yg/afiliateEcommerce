@@ -61,12 +61,13 @@ function App() {
                   <Route path="/support" element={<Support />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/wallet" element={<Wallet />} />
+                  <Route path="/wallet/add-funds" element={<Wallet.AddFunds />} />
                   <Route path="/withdrawals" element={<Withdrawals />} />
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/teams" element={<Teams />} />
                   <Route path="/notifications" element={<CommunicationCenter />} />
                 </Route>
-                {/* </Route> */}
+                {/* </Route>   */}
 
                 {/* auth routes without layout */}
                 <Route path="/login" element={<Login />} />
