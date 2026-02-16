@@ -2,6 +2,7 @@ import express from 'express';
 import walletController from '#controllers/walletController.js';
 import withdrawalController from '#controllers/withdrawalController.js';
 import rechargeController from '#controllers/rechargeController.js';
+import paymentUpload from '#middlewares/paymentUploadMiddleware.js';
 import passport from 'passport';
 
 const router = express.Router();
@@ -14,7 +15,7 @@ router.get('/transactions', walletController.getTransactions);
 
 // Request routes
 router.post('/withdraw', withdrawalController.createRequest);
-router.post('/recharge', rechargeController.createRequest);
+router.post('/recharge', paymentUpload.single('proof'), rechargeController.createRequest);
 
 // Status routes (optional but helpful)
 router.get('/withdrawals', withdrawalController.getRequests);

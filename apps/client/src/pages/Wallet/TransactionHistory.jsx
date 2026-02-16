@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function TransactionHistory({ transactions = [] }) {
+export default function TransactionHistory({ transactions = [], currentPage = 1, totalPages = 1, onPageChange }) {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredTransactions = transactions.filter(t => 
@@ -12,17 +12,13 @@ export default function TransactionHistory({ transactions = [] }) {
         const s = status?.toUpperCase();
         switch (s) {
             case 'SUCCESS':
-            case 'COMPLETED':
-            case 'APPROVED':
-                return 'text-commission';            
-            case 'PENDING':
-                return 'text-hold';
+                return 'text-green-700';                    
+            case 'REVERSED':
+                return 'text-yellow-700';                    
             case 'FAILED':
-            case 'CANCELLED':
-            case 'REJECTED':
-                return 'text-red-500';
+                return 'text-red-700';
             default:
-                return 'text-slate-400';
+                return 'text-slate-700';
         }
     };
 
@@ -30,14 +26,10 @@ export default function TransactionHistory({ transactions = [] }) {
         const s = status?.toUpperCase();
         switch (s) {
             case 'SUCCESS':
-            case 'COMPLETED':
-            case 'APPROVED':
-                return 'bg-commission';            
-            case 'PENDING':
-                return 'bg-hold';
+                return 'bg-green-500';                    
+            case 'REVERSED':
+                return 'bg-yellow-500'
             case 'FAILED':
-            case 'CANCELLED':
-            case 'REJECTED':
                 return 'bg-red-500';
             default:
                 return 'bg-slate-400';
@@ -54,8 +46,8 @@ export default function TransactionHistory({ transactions = [] }) {
     const getTypeLabel = (type) => {
         switch (type?.toUpperCase()) {
             case 'REFERRAL_COMMISSION': return 'Referral';
-            case 'WITHDRAWAL_REQUEST': return 'Payout';
-            case 'RECHARGE_REQUEST': return 'Deposit';
+            case 'WITHDRAWAL_REQUEST': return 'Withdrawal';
+            case 'RECHARGE_REQUEST': return 'Recharge';
             case 'ADMIN_ADJUSTMENT': return 'Adjustment';
             case 'REVERSAL': return 'Reversal';            
             default: return type || 'Transaction';
@@ -98,6 +90,34 @@ export default function TransactionHistory({ transactions = [] }) {
         );
     };
 
+    // Pagination helper to generate page numbers
+    const getPageNumbers = () => {
+        const pages = [];
+        // Always show first page
+        pages.push(1);
+        
+        let start = Math.max(2, currentPage - 1);
+        let end = Math.min(totalPages - 1, currentPage + 1);
+
+        if (start > 2) {
+            pages.push('...');
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        if (end < totalPages - 1) {
+            pages.push('...');
+        }
+
+        if (totalPages > 1) {
+            pages.push(totalPages);
+        }
+
+        return pages;
+    };
+
     return (
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
             {/* Filters Header */}
@@ -114,14 +134,6 @@ export default function TransactionHistory({ transactions = [] }) {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400">
-                        <span className="material-symbols-outlined text-lg">calendar_today</span>
-                        Last 30 Days
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400">
-                        <span className="material-symbols-outlined text-lg">filter_list</span>
-                        Filter
-                    </button>
                 </div>
             </div>
 
@@ -181,16 +193,41 @@ export default function TransactionHistory({ transactions = [] }) {
             </div>
 
             {/* Pagination */}
-            {filteredTransactions.length > 0 && (
+            {totalPages > 1 && (
                 <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Showing 1 to {filteredTransactions.length} of {filteredTransactions.length} transactions</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Page {currentPage} of {totalPages}
+                    </p>
                     <div className="flex gap-2">
-                        <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-600 dark:text-slate-400" disabled>
+                        <button 
+                            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400"
+                        >
                             <span className="material-symbols-outlined text-sm leading-none">chevron_left</span>
                         </button>
-                        <button className="px-3 py-1 bg-primary text-white text-xs font-bold rounded">1</button>
-                        <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400">2</button>
-                        <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400">
+                        
+                        {/* Simple page numbers */}
+                        {getPageNumbers().map((page, i) => (
+                            <button
+                                key={i}
+                                onClick={() => typeof page === 'number' && onPageChange(page)}
+                                disabled={page === '...'}
+                                className={`px-3 py-1 text-xs font-bold rounded ${
+                                    page === currentPage 
+                                        ? 'bg-primary text-white' 
+                                        : 'border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400'
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+
+                        <button 
+                            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400"
+                        >
                             <span className="material-symbols-outlined text-sm leading-none">chevron_right</span>
                         </button>
                     </div>

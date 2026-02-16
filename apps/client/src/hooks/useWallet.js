@@ -28,13 +28,13 @@ export const useWallet = () => {
 /**
  * Hook to fetch wallet transactions.
  */
-export const useTransactions = (limit = 20, offset = 0) => {
+export const useTransactions = (limit = 10, offset = 0) => {
   const isAuthenticated = authService.isAuthenticated();
   return useQuery({
     queryKey: [...WALLET_KEYS.transactions, { limit, offset }],
     queryFn: async () => {
       const response = await walletService.getTransactions(limit, offset);
-      return response.data;
+      return response.data; // Now returns { transactions, pagination }
     },
     enabled: isAuthenticated,
     keepPreviousData: true,

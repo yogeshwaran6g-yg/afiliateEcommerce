@@ -17,7 +17,7 @@ const walletController = {
     try {
       const userId = req.user.id;
       const { limit = 20, offset = 0 } = req.query;
-      const transactions = await walletService.getWalletTransactions(
+      const result = await walletService.getWalletTransactions(
         userId,
         limit,
         offset,
@@ -26,7 +26,7 @@ const walletController = {
         res,
         200,
         "Transactions fetched successfully.",
-        transactions,
+        result,
       );
     } catch (e) {
       log(`getTransactions error: ${e.message}`, "error");

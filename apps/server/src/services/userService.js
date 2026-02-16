@@ -31,6 +31,24 @@ export const createUser = async (userData) => {
     }
 };
 
+export const getUserReviewPendingRechareRequestCount = async (id) => {
+    try {
+        
+        
+        const rows = await queryRunner(
+            `SELECT COUNT(*) as count FROM recharge_requests WHERE user_id = ?
+             AND status = "REVIEW_PENDING"`,
+            [id]
+        );
+        
+        return rows[0].count;
+        
+    } catch (error) {
+        console.log("err from count pending req user",error)
+        throw error
+    }
+};
+
 export const updateRegistrationDetails = async (userId, details, connection = null) => {
     const { name, email, password, referralId, selectedProductId } = details;
     

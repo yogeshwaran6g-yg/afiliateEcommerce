@@ -8,9 +8,17 @@ import WithdrawFundsForm from './WithdrawFundsForm';
 import AddFunds from './AddFunds';
 
 function Wallet() {
+    const [page, setPage] = useState(1);
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
     const { data: walletData, isLoading: isWalletLoading, error: walletError } = useWallet();
-    const { data: transactionsData, isLoading: isTransactionsLoading } = useTransactions();
+    const { data: transactionsResponse, isLoading: isTransactionsLoading } = useTransactions(limit, offset);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+
+    const transactions = transactionsResponse?.transactions || [];
+    const pagination = transactionsResponse?.pagination || {};
+    const totalPages = pagination.total ? Math.ceil(pagination.total / pagination.limit) : 1;
 
     if (isWalletLoading || isTransactionsLoading) {
         return (
@@ -49,10 +57,15 @@ function Wallet() {
             <main className="flex-1 flex flex-col min-w-0">
                 <div className="flex-1 px-4 md:px-8 py-6 md:py-10 max-w-7xl mx-auto w-full">
                     <WalletHeader onWithdrawClick={() => setIsWithdrawModalOpen(true)} />
-                    <WalletStats wallet={walletData} transactions={transactionsData} />
+                    <WalletStats wallet={walletData} transactions={transactions} />
                     
                     <div className="w-full">
-                        <TransactionHistory transactions={transactionsData} />
+                        <TransactionHistory 
+                            transactions={transactions} 
+                            currentPage={page}
+                            totalPages={totalPages}
+                            onPageChange={setPage}
+                        />
                     </div>
                 </div>
                 <WalletFooter />

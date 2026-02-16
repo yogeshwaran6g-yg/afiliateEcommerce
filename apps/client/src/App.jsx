@@ -4,6 +4,9 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { ProductProvider } from "./context/ProductContext";
 import { CartProvider } from "./context/CartContext";
 
+import { ToastContainer, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import ClientLayout from "./components/ClientLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
@@ -41,6 +44,19 @@ function App() {
       <ProfileProvider>
         <ProductProvider>
           <CartProvider>
+             <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={true}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="dark"
+              transition={Bounce}
+            />
             <BrowserRouter>
               <Routes>
                 {/* redirect root */}

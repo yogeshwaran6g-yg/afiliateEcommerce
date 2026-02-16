@@ -86,29 +86,44 @@ export const getWalletTransactions = async (
 ) => {
   try {
     const wallet = await getWalletByUserId(userId);
-    let query = "SELECT * FROM wallet_transactions WHERE wallet_id = ?";
+    
+    // Base query conditions
+    let conditions = "WHERE wallet_id = ?";
     let params = [wallet.id];
 
     if (searchTerm) {
-      query += " AND (description LIKE ? OR reference_id LIKE ?)";
+      conditions += " AND (description LIKE ? OR reference_id LIKE ?)";
       params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
     if (status) {
-      query += " AND status = ?";
+      conditions += " AND status = ?";
       params.push(status);
     }
 
     if (type) {
-      query += " AND transaction_type = ?";
+      conditions += " AND transaction_type = ?";
       params.push(type);
     }
 
-    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-    params.push(parseInt(limit), parseInt(offset));
+    // Get total count
+    const countQuery = `SELECT COUNT(*) as total FROM wallet_transactions ${conditions}`;
+    const [countResult] = await queryRunner(countQuery, params);
+    const total = countResult.total;
 
-    const rows = await queryRunner(query, params);
-    return rows;
+    // Get transactions
+    const query = `SELECT * FROM wallet_transactions ${conditions} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    const rows = await queryRunner(query, [...params, parseInt(limit), parseInt(offset)]);
+
+    return {
+      transactions: rows,
+      pagination: {
+        total,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: parseInt(offset) + rows.length < total
+      }
+    };
   } catch (error) {
     log(`Error fetching wallet transactions: ${error.message}`, "error");
     throw error;
