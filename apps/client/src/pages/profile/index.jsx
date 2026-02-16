@@ -41,17 +41,20 @@ export default function Profile() {
         }));
     };
 
-    const handleUpdatePersonal = async () => {
+    const handleUpdatePersonal = async (file) => {
         setIsUpdatingPersonal(true);
         try {
             await updateProfile({
-                profile: {
-                    dob: personalData.dob,
-                    profile_image: personalData.profile_image
+                data: {
+                    profile: {
+                        dob: personalData.dob,
+                        profile_image: personalData.profile_image
+                    },
+                    name: personalData.name,
+                    email: personalData.email,
+                    phone: personalData.phone
                 },
-                name: personalData.name,
-                email: personalData.email,
-                phone: personalData.phone
+                file: file
             });
             alert(`Personal details updated successfully!`);
         } catch (error) {

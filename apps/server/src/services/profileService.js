@@ -36,7 +36,7 @@ const ensureProfileExists = async (userId, connection) => {
 /**
  * Update personal profile information
  */
-export const updatePersonalProfile = async (userId, { name = null, phone = null, dob = null, profile_image = null }) => {
+export const updatePersonalProfile = async (userId, { name = null, phone = null, email = null, dob = null, profile_image = null }) => {
     return await transactionRunner(async (connection) => {
         // Update user table
         if (name || phone || email) {
@@ -46,14 +46,27 @@ export const updatePersonalProfile = async (userId, { name = null, phone = null,
             );
         }
 
-        // Ensure profile exists
-        await ensureProfileExists(userId, connection);
-
         // Update profile table
-        if (dob !== undefined || profile_image !== undefined) {
+        const profileUpdates = [];
+        const profileParams = [];
+
+        if (dob !== undefined) {
+            profileUpdates.push('dob = ?');
+            profileParams.push(dob);
+        }
+        if (profile_image !== undefined) {
+            profileUpdates.push('profile_image = ?');
+            profileParams.push(profile_image);
+        }
+
+        if (profileUpdates.length > 0) {
+            // Ensure profile exists
+            await ensureProfileExists(userId, connection);
+
+            profileParams.push(userId);
             await connection.execute(
-                'UPDATE profiles SET dob = COALESCE(?, dob), profile_image = COALESCE(?, profile_image) WHERE user_id = ?',
-                [dob, profile_image, userId]
+                `UPDATE profiles SET ${profileUpdates.join(', ')} WHERE user_id = ?`,
+                profileParams
             );
         }
 

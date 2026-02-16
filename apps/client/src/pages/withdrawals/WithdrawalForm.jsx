@@ -7,6 +7,7 @@ const WithdrawalForm = ({
     setMaxAmount,
     platformFee,
     finalSettlement,
+    hasBankDetails,
 }) => {
     return (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
@@ -85,9 +86,17 @@ const WithdrawalForm = ({
                 </div>
             </div>
 
-            <button className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-3">
-                <span className="material-symbols-outlined">lock</span>
-                INITIATE SECURE WITHDRAWAL
+            <button
+                disabled={!hasBankDetails || withdrawAmount <= 0}
+                className={`w-full font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 mb-3 ${!hasBankDetails || withdrawAmount <= 0
+                        ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                        : "bg-primary text-white hover:bg-primary/90"
+                    }`}
+            >
+                <span className="material-symbols-outlined">
+                    {hasBankDetails ? "lock" : "error_outline"}
+                </span>
+                {hasBankDetails ? "INITIATE SECURE WITHDRAWAL" : "LINK BANK TO WITHDRAW"}
             </button>
 
             <div className="flex items-center justify-center gap-1 text-xs text-slate-500">

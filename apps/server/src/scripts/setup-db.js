@@ -43,6 +43,8 @@ const setupDB = async (connection) => {
     "referral_commission_config",
     "products",
     "category",
+    "order_tracking",
+    "order_items",
     "orders",
     "users",
   ];
