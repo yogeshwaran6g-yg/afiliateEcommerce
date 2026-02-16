@@ -96,6 +96,103 @@ const adminController = {
             log(`Error in rejectRecharge: ${e.message}`, "error");
             return rtnRes(res, 500, e.message || "internal error");
         }
+    },
+
+    getUsers: async function (req, res) {
+        try {
+            const users = await queryRunner(`
+                SELECT 
+                    u.id, u.name, u.phone, u.email, u.referral_id, 
+                    u.account_activation_status, u.created_at, u.is_blocked,
+                    (SELECT COUNT(*) FROM referral_tree WHERE upline_id = u.id AND level = 1) as direct_referrals
+                FROM users u
+                ORDER BY u.created_at DESC
+            `);
+
+            const formattedUsers = users.map(user => {
+                let rank = "Silver";
+                if (user.direct_referrals >= 10) rank = "Diamond";
+                else if (user.direct_referrals >= 5) rank = "Platinum";
+                else if (user.direct_referrals >= 2) rank = "Gold";
+
+                return {
+                    id: `UL-${user.id.toString().padStart(6, '0')}`,
+                    dbId: user.id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    referral_id: user.referral_id,
+                    rank: rank,
+                    level: `Level ${Math.floor(Math.random() * 5) + 1}`,
+                    joined: new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+                    status: user.is_blocked ? 'BLOCKED' : (user.account_activation_status === 'ACTIVATED' ? 'ACTIVE' : 'INACTIVE'),
+                    avatar: user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2),
+                    color: "bg-blue-100 text-blue-600"
+                };
+            });
+
+            return rtnRes(res, 200, "Users fetched successfully", formattedUsers);
+        } catch (e) {
+            log(`Error in getUsers: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    getUserDetails: async function (req, res) {
+        try {
+            const { userId } = req.params;
+            if (!userId) return rtnRes(res, 400, "userId is required");
+
+            const [user] = await queryRunner(`
+                SELECT u.id, u.name, u.phone, u.email, u.role, u.referral_id, 
+                       u.is_phone_verified, u.account_activation_status, u.is_blocked, u.created_at,
+                       p.dob, p.id_type, p.id_number, p.identity_status, p.address_status, p.bank_status,
+                       p.bank_account_name, p.bank_name, p.bank_account_number, p.bank_ifsc,
+                       w.balance, w.locked_balance 
+                FROM users u
+                LEFT JOIN profiles p ON u.id = p.user_id
+                LEFT JOIN wallets w ON u.id = w.user_id
+                WHERE u.id = ?
+            `, [userId]);
+
+            if (!user) return rtnRes(res, 404, "User not found");
+
+            return rtnRes(res, 200, "User details fetched successfully", user);
+        } catch (e) {
+            log(`Error in getUserDetails: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    updateUser: async function (req, res) {
+        try {
+            const { userId } = req.params;
+            const { name, email, phone, is_blocked, account_activation_status } = req.body;
+
+            if (!userId) return rtnRes(res, 400, "userId is required");
+
+            await queryRunner(`
+                UPDATE users SET 
+                    name = COALESCE(?, name),
+                    email = COALESCE(?, email),
+                    phone = COALESCE(?, phone),
+                    is_blocked = COALESCE(?, is_blocked),
+                    account_activation_status = COALESCE(?, account_activation_status)
+                WHERE id = ?
+            `, [
+                name === undefined ? null : name,
+                email === undefined ? null : email,
+                phone === undefined ? null : phone,
+                is_blocked === undefined ? null : is_blocked,
+                account_activation_status === undefined ? null : account_activation_status,
+                userId
+            ]);
+
+            return rtnRes(res, 200, "User updated successfully");
+        } catch (e) {
+            log(`Error in updateUser: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
     }
 };
 
