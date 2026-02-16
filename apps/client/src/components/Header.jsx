@@ -87,7 +87,7 @@ export default function Header({ toggleSidebar }) {
           </Link>
 
           {/* Notification Bell */}
-          <Link to="/communication-center" className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors group">
+          <Link to="/notifications" className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors group">
             <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
               notifications
             </span>

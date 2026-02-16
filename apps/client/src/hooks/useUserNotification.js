@@ -9,7 +9,7 @@ export const useUserNotification = (params = {}) => {
         queryKey: [USER_NOTIFICATION_QUERY_KEY, params],
         queryFn: async () => {
             const response = await getNotifications(params);
-            // Handle both { data: [...] } and direct [...] responses
+            if (response?.data?.items) return response.data.items;
             if (Array.isArray(response)) return response;
             if (Array.isArray(response?.data)) return response.data;
             return [];
@@ -19,10 +19,10 @@ export const useUserNotification = (params = {}) => {
 
 export const useUnreadCount = () => {
     return useQuery({
-        queryKey: UNREAD_COUNT_QUERY_KEY,
+        queryKey: [UNREAD_COUNT_QUERY_KEY],
         queryFn: async () => {
             const response = await getUnreadCount();
-            return response?.data?.count || 0;
+            return response?.data?.unread_count || 0;
         },
     });
 };
