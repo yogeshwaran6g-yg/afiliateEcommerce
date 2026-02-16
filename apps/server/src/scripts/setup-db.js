@@ -27,7 +27,7 @@ const setupDB = async (connection) => {
   await connection.query("SET FOREIGN_KEY_CHECKS = 0");
   const tables = [
     "tickets",
-    "usernotifications",
+    "user_notifications",
     "notifications",
     "withdrawal_requests",
     "recharge_requests",
@@ -566,7 +566,7 @@ const setupDB = async (connection) => {
 
   for(const notif of userNotifications) {
       await connection.execute(
-          `INSERT INTO usernotifications (user_id, type, title, is_read)
+          `INSERT INTO user_notifications (user_id, type, title, is_read)
            VALUES (?, ?, ?, ?)`,
            [adminUserId, notif.type, notif.title, notif.is_read]
       );

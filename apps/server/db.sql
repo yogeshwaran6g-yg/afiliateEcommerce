@@ -310,7 +310,7 @@ CREATE TABLE `notifications` (
 ) ENGINE = InnoDB;
 
 -- 13. User Notifications Table
-CREATE TABLE `usernotifications` (
+CREATE TABLE `user_notifications` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
     `type` VARCHAR(50) NOT NULL,
