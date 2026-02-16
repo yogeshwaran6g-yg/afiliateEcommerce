@@ -59,7 +59,7 @@ export default function Transactions() {
         { id: "TX-990232", category: "User Payout", userName: "Sarah Jenkins", userRole: "Manager", userAvatar: "https://i.pravatar.cc/150?u=Sarah", date: "Oct 25, 2023 · 12:15", amount: "3,200.00", type: "DEBIT", status: "PROCESSING" },
         { id: "TX-990233", category: "Internal Transfer", userName: "Alexander Sterling", userRole: "Admin", userAvatar: "https://i.pravatar.cc/150?u=Alexander", date: "Oct 24, 2023 · 18:45", amount: "5,000.00", type: "TRANSFER", status: "COMPLETED" },
         { id: "TX-990234", category: "Unilevel Commission", userName: "Elena Rodriguez", userRole: "Distributor", userAvatar: "https://i.pravatar.cc/150?u=Elena", date: "Oct 24, 2023 · 09:22", amount: "450.00", type: "CREDIT", status: "COMPLETED" },
-        { id: "TX-990235", category: "Rank Bonus", userName: "Marcus Thorne", userRole: "Distributor", userAvatar: "https://i.pravatar.cc/150?u=Marcus", date: "Oct 23, 2023 · 21:10", amount: "250.00", type: "CREDIT", status: "COMPLETED" },
+        { id: "TX-990235", category: "Performance Bonus", userName: "Marcus Thorne", userRole: "Distributor", userAvatar: "https://i.pravatar.cc/150?u=Marcus", date: "Oct 23, 2023 · 21:10", amount: "250.00", type: "CREDIT", status: "COMPLETED" },
     ];
 
     return (

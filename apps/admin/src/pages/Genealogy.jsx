@@ -13,13 +13,8 @@ const TreeNode = ({ member, isRoot, onSelect, isSelected, onToggle }) => (
                 <div className="flex items-center gap-3 md:gap-4">
 
                     <div className="relative">
-                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 p-0.5 ${member.rank === 'PLATINUM' ? 'border-primary' :
-                            member.rank === 'GOLD' ? 'border-amber-400' : 'border-slate-200'
-                            }`}>
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 p-0.5 border-slate-200">
                             <img src={member.avatar} className="w-full h-full rounded-full object-cover" alt="" />
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-primary text-white text-[8px] md:text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                            L{member.level}
                         </div>
                     </div>
 
@@ -42,8 +37,6 @@ const TreeNode = ({ member, isRoot, onSelect, isSelected, onToggle }) => (
                             )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${member.rank === 'PLATINUM' ? 'text-primary' : 'text-amber-600'
-                                }`}>{member.rank}</span>
                             <span className="text-[9px] text-slate-400 font-bold uppercase">#{member.id}</span>
                         </div>
                     </div>
@@ -98,7 +91,6 @@ export default function Genealogy() {
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [visibleLevels, setVisibleLevels] = useState('3 Levels');
     const [searchQuery, setSearchQuery] = useState("");
-    const [rankFilter, setRankFilter] = useState("All Ranks");
     const [isSubSidebarOpen, setSubSidebarOpen] = useState(false);
 
     const viewportRef = useRef(null);
@@ -106,8 +98,6 @@ export default function Genealogy() {
     const [tree, setTree] = useState({
         name: "Alexander Sterling",
         id: "88291",
-        rank: "PLATINUM",
-        level: 1,
         teamSize: 12402,
         gv: "$2.4M",
         avatar: "https://i.pravatar.cc/150?u=Alexander",
@@ -116,8 +106,6 @@ export default function Genealogy() {
             {
                 name: "Marcus Chen",
                 id: "22819",
-                rank: "PLATINUM",
-                level: 2,
                 teamSize: 1890,
                 gv: "$452K",
                 avatar: "https://i.pravatar.cc/150?u=Marcus",
@@ -125,33 +113,31 @@ export default function Genealogy() {
                 isExpanded: true,
                 children: [
                     {
-                        name: "Elena Rossi", id: "55123", rank: "GOLD", level: 3, avatar: "https://i.pravatar.cc/150?u=Elena",
+                        name: "Elena Rossi", id: "55123", avatar: "https://i.pravatar.cc/150?u=Elena",
                         hasChildren: true, isExpanded: false,
                         children: [
                             {
-                                name: "Luca Bianchi", id: "99101", rank: "SILVER", level: 4, avatar: "https://i.pravatar.cc/150?u=Luca",
+                                name: "Luca Bianchi", id: "99101", avatar: "https://i.pravatar.cc/150?u=Luca",
                                 hasChildren: true, isExpanded: false,
                                 children: [
-                                    { name: "Anna Vitale", id: "11223", rank: "BRONZE", level: 5, avatar: "https://i.pravatar.cc/150?u=Anna" }
+                                    { name: "Anna Vitale", id: "11223", avatar: "https://i.pravatar.cc/150?u=Anna" }
                                 ]
                             }
                         ]
                     },
-                    { name: "David Okafor", id: "77234", rank: "GOLD", level: 3, avatar: "https://i.pravatar.cc/150?u=David" }
+                    { name: "David Okafor", id: "77234", avatar: "https://i.pravatar.cc/150?u=David" }
                 ]
             },
             {
                 name: "Sophia Evans",
                 id: "10293",
-                rank: "GOLD",
-                level: 2,
                 teamSize: 3901,
                 gv: "$892K",
                 avatar: "https://i.pravatar.cc/150?u=Sophia",
                 hasChildren: true,
                 isExpanded: false,
                 children: [
-                    { name: "James Wilson", id: "44122", rank: "SILVER", level: 3, avatar: "https://i.pravatar.cc/150?u=James" }
+                    { name: "James Wilson", id: "44122", avatar: "https://i.pravatar.cc/150?u=James" }
                 ]
             }
         ]
@@ -232,25 +218,23 @@ export default function Genealogy() {
         };
     }, [isDragging]);
 
-    const getPrunedTree = (node, currentLevel, maxLevel, search, rank) => {
+    const getPrunedTree = (node, currentLevel, maxLevel, search) => {
         let matchesSearch = !search ||
             node.name.toLowerCase().includes(search.toLowerCase()) ||
             node.id.includes(search);
-
-        let matchesRank = rank === "All Ranks" || node.rank === rank;
 
         let processedChildren = null;
         const shouldRecurse = !!search || maxLevel === 'All' || currentLevel < parseInt(maxLevel);
 
         if (node.children && shouldRecurse) {
             processedChildren = node.children
-                .map(child => getPrunedTree(child, currentLevel + 1, maxLevel, search, rank))
+                .map(child => getPrunedTree(child, currentLevel + 1, maxLevel, search))
                 .filter(Boolean);
         }
 
         const hasMatchingChild = processedChildren?.length > 0;
 
-        if (matchesSearch && matchesRank) {
+        if (matchesSearch) {
             return { ...node, children: processedChildren, isMatched: true, isExpanded: search ? true : node.isExpanded };
         } else if (hasMatchingChild) {
             return { ...node, children: processedChildren, isMatched: false, isExpanded: search ? true : node.isExpanded };
@@ -259,12 +243,11 @@ export default function Genealogy() {
         return null;
     };
 
-    const displayedTree = getPrunedTree(tree, 1, visibleLevels, searchQuery, rankFilter);
+    const displayedTree = getPrunedTree(tree, 1, visibleLevels, searchQuery);
 
     const views = [
         { icon: "account_tree", label: "Unilevel Tree" },
         { icon: "view_list", label: "List Directory" },
-        { icon: "monitoring", label: "Rank Tracker" },
         { icon: "group_add", label: "Enrollment" },
         { icon: "analytics", label: "Analytics" }
     ];
@@ -419,9 +402,6 @@ export default function Genealogy() {
                             </div>
                             <div>
                                 <h4 className="text-xl md:text-2xl font-black text-[#172b4d] tracking-tight">{selectedMember.name}</h4>
-                                <div className="mt-2 px-4 py-1.5 bg-primary/10 text-primary text-[9px] font-black uppercase tracking-[0.2em] rounded-full inline-block">
-                                    {selectedMember.rank} MEMBER
-                                </div>
                             </div>
                         </div>
 
@@ -429,10 +409,6 @@ export default function Genealogy() {
                             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
                                 <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">ID</span>
                                 <span className="text-sm font-black text-[#172b4d]">#{selectedMember.id}</span>
-                            </div>
-                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
-                                <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Level</span>
-                                <span className="text-sm font-black text-primary">L{selectedMember.level}</span>
                             </div>
                             {selectedMember.gv && (
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">

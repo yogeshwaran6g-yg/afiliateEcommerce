@@ -1,28 +1,6 @@
 import React, { useState, useEffect } from "react";
 import userApiService from "../services/userApiService";
 
-const RankBadge = ({ rank }) => {
-    const styles = {
-        Diamond: "bg-blue-50 text-blue-600 border-blue-100",
-        Gold: "bg-amber-50 text-amber-600 border-amber-100",
-        Silver: "bg-slate-50 text-slate-500 border-slate-200",
-        Platinum: "bg-indigo-50 text-indigo-600 border-indigo-100",
-    };
-
-    const icons = {
-        Diamond: "diamond",
-        Gold: "workspace_premium",
-        Silver: "military_tech",
-        Platinum: "stars",
-    };
-
-    return (
-        <div className={`px-3 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit ${styles[rank] || styles.Silver}`}>
-            <span className="material-symbols-outlined text-[14px] font-bold">{icons[rank] || "person"}</span>
-            {rank}
-        </div>
-    );
-};
 
 export default function Users() {
     const [selectedUsers, setSelectedUsers] = useState([]);
@@ -192,7 +170,7 @@ export default function Users() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
-                    {["All Ranks", "All Levels", "All Countries"].map((filter, i) => (
+                    {["All Countries"].map((filter, i) => (
                         <button key={i} className="flex-1 md:flex-none px-4 md:px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-3 text-sm font-bold text-[#172b4d] hover:bg-slate-100 transition-all min-w-[140px] md:min-w-[160px] justify-between">
                             <span className="truncate">{filter}</span>
                             <span className="material-symbols-outlined text-slate-400 font-bold">expand_more</span>
@@ -214,8 +192,6 @@ export default function Users() {
                                     <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer" />
                                 </th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">USER DETAILS</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">RANK</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">LEVEL</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">JOINED DATE</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
@@ -243,12 +219,6 @@ export default function Users() {
                                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">ID: {user.id}</p>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td className="px-10 py-6">
-                                        <RankBadge rank={user.rank} />
-                                    </td>
-                                    <td className="px-10 py-6">
-                                        <span className="text-sm font-bold text-[#172b4d]">{user.level}</span>
                                     </td>
                                     <td className="px-10 py-6">
                                         <span className="text-sm font-medium text-slate-500">{user.joined}</span>

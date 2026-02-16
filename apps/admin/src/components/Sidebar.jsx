@@ -26,7 +26,6 @@ export default function Sidebar({ isOpen, onClose }) {
         {
             title: "SYSTEM",
             items: [
-                { icon: "settings", label: "Configuration", path: "/settings/commission" },
                 { icon: "login", label: "Login Page", path: "/admin/login" },
             ]
         }

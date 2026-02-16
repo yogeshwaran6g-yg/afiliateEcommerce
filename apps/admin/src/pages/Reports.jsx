@@ -76,7 +76,7 @@ export default function Reports() {
                 />
                 <ReportCard
                     title="Commission Report"
-                    description="Unilevel payouts, dynamic compression logs, and rank-based bonus disbursements."
+                    description="Unilevel payouts, dynamic compression logs, and performance bonus disbursements."
                     tag="PAYOUTS"
                     type="PAYOUTS"
                     icon="calendar_today"
