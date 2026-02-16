@@ -4,10 +4,9 @@ export default function TransactionHistory({
   transactions = [],
   filters,
   onFilterChange,
-  page,
+  currentPage,
   onPageChange,
   totalPages,
-  limit,
 }) {
   const [localSearch, setLocalSearch] = useState(filters.searchTerm);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);

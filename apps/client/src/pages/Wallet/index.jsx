@@ -88,7 +88,7 @@ function Wallet() {
               onPageChange={setPage}
               filters={filters}
               onFilterChange={setFilters}
-            />{" "}
+            />
           </div>
         </div>
         <WalletFooter />

@@ -63,7 +63,7 @@ function App() {
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
                 {/* routes with ClientLayout */}
-                {/* <Route element={<ProtectedRoute />}> */}
+                <Route element={<ProtectedRoute />}>
                 <Route path="/complete-registration" element={<CompleteRegistration />} />
                 <Route element={<ClientLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
@@ -83,7 +83,7 @@ function App() {
                   <Route path="/teams" element={<Teams />} />
                   <Route path="/notifications" element={<CommunicationCenter />} />
                 </Route>
-                {/* </Route>   */}
+                </Route>  
 
                 {/* auth routes without layout */}
                 <Route path="/login" element={<Login />} />
