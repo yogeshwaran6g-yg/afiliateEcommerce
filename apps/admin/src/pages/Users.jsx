@@ -56,11 +56,8 @@ export default function Users() {
                         <span className="material-symbols-outlined font-bold group-hover:scale-110 transition-transform">download</span>
                         <span className="hidden md:inline">Export</span>
                     </button>
-                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none">
-                        <span className="material-symbols-outlined font-bold group-hover:rotate-90 transition-transform">person_add</span>
-                        <span>Add Member</span>
-                    </button>
                 </div>
+
             </div>
 
             {/* Filter Bar */}

@@ -52,23 +52,8 @@ export default function Dashboard() {
                 {/* Right Sidebar - System Alerts */}
                 <div className="w-full xl:w-96 space-y-8">
                     <SystemAlerts />
-
-                    {/* Quick Actions Placeholder */}
-                    <div className="bg-[#172b4d] p-8 rounded-[2.5rem] text-white shadow-xl shadow-slate-200 relative overflow-hidden group">
-                        <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
-                        <h4 className="text-sm font-black tracking-widest uppercase mb-6 opacity-60">Quick Admin Actions</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button className="flex flex-col items-center gap-3 p-4 bg-white/10 rounded-2xl hover:bg-white/15 transition-all">
-                                <span className="material-symbols-outlined text-2xl">person_add</span>
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Add User</span>
-                            </button>
-                            <button className="flex flex-col items-center gap-3 p-4 bg-white/10 rounded-2xl hover:bg-white/15 transition-all">
-                                <span className="material-symbols-outlined text-2xl">account_balance</span>
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Payout</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
+
             </div>
         </div>
     );
