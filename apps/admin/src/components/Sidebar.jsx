@@ -10,6 +10,7 @@ export default function Sidebar({ isOpen, onClose }) {
             items: [
                 { icon: "dashboard", label: "Dashboard", path: "/" },
                 { icon: "inventory_2", label: "Product Catalog", path: "/products" },
+                { icon: "campaign", label: "Announcements", path: "/announcements" },
                 { icon: "person_search", label: "User Management", path: "/users" },
                 { icon: "account_tree", label: "Tree View", path: "/genealogy" },
             ]

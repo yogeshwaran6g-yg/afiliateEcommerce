@@ -2,14 +2,14 @@ import { queryRunner } from "#src/config/db.js";
 import { srvRes } from "#src/utils/helper.js";
 
 const productService = {
-    create: async function(productData) {
+    create: async function (productData) {
         try {
-            const { 
-                name, slug, short_desc, long_desc, category_id, 
-                original_price, sale_price, stock, stock_status, 
-                low_stock_alert, images 
+            const {
+                name, slug, short_desc, long_desc, category_id,
+                original_price, sale_price, stock, stock_status,
+                low_stock_alert, images
             } = productData;
-            
+
             // Validation: Check if category exists
             const categoryCheck = await queryRunner(`SELECT id FROM category WHERE id = ?`, [category_id]);
             if (!categoryCheck || categoryCheck.length === 0) {
@@ -26,21 +26,23 @@ const productService = {
                 INSERT INTO products (
                     name, slug, short_desc, long_desc, category_id, 
                     original_price, sale_price, stock, stock_status, 
-                    low_stock_alert, images
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    low_stock_alert, images, pv, is_active
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
             const params = [
-                name || null, 
-                slug || null, 
-                short_desc || null, 
-                long_desc || null, 
-                category_id || null, 
-                original_price || 0, 
-                sale_price || 0, 
-                stock || 0, 
-                stock_status || 'IN_STOCK', 
-                low_stock_alert || 5, 
-                JSON.stringify(images || [])
+                name || null,
+                slug || null,
+                short_desc || null,
+                long_desc || null,
+                category_id || null,
+                original_price || 0,
+                sale_price || 0,
+                stock || 0,
+                stock_status || 'IN_STOCK',
+                low_stock_alert || 5,
+                JSON.stringify(images || []),
+                pv || 0,
+                is_active === undefined ? 1 : is_active
             ];
 
             const result = await queryRunner(sql, params);
@@ -53,7 +55,7 @@ const productService = {
         }
     },
 
-    get: async function(filters = {}) {
+    get: async function (filters = {}) {
         try {
             let sql = `SELECT p.*, c.name as category_name FROM products p 
                        LEFT JOIN category c ON p.category_id = c.id 
@@ -128,7 +130,7 @@ const productService = {
         }
     },
 
-    update: async function(id, productData) {
+    update: async function (id, productData) {
         try {
             // Validation: Check if product exists
             const productCheck = await queryRunner(`SELECT id FROM products WHERE id = ?`, [id]);
@@ -154,8 +156,16 @@ const productService = {
 
             const fields = [];
             const params = [];
-            
+
+            const ALLOWED_COLUMNS = [
+                'name', 'slug', 'short_desc', 'long_desc', 'category_id',
+                'original_price', 'sale_price', 'stock', 'stock_status',
+                'low_stock_alert', 'images', 'is_active', 'pv'
+            ];
+
             for (const [key, value] of Object.entries(productData)) {
+                if (!ALLOWED_COLUMNS.includes(key)) continue;
+
                 if (key === 'images') {
                     fields.push(`${key} = ?`);
                     params.push(JSON.stringify(value));
@@ -180,7 +190,7 @@ const productService = {
         }
     },
 
-    delete: async function(id) {
+    delete: async function (id) {
         try {
             const sql = `DELETE FROM products WHERE id = ?`;
             const result = await queryRunner(sql, [id]);
