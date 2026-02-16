@@ -3,6 +3,7 @@ import { ProfileContext } from "../context/ProfileContext";
 import { useCart } from "../hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../hooks/useAuthService";
+import { useUnreadCount } from "../hooks/useUserNotification";
 
 export default function Header({ toggleSidebar }) {
   const { user, isLoading } = useContext(ProfileContext);
@@ -27,6 +28,8 @@ export default function Header({ toggleSidebar }) {
       .join("")
       .toUpperCase();
   };
+
+  const { data: unreadCount = 0 } = useUnreadCount();
 
   return (
     <header className="glass-header sticky top-0 z-10 px-4 md:px-8 py-3 md:py-4 border-b border-slate-200">
@@ -84,12 +87,16 @@ export default function Header({ toggleSidebar }) {
           </Link>
 
           {/* Notification Bell */}
-          <button className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <span className="material-symbols-outlined text-slate-600">
+          <Link to="/communication-center" className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors group">
+            <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
               notifications
             </span>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full"></span>
-          </button>
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </Link>
 
           {/* Action Buttons - Icons only on mobile */}
           <div className="flex items-center gap-1 md:gap-3">
