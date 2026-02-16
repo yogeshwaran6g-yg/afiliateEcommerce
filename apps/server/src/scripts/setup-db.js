@@ -27,6 +27,7 @@ const setupDB = async (connection) => {
   await connection.query("SET FOREIGN_KEY_CHECKS = 0");
   const tables = [
     "tickets",
+    "usernotifications",
     "notifications",
     "withdrawal_requests",
     "recharge_requests",
@@ -521,6 +522,95 @@ const setupDB = async (connection) => {
     );
   }
   log("Seeded sample notifications.", "success");
+
+  // 5.6 Tickets
+  const tickets = [
+    {
+      category: "Support",
+      subject: "Issue with withdrawal",
+      description: "I requested a withdrawal 2 days ago but haven't received it yet.",
+      priority: "HIGH",
+      status: "OPEN"
+    },
+    {
+       category: "General",
+       subject: "How to refer friends?",
+       description: "Where can I find my referral link?",
+       priority: "LOW",
+       status: "COMPLETED"
+    }
+  ];
+
+  for(const ticket of tickets) {
+      await connection.execute(
+          `INSERT INTO tickets (user_id, category, subject, description, priority, status)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+           [adminUserId, ticket.category, ticket.subject, ticket.description, ticket.priority, ticket.status]
+      );
+  }
+  log("Seeded sample tickets.", "success");
+
+  // 5.7 User Notifications
+  const userNotifications = [
+      {
+          type: "SYSTEM",
+          title: "Welcome to the platform!",
+          is_read: false
+      },
+      {
+          type: "TRANSACTION",
+          title: "Wallet credited with 500.00",
+          is_read: true
+      }
+  ];
+
+  for(const notif of userNotifications) {
+      await connection.execute(
+          `INSERT INTO usernotifications (user_id, type, title, is_read)
+           VALUES (?, ?, ?, ?)`,
+           [adminUserId, notif.type, notif.title, notif.is_read]
+      );
+  }
+  log("Seeded sample user notifications.", "success");
+  
+  // 5.8 Sample Orders
+  const sampleOrder = {
+      order_number: "ORD-" + Date.now(),
+      total_amount: 1098.00,
+      status: "DELIVERED",
+      payment_status: "PAID",
+      shipping_address: "123 Admin St, Chennai, TN, 600001"
+  };
+  
+  const [orderResult] = await connection.execute(
+      `INSERT INTO orders (user_id, order_number, total_amount, status, payment_status, shipping_address)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+       [adminUserId, sampleOrder.order_number, sampleOrder.total_amount, sampleOrder.status, sampleOrder.payment_status, sampleOrder.shipping_address]
+  );
+  const orderId = orderResult.insertId;
+
+  // Order Items
+  // Using Mock Product 1 (Smartphone X1) and Mock Product 2 (Wireless Earbuds)
+  // Assuming IDs 1 and 2 exist from previous seed
+  await connection.execute(
+      `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
+      [orderId, 1, 1, 899.00]
+  );
+  await connection.execute(
+      `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
+      [orderId, 2, 1, 199.00]
+  );
+  
+  await connection.execute(
+      `INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)`,
+      [orderId, "Order Placed", "Your order has been placed successfully."]
+  );
+  await connection.execute(
+      `INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)`,
+      [orderId, "Delivered", "Your order has been delivered."]
+  );
+
+  log("Seeded sample orders and tracking.", "success");
 
   log("Database setup and seeding completed successfully!", "success");
 };
