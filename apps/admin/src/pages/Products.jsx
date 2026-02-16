@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 
 const ProductDrawer = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
@@ -151,134 +149,128 @@ export default function Products() {
     ];
 
     return (
-        <div className="flex min-h-screen bg-[#f8fafc] font-display">
-            <Sidebar />
+        <div className="p-4 md:p-8 lg:p-12 space-y-10 relative">
+            {/* Header Controls */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                        <span>Home</span>
+                        <span className="material-symbols-outlined text-xs">chevron_right</span>
+                        <span className="text-primary font-black">Product Management</span>
+                    </div>
+                    <h2 className="text-2xl font-black text-[#172b4d] tracking-tight">Enterprise Product Catalog</h2>
+                    <p className="text-sm text-slate-500 font-medium">Create, manage, and distribute products across your global MLM platform.</p>
+                </div>
 
-            <main className="flex-1 flex flex-col min-w-0">
-                <Header />
+                <button
+                    onClick={() => setDrawerOpen(true)}
+                    className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none"
+                >
+                    <span className="material-symbols-outlined font-bold group-hover:rotate-90 transition-transform">add</span>
+                    <span>Add New Product</span>
+                </button>
+            </div>
 
-                <div className="p-8 lg:p-12 space-y-10 overflow-y-auto relative">
-                    {/* Header Controls */}
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                                <span>Home</span>
-                                <span className="material-symbols-outlined text-sm">chevron_right</span>
-                                <span className="text-primary font-black">Product Management</span>
-                            </div>
-                            <h2 className="text-4xl font-black text-[#172b4d] tracking-tight">Enterprise Product Catalog</h2>
-                            <p className="text-lg text-slate-500 font-medium">Create, manage, and distribute products across your global MLM platform.</p>
+            {/* Stats Card */}
+            <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center justify-between group overflow-hidden relative">
+                <div className="relative z-10 flex flex-col justify-center">
+                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Total Active Products</h5>
+                    <div className="flex items-center gap-4">
+                        <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">1,240</div>
+                        <div className="flex items-center gap-1 text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded-lg border border-green-100 h-fit mt-1">
+                            <span className="material-symbols-outlined text-xs font-black">trending_up</span>
+                            <span>+3.5%</span>
                         </div>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-bold mt-3 leading-none tracking-wide">Syncing with global fulfillment centers...</p>
+                </div>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-64 h-64 text-slate-50 opacity-10 rotate-12 group-hover:rotate-0 transition-all duration-700 pointer-events-none">
+                    <span className="material-symbols-outlined text-[150px] md:text-[200px] leading-none select-none">inventory</span>
+                </div>
+            </div>
 
-                        <button
-                            onClick={() => setDrawerOpen(true)}
-                            className="flex items-center gap-2 px-6 py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none"
-                        >
-                            <span className="material-symbols-outlined font-bold group-hover:rotate-90 transition-transform">add</span>
-                            <span>Add New Product</span>
+            {/* Table View */}
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+                <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="relative w-full lg:w-96 group">
+                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-lg group-focus-within:text-primary transition-colors">search</span>
+                        <input
+                            type="text"
+                            placeholder="Search by name, SKU, or category..."
+                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-between lg:justify-end gap-4">
+                        <button className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                            <span className="material-symbols-outlined font-bold">tune</span>
                         </button>
-                    </div>
-
-                    {/* Stats Card */}
-                    <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center justify-between group overflow-hidden relative">
-                        <div className="relative z-10 flex flex-col justify-center">
-                            <h5 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Total Active Products</h5>
-                            <div className="flex items-center gap-4">
-                                <div className="text-5xl font-black text-[#172b4d] tracking-tighter leading-tight">1,240</div>
-                                <div className="flex items-center gap-1 text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded-lg border border-green-100 h-fit mt-2">
-                                    <span className="material-symbols-outlined text-sm font-black">trending_up</span>
-                                    <span>+3.5%</span>
-                                </div>
-                            </div>
-                            <p className="text-xs text-slate-400 font-bold mt-3 leading-none tracking-wide">Syncing with global fulfillment centers...</p>
-                        </div>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-64 h-64 text-slate-50 opacity-10 rotate-12 group-hover:rotate-0 transition-all duration-700 pointer-events-none">
-                            <span className="material-symbols-outlined text-[200px] leading-none select-none">inventory</span>
-                        </div>
-                    </div>
-
-                    {/* Table View */}
-                    <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-                        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-                            <div className="relative w-96 group">
-                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-lg group-focus-within:text-primary transition-colors">search</span>
-                                <input
-                                    type="text"
-                                    placeholder="Search by name, SKU, or category..."
-                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-4">
-                                <button className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
-                                    <span className="material-symbols-outlined font-bold">tune</span>
-                                </button>
-                                <div className="w-px h-8 bg-slate-100 mx-2"></div>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Showing 1 to 3 of 1,240 results</p>
-                            </div>
-                        </div>
-
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50/70 border-b border-slate-50">
-                                <tr>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRODUCT DETAILS</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRICING & PV</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">INVENTORY</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {products.map((prod, i) => (
-                                    <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-slate-200 overflow-hidden shadow-sm border border-slate-100 h-fit">
-                                                    <img src={prod.img} className="w-full h-full object-cover" alt="" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-sm font-black text-[#172b4d]">{prod.name}</h4>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 leading-none">SKU: {prod.sku}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-black text-[#172b4d]">{prod.price}</p>
-                                                <div className="flex items-center gap-1.5 text-primary text-[10px] font-black uppercase tracking-widest">
-                                                    <span className="material-symbols-outlined text-sm font-black">deployed_code</span>
-                                                    <span>{prod.pv}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm font-bold text-slate-600">{prod.stock}</span>
-                                                {prod.status === "Low Stock" && (
-                                                    <span className="material-symbols-outlined text-amber-500 text-lg font-black animate-pulse">report_problem</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${prod.status === "Active" ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                                                }`}>
-                                                {prod.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-3 text-slate-400">
-                                                <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px] font-bold">edit</span></button>
-                                                <button className="hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px] font-bold">delete</span></button>
-                                                <button className="hover:text-slate-600 transition-colors"><span className="material-symbols-outlined text-[20px] font-bold">more_vert</span></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="hidden md:block w-px h-8 bg-slate-100 mx-2"></div>
+                        <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">Showing 1 to 3 of 1,240 results</p>
                     </div>
                 </div>
-            </main>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead className="bg-slate-50/70 border-b border-slate-50">
+                            <tr>
+                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRODUCT DETAILS</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRICING & PV</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">INVENTORY</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {products.map((prod, i) => (
+                                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-slate-200 overflow-hidden shadow-sm border border-slate-100 shrink-0">
+                                                <img src={prod.img} className="w-full h-full object-cover" alt="" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-black text-[#172b4d]">{prod.name}</h4>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 leading-none">SKU: {prod.sku}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-black text-[#172b4d]">{prod.price}</p>
+                                            <div className="flex items-center gap-1.5 text-primary text-[10px] font-black uppercase tracking-widest">
+                                                <span className="material-symbols-outlined text-sm font-black">deployed_code</span>
+                                                <span>{prod.pv}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-bold text-slate-600">{prod.stock}</span>
+                                            {prod.status === "Low Stock" && (
+                                                <span className="material-symbols-outlined text-amber-500 text-lg font-black animate-pulse">report_problem</span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${prod.status === "Active" ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                                            }`}>
+                                            {prod.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
+                                        <div className="flex items-center justify-end gap-3 text-slate-400">
+                                            <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px] font-bold">edit</span></button>
+                                            <button className="hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px] font-bold">delete</span></button>
+                                            <button className="hover:text-slate-600 transition-colors"><span className="material-symbols-outlined text-[20px] font-bold">more_vert</span></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <ProductDrawer
                 isOpen={isDrawerOpen}
