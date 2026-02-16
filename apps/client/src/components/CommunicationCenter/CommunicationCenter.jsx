@@ -31,6 +31,7 @@ const CommunicationCenter = () => {
     const { data: userNotifications = [], isLoading: isUserNotificationsLoading } = useUserNotification();
 
     const activityNotifications = React.useMemo(() => {
+        if (!Array.isArray(userNotifications)) return [];
         let filtered = userNotifications;
 
         if (activeTab === "Unread") {
@@ -41,7 +42,7 @@ const CommunicationCenter = () => {
                 n.type?.toLowerCase() === 'commission'
             );
         }
-        
+
         return filtered.map(notif => {
             // Helper to get icon and colors based on type
             const getTypeStyles = (type) => {
