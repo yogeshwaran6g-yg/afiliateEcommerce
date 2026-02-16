@@ -12,48 +12,48 @@ export const createUser = async (userData) => {
     try {
         const { phone, referredBy } = userData;
         const userRefID = generateReferralId();
-        
+
         return await transactionRunner(async (connection) => {
             log(`Creating initial user for phone: ${phone} (Referred by: ${referredBy}) with referral ID: ${userRefID}`, "info");
-    
+
             const [result] = await connection.execute(
                 'INSERT INTO users (name, phone, referral_id, account_activation_status, referred_by) VALUES (?, ?, ?, ?, ?)',
                 [`User_${phone}`, phone, userRefID, 'NOT_STARTED', referredBy || null]
             );
-    
+
             const newUserId = result.insertId;
-    
+
             return { id: newUserId, phone, referral_id: userRefID };
         });
     } catch (error) {
-        console.log("err from create user",error)
+        console.log("err from create user", error)
         throw error
     }
 };
 
 export const getUserReviewPendingRechareRequestCount = async (id) => {
     try {
-        
-        
+
+
         const rows = await queryRunner(
             `SELECT COUNT(*) as count FROM recharge_requests WHERE user_id = ?
              AND status = "REVIEW_PENDING"`,
             [id]
         );
-        
+
         return rows[0].count;
-        
+
     } catch (error) {
-        console.log("err from count pending req user",error)
+        console.log("err from count pending req user", error)
         throw error
     }
 };
 
 export const updateRegistrationDetails = async (userId, details, connection = null) => {
     const { name, email, password, referralId, selectedProductId } = details;
-    
+
     const runner = connection || queryRunner;
-    
+
     let hashedPassword = null;
     if (password) {
         const salt = await bcrypt.genSalt(10);
@@ -62,7 +62,7 @@ export const updateRegistrationDetails = async (userId, details, connection = nu
 
     // If referralId is provided, we might need to verify it or store it if not already stored.
     // The requirement says "insert into ref tree" happens later.
-    
+
     const sql = `
         UPDATE users SET 
             name = COALESCE(?, name), 
@@ -72,7 +72,7 @@ export const updateRegistrationDetails = async (userId, details, connection = nu
             account_activation_status = 'UNDER_REVIEW'
         WHERE id = ?
     `;
-    
+
     await runner(sql, [name, email, hashedPassword, selectedProductId, userId]);
 };
 
@@ -85,11 +85,11 @@ export const activateUser = async (userId, paymentId = null) => {
             'SELECT id, referred_by FROM users WHERE id = ?',
             [userId]
         );
-        
+
         if (!userRows || userRows.length === 0) {
             throw new Error("User not found");
         }
-        
+
         const user = userRows[0];
 
         // 2. Update user status and payment status together
@@ -127,7 +127,7 @@ export const activateUser = async (userId, paymentId = null) => {
 
             if (productRows && productRows.length > 0) {
                 const amount = productRows[0].sale_price;
-                
+
                 // 4a. Create an order record to satisfy FK constraints
                 const [orderResult] = await connection.execute(
                     'INSERT INTO orders (user_id, amount, status) VALUES (?, ?, ?)',
@@ -139,7 +139,7 @@ export const activateUser = async (userId, paymentId = null) => {
                 await distributeCommission(orderId, userId, amount, connection);
             }
         }
-        
+
         return { success: true };
     });
 };
@@ -207,3 +207,16 @@ export const existinguserFieldsCheck = async ({ name = null, phone = null }) => 
     }
 }
 
+
+export const getUserNotifications = async (userId, limit = 10) => {
+    try {
+        const rows = await queryRunner(
+            `SELECT * FROM user_notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`,
+            [userId, limit]
+        );
+        return rows;
+    } catch (error) {
+        log(`Error fetching notifications for user ${userId}: ${error.message}`, "error");
+        throw error;
+    }
+};

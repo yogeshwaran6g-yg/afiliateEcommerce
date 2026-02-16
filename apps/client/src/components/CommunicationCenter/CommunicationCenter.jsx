@@ -3,11 +3,12 @@ import ActivityFeed from "./ActivityFeed";
 import Announcements from "./Announcements";
 import SupportBanner from "./SupportBanner";
 import { useNotifications } from "../../hooks/useNotificationService";
-import { useUserNotification, useMarkAsReadMutation } from "../../hooks/useUserNotification";
+import { useUserNotification, useMarkAsReadMutation, useDeleteNotificationMutation } from "../../hooks/useUserNotification";
 
 const CommunicationCenter = () => {
     const [activeTab, setActiveTab] = useState("All");
     const [selectedAnnouncementId, setSelectedAnnouncementId] = useState(null);
+    const [selectedNotificationId, setSelectedNotificationId] = useState(null);
 
     const { data: notificationsData, isLoading, isError } = useNotifications({ activeOnly: true });
 
@@ -20,13 +21,6 @@ const CommunicationCenter = () => {
             return new Date(notif.advertisement_end_time) > now;
         });
     }, [notificationsData]);
-
-    // Set initial selection when data arrives
-    React.useEffect(() => {
-        if (announcements.length > 0 && !selectedAnnouncementId) {
-            setSelectedAnnouncementId(announcements[0].id);
-        }
-    }, [announcements, selectedAnnouncementId]);
 
     const { data: userNotifications = [], isLoading: isUserNotificationsLoading } = useUserNotification();
 
@@ -74,43 +68,88 @@ const CommunicationCenter = () => {
                 iconBg: styles.bg,
                 iconColor: styles.color,
                 title: notif.title,
-                description: notif.description || notif.title, // Fallback to title if no description
+                description: notif.description || "",
                 time: new Date(notif.created_at).toLocaleString(),
                 unread: !notif.is_read
             };
         });
     }, [userNotifications, activeTab]);
 
+    // Set initial selection when data arrives
+    React.useEffect(() => {
+        if (activeTab === "Announcements") {
+            if (announcements.length > 0 && !selectedAnnouncementId) {
+                setSelectedAnnouncementId(announcements[0].id);
+            }
+        } else {
+            if (activityNotifications.length > 0 && !selectedNotificationId) {
+                setSelectedNotificationId(activityNotifications[0].id);
+            }
+        }
+    }, [announcements, activityNotifications, activeTab, selectedAnnouncementId, selectedNotificationId]);
+
     const markAsReadMutation = useMarkAsReadMutation();
+    const deleteNotificationMutation = useDeleteNotificationMutation();
 
     const handleNotificationClick = (notification) => {
+        setSelectedNotificationId(notification.id);
         if (!notification.is_read) {
             markAsReadMutation.mutate(notification.id);
         }
+
+        // Scroll to detail on mobile
+        if (window.innerWidth < 768) {
+            document.getElementById('announcement-detail')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    const handleAnnouncementClick = (announcementId) => {
+        setSelectedAnnouncementId(announcementId);
+
+        // Scroll to detail on mobile
+        if (window.innerWidth < 768) {
+            document.getElementById('announcement-detail')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    const handleDeleteNotification = (notificationId) => {
+        if (selectedNotificationId === notificationId) {
+            setSelectedNotificationId(null);
+        }
+        deleteNotificationMutation.mutate(notificationId);
     };
 
     return (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-slate-50">
             <ActivityFeed
                 notifications={activityNotifications}
                 announcements={announcements}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 selectedAnnouncementId={selectedAnnouncementId}
-                setSelectedAnnouncementId={setSelectedAnnouncementId}
+                setSelectedAnnouncementId={handleAnnouncementClick}
+                selectedNotificationId={selectedNotificationId}
+                setSelectedNotificationId={(id) => {
+                    setSelectedNotificationId(id);
+                    if (window.innerWidth < 768) {
+                        document.getElementById('announcement-detail')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }}
                 onNotificationClick={handleNotificationClick}
+                onDeleteNotification={handleDeleteNotification}
                 isLoading={isUserNotificationsLoading}
                 isAnnouncementsLoading={isLoading}
             />
 
-            <section className="flex-1 bg-slate-50 overflow-y-auto">
+            <section className="flex-1 bg-slate-50 overflow-y-auto min-h-screen md:min-h-0 border-t md:border-t-0 border-slate-200">
                 <Announcements
-                    notifications={announcements}
-                    selectedAnnouncementId={selectedAnnouncementId}
-                    isLoading={isLoading}
-                    isError={isError}
+                    notifications={activeTab === "Announcements" ? announcements : activityNotifications}
+                    selectedAnnouncementId={activeTab === "Announcements" ? selectedAnnouncementId : selectedNotificationId}
+                    isLoading={activeTab === "Announcements" ? isLoading : isUserNotificationsLoading}
+                    isError={activeTab === "Announcements" ? isError : false}
+                    activeTab={activeTab}
                 />
-                <div className="max-w-4xl mx-auto px-8 pb-8">
+                <div className="max-w-4xl mx-auto px-4 md:px-8 pb-8">
                     <SupportBanner />
                 </div>
             </section>

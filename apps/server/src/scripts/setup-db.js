@@ -555,20 +555,22 @@ const setupDB = async (connection) => {
     {
       type: "SYSTEM",
       title: "Welcome to the platform!",
+      description: "We are excited to have you on board. Start exploring our features now.",
       is_read: false
     },
     {
       type: "TRANSACTION",
       title: "Wallet credited with 500.00",
+      description: "Your wallet has been successfully credited with 500.00 following your recent activity.",
       is_read: true
     }
   ];
 
   for (const notif of userNotifications) {
     await connection.execute(
-      `INSERT INTO user_notifications (user_id, type, title, is_read)
-           VALUES (?, ?, ?, ?)`,
-      [adminUserId, notif.type, notif.title, notif.is_read]
+      `INSERT INTO user_notifications (user_id, type, title, description, is_read)
+           VALUES (?, ?, ?, ?, ?)`,
+      [adminUserId, notif.type, notif.title, notif.description, notif.is_read]
     );
   }
   log("Seeded sample user notifications.", "success");
