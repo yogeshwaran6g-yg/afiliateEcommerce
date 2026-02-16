@@ -66,7 +66,10 @@ export default function WalletStats({ wallet, transactions = [] }) {
                 </div>
                 <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-black text-slate-900 dark:text-white">
-                        {formatCurrency(wallet?.commissions)}
+                        {
+                            (formatCurrency(wallet?.commissions)) ||
+                        <span className='text-red-600 bg-red-600/10 p-1  rounded-lg'>!fetch error</span>
+                        }
                     </span>
                     <span className={`text-xs font-bold ${growth.trend === 'up' ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'} px-1.5 py-0.5 rounded`}>
                         {growth.trend === 'up' ? '+' : '-'}{growth.percent}%
@@ -86,10 +89,13 @@ export default function WalletStats({ wallet, transactions = [] }) {
                 </div>
                 <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-black text-slate-900 dark:text-white">
-                        {formatCurrency(wallet?.on_hold)}
+                        {
+                        formatCurrency(wallet?.on_hold)  ||                        
+                        <span className='text-red-600 bg-red-600/10 p-1  rounded-lg'>!fetch error</span>
+                        }
                     </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-2">Available in approx. 14 days</p>
+                <p className="text-xs text-slate-400 mt-2">Pending verification for payout <br/> or anyother else</p>
             </div>
 
             {/* Withdrawable Card */}
@@ -103,7 +109,11 @@ export default function WalletStats({ wallet, transactions = [] }) {
                 </div>
                 <div className="flex items-baseline gap-2 relative z-10">
                     <span className="text-3xl font-black text-white">
-                        {formatCurrency(wallet?.withdrawable)}
+                        {
+                        formatCurrency(wallet?.withdrawable) ||
+                        <span className='text-red-600 bg-red-600/10 p-1  rounded-lg'>!fetch error</span>
+                        
+                        }
                     </span>
                 </div>
                 <p className="text-xs text-white/60 mt-2 relative z-10">Instant payout available</p>

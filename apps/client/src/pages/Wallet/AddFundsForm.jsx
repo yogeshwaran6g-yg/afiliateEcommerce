@@ -7,11 +7,8 @@ export default function AddFundsForm() {
     const rechargeMutation = useRechargeMutation();
     const [formData, setFormData] = useState({
         amount: '',
-        name: '',
-        mobile: '',
-        email: '',
-        countryCode: '+91',
         paymentMethod: '',
+        paymentReference: '',
         payslip: null
     });
 
@@ -42,10 +39,8 @@ export default function AddFundsForm() {
     const validateForm = () => {
         const newErrors = {};
         if (!formData.amount || parseFloat(formData.amount) <= 0) newErrors.amount = 'Valid amount is required';
-        if (!formData.name) newErrors.name = 'Full name is required';
-        if (!formData.email) newErrors.email = 'Email is required';
-        if (!formData.mobile) newErrors.mobile = 'Mobile number is required';
         if (!formData.paymentMethod) newErrors.paymentMethod = 'Please select a payment method';
+        if (!formData.paymentReference) newErrors.paymentReference = 'Transaction ID is required';
         if (!formData.payslip) newErrors.payslip = 'Please upload a payment proof (payslip)';
         
         setErrors(newErrors);
@@ -58,10 +53,8 @@ export default function AddFundsForm() {
 
         const data = new FormData();
         data.append('amount', formData.amount);
-        data.append('name', formData.name);
-        data.append('email', formData.email);
-        data.append('mobile', `${formData.countryCode}${formData.mobile}`);
         data.append('paymentMethod', formData.paymentMethod);
+        data.append('paymentReference', formData.paymentReference);
         data.append('proof', formData.payslip);
 
         try {
@@ -103,64 +96,7 @@ export default function AddFundsForm() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Name */}
-                    <div className="space-y-1.5">
-                        <InputLabel label="Full Name" required />
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            placeholder="John Doe"
-                            className={`w-full px-4 py-2 bg-slate-50 border ${errors.name ? 'border-red-300' : 'border-slate-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium`}
-                            onChange={handleInputChange}
-                        />
-                        {errors.name && <p className="text-xs text-red-500 font-medium mt-1">{errors.name}</p>}
-                    </div>
-
-                    {/* Email */}
-                    <div className="space-y-1.5">
-                        <InputLabel label="Email Address" required />
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            placeholder="john@example.com"
-                            className={`w-full px-4 py-2 bg-slate-50 border ${errors.email ? 'border-red-300' : 'border-slate-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium`}
-                            onChange={handleInputChange}
-                        />
-                        {errors.email && <p className="text-xs text-red-500 font-medium mt-1">{errors.email}</p>}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Country Code & Mobile */}
-                    <div className="space-y-1.5">
-                        <InputLabel label="Mobile Number" required />
-                        <div className="flex shadow-sm">
-                            <select
-                                name="countryCode"
-                                value={formData.countryCode}
-                                className="px-2 py-2 bg-slate-100 border border-slate-200 rounded-l-lg focus:outline-none border-r-0 text-xs font-bold text-slate-600"
-                                onChange={handleInputChange}
-                            >
-                                <option value="+91">+91 (IN)</option>
-                                <option value="+1">+1 (US)</option>
-                                <option value="+44">+44 (UK)</option>
-                                <option value="+971">+971 (UAE)</option>
-                            </select>
-                            <input
-                                type="tel"
-                                name="mobile"
-                                value={formData.mobile}
-                                placeholder="9876543210"
-                                className={`w-full px-4 py-2 bg-slate-50 border ${errors.mobile ? 'border-red-300' : 'border-slate-200'} rounded-r-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium`}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        {errors.mobile && <p className="text-xs text-red-500 font-medium mt-1">{errors.mobile}</p>}
-                    </div>
-
-                    {/* Payment Method Dropdown */}
+                     {/* Payment Method Dropdown */}
                     <div className="space-y-1.5">
                         <InputLabel label="Payment Method" required />
                         <select
@@ -175,6 +111,20 @@ export default function AddFundsForm() {
                             <option value="bank_transfer">Bank Transfer</option>
                         </select>
                         {errors.paymentMethod && <p className="text-xs text-red-500 font-medium mt-1">{errors.paymentMethod}</p>}
+                    </div>
+
+                    {/* Transaction ID */}
+                    <div className="space-y-1.5">
+                        <InputLabel label="Transaction ID" required />
+                        <input
+                            type="text"
+                            name="paymentReference"
+                            value={formData.paymentReference}
+                            placeholder="e.g. UPI12345678"
+                            className={`w-full px-4 py-2 bg-slate-50 border ${errors.paymentReference ? 'border-red-300' : 'border-slate-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium`}
+                            onChange={handleInputChange}
+                        />
+                        {errors.paymentReference && <p className="text-xs text-red-500 font-medium mt-1">{errors.paymentReference}</p>}
                     </div>
                 </div>
 
@@ -248,12 +198,19 @@ export default function AddFundsForm() {
                                     </div>
                                 ) : (
                                     <>
-                                        <label className="relative cursor-pointer bg-transparent rounded-md font-bold text-primary hover:text-primary/80 flex flex-col items-center">
+                                        <label htmlFor="payslip-upload" className="relative cursor-pointer bg-transparent rounded-md font-bold text-primary hover:text-primary/80 flex flex-col items-center">
                                             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform">
                                                 <span className="material-symbols-outlined text-slate-400 text-3xl">cloud_upload</span>
                                             </div>
                                             <span className="text-sm">Click to upload screenshot</span>
-                                            <input type="file" name="payslip" className="sr-only" onChange={handleFileChange} accept="image/*" />
+                                            <input 
+                                                id="payslip-upload"
+                                                type="file" 
+                                                name="payslip" 
+                                                className="sr-only" 
+                                                onChange={handleFileChange} 
+                                                accept="image/*" 
+                                            />
                                         </label>
                                         <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider">PNG, JPG up to 10MB</p>
                                     </>

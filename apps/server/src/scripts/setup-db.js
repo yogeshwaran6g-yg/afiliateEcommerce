@@ -361,6 +361,7 @@ const setupDB = async (connection) => {
       description: "Initial wallet setup - admin credit",
       reference_table: null,
       reference_id: null,
+      created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
     },
     // Sample commission credit
     {
@@ -372,6 +373,7 @@ const setupDB = async (connection) => {
       description: "Level 1 referral commission",
       reference_table: "referral_commission_distribution",
       reference_id: null, // Would be real ID in production
+      created_at: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000), // 28 days ago
     },
     // Sample withdrawal debit
     {
@@ -383,6 +385,7 @@ const setupDB = async (connection) => {
       description: "Withdrawal to bank account",
       reference_table: "withdrawal_requests",
       reference_id: withdrawalResult.insertId,
+      created_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), // 25 days ago
     },
     // Sample recharge credit
     {
@@ -394,15 +397,86 @@ const setupDB = async (connection) => {
       description: "Wallet recharge via UPI",
       reference_table: "recharge_requests",
       reference_id: rechargeResult.insertId,
+      created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
     },
   ];
 
+  // Generate 25 more random transactions
+  let currentBalance = 50000.0;
+  const transactionTypes = [
+    "REFERRAL_COMMISSION",
+    "WITHDRAWAL_REQUEST",
+    "RECHARGE_REQUEST",
+    "ADMIN_ADJUSTMENT",
+  ];
+
+  for (let i = 0; i < 25; i++) {
+    const isCredit = Math.random() > 0.4; // 60% chance of credit
+    const amount = Math.floor(Math.random() * 5000) + 100; // Random amount between 100 and 5100
+    const daysAgo = Math.floor(Math.random() * 20); // Random date within last 20 days
+
+    let entryType, transactionType, balanceBefore, balanceAfter, description;
+
+    if (isCredit) {
+      entryType = "CREDIT";
+      transactionType =
+        Math.random() > 0.5 ? "REFERRAL_COMMISSION" : "RECHARGE_REQUEST";
+      if (Math.random() > 0.9) transactionType = "ADMIN_ADJUSTMENT"; // Rare
+      
+      balanceBefore = currentBalance;
+      currentBalance += amount;
+      balanceAfter = currentBalance;
+      description = `Random credit transaction #${i + 1}`;
+    } else {
+      entryType = "DEBIT";
+      transactionType = "WITHDRAWAL_REQUEST"; 
+      if (Math.random() > 0.9) transactionType = "ADMIN_ADJUSTMENT"; // Rare reversal/adjustment
+
+      // Ensure we don't go below 0
+      if (currentBalance < amount) {
+          // If we can't debit, just skip this iteration or make it a credit
+          currentBalance += amount;
+          entryType = "CREDIT";
+          transactionType = "ADMIN_ADJUSTMENT";
+          balanceBefore = currentBalance - amount;
+          balanceAfter = currentBalance;
+          description = `Correction credit transaction #${i + 1}`;
+      } else {
+          balanceBefore = currentBalance;
+          currentBalance -= amount;
+          balanceAfter = currentBalance;
+          description = `Random debit transaction #${i + 1}`;
+      }
+    }
+
+    walletTransactions.push({
+      entry_type: entryType,
+      transaction_type: transactionType,
+      amount: amount,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description: description,
+      reference_table: null,
+      reference_id: null,
+      created_at: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+    });
+  }
+  
+  // Update wallet balance to match final transaction
+  await connection.execute(
+    "UPDATE wallets SET balance = ? WHERE id = ?",
+    [currentBalance, adminWalletId]
+  );
+  log(`Updated admin wallet balance to ${currentBalance}`, "info");
+
+
   for (const txn of walletTransactions) {
+    const createdAt = txn.created_at ? txn.created_at.toISOString().slice(0, 19).replace('T', ' ') : new Date().toISOString().slice(0, 19).replace('T', ' ');
     await connection.execute(
       `INSERT INTO wallet_transactions (
         wallet_id, entry_type, transaction_type, amount, balance_before, balance_after,
-        reference_table, reference_id, description, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reference_table, reference_id, description, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         adminWalletId,
         txn.entry_type,
@@ -414,6 +488,7 @@ const setupDB = async (connection) => {
         txn.reference_id,
         txn.description,
         "SUCCESS",
+        createdAt
       ],
     );
   }

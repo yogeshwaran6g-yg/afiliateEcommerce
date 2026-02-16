@@ -22,13 +22,13 @@ export default function WalletHeader({ onWithdrawClick }) {
                     <span className="material-symbols-outlined text-lg">add_circle</span>
                     Add Funds
                 </Link>
-                <button 
+                {/* <button 
                     onClick={onWithdrawClick}
                     className="flex items-center gap-2 px-6 py-2 bg-[#1754cf] text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
                 >
                     <span className="material-symbols-outlined text-lg">payments</span>
                     Withdraw Funds
-                </button>
+                </button> */}
             </div>
         </div>
     );
