@@ -8,8 +8,11 @@ const ActivityFeed = ({
     selectedAnnouncementId,
     setSelectedAnnouncementId,
     onNotificationClick,
-    isLoading
+    isLoading,
+    isAnnouncementsLoading
 }) => {
+    const isNowLoading = activeTab === "Announcements" ? isAnnouncementsLoading : isLoading;
+
     return (
         <section className="w-full lg:w-5/12 border-r border-slate-200 bg-white flex flex-col">
             <div className="p-6 border-b border-slate-200">
@@ -38,7 +41,7 @@ const ActivityFeed = ({
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                {isLoading ? (
+                {isNowLoading ? (
                     <div className="flex flex-col items-center justify-center h-40 space-y-2">
                         <div className="size-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-sm text-slate-500 font-medium">Loading notifications...</p>

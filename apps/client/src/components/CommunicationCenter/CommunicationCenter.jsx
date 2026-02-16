@@ -79,7 +79,7 @@ const CommunicationCenter = () => {
                 unread: !notif.is_read
             };
         });
-    }, [userNotifications]);
+    }, [userNotifications, activeTab]);
 
     const markAsReadMutation = useMarkAsReadMutation();
 
@@ -100,6 +100,7 @@ const CommunicationCenter = () => {
                 setSelectedAnnouncementId={setSelectedAnnouncementId}
                 onNotificationClick={handleNotificationClick}
                 isLoading={isUserNotificationsLoading}
+                isAnnouncementsLoading={isLoading}
             />
 
             <section className="flex-1 bg-slate-50 overflow-y-auto">

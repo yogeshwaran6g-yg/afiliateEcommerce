@@ -425,30 +425,30 @@ const setupDB = async (connection) => {
       transactionType =
         Math.random() > 0.5 ? "REFERRAL_COMMISSION" : "RECHARGE_REQUEST";
       if (Math.random() > 0.9) transactionType = "ADMIN_ADJUSTMENT"; // Rare
-      
+
       balanceBefore = currentBalance;
       currentBalance += amount;
       balanceAfter = currentBalance;
       description = `Random credit transaction #${i + 1}`;
     } else {
       entryType = "DEBIT";
-      transactionType = "WITHDRAWAL_REQUEST"; 
+      transactionType = "WITHDRAWAL_REQUEST";
       if (Math.random() > 0.9) transactionType = "ADMIN_ADJUSTMENT"; // Rare reversal/adjustment
 
       // Ensure we don't go below 0
       if (currentBalance < amount) {
-          // If we can't debit, just skip this iteration or make it a credit
-          currentBalance += amount;
-          entryType = "CREDIT";
-          transactionType = "ADMIN_ADJUSTMENT";
-          balanceBefore = currentBalance - amount;
-          balanceAfter = currentBalance;
-          description = `Correction credit transaction #${i + 1}`;
+        // If we can't debit, just skip this iteration or make it a credit
+        currentBalance += amount;
+        entryType = "CREDIT";
+        transactionType = "ADMIN_ADJUSTMENT";
+        balanceBefore = currentBalance - amount;
+        balanceAfter = currentBalance;
+        description = `Correction credit transaction #${i + 1}`;
       } else {
-          balanceBefore = currentBalance;
-          currentBalance -= amount;
-          balanceAfter = currentBalance;
-          description = `Random debit transaction #${i + 1}`;
+        balanceBefore = currentBalance;
+        currentBalance -= amount;
+        balanceAfter = currentBalance;
+        description = `Random debit transaction #${i + 1}`;
       }
     }
 
@@ -464,7 +464,7 @@ const setupDB = async (connection) => {
       created_at: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
     });
   }
-  
+
   // Update wallet balance to match final transaction
   await connection.execute(
     "UPDATE wallets SET balance = ? WHERE id = ?",
@@ -533,59 +533,59 @@ const setupDB = async (connection) => {
       status: "OPEN"
     },
     {
-       category: "General",
-       subject: "How to refer friends?",
-       description: "Where can I find my referral link?",
-       priority: "LOW",
-       status: "COMPLETED"
+      category: "General",
+      subject: "How to refer friends?",
+      description: "Where can I find my referral link?",
+      priority: "LOW",
+      status: "COMPLETED"
     }
   ];
 
-  for(const ticket of tickets) {
-      await connection.execute(
-          `INSERT INTO tickets (user_id, category, subject, description, priority, status)
+  for (const ticket of tickets) {
+    await connection.execute(
+      `INSERT INTO tickets (user_id, category, subject, description, priority, status)
            VALUES (?, ?, ?, ?, ?, ?)`,
-           [adminUserId, ticket.category, ticket.subject, ticket.description, ticket.priority, ticket.status]
-      );
+      [adminUserId, ticket.category, ticket.subject, ticket.description, ticket.priority, ticket.status]
+    );
   }
   log("Seeded sample tickets.", "success");
 
   // 5.7 User Notifications
   const userNotifications = [
-      {
-          type: "SYSTEM",
-          title: "Welcome to the platform!",
-          is_read: false
-      },
-      {
-          type: "TRANSACTION",
-          title: "Wallet credited with 500.00",
-          is_read: true
-      }
+    {
+      type: "SYSTEM",
+      title: "Welcome to the platform!",
+      is_read: false
+    },
+    {
+      type: "TRANSACTION",
+      title: "Wallet credited with 500.00",
+      is_read: true
+    }
   ];
 
-  for(const notif of userNotifications) {
-      await connection.execute(
-          `INSERT INTO user_notifications (user_id, type, title, is_read)
+  for (const notif of userNotifications) {
+    await connection.execute(
+      `INSERT INTO user_notifications (user_id, type, title, is_read)
            VALUES (?, ?, ?, ?)`,
-           [adminUserId, notif.type, notif.title, notif.is_read]
-      );
+      [adminUserId, notif.type, notif.title, notif.is_read]
+    );
   }
   log("Seeded sample user notifications.", "success");
-  
+
   // 5.8 Sample Orders
   const sampleOrder = {
-      order_number: "ORD-" + Date.now(),
-      total_amount: 1098.00,
-      status: "DELIVERED",
-      payment_status: "PAID",
-      shipping_address: "123 Admin St, Chennai, TN, 600001"
+    order_number: "ORD-" + Date.now(),
+    total_amount: 1098.00,
+    status: "DELIVERED",
+    payment_status: "PAID",
+    shipping_address: "123 Admin St, Chennai, TN, 600001"
   };
-  
+
   const [orderResult] = await connection.execute(
-      `INSERT INTO orders (user_id, order_number, total_amount, status, payment_status, shipping_address)
+    `INSERT INTO orders (user_id, order_number, total_amount, status, payment_status, shipping_address)
        VALUES (?, ?, ?, ?, ?, ?)`,
-       [adminUserId, sampleOrder.order_number, sampleOrder.total_amount, sampleOrder.status, sampleOrder.payment_status, sampleOrder.shipping_address]
+    [adminUserId, sampleOrder.order_number, sampleOrder.total_amount, sampleOrder.status, sampleOrder.payment_status, sampleOrder.shipping_address]
   );
   const orderId = orderResult.insertId;
 
@@ -593,21 +593,21 @@ const setupDB = async (connection) => {
   // Using Mock Product 1 (Smartphone X1) and Mock Product 2 (Wireless Earbuds)
   // Assuming IDs 1 and 2 exist from previous seed
   await connection.execute(
-      `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
-      [orderId, 1, 1, 899.00]
+    `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
+    [orderId, 1, 1, 899.00]
   );
   await connection.execute(
-      `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
-      [orderId, 2, 1, 199.00]
+    `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
+    [orderId, 2, 1, 199.00]
   );
-  
+
   await connection.execute(
-      `INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)`,
-      [orderId, "Order Placed", "Your order has been placed successfully."]
+    `INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)`,
+    [orderId, "Order Placed", "Your order has been placed successfully."]
   );
   await connection.execute(
-      `INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)`,
-      [orderId, "Delivered", "Your order has been delivered."]
+    `INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)`,
+    [orderId, "Delivered", "Your order has been delivered."]
   );
 
   log("Seeded sample orders and tracking.", "success");

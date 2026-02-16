@@ -10,7 +10,7 @@ import productRoutes from './productRoutes.js';
 import profileRoutes from './profileRoutes.js';
 import cartRoutes from './cartRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
-import userNotifiactionRoutes from './userNotifiactionRoutes.js';
+import userNotificationRoutes from './userNotificationRoutes.js';
 import walletRoutes from './walletRoutes.js';
 import ticketRoutes from './ticketRoutes.js';
 
@@ -27,7 +27,7 @@ router.use('/products', productRoutes);
 router.use('/profile', profileRoutes);
 router.use('/cart', cartRoutes);
 router.use('/notifications', notificationRoutes);
-router.use('/user-notifications', userNotifiactionRoutes);
+router.use('/user-notifications', userNotificationRoutes);
 router.use('/wallet', walletRoutes);
 router.use('/tickets', ticketRoutes);
 
