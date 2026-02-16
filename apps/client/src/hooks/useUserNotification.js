@@ -9,7 +9,10 @@ export const useUserNotification = (params = {}) => {
         queryKey: [USER_NOTIFICATION_QUERY_KEY, params],
         queryFn: async () => {
             const response = await getNotifications(params);
-            return response?.data || [];
+            // Handle both { data: [...] } and direct [...] responses
+            if (Array.isArray(response)) return response;
+            if (Array.isArray(response?.data)) return response.data;
+            return [];
         },
     });
 };
