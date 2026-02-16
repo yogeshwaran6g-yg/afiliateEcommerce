@@ -6,6 +6,7 @@ export default function TransactionHistory({
   onFilterChange,
   page,
   onPageChange,
+  totalPages,
   limit,
 }) {
   const [localSearch, setLocalSearch] = useState(filters.searchTerm);
