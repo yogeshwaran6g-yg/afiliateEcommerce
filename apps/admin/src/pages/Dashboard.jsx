@@ -1,7 +1,5 @@
 import React from "react";
 import MetricCard from "../components/MetricCard";
-import SalesChart from "../components/SalesChart";
-import PayoutChart from "../components/PayoutChart";
 import TopAffiliates from "../components/TopAffiliates";
 import SystemAlerts from "../components/SystemAlerts";
 
@@ -48,12 +46,7 @@ export default function Dashboard() {
             <div className="flex flex-col xl:flex-row gap-8">
                 {/* Middle Content */}
                 <div className="flex-1 space-y-8 min-w-0">
-                    <SalesChart />
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <PayoutChart />
-                        <TopAffiliates />
-                    </div>
+                    <TopAffiliates />
                 </div>
 
                 {/* Right Sidebar - System Alerts */}
@@ -80,3 +73,4 @@ export default function Dashboard() {
         </div>
     );
 }
+
