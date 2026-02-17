@@ -7,6 +7,7 @@ import Payouts from "./pages/Payouts";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
 import WalletTransactions from "./pages/WalletTransactions";
+import Tickets from "./pages/Tickets";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/users" element={<Users />} />
         <Route path="/transactions" element={<WalletTransactions />} />
+        <Route path="/tickets" element={<Tickets />} />
         {/* Add more admin routes here */}
       </Routes>
     </BrowserRouter>

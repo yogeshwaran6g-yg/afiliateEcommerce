@@ -22,4 +22,8 @@ router.post('/reject-recharge', adminController.rejectRecharge);
 // Wallet transactions
 router.get('/wallet-transactions', adminController.getWalletTransactions);
 
+// Support Tickets
+router.get('/tickets', adminController.getTickets);
+router.post('/tickets/update-status', adminController.updateTicketStatus);
+
 export default router;
