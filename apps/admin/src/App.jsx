@@ -8,6 +8,8 @@ import Products from "./pages/Products";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
 import Transactions from "./pages/Transactions";
+import Recharges from "./pages/Recharges";
+import Withdrawals from "./pages/Withdrawals";
 import Login from "./pages/Login";
 
 import Layout from "./components/Layout";
@@ -28,6 +30,8 @@ function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/products" element={<Products />} />
           <Route path="/announcements" element={<Announcements />} />
+          <Route path="/recharges" element={<Recharges />} />
+          <Route path="/withdrawals" element={<Withdrawals />} />
 
           <Route path="/users" element={<Users />} />
         </Route>

@@ -12,10 +12,12 @@ router.post('/approve-payment', adminController.approvePayment);
 router.post('/reject-payment', adminController.rejectPayment);
 
 // Withdrawal approvals
+router.get('/withdrawals', adminController.getWithdrawals);
 router.post('/approve-withdrawal', adminController.approveWithdrawal);
 router.post('/reject-withdrawal', adminController.rejectWithdrawal);
 
 // Recharge approvals
+router.get('/recharges', adminController.getRecharges);
 router.post('/approve-recharge', adminController.approveRecharge);
 router.post('/reject-recharge', adminController.rejectRecharge);
 

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
+    const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') ? 'Transactions' : null);
 
     const sections = [
         {
@@ -19,7 +20,15 @@ export default function Sidebar({ isOpen, onClose }) {
             title: "FINANCE",
             items: [
                 { icon: "payments", label: "Commissions", path: "/payouts" },
-                { icon: "receipt_long", label: "Transactions", path: "/transactions" },
+                {
+                    icon: "swap_horiz",
+                    label: "Transactions",
+                    subItems: [
+                        { label: "Record History", path: "/transactions" },
+                        { label: "Recharges", path: "/recharges" },
+                        { label: "Withdrawals", path: "/withdrawals" },
+                    ]
+                },
                 { icon: "analytics", label: "Reports", path: "/reports" },
             ]
         },
@@ -32,6 +41,11 @@ export default function Sidebar({ isOpen, onClose }) {
     ];
 
     const isActive = (path) => location.pathname === path;
+    const isDropdownActive = (subItems) => subItems.some(item => isActive(item.path));
+
+    const toggleDropdown = (label) => {
+        setOpenDropdown(openDropdown === label ? null : label);
+    };
 
     return (
         <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0b101b] text-slate-400 border-r border-white/5 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
@@ -64,23 +78,68 @@ export default function Sidebar({ isOpen, onClose }) {
                             {section.title}
                         </div>
                         <div className="space-y-1">
-                            {section.items.map((item, i) => (
-                                <Link
-                                    key={i}
-                                    to={item.path}
-                                    onClick={onClose}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group ${isActive(item.path)
-                                        ? "bg-primary text-white shadow-xl shadow-primary/20"
-                                        : "hover:bg-white/5 hover:text-white"
-                                        }`}
-                                >
-                                    <span className={`material-symbols-outlined text-[20px] ${isActive(item.path) ? "text-white" : "text-[#42526e] group-hover:text-primary"
-                                        }`}>
-                                        {item.icon}
-                                    </span>
-                                    <span>{item.label}</span>
-                                </Link>
-                            ))}
+                            {section.items.map((item, i) => {
+                                const hasSubItems = item.subItems && item.subItems.length > 0;
+                                const isExpanded = openDropdown === item.label;
+                                const active = hasSubItems ? isDropdownActive(item.subItems) : isActive(item.path);
+
+                                return (
+                                    <div key={i} className="space-y-1">
+                                        {hasSubItems ? (
+                                            <>
+                                                <button
+                                                    onClick={() => toggleDropdown(item.label)}
+                                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all group ${active && !isExpanded ? "bg-primary/10 text-primary" : "hover:bg-white/5 hover:text-white"}`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <span className={`material-symbols-outlined text-[20px] ${active ? "text-primary" : "text-[#42526e] group-hover:text-primary"}`}>
+                                                            {item.icon}
+                                                        </span>
+                                                        <span>{item.label}</span>
+                                                    </div>
+                                                    <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>
+                                                        keyboard_arrow_down
+                                                    </span>
+                                                </button>
+
+                                                {isExpanded && (
+                                                    <div className="mt-1 ml-4 pl-4 border-l border-white/5 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                        {item.subItems.map((subItem, j) => (
+                                                            <Link
+                                                                key={j}
+                                                                to={subItem.path}
+                                                                onClick={onClose}
+                                                                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${isActive(subItem.path)
+                                                                    ? "text-primary"
+                                                                    : "text-[#42526e] hover:text-white"
+                                                                    }`}
+                                                            >
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${isActive(subItem.path) ? "bg-primary" : "bg-[#42526e]"}`}></span>
+                                                                <span>{subItem.label}</span>
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <Link
+                                                to={item.path}
+                                                onClick={onClose}
+                                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group ${active
+                                                    ? "bg-primary text-white shadow-xl shadow-primary/20"
+                                                    : "hover:bg-white/5 hover:text-white"
+                                                    }`}
+                                            >
+                                                <span className={`material-symbols-outlined text-[20px] ${active ? "text-white" : "text-[#42526e] group-hover:text-primary"
+                                                    }`}>
+                                                    {item.icon}
+                                                </span>
+                                                <span>{item.label}</span>
+                                            </Link>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}

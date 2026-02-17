@@ -98,6 +98,32 @@ const adminController = {
         }
     },
 
+    getRecharges: async function (req, res) {
+        try {
+            const filters = {};
+            if (req.query.status) filters.status = req.query.status;
+
+            const recharges = await rechargeService.getRechargeRequests(filters);
+            return rtnRes(res, 200, "Recharges fetched successfully", recharges);
+        } catch (e) {
+            log(`Error in getRecharges: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    getWithdrawals: async function (req, res) {
+        try {
+            const filters = {};
+            if (req.query.status) filters.status = req.query.status;
+
+            const withdrawals = await withdrawalService.getWithdrawalRequests(filters);
+            return rtnRes(res, 200, "Withdrawals fetched successfully", withdrawals);
+        } catch (e) {
+            log(`Error in getWithdrawals: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
     getUsers: async function (req, res) {
         try {
             const users = await queryRunner(`
