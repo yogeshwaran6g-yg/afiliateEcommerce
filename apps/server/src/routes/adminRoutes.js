@@ -19,4 +19,7 @@ router.post('/reject-withdrawal', adminController.rejectWithdrawal);
 router.post('/approve-recharge', adminController.approveRecharge);
 router.post('/reject-recharge', adminController.rejectRecharge);
 
+// Wallet transactions
+router.get('/wallet-transactions', adminController.getWalletTransactions);
+
 export default router;

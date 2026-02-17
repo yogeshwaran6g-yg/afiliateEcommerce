@@ -96,6 +96,89 @@ const adminController = {
             log(`Error in rejectRecharge: ${e.message}`, "error");
             return rtnRes(res, 500, e.message || "internal error");
         }
+    },
+
+    getWalletTransactions: async function (req, res) {
+        try {
+            const { page = 1,limit = 50, userId, transactionType, entryType, status, startDate, endDate } = req.query;
+            const offset = (page - 1) * limit;
+
+            let whereConditions = [];
+            let queryParams = [];
+
+            if (userId) {
+                whereConditions.push('w.user_id = ?');
+                queryParams.push(userId);
+            }
+            if (transactionType) {
+                whereConditions.push('wt.transaction_type = ?');
+                queryParams.push(transactionType);
+            }
+            if (entryType) {
+                whereConditions.push('wt.entry_type = ?');
+                queryParams.push(entryType);
+            }
+            if (status) {
+                whereConditions.push('wt.status = ?');
+                queryParams.push(status);
+            }
+            if (startDate) {
+                whereConditions.push('wt.created_at >= ?');
+                queryParams.push(startDate);
+            }
+            if (endDate) {
+                whereConditions.push('wt.created_at <= ?');
+                queryParams.push(endDate);
+            }
+
+            const whereClause = whereConditions.length > 0
+                ? 'WHERE ' + whereConditions.join(' AND ')
+                : '';
+
+            const countQuery = `
+                SELECT COUNT(*) as total 
+                FROM wallet_transactions wt
+                JOIN wallets w ON wt.wallet_id = w.id
+                ${whereClause}
+            `;
+            const [countResult] = await queryRunner(countQuery, queryParams);
+            const total = countResult.total;
+
+            const query = `
+                SELECT 
+                    wt.*,
+                    u.id as user_id,
+                    u.name as user_name,
+                    u.phone as user_phone,
+                    u.email as user_email,
+                    w.balance as current_balance
+                FROM wallet_transactions wt
+                JOIN wallets w ON wt.wallet_id = w.id
+                JOIN users u ON w.user_id = u.id
+                ${whereClause}
+                ORDER BY wt.created_at DESC
+                LIMIT ? OFFSET ?
+            `;
+
+            const transactions = await queryRunner(query, [...queryParams, parseInt(limit), parseInt(offset)]);
+
+            return res.json({
+                success: true,
+                data: {
+                    transactions,
+                    pagination: {
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        total,
+                        totalPages: Math.ceil(total / limit)
+                    }
+                }
+            });
+
+        } catch (e) {
+            log(`Error in getWalletTransactions: ${e.message}`, "error");
+            return rtnRes(res, 500, e.message || "internal error");
+        }
     }
 };
 
