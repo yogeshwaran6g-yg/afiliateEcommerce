@@ -172,12 +172,24 @@ const adminController = {
             const [user] = await queryRunner(`
                 SELECT u.id, u.name, u.phone, u.email, u.role, u.referral_id, 
                        u.is_phone_verified, u.account_activation_status, u.is_blocked, u.created_at,
+                       u.referred_by,
+                       r.referral_id as referred_by_referral_id,
                        p.dob, p.id_type, p.id_number, p.identity_status, p.address_status, p.bank_status,
                        p.bank_account_name, p.bank_name, p.bank_account_number, p.bank_ifsc,
-                       w.balance, w.locked_balance 
+                       p.id_document_url, p.address_document_url, p.bank_document_url,
+                       w.balance, w.locked_balance,
+                       apd.payment_type as activation_payment_type,
+                       apd.proof_url as activation_proof_url,
+                       apd.status as activation_payment_status,
+                       apd.admin_comment as activation_admin_comment,
+                       apd.created_at as activation_submitted_at,
+                       prd.name as activated_product_name
                 FROM users u
+                LEFT JOIN users r ON u.referred_by = r.id
                 LEFT JOIN profiles p ON u.id = p.user_id
                 LEFT JOIN wallets w ON u.id = w.user_id
+                LEFT JOIN activation_payments_details apd ON u.id = apd.user_id
+                LEFT JOIN products prd ON apd.product_id = prd.id
                 WHERE u.id = ?
             `, [userId]);
 
@@ -217,6 +229,50 @@ const adminController = {
             return rtnRes(res, 200, "User updated successfully");
         } catch (e) {
             log(`Error in updateUser: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    getKYCRecords: async function (req, res) {
+        try {
+            const { status } = req.query;
+            let query = `
+                SELECT 
+                    u.id, u.name, u.phone, u.email, u.referral_id,
+                    p.identity_status, p.address_status, p.bank_status,
+                    p.created_at as profile_created, p.updated_at as profile_updated
+                FROM users u
+                JOIN profiles p ON u.id = p.user_id
+            `;
+            const params = [];
+
+            if (status) {
+                query += ` WHERE p.identity_status = ? OR p.address_status = ? OR p.bank_status = ?`;
+                params.push(status, status, status);
+            }
+
+            query += ` ORDER BY p.updated_at DESC`;
+
+            const records = await queryRunner(query, params);
+
+            const formattedRecords = records.map(record => ({
+                id: `UL-${record.id.toString().padStart(6, '0')}`,
+                dbId: record.id,
+                name: record.name,
+                phone: record.phone,
+                email: record.email,
+                referral_id: record.referral_id,
+                statuses: {
+                    identity: record.identity_status,
+                    address: record.address_status,
+                    bank: record.bank_status
+                },
+                lastUpdated: record.profile_updated
+            }));
+
+            return rtnRes(res, 200, "KYC records fetched successfully", formattedRecords);
+        } catch (e) {
+            log(`Error in getKYCRecords: ${e.message}`, "error");
             return rtnRes(res, 500, "internal error");
         }
     }

@@ -7,36 +7,54 @@ import Payouts from "./pages/Payouts";
 import Products from "./pages/Products";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
+import UserDetails from "./pages/UserDetails";
 import Transactions from "./pages/Transactions";
 import Recharges from "./pages/Recharges";
 import Withdrawals from "./pages/Withdrawals";
+import KYCVerification from "./pages/KYCVerification";
+import KYCDetails from "./pages/KYCDetails";
 import Login from "./pages/Login";
 
 import Layout from "./components/Layout";
 
 
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/admin/login" element={<Login />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin/login" element={<Login />} />
 
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings/commission" element={<CommissionStructure />} />
-          <Route path="/genealogy" element={<Genealogy />} />
-          <Route path="/payouts" element={<Payouts />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/announcements" element={<Announcements />} />
-          <Route path="/recharges" element={<Recharges />} />
-          <Route path="/withdrawals" element={<Withdrawals />} />
+          <Route
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings/commission" element={<CommissionStructure />} />
+            <Route path="/genealogy" element={<Genealogy />} />
+            <Route path="/payouts" element={<Payouts />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/announcements" element={<Announcements />} />
+            <Route path="/recharges" element={<Recharges />} />
+            <Route path="/withdrawals" element={<Withdrawals />} />
 
-          <Route path="/users" element={<Users />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+            <Route path="/users" element={<Users />} />
+            <Route path="/users/:userId" element={<UserDetails />} />
+
+            <Route path="/kyc" element={<KYCVerification />} />
+            <Route path="/kyc/:userId" element={<KYCDetails />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

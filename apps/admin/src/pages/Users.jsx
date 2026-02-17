@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import userApiService from "../services/userApiService";
 
 
 export default function Users() {
+    const navigate = useNavigate();
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('ALL');
 
     // Modal states
     const [viewUser, setViewUser] = useState(null);
@@ -135,50 +138,69 @@ export default function Users() {
         );
     }
 
+
+    const filteredUsers = users.filter(user => {
+        if (statusFilter === 'ALL') return true;
+        return user.status === statusFilter;
+    });
+
     return (
-        <div className="p-4 md:p-8 lg:p-12 space-y-10">
+        <div className="p-4 md:p-8 lg:p-12 space-y-12 bg-slate-50/30 min-h-screen font-display">
             {/* Page Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                        <span className="hover:text-primary cursor-pointer transition-colors">Dashboard</span>
+                        <span className="hover:text-primary cursor-pointer transition-colors">Enterprise Control</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">User Management</span>
+                        <span className="text-primary font-black">Distributor Registry</span>
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Distributor Directory</h2>
-                    <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Review, monitor, and manage performance across the global Unilevel network.</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Identity Management</h2>
+                    <p className="text-sm md:text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">Review and authorize partner access across the global unilevel infrastructure.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-white border border-slate-200 text-slate-600 text-sm font-black rounded-2xl shadow-sm hover:bg-slate-50 transition-all group">
-                        <span className="material-symbols-outlined font-bold group-hover:scale-110 transition-transform">download</span>
-                        <span className="hidden md:inline">Export</span>
+                    <button className="flex items-center justify-center gap-3 px-8 py-4 bg-white border border-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-3xl shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group">
+                        <span className="material-symbols-outlined font-bold group-hover:scale-110 transition-transform">cloud_download</span>
+                        Export Dossier
                     </button>
                 </div>
-
             </div>
 
-            {/* Filter Bar */}
-            <div className="bg-white p-6 md:px-8 md:py-6 rounded-5xl border border-slate-100 shadow-sm flex flex-col lg:flex-row lg:items-center gap-6">
-                <div className="relative flex-1 group">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-xl group-focus-within:text-primary transition-colors">search</span>
-                    <input
-                        type="text"
-                        placeholder="Search by name, email, or ID..."
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-14 pr-4 py-4 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all placeholder:text-slate-300"
-                    />
-                </div>
+            {/* Tab & Search Control Bar */}
+            <div className="space-y-6">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-4 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40">
+                    {/* Segmented Tabs */}
+                    <div className="bg-slate-50 p-1.5 rounded-[2.2rem] flex items-center overflow-x-auto no-scrollbar min-w-0">
+                        {[
+                            { label: 'All Partners', value: 'ALL', count: users.length },
+                            { label: 'Active', value: 'ACTIVE', count: users.filter(u => u.status === 'ACTIVE').length },
+                            { label: 'Blocked', value: 'BLOCKED', count: users.filter(u => u.status === 'BLOCKED').length },
+                            { label: 'Pending', value: 'INACTIVE', count: users.filter(u => u.status === 'INACTIVE').length }
+                        ].map((tab) => (
+                            <button
+                                key={tab.value}
+                                onClick={() => setStatusFilter(tab.value)}
+                                className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${statusFilter === tab.value
+                                    ? 'bg-white text-primary shadow-lg shadow-primary/10'
+                                    : 'text-slate-400 hover:text-slate-600'
+                                    }`}
+                            >
+                                {tab.label}
+                                <span className={`px-2 py-0.5 rounded-lg text-[8px] ${statusFilter === tab.value ? 'bg-primary/10 text-primary' : 'bg-slate-200/50 text-slate-400'
+                                    }`}>{tab.count}</span>
+                            </button>
+                        ))}
+                    </div>
 
-                <div className="flex flex-wrap items-center gap-4">
-                    {["All Countries"].map((filter, i) => (
-                        <button key={i} className="flex-1 md:flex-none px-4 md:px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-3 text-sm font-bold text-[#172b4d] hover:bg-slate-100 transition-all min-w-[140px] md:min-w-[160px] justify-between">
-                            <span className="truncate">{filter}</span>
-                            <span className="material-symbols-outlined text-slate-400 font-bold">expand_more</span>
-                        </button>
-                    ))}
-                    <button className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined font-bold">tune</span>
-                    </button>
+                    {/* Compact Search */}
+                    <div className="relative flex-1 group max-w-md">
+                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">search</span>
+                        <input
+                            type="text"
+                            placeholder="Identify subject by name, ID or email..."
+                            className="w-full bg-slate-50 border border-transparent rounded-[2rem] pl-14 pr-6 py-4 text-xs font-bold text-[#172b4d] focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-slate-300"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -188,20 +210,20 @@ export default function Users() {
                     <table className="w-full text-left min-w-[1000px]">
                         <thead className="bg-slate-50/50">
                             <tr>
-                                <th className="px-10 py-6">
+                                <th className="px-10 py-3">
                                     <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer" />
                                 </th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">USER DETAILS</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">JOINED DATE</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                                <th className="px-10 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">USER DETAILS</th>
+                                <th className="px-10 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">JOINED DATE</th>
+                                <th className="px-10 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
+                                <th className="px-10 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
 
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {users.map((user, i) => (
+                            {filteredUsers.map((user, i) => (
                                 <tr key={i} className={`hover:bg-slate-50/50 transition-colors group ${selectedUsers.includes(user.id) ? 'bg-blue-50/30' : ''}`}>
-                                    <td className="px-10 py-6">
+                                    <td className="px-10 py-3">
                                         <input
                                             type="checkbox"
                                             checked={selectedUsers.includes(user.id)}
@@ -209,7 +231,7 @@ export default function Users() {
                                             className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
                                         />
                                     </td>
-                                    <td className="px-10 py-6">
+                                    <td className="px-10 py-3">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-full ${user.color || 'bg-blue-100 text-blue-600'} flex items-center justify-center font-black text-xs shadow-sm shadow-black/5 shrink-0`}>
                                                 {user.avatar}
@@ -220,24 +242,24 @@ export default function Users() {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-10 py-6">
+                                    <td className="px-10 py-3">
                                         <span className="text-sm font-medium text-slate-500">{user.joined}</span>
                                     </td>
-                                    <td className="px-10 py-6">
+                                    <td className="px-10 py-3">
                                         <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : (user.status === 'BLOCKED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600')
                                             }`}>
                                             {user.status}
                                         </span>
                                     </td>
-                                    <td className="px-10 py-6">
+                                    <td className="px-10 py-3">
                                         <div className="flex items-center justify-end gap-3 px-4">
                                             <button
-                                                onClick={() => handleViewUser(user.dbId)}
+                                                onClick={() => navigate(`/users/${user.dbId}`)}
                                                 className="p-2.5 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all"
                                             >
                                                 <span className="material-symbols-outlined text-xl">visibility</span>
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() => handleEditUser(user.dbId)}
                                                 className="p-2.5 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all"
                                             >
@@ -257,7 +279,7 @@ export default function Users() {
                                                 >
                                                     <span className="material-symbols-outlined text-xl">{user.status === 'BLOCKED' ? 'check_circle' : 'how_to_reg'}</span>
                                                 </button>
-                                            )}
+                                            )} */}
                                         </div>
                                     </td>
                                 </tr>

@@ -1,20 +1,40 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
     const [mobileNumber, setMobileNumber] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleSubmit = (e) => {
+    const { login } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || "/";
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        // Simulate loading
-        setTimeout(() => {
-            console.log("Login attempt:", { mobileNumber, password });
+        setError("");
+
+        try {
+            // Demo fallback for specific credentials if API fails or for immediate use
+            if (mobileNumber === "9000000000" && password === "admin123") {
+                await login(mobileNumber, password);
+                navigate(from, { replace: true });
+                return;
+            }
+
+            await login(mobileNumber, password);
+            navigate(from, { replace: true });
+        } catch (err) {
+            setError(err.message || "Invalid credentials. Please try again.");
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -74,6 +94,13 @@ const Login = () => {
                         </div>
                         <h2 className="text-4xl font-black text-[#172b4d] tracking-tight">System Login</h2>
                         <p className="mt-4 text-slate-500 font-medium">Enter your credentials to access the secure dashboard.</p>
+
+                        {error && (
+                            <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                                <span className="material-symbols-outlined text-red-500">error</span>
+                                <p className="text-xs font-bold text-red-600 uppercase tracking-wide">{error}</p>
+                            </div>
+                        )}
                     </div>
 
                     <form className="space-y-6" onSubmit={handleSubmit}>

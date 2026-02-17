@@ -2,6 +2,7 @@ import React from "react";
 import MetricCard from "../components/MetricCard";
 import TopAffiliates from "../components/TopAffiliates";
 import SystemAlerts from "../components/SystemAlerts";
+import GlobalNodeActivity from "../components/GlobalNodeActivity";
 
 export default function Dashboard() {
     return (
@@ -15,6 +16,7 @@ export default function Dashboard() {
                     trend="+12.5%"
                     iconBg="bg-green-100"
                     iconColor="text-green-600"
+                    showPulse={true}
                 />
                 <MetricCard
                     title="Total Payouts"
@@ -31,6 +33,7 @@ export default function Dashboard() {
                     trend="+8.1%"
                     iconBg="bg-blue-100"
                     iconColor="text-primary"
+                    showPulse={true}
                 />
                 <MetricCard
                     title="Pending Withdrawals"
@@ -49,8 +52,9 @@ export default function Dashboard() {
                     <TopAffiliates />
                 </div>
 
-                {/* Right Sidebar - System Alerts */}
+                {/* Right Sidebar - System Activity & Alerts */}
                 <div className="w-full xl:w-96 space-y-8">
+                    <GlobalNodeActivity />
                     <SystemAlerts />
                 </div>
 

@@ -113,30 +113,43 @@ export default function Recharges() {
                 ))}
             </div>
 
-            {/* Filter Bar */}
-            <div className="bg-white p-6 md:px-8 md:py-6 rounded-5xl border border-slate-100 shadow-sm flex flex-col lg:flex-row lg:items-center gap-6">
-                <div className="relative flex-1 group">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-xl group-focus-within:text-primary transition-colors">search</span>
-                    <input
-                        type="text"
-                        placeholder="Search by user name, phone, or reference..."
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-14 pr-4 py-4 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all placeholder:text-slate-300"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
+            {/* Tab & Search Control Bar */}
+            <div className="space-y-6">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-4 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 font-display">
+                    {/* Segmented Tabs */}
+                    <div className="bg-slate-50 p-1.5 rounded-[2.2rem] flex items-center overflow-x-auto no-scrollbar min-w-0">
+                        {[
+                            { label: 'All Requests', value: 'All', count: recharges.length },
+                            { label: 'Pending', value: 'Review Pending', count: recharges.filter(r => r.status === 'REVIEW_PENDING').length },
+                            { label: 'Authorized', value: 'Approved', count: recharges.filter(r => r.status === 'APPROVED').length },
+                            { label: 'Voided', value: 'Rejected', count: recharges.filter(r => r.status === 'REJECTED').length }
+                        ].map((tab) => (
+                            <button
+                                key={tab.value}
+                                onClick={() => setActiveFilter(tab.value)}
+                                className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab.value
+                                        ? 'bg-white text-primary shadow-lg shadow-primary/10'
+                                        : 'text-slate-400 hover:text-slate-600'
+                                    }`}
+                            >
+                                {tab.label}
+                                <span className={`px-2 py-0.5 rounded-lg text-[8px] ${activeFilter === tab.value ? 'bg-primary/10 text-primary' : 'bg-slate-200/50 text-slate-400'
+                                    }`}>{tab.count}</span>
+                            </button>
+                        ))}
+                    </div>
 
-                <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-50 border border-slate-100 rounded-2xl">
-                    {["All", "Review Pending", "Approved", "Rejected"].map(tab => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveFilter(tab)}
-                            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeFilter === tab ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
+                    {/* Compact Search */}
+                    <div className="relative flex-1 group max-w-md">
+                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">search</span>
+                        <input
+                            type="text"
+                            placeholder="Find by distributor or reference..."
+                            className="w-full bg-slate-50 border border-transparent rounded-[2rem] pl-14 pr-6 py-4 text-xs font-bold text-[#172b4d] focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-slate-300"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -184,7 +197,7 @@ export default function Recharges() {
                                     </td>
                                     <td className="px-10 py-6">
                                         <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                                request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                                            request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
                                             }`}>
                                             {request.status.replace("_", " ")}
                                         </span>

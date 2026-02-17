@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
+    const { user, logout } = useAuth();
     const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') ? 'Transactions' : null);
 
     const sections = [
@@ -13,6 +15,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 { icon: "inventory_2", label: "Product Catalog", path: "/products" },
                 { icon: "campaign", label: "Announcements", path: "/announcements" },
                 { icon: "person_search", label: "User Management", path: "/users" },
+                { icon: "verified_user", label: "KYC Verification", path: "/kyc" },
                 { icon: "account_tree", label: "Tree View", path: "/genealogy" },
             ]
         },
@@ -31,12 +34,6 @@ export default function Sidebar({ isOpen, onClose }) {
                 },
                 { icon: "analytics", label: "Reports", path: "/reports" },
             ]
-        },
-        {
-            title: "SYSTEM",
-            items: [
-                { icon: "login", label: "Login Page", path: "/admin/login" },
-            ]
         }
     ];
 
@@ -52,15 +49,15 @@ export default function Sidebar({ isOpen, onClose }) {
 
             {/* Logo & Close Button */}
             <div className="p-8 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20">
+                <Link to="/" className="flex items-center gap-3 group/logo active:scale-95 transition-transform" onClick={onClose}>
+                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20 group-hover/logo:scale-110 transition-transform">
                         <span className="material-symbols-outlined text-2xl font-bold">analytics</span>
                     </div>
                     <div>
-                        <div className="font-bold text-white text-lg tracking-tight leading-none">MLM Admin</div>
+                        <div className="font-bold text-white text-lg tracking-tight leading-none group-hover/logo:text-primary transition-colors">MLM Admin</div>
                         <div className="text-[10px] text-[#42526e] font-bold uppercase tracking-widest mt-1">ENTERPRISE</div>
                     </div>
-                </div>
+                </Link>
                 <button
                     onClick={onClose}
                     className="md:hidden text-slate-500 hover:text-white transition-colors"
@@ -149,17 +146,21 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className="p-6 border-t border-white/5">
                 <div className="bg-white/5 rounded-2xl p-4 flex items-center justify-between border border-white/5">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX_dj4KfY6NKcsjryLVAz302mj4ap8VZXGDmA847VctRCQyj5SuefFtzW0hnb1Cdgs9Enl7l70_ui1jrHWj_sHQbVOxhoP5-8IMCQ7YhkZJpZdhDRIRMiSbXTyu5aMODTEN7waowtGKb9UztPBdt2sRD4Hc7XzQRV0anhyY9qDS78D8Yu8LGSpObqn_iBmb2uYWvKhS6vpENUHMdorRAYZdAvw0BvNYBKAzflWEy95LHdPocZOu9pJ0wbfmFzRLyfKxxhfXcvyhQg" className="w-full h-full object-cover" alt="Avatar" />
+                        <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0 text-[10px] font-black text-primary">
+                            {user?.name?.charAt(0) || 'A'}
                         </div>
                         <div className="truncate">
-                            <div className="text-[11px] font-bold text-white leading-tight truncate">Alex Thompson</div>
-                            <div className="text-[9px] text-[#42526e] font-semibold uppercase tracking-wider">Admin</div>
+                            <div className="text-[11px] font-bold text-white leading-tight truncate">{user?.name || 'Admin User'}</div>
+                            <div className="text-[9px] text-[#42526e] font-semibold uppercase tracking-wider">{user?.role || 'Admin'}</div>
                         </div>
                     </div>
-                    <Link to="/admin/login" className="text-[#42526e] hover:text-red-400 transition-colors shrink-0">
+                    <button
+                        onClick={logout}
+                        className="text-[#42526e] hover:text-red-400 transition-colors shrink-0"
+                        title="Logout Securely"
+                    >
                         <span className="material-symbols-outlined text-[18px]">logout</span>
-                    </Link>
+                    </button>
                 </div>
             </div>
         </aside>

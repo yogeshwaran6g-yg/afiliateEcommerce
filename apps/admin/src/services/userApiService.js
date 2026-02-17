@@ -68,6 +68,29 @@ const userApiService = {
             console.error('Error in userApiService.updateUser:', error);
             throw error;
         }
+    },
+
+    getKYCRecords: async (status) => {
+        try {
+            const url = status ? `${API_BASE_URL}/admin/kyc?status=${status}` : `${API_BASE_URL}/admin/kyc`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch KYC records');
+            }
+
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error in userApiService.getKYCRecords:', error);
+            throw error;
+        }
     }
 };
 
