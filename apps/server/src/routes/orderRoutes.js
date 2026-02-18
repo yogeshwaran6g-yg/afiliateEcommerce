@@ -1,14 +1,19 @@
 import express from 'express';
 import orderController from '#controllers/orderController.js';
 import { protect, checkActivated } from '#middlewares/authenticatorMiddleware.js';
+import paymentUpload from '#middlewares/paymentUploadMiddleware.js';
 
 const router = express.Router();
 
 router.use(protect);
-// router.use(checkActivated); // Accessing orders shouldn't strictly require activation, or maybe it should? Leaving as is for now, but usually viewing past orders is allowed.
-// But forcing checkActivated for creation might be good.
-// For now, let's keep it simple and apply checkActivated to everything if that was the intent, or maybe just protect.
-// The previous code had checkActivated. I will keep it for consistency, but might want to relax it for viewing orders later.
+
+router.post('/upload', checkActivated, paymentUpload.single('proof'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+    }
+    const proofUrl = `/uploads/payments/${req.file.filename}`;
+    res.status(200).json({ proofUrl });
+});
 
 router.post('/', checkActivated, orderController.createOrder);
 router.get('/my-orders', orderController.getMyOrders);

@@ -14,7 +14,6 @@ export default function Cart() {
         shipping,
         tax,
         total,
-        totalPV,
         totalItemsCount,
         taxRate
     } = useCart();
@@ -32,9 +31,7 @@ export default function Cart() {
             {/* Page Header */}
             <div>
                 <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Shopping Cart</h1>
-                <p className="text-sm md:text-base text-primary font-medium">
-                    Review your items and PV earnings before final checkout.
-                </p>
+               
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -48,8 +45,8 @@ export default function Cart() {
                                     <div className="col-span-5">Product</div>
                                     <div className="col-span-2">Price</div>
                                     <div className="col-span-2">Quantity</div>
-                                    <div className="col-span-1">PV</div>
                                     <div className="col-span-2 text-right">Total</div>
+                                    <div className="col-span-1"></div>
                                 </div>
 
                                 <div className="divide-y divide-slate-200">
@@ -87,7 +84,6 @@ export default function Cart() {
                         shipping={shipping}
                         tax={tax}
                         total={total}
-                        totalPV={totalPV}
                         totalItems={totalItemsCount}
                         taxRate={taxRate}
                     />

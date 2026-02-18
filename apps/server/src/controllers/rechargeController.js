@@ -10,11 +10,20 @@ const rechargeController = {
             const proofImage = req.file ? `/uploads/payments/${req.file.filename}` : null; 
             const userId = req.user.id;
 
-            if (!amount || amount <= 0) return rtnRes(res, 400, "Invalid amount");
-            if (!paymentMethod) return rtnRes(res, 400, "Payment method is required");
-            if (!proofImage) return rtnRes(res, 400, "Payment proof (image) is required");
+            if (!amount || amount <= 0) {
+                return rtnRes(res, 400, "Invalid amount");
+            }
+            if (!paymentMethod){
+                 return rtnRes(res, 400, "Payment method is required")
+            };
+            if (!proofImage) {
+                return rtnRes(res, 400, "Payment proof (image) is required");
+            }
             const count = await getUserReviewPendingRechareRequestCount(userId);
-            if(count>=5)  return rtnRes(res, 400, "maximum recharge request is reached please wail until to review the request");
+            if(count>=5)  {
+                console.log("count greater then 5 or equals ")
+                return rtnRes(res, 400, "maximum recharge request is reached please wail until to review the request");
+            }
 
             const result = await rechargeService.createRechargeRequest(userId, amount, paymentMethod, paymentReference, proofImage);
             return rtnRes(res, 201, "Recharge request created successfully", result);

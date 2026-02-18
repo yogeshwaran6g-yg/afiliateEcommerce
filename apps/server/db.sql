@@ -3,7 +3,52 @@
 -- Extracted from: apps/server/src/scripts/seed.js
 -- =============================================
 
--- 1. Users Table
+-- 1. Category Table
+CREATE TABLE `category` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `image` VARCHAR(255) NULL,
+    `parent_id` BIGINT UNSIGNED DEFAULT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT `fk_category_parent` FOREIGN KEY (`parent_id`) REFERENCES `category` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- 2. Products Table
+CREATE TABLE `products` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `slug` VARCHAR(255) NOT NULL,
+    `short_desc` VARCHAR(255) NOT NULL,
+    `long_desc` TEXT NOT NULL,
+    `category_id` BIGINT UNSIGNED NOT NULL,
+    `original_price` DECIMAL(10, 2) NOT NULL,
+    `sale_price` DECIMAL(10, 2) NOT NULL,
+    `stock` INT NOT NULL DEFAULT 0,
+    `stock_status` ENUM(
+        'IN_STOCK',
+        'OUT_OF_STOCK',
+        'BACKORDER'
+    ) DEFAULT 'IN_STOCK',
+    `low_stock_alert` INT DEFAULT 5,
+    `images` JSON NULL,
+    `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `pv` INT NOT NULL DEFAULT 0,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT `uk_products_slug` UNIQUE (`slug`),
+    CONSTRAINT `chk_price_valid` CHECK (
+        `original_price` >= 0
+        AND `sale_price` >= 0
+        AND `sale_price` <= `original_price`
+    ),
+    CONSTRAINT `fk_product_category` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE RESTRICT,
+    INDEX `idx_category` (`category_id`),
+    INDEX `idx_active` (`is_active`),
+    INDEX `idx_price` (`sale_price`)
+) ENGINE = InnoDB;
+
+-- 3. Users Table
 CREATE TABLE `users` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
@@ -26,10 +71,11 @@ CREATE TABLE `users` (
     `referred_by` BIGINT UNSIGNED NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+    CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_users_selected_product` FOREIGN KEY (`selected_product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
--- 1.2. Activation Payments Table
+-- 4. Activation Payments Table
 CREATE TABLE `activation_payments_details` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -44,10 +90,11 @@ CREATE TABLE `activation_payments_details` (
     `admin_comment` TEXT,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_activation_payment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_activation_payment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_activation_payment_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
--- 1.1. OTP Table
+-- 5. OTP Table
 CREATE TABLE `otp` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -60,7 +107,7 @@ CREATE TABLE `otp` (
     CONSTRAINT `fk_otp_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 2. Orders Table
+-- 6. Orders Table
 CREATE TABLE orders (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     order_number VARCHAR(50) NOT NULL UNIQUE,
@@ -73,6 +120,10 @@ CREATE TABLE orders (
         'DELIVERED',
         'CANCELLED'
     ) NOT NULL DEFAULT 'PROCESSING',
+    order_type ENUM(
+        'ACTIVATION',
+        'PRODUCT_PURCHASE'
+    ) NOT NULL,
     payment_status ENUM('PENDING', 'PAID', 'FAILED') DEFAULT 'PENDING',
     shipping_address TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -91,7 +142,8 @@ CREATE TABLE order_items (
     price DECIMAL(10, 2) NOT NULL,
     PRIMARY KEY (id),
     KEY idx_order_items_order_id (order_id),
-    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
+    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT
 );
 
 CREATE TABLE order_tracking (
@@ -105,7 +157,28 @@ CREATE TABLE order_tracking (
     CONSTRAINT fk_tracking_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
 );
 
--- 3. Referral Commission Config Table
+CREATE TABLE order_payment_proofs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    payment_type ENUM('UPI', 'BANK') NOT NULL,
+    transaction_reference VARCHAR(100) NULL,
+    proof_url VARCHAR(255) NOT NULL,
+    status ENUM(
+        'PENDING',
+        'APPROVED',
+        'REJECTED'
+    ) DEFAULT 'PENDING',
+    admin_comment TEXT NULL,
+    reviewed_by BIGINT UNSIGNED NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_order_payment_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_payment_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- 7. Referral Commission Config Table
 CREATE TABLE `referral_commission_config` (
     `id` TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `level` TINYINT UNSIGNED NOT NULL,
@@ -121,7 +194,7 @@ CREATE TABLE `referral_commission_config` (
     )
 ) ENGINE = InnoDB;
 
--- 4. Referral Tree Table
+-- 8. Referral Tree Table
 CREATE TABLE `referral_tree` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `upline_id` BIGINT UNSIGNED NOT NULL,
@@ -138,7 +211,7 @@ CREATE TABLE `referral_tree` (
     CONSTRAINT `chk_referral_level` CHECK (`level` BETWEEN 1 AND 6)
 ) ENGINE = InnoDB;
 
--- 5. Referral Commissions Distribution Table
+-- 9. Referral Commissions Distribution Table
 CREATE TABLE `referral_commission_distribution` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `upline_id` BIGINT UNSIGNED NOT NULL,
@@ -170,7 +243,7 @@ CREATE TABLE `referral_commission_distribution` (
     CONSTRAINT `chk_comm_level` CHECK (`level` BETWEEN 1 AND 6)
 ) ENGINE = InnoDB;
 
--- 6. Profiles Table
+-- 10. Profiles Table
 CREATE TABLE `profiles` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -212,7 +285,7 @@ CREATE TABLE `profiles` (
     CONSTRAINT `fk_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 7. Addresses Table
+-- 11. Addresses Table
 CREATE TABLE `addresses` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -228,52 +301,7 @@ CREATE TABLE `addresses` (
     CONSTRAINT `fk_addresses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 8. Category Table
-CREATE TABLE `category` (
-    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
-    `image` VARCHAR(255) NULL,
-    `parent_id` BIGINT UNSIGNED DEFAULT NULL,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_category_parent` FOREIGN KEY (`parent_id`) REFERENCES `category` (`id`) ON DELETE CASCADE
-) ENGINE = InnoDB;
-
--- 9. Products Table
-CREATE TABLE `products` (
-    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
-    `slug` VARCHAR(255) NOT NULL,
-    `short_desc` VARCHAR(255) NOT NULL,
-    `long_desc` TEXT NOT NULL,
-    `category_id` BIGINT UNSIGNED NOT NULL,
-    `original_price` DECIMAL(10, 2) NOT NULL,
-    `sale_price` DECIMAL(10, 2) NOT NULL,
-    `stock` INT NOT NULL DEFAULT 0,
-    `stock_status` ENUM(
-        'IN_STOCK',
-        'OUT_OF_STOCK',
-        'BACKORDER'
-    ) DEFAULT 'IN_STOCK',
-    `low_stock_alert` INT DEFAULT 5,
-    `images` JSON NULL,
-    `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
-    `pv` INT NOT NULL DEFAULT 0,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `uk_products_slug` UNIQUE (`slug`),
-    CONSTRAINT `chk_price_valid` CHECK (
-        `original_price` >= 0
-        AND `sale_price` >= 0
-        AND `sale_price` <= `original_price`
-    ),
-    CONSTRAINT `fk_product_category` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE RESTRICT,
-    INDEX `idx_category` (`category_id`),
-    INDEX `idx_active` (`is_active`),
-    INDEX `idx_price` (`sale_price`)
-) ENGINE = InnoDB;
-
--- 10. Carts Table
+-- 12. Carts Table
 CREATE TABLE `carts` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -284,7 +312,7 @@ CREATE TABLE `carts` (
     INDEX `idx_user_status` (`user_id`, `status`)
 ) ENGINE = InnoDB;
 
--- 11. Cart Items Table
+-- 13. Cart Items Table
 CREATE TABLE `cart_items` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `cart_id` BIGINT UNSIGNED NOT NULL,
@@ -297,7 +325,7 @@ CREATE TABLE `cart_items` (
     UNIQUE KEY `uq_cart_product` (`cart_id`, `product_id`)
 ) ENGINE = InnoDB;
 
--- 12. Notifications Table
+-- 14. Notifications Table
 CREATE TABLE `notifications` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `heading` VARCHAR(255) NOT NULL,
@@ -309,7 +337,7 @@ CREATE TABLE `notifications` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB;
 
--- 13. User Notifications Table
+-- 15. User Notifications Table
 CREATE TABLE `user_notifications` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -323,7 +351,7 @@ CREATE TABLE `user_notifications` (
     INDEX `idx_type` (`type`)
 ) ENGINE = InnoDB;
 
--- 14. Wallets Table
+-- 16. Wallets Table
 CREATE TABLE `wallets` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -337,7 +365,7 @@ CREATE TABLE `wallets` (
     CONSTRAINT `fk_wallet_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 15. Wallet Transactions Table
+-- 17. Wallet Transactions Table
 CREATE TABLE `wallet_transactions` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `wallet_id` BIGINT UNSIGNED NOT NULL,
@@ -374,11 +402,13 @@ CREATE TABLE `wallet_transactions` (
     CONSTRAINT `fk_reversal` FOREIGN KEY (`reversal_of`) REFERENCES `wallet_transactions` (`id`) ON DELETE SET NULL
 ) ENGINE = InnoDB;
 
--- 16. Withdrawal Requests Table
+-- 18. Withdrawal Requests Table
 CREATE TABLE `withdrawal_requests` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
     `amount` DECIMAL(10, 2) NOT NULL,
+    `platform_fee` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `net_amount` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     `status` ENUM(
         'REVIEW_PENDING',
         'APPROVED',
@@ -391,7 +421,7 @@ CREATE TABLE `withdrawal_requests` (
     CONSTRAINT `fk_withdrawal_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- 17. Recharge Requests Table
+-- 19. Recharge Requests Table
 CREATE TABLE `recharge_requests` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -409,7 +439,8 @@ CREATE TABLE `recharge_requests` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT `fk_recharge_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
--- 17. Tickets Table
+
+-- 20. Tickets Table
 CREATE TABLE `tickets` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -431,3 +462,13 @@ CREATE TABLE `tickets` (
     KEY `idx_tickets_status` (`status`),
     CONSTRAINT `fk_tickets_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 21. Settings Table
+CREATE TABLE `settings` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `key` VARCHAR(255) UNIQUE NOT NULL,
+    `value` TEXT NOT NULL,
+    `description` VARCHAR(500) NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB;

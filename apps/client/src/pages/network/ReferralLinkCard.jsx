@@ -1,54 +1,49 @@
 import React from "react";
 
 const ReferralLinkCard = ({
-    referralLink,
-    copyToClipboard,
-    totalReferrals,
-    activeToday,
+  referralLink,
+  copyToClipboard,
 }) => {
-    return (
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-900 mb-2">Referral Link</h2>
-            <p className="text-sm text-slate-500 mb-4 whitespace-normal">
-                Invite members to your Level 1 network.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-6">
-                <input
-                    type="text"
-                    value={referralLink}
-                    readOnly
-                    className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs md:text-sm font-mono text-slate-700 overflow-hidden text-ellipsis"
-                />
-                <button
-                    onClick={copyToClipboard}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-all"
-                >
-                    <span className="material-symbols-outlined text-lg">content_copy</span>
-                    Copy
-                </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
-                <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                        Total Referrals
-                    </div>
-                    <div className="text-2xl md:text-3xl font-black text-slate-900">
-                        {totalReferrals.toLocaleString()}
-                    </div>
-                </div>
-                <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                        Active Today
-                    </div>
-                    <div className="text-2xl md:text-3xl font-black text-emerald-600">
-                        {activeToday}
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Referral Link</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            Invite members to your Level 1 network.
+          </p>
         </div>
-    );
+        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+          <span className="material-symbols-outlined text-2xl">link</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-8">
+        <div className="flex-1 relative group">
+          <input
+            type="text"
+            value={referralLink}
+            readOnly
+            className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs md:text-sm font-mono text-slate-700 overflow-hidden text-ellipsis focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+          />
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-hover:text-primary transition-colors">
+            link
+          </span>
+        </div>
+        <button
+          onClick={copyToClipboard}
+          className="flex items-center justify-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
+        >
+          <span className="material-symbols-outlined text-lg">
+            content_copy
+          </span>
+          Copy Link
+        </button>
+      </div>
+
+     
+    </div>
+  );
 };
 
 export default ReferralLinkCard;

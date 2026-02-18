@@ -13,6 +13,7 @@ import notificationRoutes from './notificationRoutes.js';
 import userNotificationRoutes from './userNotificationRoutes.js';
 import walletRoutes from './walletRoutes.js';
 import ticketRoutes from './ticketRoutes.js';
+import settingsRoutes from './settingsRoutes.js';
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use('/notifications', notificationRoutes);
 router.use('/user-notifications', userNotificationRoutes);
 router.use('/wallet', walletRoutes);
 router.use('/tickets', ticketRoutes);
+router.use('/settings', settingsRoutes);
 
 export default router;
 

@@ -1,49 +1,76 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import NetworkHeader from "./NetworkHeader";
-import ReferralLinkCard from "./ReferralLinkCard";
-import QRCodeCard from "./QRCodeCard";
 import LevelTabs from "./LevelTabs";
 import MemberTable from "./MemberTable";
 import NetworkFooter from "./NetworkFooter";
-import { levels, members } from "./data";
-import { useUser } from "../../hooks/useAuthService";
+import { useReferralOverview, useTeamMembers } from "../../hooks/useReferrals";
 
 export default function Network() {
-  const { data: user, isLoading } = useUser();
   const [activeLevel, setActiveLevel] = useState(1);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
-  // Fallback if user data is still loading or unavailable
-  const referralId = user?.referral_id || "LOADING...";
-  const referralLink = `${window.location.origin}/signup?ref=${referralId}`;
+  const { 
+    data: overviewData, 
+    isLoading: isOverviewLoading,
+    error: overviewError 
+  } = useReferralOverview();
 
-  const totalReferrals = 1284;
-  const activeToday = 42;
+  const { 
+    data: teamData, 
+    isLoading: isTeamLoading, 
+    error: teamError,
+    isPreviousData
+  } = useTeamMembers(activeLevel, page, limit);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(referralLink);
+  const handleLevelChange = (level) => {
+    setActiveLevel(level);
+    setPage(1);
   };
+
+  const levels = overviewData?.levels || [
+    { level: 1, referralCount: 0 },
+    { level: 2, referralCount: 0 },
+    { level: 3, referralCount: 0 },
+    { level: 4, referralCount: 0 },
+    { level: 5, referralCount: 0 },
+    { level: 6, referralCount: 0 },
+  ];
 
   return (
     <div className="p-4 md:p-8 space-y-6">
       <NetworkHeader />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ReferralLinkCard
-          referralLink={referralLink}
-          copyToClipboard={copyToClipboard}
-          totalReferrals={totalReferrals}
-          activeToday={activeToday}
-        />
-        <QRCodeCard />
+      <div className="flex justify-end gap-3">
+        <Link
+          to="/network/tree"
+          className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-2xl text-sm font-bold hover:bg-primary/90 hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-primary/20 active:scale-95"
+        >
+          <span className="material-symbols-outlined text-lg">
+            account_tree
+          </span>
+          Tree View
+        </Link>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <LevelTabs
-          levels={levels}
+          levels={levels.map(l => ({ level: l.level, count: l.referralCount }))}
           activeLevel={activeLevel}
-          setActiveLevel={setActiveLevel}
+          setActiveLevel={handleLevelChange}
         />
-        <MemberTable members={members} />
+        <MemberTable 
+          members={teamData?.members || []} 
+          isLoading={isTeamLoading}
+          error={teamError}
+          pagination={teamData?.pagination}
+          onPageChange={setPage}
+          onLimitChange={(newLimit) => {
+            setLimit(newLimit);
+            setPage(1);
+          }}
+        />
         <NetworkFooter />
       </div>
     </div>

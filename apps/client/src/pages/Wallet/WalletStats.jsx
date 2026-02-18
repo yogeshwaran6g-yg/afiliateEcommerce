@@ -140,7 +140,7 @@ export default function WalletStats({ wallet, transactions = [] }) {
             {wallet ? (
               formatCurrency(wallet.withdrawable)
             ) : (
-              <span className="text-red-600 bg-red-600/10 p-1 rounded-lg">
+              <span className="text-red-600 bg-blue-500/50 p-1 rounded-lg">
                 !fetch error
               </span>
             )}

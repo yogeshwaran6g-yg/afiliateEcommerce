@@ -1,5 +1,6 @@
 import pool from '#config/db.js';
 import { distributeCommission } from '#services/referralService.js';
+import walletService from '#services/walletService.js';
 import { log } from '#utils/helper.js';
 
 /**

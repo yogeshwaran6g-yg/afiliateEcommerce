@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useMemo, useCallback, useContext } from "react";
 import cartService from "../services/cartService";
 import { AuthContext } from "./AuthContext";
+import { toast } from "react-toastify";
 
 export const CartContext = createContext();
 
@@ -39,7 +40,7 @@ export const CartProvider = ({ children }) => {
     // Add item
     const addToCart = useCallback(async (product, quantity = 1) => {
         if (!isAuthenticated) {
-            alert("Please login to add items to cart");
+            toast.warning("Please login to add items to cart");
             return;
         }
         try {
@@ -47,7 +48,7 @@ export const CartProvider = ({ children }) => {
             setCartItems([...updatedItems]);
         } catch (error) {
             console.error("Add to cart failed:", error);
-            alert(error.message || "Failed to add item to cart");
+            toast.error(error.message || "Failed to add item to cart");
         }
     }, [isAuthenticated]);
 
@@ -99,9 +100,6 @@ export const CartProvider = ({ children }) => {
     const tax = useMemo(() => subtotal * taxRate, [subtotal]);
     const total = useMemo(() => subtotal + shipping + tax, [subtotal, tax]);
 
-    const totalPV = useMemo(() =>
-        cartItems.reduce((sum, item) => sum + (parseInt(item.pv || 0) * parseInt(item.quantity || 0)), 0),
-        [cartItems]);
 
     const totalItemsCount = useMemo(() =>
         cartItems.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0),
@@ -118,13 +116,12 @@ export const CartProvider = ({ children }) => {
         subtotal,
         tax,
         total,
-        totalPV,
         totalItemsCount,
         shipping,
         taxRate
     }), [
         cartItems, isLoading, addToCart, removeFromCart, updateQuantity,
-        setQuantity, clearCart, subtotal, tax, total, totalPV, totalItemsCount
+        setQuantity, clearCart, subtotal, tax, total, totalItemsCount
     ]);
 
     return (

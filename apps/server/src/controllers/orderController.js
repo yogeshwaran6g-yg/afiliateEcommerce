@@ -4,7 +4,16 @@ import { rtnRes, log } from '#utils/helper.js';
 const createOrder = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { items, totalAmount, shippingAddress, paymentStatus } = req.body;
+        const { 
+            items, 
+            totalAmount, 
+            shippingAddress, 
+            paymentMethod,
+            paymentType,
+            transactionReference,
+            proofUrl,
+            orderType 
+        } = req.body;
 
         if (!items || items.length === 0 || !totalAmount || !shippingAddress) {
             return rtnRes(res, 400, "Items, Total Amount, and Shipping Address are required");
@@ -15,12 +24,19 @@ const createOrder = async (req, res) => {
             items,
             totalAmount,
             shippingAddress,
-            paymentStatus
+            paymentMethod,
+            paymentType,
+            transactionReference,
+            proofUrl,
+            orderType: orderType || 'PRODUCT_PURCHASE'
         });
 
         return rtnRes(res, 201, "Order created successfully", order);
     } catch (error) {
         log(`Order creation error: ${error.message}`, "error");
+        if (error.message === "Insufficient wallet balance") {
+            return rtnRes(res, 400, error.message);
+        }
         return rtnRes(res, 500, "Internal Server Error");
     }
 };

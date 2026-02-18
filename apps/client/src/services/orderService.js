@@ -39,8 +39,24 @@ export const getOrderById = async (id) => {
     }
 };
 
+export const uploadProof = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('proof', file);
+        const response = await api.post(`${orderEndpoints.base}/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response;
+    } catch (error) {
+        handleApiError(error, "Upload Proof");
+    }
+};
+
 export default {
     createOrder,
     getMyOrders,
-    getOrderById
+    getOrderById,
+    uploadProof
 };

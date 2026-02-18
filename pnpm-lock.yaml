@@ -72,6 +72,12 @@ importers:
       axios:
         specifier: ^1.7.9
         version: 1.13.5
+      lucide-react:
+        specifier: ^0.564.0
+        version: 0.564.0(react@18.3.1)
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -89,7 +95,7 @@ importers:
         version: 11.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       root:
         specifier: git+https://github.com/tanstack/react-query.git
-        version: git+https://github.com/tanstack/react-query.git#d7213f7ce87a8d6de81516f8a52390916c14b616
+        version: git+https://github.com/tanstack/react-query.git#984bfa6f15271c0ba7c750d35daff2f6fb596667
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.1
@@ -1880,6 +1886,11 @@ packages:
     resolution: {integrity: sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
 
+  lucide-react@0.564.0:
+    resolution: {integrity: sha512-JJ8GVTQqFwuliifD48U6+h7DXEHdkhJ/E87kksGByII3qHxtPciVb8T8woQONHBQgHVOl7rSMrrip3SeVNy7Fg==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
@@ -2108,6 +2119,11 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   qs@6.14.1:
     resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
     engines: {node: '>=0.6'}
@@ -2209,8 +2225,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  root@git+https://github.com/tanstack/react-query.git#d7213f7ce87a8d6de81516f8a52390916c14b616:
-    resolution: {commit: d7213f7ce87a8d6de81516f8a52390916c14b616, repo: https://github.com/tanstack/react-query.git, type: git}
+  root@git+https://github.com/tanstack/react-query.git#984bfa6f15271c0ba7c750d35daff2f6fb596667:
+    resolution: {commit: 984bfa6f15271c0ba7c750d35daff2f6fb596667, repo: https://github.com/tanstack/react-query.git, type: git}
     version: 0.0.0
 
   safe-buffer@5.1.2:
@@ -4205,6 +4221,10 @@ snapshots:
 
   lru.min@1.1.4: {}
 
+  lucide-react@0.564.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
   lz-string@1.5.0: {}
 
   magic-string@0.30.21:
@@ -4425,6 +4445,10 @@ snapshots:
 
   punycode@2.3.1: {}
 
+  qrcode.react@4.2.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
   qs@6.14.1:
     dependencies:
       side-channel: 1.1.0
@@ -4454,6 +4478,15 @@ snapshots:
   react-is@17.0.2: {}
 
   react-lifecycles-compat@3.0.4: {}
+
+  react-modal@3.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      exenv: 1.2.2
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-lifecycles-compat: 3.0.4
+      warning: 4.0.3
 
   react-modal@3.16.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
@@ -4558,7 +4591,7 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.57.1
       fsevents: 2.3.3
 
-  root@git+https://github.com/tanstack/react-query.git#d7213f7ce87a8d6de81516f8a52390916c14b616: {}
+  root@git+https://github.com/tanstack/react-query.git#984bfa6f15271c0ba7c750d35daff2f6fb596667: {}
 
   safe-buffer@5.1.2: {}
 

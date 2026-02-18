@@ -14,12 +14,15 @@ export default function TransactionHistory({
   // Debounce search term update
   useEffect(() => {
     const handler = setTimeout(() => {
-      onFilterChange((prev) => ({ ...prev, searchTerm: localSearch }));
-      onPageChange(1); // Reset to first page on search
+      // Only update if search term actually changed
+      if (localSearch !== filters.searchTerm) {
+        onFilterChange((prev) => ({ ...prev, searchTerm: localSearch }));
+        onPageChange(1); // Reset to first page on search
+      }
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [localSearch]);
+  }, [localSearch, filters.searchTerm, onFilterChange, onPageChange]);
 
   const handleFilterUpdate = (key, value) => {
     onFilterChange((prev) => ({ ...prev, [key]: value }));

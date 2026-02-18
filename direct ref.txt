@@ -1,0 +1,129 @@
+direct ref 
+tree view 
+stat 
+refer home,
+
+
+withdraw request
+ticket ui and category 
+order with wallet amount and paymenttable with order relation =>payment fail order will fail 
+add use into notification
+
+rechare withdraw review strict bank profile before withdraw and rechare 
+then header fix 
+proview test
+
+unneeded request going
+
+
+
+network 
+    direct referall
+    
+
+initial order make
+CREATE TABLE order_payment_proofs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    order_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    
+    payment_type ENUM('UPI','BANK') NOT NULL,
+    transaction_reference VARCHAR(100) NULL,
+    proof_url VARCHAR(255) NOT NULL,
+    
+    status ENUM('PENDING','APPROVED','REJECTED')
+        DEFAULT 'PENDING',
+    
+    admin_comment TEXT NULL,
+    reviewed_by BIGINT UNSIGNED NULL,
+    reviewed_at DATETIME NULL,
+    
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP 
+        ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_order_payment_order 
+        FOREIGN KEY (order_id) REFERENCES orders(id)
+        ON DELETE CASCADE,
+        
+    CONSTRAINT fk_order_payment_user 
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+START TRANSACTION
+
+1. UPDATE activation_payments_details SET status='APPROVED'
+2. UPDATE users SET account_activation_status='ACTIVATED'
+3. INSERT activation order in orders table
+4. INSERT referral_commission_distribution rows
+5. CREDIT wallet of uplines
+
+COMMIT
+
+
+
+order_type ENUM('ACTIVATION','PRODUCT_PURCHASE') NOT NULL
+
+
+
+direct referall
+    ref link signup test
+    then maual verification ( table data of direct referal)
+
+my team 
+    manual verification
+
+tree 
+
+    then scroll to load more option for vertical scrool
+    responsive     
+
+withdrawal 
+
+profile 
+    test
+    when reupload for verified one status must need change 
+
+checkout 
+    wallet pay option
+
+order
+    change schema 
+        order_type ENUM('ACTIVATION','PRODUCT_PURCHASE') NOT NULL
+    payment proof init    
+    then order create 
+    my orders page 
+
+    if success
+        INSERT referral_commission_distribution rows
+        CREDIT wallet of uplines
+
+complete  registration 
+    add orders with type activation
+
+action on complete registration     
+    INSERT referral_commission_distribution rows
+    CREDIT wallet of uplines
+
+
+rechare 
+    profile must finish
+
+
+block and middlewarw 
+    cant withdraw a without kyc finish
+    cant make purchase with account activation and profile
+
+merge ticket
+
+update side bar and header 
+
+test
+
+referal 
+    when adding refered by check the that users account activation and referal policy
+
+
+add rate limiter

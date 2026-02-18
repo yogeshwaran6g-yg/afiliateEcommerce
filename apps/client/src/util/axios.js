@@ -41,10 +41,23 @@ http.interceptors.request.use(
 
 /**
  * Response Interceptor
- * Handle common errors
+ * Handle success and error responses with toast notifications
  */
 http.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    // Handle success responses with toast notifications
+    const { data, config } = response;
+    
+    // Show success toast if explicitly enabled in config or if backend sends a success message
+    if (config.showSuccessToast || data?.message) {
+      const message = data?.message || "Operation completed successfully";
+      toast.success(message, {
+        autoClose: 3000,
+      });
+    }
+    
+    return data;
+  },
   (error) => {
     const status = error?.response?.status;
 

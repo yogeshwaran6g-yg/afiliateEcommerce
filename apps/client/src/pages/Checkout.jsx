@@ -1,17 +1,115 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../hooks/useCart";
+import walletService from "../services/walletService";
+import orderService from "../services/orderService";
+import { toast } from "react-toastify";
 
 export default function Checkout() {
+    const navigate = useNavigate();
+    const { cartItems, subtotal, total, isLoading: cartLoading, clearCart } = useCart();
+    
     const [selectedAddress, setSelectedAddress] = useState("main");
-    const [paymentMethod, setPaymentMethod] = useState("card");
-    const [useWallet, setUseWallet] = useState(true);
+    const [paymentMethod, setPaymentMethod] = useState("wallet"); // 'wallet' or 'direct'
+    const [paymentType, setPaymentType] = useState("UPI"); // 'UPI' or 'BANK'
+    const [walletStats, setWalletStats] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [proofFile, setProofFile] = useState(null);
+    const [proofPreview, setProofPreview] = useState(null);
+    const [transactionReference, setTransactionReference] = useState("");
 
-    const walletBalance = 1450.00;
-    const subtotal = 628.00;
-    const shippingFee = 0;
-    const tax = 12.56;
-    const walletCredit = useWallet ? -150.00 : 0;
-    const total = subtotal + shippingFee + tax + walletCredit;
+    useEffect(() => {
+        const fetchWallet = async () => {
+            try {
+                const response = await walletService.getWallet();
+                if (response.success) {
+                    setWalletStats(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching wallet:", error);
+            }
+        };
+        fetchWallet();
+    }, []);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProofFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProofPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (cartItems.length === 0) {
+            toast.error("Your cart is empty");
+            return;
+        }
+
+        if (paymentMethod === 'wallet') {
+            if (!walletStats || parseFloat(walletStats.balance) < total) {
+                toast.error("Insufficient wallet balance");
+                return;
+            }
+        }
+
+        if (paymentMethod === 'direct' && !proofFile) {
+            toast.error("Please upload payment proof for direct payment");
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            let proofUrl = null;
+
+            if (paymentMethod === 'direct' && proofFile) {
+                const uploadRes = await orderService.uploadProof(proofFile);
+                if (uploadRes.success) {
+                    proofUrl = uploadRes.proofUrl;
+                } else {
+                    throw new Error("Failed to upload payment proof");
+                }
+            }
+
+            const orderData = {
+                items: cartItems.map(item => ({
+                    productId: item.productId || item.id,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                totalAmount: total,
+                shippingAddress: {
+                    type: selectedAddress,
+                    address: selectedAddress === "main" ? "123 Business Parkway, Suite 100, Manhattan, New York, 10001" : "456 Enterprise Drive, Austin, Texas, 73301"
+                },
+                paymentMethod,
+                paymentType: paymentMethod === 'direct' ? paymentType : null,
+                transactionReference: paymentMethod === 'direct' ? transactionReference : null,
+                proofUrl
+            };
+
+            const response = await orderService.createOrder(orderData);
+            if (response.success) {
+                toast.success("Order placed successfully!");
+                await clearCart();
+                navigate("/orders");
+            }
+        } catch (error) {
+            console.error("Checkout failed:", error);
+            toast.error(error.response?.data?.message || "Failed to complete purchase");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const walletBalance = walletStats ? parseFloat(walletStats.balance) : 0;
+    const canUseWallet = walletBalance >= total;
+
+    if (cartLoading) return <div className="flex items-center justify-center min-h-[400px]">Loading...</div>;
 
     return (
         <div className="p-4 md:p-8 space-y-8">
@@ -50,7 +148,6 @@ export default function Checkout() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left: Checkout Form */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* Page Title */}
                     <div>
                         <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Secure Checkout</h1>
                         <p className="text-sm md:text-base text-slate-500">Complete your transaction by selecting an address and payment method.</p>
@@ -63,7 +160,6 @@ export default function Checkout() {
                                 <span className="material-symbols-outlined text-primary">location_on</span>
                                 <h2 className="text-lg font-bold text-slate-900">Shipping Address</h2>
                             </div>
-                            <button className="text-primary text-sm font-semibold hover:underline">Add New</button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -116,84 +212,130 @@ export default function Checkout() {
                             <h2 className="text-lg font-bold text-slate-900">Payment Method</h2>
                         </div>
 
-                        {/* Wallet Balance Toggle */}
-                        <div className="bg-slate-50 rounded-xl p-4 mb-6 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-primary">account_balance_wallet</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-slate-900 text-sm md:text-base">Use Wallet Balance</h3>
-                                    <p className="text-[10px] md:text-sm text-slate-500">Current Balance: <span className="text-emerald-600 font-semibold">${walletBalance.toFixed(2)}</span></p>
-                                </div>
-                            </div>
+                        {/* Payment Options Toggle */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <button
-                                onClick={() => setUseWallet(!useWallet)}
-                                className={`relative w-10 md:w-12 h-5 md:h-6 rounded-full transition-colors ${useWallet ? "bg-primary" : "bg-slate-300"
+                                onClick={() => setPaymentMethod("wallet")}
+                                className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === "wallet"
+                                    ? "border-primary bg-primary/5"
+                                    : "border-slate-200 hover:border-slate-300"
                                     }`}
                             >
-                                <div className={`absolute top-0.5 w-4 md:w-5 h-4 md:h-5 bg-white rounded-full transition-transform ${useWallet ? "translate-x-5 md:translate-x-6" : "translate-x-0.5"
-                                    }`}></div>
+                                <span className={`material-symbols-outlined text-2xl ${paymentMethod === "wallet" ? "text-primary" : "text-slate-400"}`}>account_balance_wallet</span>
+                                <span className="text-xs md:text-sm font-semibold text-slate-900">Wallet Balance</span>
+                                <p className="text-[10px] text-slate-500">Available: <span className={canUseWallet ? "text-emerald-600 font-bold" : "text-red-500 font-bold"}>₹{walletBalance.toFixed(2)}</span></p>
+                            </button>
+
+                            <button
+                                onClick={() => setPaymentMethod("direct")}
+                                className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === "direct"
+                                    ? "border-primary bg-primary/5"
+                                    : "border-slate-200 hover:border-slate-300"
+                                    }`}
+                            >
+                                <span className={`material-symbols-outlined text-2xl ${paymentMethod === "direct" ? "text-primary" : "text-slate-400"}`}>payments</span>
+                                <span className="text-xs md:text-sm font-semibold text-slate-900">Direct Payment</span>
+                                <p className="text-[10px] text-slate-500">Upload Transfer Proof</p>
                             </button>
                         </div>
 
-                        {/* Payment Options */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                            {[
-                                { id: "card", icon: "credit_card", label: "Card" },
-                                { id: "bank", icon: "account_balance", label: "Bank" },
-                                { id: "crypto", icon: "currency_bitcoin", label: "Crypto" }
-                            ].map((opt) => (
-                                <button
-                                    key={opt.id}
-                                    onClick={() => setPaymentMethod(opt.id)}
-                                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === opt.id
-                                        ? "border-primary bg-primary/5"
-                                        : "border-slate-200 hover:border-slate-300"
-                                        }`}
-                                >
-                                    <span className={`material-symbols-outlined text-2xl ${paymentMethod === opt.id ? "text-primary" : "text-slate-400"}`}>{opt.icon}</span>
-                                    <span className="text-xs md:text-sm font-semibold text-slate-900">{opt.label}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Card Details Form */}
-                        {paymentMethod === "card" && (
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-xs md:text-sm font-semibold text-slate-700 mb-2">Cardholder Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Johnathan Doe"
-                                        className="w-full px-4 py-2.5 md:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Wallet Information */}
+                        {paymentMethod === "wallet" && (
+                            <div className={`p-4 rounded-xl mb-6 ${canUseWallet ? "bg-emerald-50 border border-emerald-100" : "bg-red-50 border border-red-100"}`}>
+                                <div className="flex gap-3">
+                                    <span className={`material-symbols-outlined ${canUseWallet ? "text-emerald-600" : "text-red-600"}`}>
+                                        {canUseWallet ? "check_circle" : "error"}
+                                    </span>
                                     <div>
-                                        <label className="block text-xs md:text-sm font-semibold text-slate-700 mb-2">Card Number</label>
-                                        <input
-                                            type="text"
-                                            placeholder="**** **** **** 4421"
-                                            className="w-full px-4 py-2.5 md:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                                        />
+                                        <h4 className={`font-bold text-sm ${canUseWallet ? "text-emerald-900" : "text-red-900"}`}>
+                                            {canUseWallet ? "Ready to Pay" : "Insufficient Balance"}
+                                        </h4>
+                                        <p className={`text-xs ${canUseWallet ? "text-emerald-700" : "text-red-700"}`}>
+                                            {canUseWallet 
+                                                ? `The total amount of ₹${total.toFixed(2)} will be debited from your wallet.` 
+                                                : `You need ₹${(total - walletBalance).toFixed(2)} more in your wallet. Please use Direct Payment instead.`}
+                                        </p>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Direct Payment Form */}
+                        {paymentMethod === "direct" && (
+                            <div className="space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                                <div>
+                                    <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-primary text-sm">info</span>
+                                        Payment Instructions
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                        <div className="p-3 bg-white rounded-lg border border-slate-200">
+                                            <p className="font-bold text-slate-500 uppercase mb-2">Option 1: UPI Transfer</p>
+                                            <p className="text-slate-900 font-bold text-sm mb-1">fintech.merch@upi</p>
+                                            <p className="text-slate-500">Scan QR or use UPI ID</p>
+                                        </div>
+                                        <div className="p-3 bg-white rounded-lg border border-slate-200">
+                                            <p className="font-bold text-slate-500 uppercase mb-2">Option 2: Bank Transfer</p>
+                                            <p className="text-slate-900 font-bold mb-0.5">HDFC BANK</p>
+                                            <p className="text-slate-500">Acc: 50100234123412</p>
+                                            <p className="text-slate-500">IFSC: HDFC0001234</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs md:text-sm font-semibold text-slate-700 mb-2">Expiry</label>
-                                            <input
-                                                type="text"
-                                                placeholder="MM/YY"
-                                                className="w-full px-4 py-2.5 md:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                                            />
+                                            <label className="block text-xs font-bold text-slate-700 mb-2">Payment Via</label>
+                                            <select 
+                                                value={paymentType}
+                                                onChange={(e) => setPaymentType(e.target.value)}
+                                                className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            >
+                                                <option value="UPI">UPI</option>
+                                                <option value="BANK">Bank Transfer</option>
+                                            </select>
                                         </div>
                                         <div>
-                                            <label className="block text-xs md:text-sm font-semibold text-slate-700 mb-2">CVV</label>
+                                            <label className="block text-xs font-bold text-slate-700 mb-2">Transaction Ref (Optional)</label>
                                             <input
                                                 type="text"
-                                                placeholder="***"
-                                                className="w-full px-4 py-2.5 md:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                                                placeholder="UTR / Ref No"
+                                                value={transactionReference}
+                                                onChange={(e) => setTransactionReference(e.target.value)}
+                                                className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                                             />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">Upload Proof (Screenshot)</label>
+                                        <div className="relative group">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            />
+                                            <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center group-hover:border-primary transition-colors">
+                                                {proofPreview ? (
+                                                    <div className="relative inline-block">
+                                                        <img src={proofPreview} alt="Preview" className="h-32 rounded-lg" />
+                                                        <button 
+                                                            onClick={(e) => { e.preventDefault(); setProofFile(null); setProofPreview(null); }}
+                                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs z-20"
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">close</span>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        <span className="material-symbols-outlined text-3xl text-slate-400 group-hover:text-primary">upload_file</span>
+                                                        <p className="text-sm font-medium text-slate-600">Click to upload or drag and drop</p>
+                                                        <p className="text-xs text-slate-400">JPG, PNG up to 2MB</p>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -209,13 +351,13 @@ export default function Checkout() {
 
                         {/* Products */}
                         <div className="space-y-4 mb-6 pb-6 border-b border-slate-200">
-                            {[
-                                { name: "Distributor Kit", price: "$499.00" },
-                                { name: "Marketing Suite", price: "$129.00" }
-                            ].map((item, i) => (
+                            {cartItems.map((item, i) => (
                                 <div key={i} className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-600">{item.name}</span>
-                                    <span className="font-bold text-slate-900">{item.price}</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-slate-900 font-semibold">{item.name}</span>
+                                        <span className="text-slate-500 text-xs">Qty: {item.quantity}</span>
+                                    </div>
+                                    <span className="font-bold text-slate-900">₹{(item.price * item.quantity).toFixed(2)}</span>
                                 </div>
                             ))}
                         </div>
@@ -224,51 +366,46 @@ export default function Checkout() {
                         <div className="space-y-3 mb-6 pb-6 border-b border-slate-200">
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600">Subtotal</span>
-                                <span className="font-semibold text-slate-900">${subtotal.toFixed(2)}</span>
+                                <span className="font-semibold text-slate-900">₹{subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600">Shipping</span>
                                 <span className="font-semibold text-emerald-600 uppercase">Free</span>
                             </div>
-                            {useWallet && (
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-primary font-medium">Wallet Reward</span>
-                                    <span className="font-semibold text-primary">-${Math.abs(walletCredit).toFixed(2)}</span>
-                                </div>
-                            )}
                         </div>
 
                         {/* Total */}
                         <div className="flex justify-between items-center mb-6">
                             <span className="text-lg font-bold text-slate-900">Total</span>
-                            <span className="text-2xl font-black text-slate-900">${total.toFixed(2)}</span>
+                            <span className="text-2xl font-black text-slate-900">₹{total.toFixed(2)}</span>
                         </div>
 
                         {/* Place Order Button */}
-                        <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all mb-4 text-sm md:text-base">
-                            <span className="material-symbols-outlined">lock</span>
-                            Complete Purchase
+                        <button 
+                            disabled={isSubmitting || (paymentMethod === 'wallet' && !canUseWallet)}
+                            onClick={handleSubmit}
+                            className={`w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all mb-4 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                            {isSubmitting ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    Processing...
+                                </span>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined">lock</span>
+                                    Complete Purchase
+                                </>
+                            )}
                         </button>
 
                         {/* Support */}
                         <div className="bg-slate-50 rounded-lg p-4 text-center">
                             <p className="text-[10px] md:text-xs text-slate-500">
-                                Need help? Call <span className="text-primary font-bold">1-800-FINTECH</span>
+                                Secure Transaction Protected by <span className="text-primary font-bold">SSL Encryption</span>
                             </p>
                         </div>
                     </div>
-
-                    {/* Footer */}
-                    <footer className="bg-white border-t border-slate-200 mt-auto py-6">
-                        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                            <div>© 2024 Fintech MLM. All rights reserved.</div>
-                            <div className="flex items-center gap-6">
-                                <a href="#" className="hover:text-primary">Privacy</a>
-                                <a href="#" className="hover:text-primary">Terms</a>
-                                <a href="#" className="hover:text-primary">Support</a>
-                            </div>
-                        </div>
-                    </footer>
                 </div>
             </div>
         </div>

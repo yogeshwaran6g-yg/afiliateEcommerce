@@ -1,6 +1,6 @@
 import React from "react";
 
-const WithdrawalHeader = ({ availableBalance }) => {
+const WithdrawalHeader = ({ availableBalance, isLoading }) => {
     return (
         <>
             {/* Breadcrumb */}
@@ -13,7 +13,7 @@ const WithdrawalHeader = ({ availableBalance }) => {
                     Withdrawals & Bank Details
                 </span>
             </div>
-
+ 
             {/* Page Header */}
             <div className="flex items-start justify-between mb-8">
                 <div>
@@ -29,12 +29,13 @@ const WithdrawalHeader = ({ availableBalance }) => {
                         Available Balance
                     </div>
                     <div className="text-4xl font-bold text-primary mb-3">
-                        ${availableBalance.toFixed(2)}
+                        {isLoading ? (
+                             <div className="h-10 w-32 bg-slate-100 animate-pulse rounded ml-auto"></div>
+                        ) : (
+                            `₹${parseFloat(availableBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        )}
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90">
-                        <span className="material-symbols-outlined text-lg">add</span>
-                        Top Up Wallet
-                    </button>
+                    
                 </div>
             </div>
         </>

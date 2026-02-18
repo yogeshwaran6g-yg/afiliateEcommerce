@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { completeRegistration, getCurrentUser, logout } from '../services/authApiService';
 import { getProducts } from '../services/productService';
+import { toast } from 'react-toastify';
 
 import PersonalInfoSection from './registration/components/PersonalInfoSection';
 import ProductSelectionSection from './registration/components/ProductSelectionSection';
@@ -32,7 +33,7 @@ export default function CompleteRegistration() {
     useEffect(() => {
         const user = getCurrentUser();
         if (!user || !user.is_phone_verified) {
-            alert('Please verify your mobile number first.');
+            toast.warning('Please verify your mobile number first.');
             navigate('/signup');
             return;
         }
@@ -123,14 +124,14 @@ export default function CompleteRegistration() {
             const isAllowedType = allowedTypes.includes(fileType);
 
             if (!isAllowedType && !isAllowedExtension) {
-                alert(`Invalid file format (${fileName}). Only JPG, JPEG, and PNG images are allowed.`);
-                e.target.value = ''; // Reset input
+                toast.error(`Invalid file format (${fileName}). Only JPG, JPEG, and PNG images are allowed.`);
+                e.target.value = '';
                 return;
             }
 
             if (file.size > 2 * 1024 * 1024) {
-                alert(`File too large: ${(file.size / (1024 * 1024)).toFixed(2)}MB. Maximum size is 2MB.`);
-                e.target.value = ''; // Reset input
+                toast.error(`File too large: ${(file.size / (1024 * 1024)).toFixed(2)}MB. Maximum size is 2MB.`);
+                e.target.value = '';
                 return;
             }
 
@@ -203,7 +204,7 @@ export default function CompleteRegistration() {
             const response = await completeRegistration(registrationData);
             
             if (response.success) {
-                alert('Registration and payment submitted successfully! Your account is now under review. Please sign in with your new password.');
+                toast.success('Registration and payment submitted successfully! Your account is now under review. Please sign in with your new password.');
                 logout();
                 navigate('/login');
             } else {

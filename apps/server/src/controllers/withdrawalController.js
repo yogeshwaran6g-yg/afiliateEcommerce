@@ -4,13 +4,12 @@ import { rtnRes, log } from '#utils/helper.js';
 const withdrawalController = {
     createRequest: async (req, res) => {
         try {
-            const { amount, bankDetails } = req.body;
+            const { amount } = req.body;
             const userId = req.user.id;
 
             if (!amount || amount <= 0) return rtnRes(res, 400, "Invalid amount");
-            if (!bankDetails) return rtnRes(res, 400, "Bank details are required");
 
-            const result = await withdrawalService.createWithdrawalRequest(userId, amount, bankDetails);
+            const result = await withdrawalService.createWithdrawalRequest(userId, amount);
             return rtnRes(res, 201, "Withdrawal request created successfully", result);
         } catch (error) {
             log(`Error in createWithdrawalRequest: ${error.message}`, "error");

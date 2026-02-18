@@ -17,6 +17,8 @@ import Checkout from "./pages/Checkout";
 import Products from "./pages/Products";
 import Ranks from "./pages/ranks/index";
 import Network from "./pages/network/index";
+import DirectReferrals from "./pages/network/DirectReferrals";
+import NetworkTree from "./pages/network/NetworkTree";
 import Cart from "./pages/Cart";
 import Support from "./pages/support/index";
 import Profile from "./pages/profile/index";
@@ -29,22 +31,13 @@ import Otp from "./pages/Otp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
-// Temporary placeholder pages
-const Inventory = () => (
-  <div className="p-8 text-2xl font-bold">Inventory Page (Coming Soon)</div>
-);
-
-const Teams = () => (
-  <div className="p-8 text-2xl font-bold">Teams Page (Coming Soon)</div>
-);
-
 function App() {
   return (
     <AuthProvider>
       <ProfileProvider>
         <ProductProvider>
           <CartProvider>
-             <ToastContainer
+            <ToastContainer
               position="top-right"
               autoClose={5000}
               hideProgressBar={false}
@@ -60,34 +53,49 @@ function App() {
             <BrowserRouter>
               <Routes>
                 {/* redirect root */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
+                />
 
                 {/* routes with ClientLayout */}
                 <Route element={<ProtectedRoute />}>
-                <Route path="/complete-registration" element={<CompleteRegistration />} />
-                <Route element={<ClientLayout />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/leaderboard" element={<Leaderboard />} />
-                  <Route path="/orders" element={<Orders />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/ranks" element={<Ranks />} />
-                  <Route path="/network" element={<Network />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/support" element={<Support />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/wallet" element={<Wallet />} />
-                  <Route path="/wallet/add-funds" element={<Wallet.AddFunds />} />
-                  <Route path="/withdrawals" element={<Withdrawals />} />
-                  <Route path="/inventory" element={<Inventory />} />
-                  <Route path="/teams" element={<Teams />} />
-                  <Route path="/notifications" element={<CommunicationCenter />} />
+                  <Route element={<ClientLayout />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/orders" element={<Orders />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/ranks" element={<Ranks />} />
+                    <Route path="/network/my-team" element={<Network />} />
+                    <Route
+                      path="/network/direct-referrals"
+                      element={<DirectReferrals />}
+                    />
+                    <Route path="/network/tree" element={<NetworkTree />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/wallet" element={<Wallet />} />
+                    <Route
+                      path="/wallet/add-funds"
+                      element={<Wallet.AddFunds />}
+                    />
+                    <Route path="/withdrawals" element={<Withdrawals />} />
+                    <Route
+                      path="/notifications"
+                      element={<CommunicationCenter />}
+                    />
+                  </Route>
                 </Route>
-                </Route>  
 
                 {/* auth routes without layout */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route
+                  path="/complete-registration"
+                  element={<CompleteRegistration />}
+                />
                 <Route path="/verify-otp" element={<Otp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
@@ -101,4 +109,3 @@ function App() {
 }
 
 export default App;
-

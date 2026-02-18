@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import ticketService from "../../services/ticketService";
+import { toast } from "react-toastify";
 
 const TicketsSection = () => {
   const [tickets, setTickets] = useState([]);
@@ -35,12 +36,12 @@ const TicketsSection = () => {
   const fetchTickets = async () => {
     try {
       const data = await ticketService.getMyTickets();
-      // data is expected to be the response body. 
+      // data is expected to be the response body.
       // Based on controller: rtnRes(res, 200, "Tickets fetched successfully", tickets);
       // So data.data should be the array if axios interceptor returns response.data
 
       // Let's check ticketService.js again.
-      // It returns axiosInstance.get(...). 
+      // It returns axiosInstance.get(...).
       // Axios interceptor returns response.data.
       // So the object returned is { success: true, message: "...", data: [...] }
 
@@ -113,12 +114,12 @@ const TicketsSection = () => {
       });
 
       await ticketService.createTicket(submitData);
-      alert("Ticket submitted successfully!");
+      toast.success("Ticket submitted successfully!");
       closeModal();
       fetchTickets();
     } catch (error) {
       console.error("Error submitting ticket:", error);
-      alert("Failed to submit ticket. Please try again.");
+      toast.error("Failed to submit ticket. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -197,7 +198,9 @@ const TicketsSection = () => {
                       {ticket.subject}
                     </div>
                     <div className="text-[10px] md:text-xs text-slate-400">
-                      {new Date(ticket.updated_at || ticket.created_at).toLocaleDateString()}
+                      {new Date(
+                        ticket.updated_at || ticket.created_at,
+                      ).toLocaleDateString()}
                     </div>
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell max-w-[200px] truncate text-slate-600 text-xs md:text-sm">
@@ -321,7 +324,9 @@ const TicketsSection = () => {
                       key={index}
                       className="flex items-center justify-between bg-slate-50 px-3 py-1.5 rounded border border-slate-200"
                     >
-                      <span className="truncate max-w-[300px]">{file.name}</span>
+                      <span className="truncate max-w-[300px]">
+                        {file.name}
+                      </span>
                       <button
                         type="button"
                         onClick={() => removeAttachment(index)}
@@ -366,14 +371,18 @@ const TicketsSection = () => {
         <div className="flex flex-col h-full max-h-[90vh]">
           <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">confirmation_number</span>
+              <span className="material-symbols-outlined text-primary">
+                confirmation_number
+              </span>
               Ticket Details
             </h3>
             <button
               onClick={closeViewModal}
               className="text-slate-400 hover:text-slate-600 transition-colors rounded-full p-1 hover:bg-slate-200"
             >
-              <span className="material-symbols-outlined text-xl block">close</span>
+              <span className="material-symbols-outlined text-xl block">
+                close
+              </span>
             </button>
           </div>
 
@@ -382,19 +391,27 @@ const TicketsSection = () => {
               {/* Header Info */}
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900 mb-1">{selectedTicket.subject}</h2>
+                  <h2 className="text-xl font-bold text-slate-900 mb-1">
+                    {selectedTicket.subject}
+                  </h2>
                   <div className="flex items-center gap-3 text-sm text-slate-500">
                     <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">category</span>
+                      <span className="material-symbols-outlined text-[16px]">
+                        category
+                      </span>
                       Category: {selectedTicket.category}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+                      <span className="material-symbols-outlined text-[16px]">
+                        calendar_today
+                      </span>
                       {new Date(selectedTicket.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusColor(selectedTicket.status)}`}>
+                <div
+                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusColor(selectedTicket.status)}`}
+                >
                   {selectedTicket.status}
                 </div>
               </div>
@@ -403,7 +420,9 @@ const TicketsSection = () => {
 
               {/* Description */}
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">Description</h4>
+                <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
+                  Description
+                </h4>
                 <div className="bg-slate-50 rounded-xl p-4 text-slate-700 text-sm leading-relaxed border border-slate-100">
                   {selectedTicket.description}
                 </div>
@@ -413,7 +432,9 @@ const TicketsSection = () => {
               {selectedTicket.image && (
                 <div className="space-y-2">
                   <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">attachment</span>
+                    <span className="material-symbols-outlined text-sm">
+                      attachment
+                    </span>
                     Attachment
                   </h4>
                   <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50">
@@ -423,7 +444,8 @@ const TicketsSection = () => {
                       className="w-full h-auto object-contain max-h-[400px]"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                        e.target.src =
+                          "https://via.placeholder.com/400x300?text=Image+Not+Found";
                       }}
                     />
                   </div>

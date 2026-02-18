@@ -29,7 +29,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
                 {/* Price - Mobile layout adjustment */}
                 <div className="md:col-span-2 flex md:block justify-between items-center text-sm">
                     <span className="md:hidden text-slate-500">Price:</span>
-                    <span className="text-slate-700 font-semibold">${item.price.toFixed(2)}</span>
+                    <span className="text-slate-700 font-semibold">₹{item.price.toFixed(2)}</span>
                 </div>
 
                 {/* Quantity */}
@@ -52,29 +52,22 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
                     </div>
                 </div>
 
-                {/* PV */}
-                <div className="md:col-span-1 flex md:block justify-between items-center">
-                    <span className="md:hidden text-slate-500 text-sm">PV:</span>
-                    <div className="text-center md:text-left">
-                        <div className="text-sm font-bold text-primary">{item.pv * item.quantity}</div>
-                        <div className="text-[10px] md:text-xs text-primary/70 font-bold uppercase hidden md:block">PV</div>
-                    </div>
+                {/* Total Price */}
+                <div className="md:col-span-2 flex items-center justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 mt-2 md:mt-0">
+                    <div className="md:hidden text-slate-900 font-bold">Total:</div>
+                    <span className="font-bold text-slate-900 text-base md:text-lg">
+                        ₹{(item.price * item.quantity).toFixed(2)}
+                    </span>
                 </div>
 
-                {/* Total */}
-                <div className="md:col-span-2 flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 mt-2 md:mt-0">
-                    <div className="md:hidden text-slate-900 font-bold">Total:</div>
-                    <div className="flex items-center gap-4">
-                        <span className="font-bold text-slate-900 text-base md:text-lg">
-                            ${(item.price * item.quantity).toFixed(2)}
-                        </span>
-                        <button
-                            onClick={() => onRemove(item.id)}
-                            className="p-2 hover:bg-rose-50 rounded-lg text-rose-500 transition-colors"
-                        >
-                            <span className="material-symbols-outlined text-xl">delete</span>
-                        </button>
-                    </div>
+                {/* Actions */}
+                <div className="md:col-span-1 flex items-center justify-end">
+                    <button
+                        onClick={() => onRemove(item.id)}
+                        className="p-2 hover:bg-rose-50 rounded-lg text-rose-500 transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-xl">delete</span>
+                    </button>
                 </div>
             </div>
         </div>

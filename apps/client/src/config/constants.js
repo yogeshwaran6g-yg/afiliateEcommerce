@@ -58,6 +58,16 @@ export const constants = {
       base: "/api/v1/orders",
       myOrders: "/api/v1/orders/my-orders",
     },
+    referral: {
+      base: "/api/v1/referral",
+      overview: "/api/v1/referral/overview",
+      direct: "/api/v1/referral/direct",
+      teamMembers: (level) => `/api/v1/referral/team-members/${level}`,
+      tree: "/api/v1/referral/tree",
+    },
+    settings: {
+      withdrawal: "/api/v1/settings/withdrawal",
+    },
   },
 };
 
