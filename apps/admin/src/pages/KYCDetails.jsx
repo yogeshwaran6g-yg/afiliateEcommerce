@@ -7,6 +7,7 @@ export default function KYCDetails() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [processing, setProcessing] = useState(false);
 
     useEffect(() => {
         fetchUserDetails();
@@ -21,6 +22,44 @@ export default function KYCDetails() {
             console.error("Failed to fetch user details:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleKYCAction = async (type, status) => {
+        try {
+            setProcessing(true);
+            await userApiService.updateKYCStatus(userId, type, status);
+            await fetchUserDetails(); // Refresh data
+        } catch (error) {
+            alert(error.message || "Failed to update KYC status");
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handleApproveAll = async () => {
+        try {
+            if (!window.confirm("Approve all submitted documentation for this user?")) return;
+            setProcessing(true);
+
+            // Sequential approvals to avoid concurrency issues if any, or use Promise.all
+            const sections = [
+                { id: 'identity', val: user.id_document_url },
+                { id: 'address', val: user.address_document_url },
+                { id: 'bank', val: user.bank_document_url }
+            ];
+
+            for (const section of sections) {
+                if (section.val) {
+                    await userApiService.updateKYCStatus(userId, section.id, 'VERIFIED');
+                }
+            }
+
+            await fetchUserDetails();
+        } catch (error) {
+            alert(error.message || "Failed to approve all documents");
+        } finally {
+            setProcessing(false);
         }
     };
 
@@ -84,7 +123,12 @@ export default function KYCDetails() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="px-6 py-3 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 active:scale-95 transition-all">
+                    <button
+                        onClick={handleApproveAll}
+                        disabled={processing}
+                        className={`px-6 py-3 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 active:scale-95 transition-all flex items-center gap-2 ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        {processing && <span className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>}
                         Approve All Documents
                     </button>
                 </div>
@@ -153,8 +197,20 @@ export default function KYCDetails() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-green-700 transition-all">Approve</button>
-                                    <button className="px-4 py-2 bg-white border border-slate-200 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-red-50 transition-all">Reject</button>
+                                    <button
+                                        disabled={processing || section.status === 'VERIFIED'}
+                                        onClick={() => handleKYCAction(idx === 0 ? 'identity' : idx === 1 ? 'address' : 'bank', 'VERIFIED')}
+                                        className={`px-4 py-2 bg-green-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-green-700 transition-all ${processing || section.status === 'VERIFIED' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        disabled={processing || section.status === 'REJECTED'}
+                                        onClick={() => handleKYCAction(idx === 0 ? 'identity' : idx === 1 ? 'address' : 'bank', 'REJECTED')}
+                                        className={`px-4 py-2 bg-white border border-slate-200 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-red-50 transition-all ${processing || section.status === 'REJECTED' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        Reject
+                                    </button>
                                 </div>
                             </div>
 

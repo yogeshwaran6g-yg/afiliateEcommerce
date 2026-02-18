@@ -91,6 +91,35 @@ const userApiService = {
             console.error('Error in userApiService.getKYCRecords:', error);
             throw error;
         }
+    },
+
+    updateKYCStatus: async (userId, type, status) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/kyc/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ type, status })
+            });
+
+            if (!response.ok) {
+                // - [x] Implement KYC Approval/Rejection Flow
+                // - [x] Create backend endpoint for KYC status updates
+                // - [x] Add updateKYCStatus method to frontend service
+                // - [x] Make action buttons functional in KYCDetails.jsx
+                // - [x] Implement "Approve All" feature 
+                // - [x] Verify persistence of status changes
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update KYC status');
+            }
+
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error in userApiService.updateKYCStatus:', error);
+            throw error;
+        }
     }
 };
 
