@@ -10,7 +10,12 @@ const notificationController = {
                 return rtnRes(res, 400, "Missing required fields");
             }
 
-            const result = await notificationService.create(req.body);
+            const data = { ...req.body };
+            if (req.file) {
+                data.image_url = `/uploads/products/${req.file.filename}`;
+            }
+
+            const result = await notificationService.create(data);
             return rtnRes(res, result.code, result.msg, result.data);
         } catch (err) {
             console.error("Error in createNotification:", err);
@@ -42,7 +47,13 @@ const notificationController = {
     updateNotification: async function (req, res) {
         try {
             const { id } = req.params;
-            const result = await notificationService.update(id, req.body);
+            const data = { ...req.body };
+
+            if (req.file) {
+                data.image_url = `/uploads/products/${req.file.filename}`;
+            }
+
+            const result = await notificationService.update(id, data);
             return rtnRes(res, result.code, result.msg, result.data);
         } catch (err) {
             console.error("Error in updateNotification:", err);

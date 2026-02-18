@@ -1,34 +1,35 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
+import React, { useState, useRef, useEffect } from "react";
 
-const TreeNode = ({ member, isRoot, onSelect, isSelected }) => (
+const TreeNode = ({ member, isRoot, onSelect, isSelected, onToggle }) => (
     <div className="flex flex-col items-center relative">
         {!isRoot && <div className="h-8 w-px bg-slate-200 mb-0"></div>}
 
         <div
             onClick={() => onSelect(member)}
-            className={`cursor-pointer transition-all duration-300 relative group ${isRoot ? 'w-80' : 'w-56'
-                }`}
+            className={`cursor-pointer transition-all duration-300 relative group ${isRoot ? 'w-[280px] md:w-80' : 'w-48 md:w-56'} ${!member.isMatched && 'opacity-40 grayscale-[0.5]'}`}
         >
-            <div className={`p-4 rounded-2xl border bg-white shadow-sm transition-all group-hover:shadow-md ${isSelected ? 'border-primary ring-4 ring-primary/5 shadow-lg' : 'border-slate-100'
+            <div className={`p-3 md:p-4 rounded-2xl border bg-white shadow-sm transition-all group-hover:shadow-md ${isSelected ? 'border-primary ring-4 ring-primary/5 shadow-lg' : member.isMatched ? 'border-primary/30 ring-4 ring-primary/5' : 'border-slate-100'
                 }`}>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 md:gap-4">
+
                     <div className="relative">
-                        <div className={`w-12 h-12 rounded-full border-2 p-0.5 ${member.rank === 'PLATINUM' ? 'border-primary' :
-                                member.rank === 'GOLD' ? 'border-amber-400' : 'border-slate-200'
-                            }`}>
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 p-0.5 border-slate-200">
                             <img src={member.avatar} className="w-full h-full rounded-full object-cover" alt="" />
                         </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                            L{member.level}
-                        </div>
                     </div>
+
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                             <h4 className="text-sm font-bold text-[#172b4d] truncate">{member.name}</h4>
                             {member.hasChildren && (
-                                <button className="w-6 h-6 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onToggle(member.id);
+                                    }}
+                                    className="w-6 h-6 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
+                                >
                                     <span className="material-symbols-outlined text-sm font-bold">
                                         {member.isExpanded ? 'remove' : 'add'}
                                     </span>
@@ -36,9 +37,7 @@ const TreeNode = ({ member, isRoot, onSelect, isSelected }) => (
                             )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${member.rank === 'PLATINUM' ? 'text-primary' : 'text-amber-600'
-                                }`}>{member.rank} MEMBER</span>
-                            <span className="text-[9px] text-slate-400 font-bold uppercase">ID: #{member.id}</span>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase">#{member.id}</span>
                         </div>
                     </div>
                 </div>
@@ -74,6 +73,7 @@ const TreeNode = ({ member, isRoot, onSelect, isSelected }) => (
                             member={child}
                             onSelect={onSelect}
                             isSelected={isSelected?.id === child.id}
+                            onToggle={onToggle}
                         />
                     ))}
                 </div>
@@ -85,12 +85,19 @@ const TreeNode = ({ member, isRoot, onSelect, isSelected }) => (
 export default function Genealogy() {
     const [selectedMember, setSelectedMember] = useState(null);
     const [activeView, setActiveView] = useState("Unilevel Tree");
+    const [zoom, setZoom] = useState(1);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [visibleLevels, setVisibleLevels] = useState('3 Levels');
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isSubSidebarOpen, setSubSidebarOpen] = useState(false);
 
-    const treeData = {
+    const viewportRef = useRef(null);
+
+    const [tree, setTree] = useState({
         name: "Alexander Sterling",
         id: "88291",
-        rank: "PLATINUM",
-        level: 1,
         teamSize: 12402,
         gv: "$2.4M",
         avatar: "https://i.pravatar.cc/150?u=Alexander",
@@ -99,47 +106,167 @@ export default function Genealogy() {
             {
                 name: "Marcus Chen",
                 id: "22819",
-                rank: "PLATINUM",
-                level: 2,
                 teamSize: 1890,
                 gv: "$452K",
                 avatar: "https://i.pravatar.cc/150?u=Marcus",
                 hasChildren: true,
                 isExpanded: true,
                 children: [
-                    { name: "Elena Rossi", id: "55123", rank: "GOLD", level: 3, avatar: "https://i.pravatar.cc/150?u=Elena" },
-                    { name: "David Okafor", id: "77234", rank: "GOLD", level: 3, avatar: "https://i.pravatar.cc/150?u=David" }
+                    {
+                        name: "Elena Rossi", id: "55123", avatar: "https://i.pravatar.cc/150?u=Elena",
+                        hasChildren: true, isExpanded: false,
+                        children: [
+                            {
+                                name: "Luca Bianchi", id: "99101", avatar: "https://i.pravatar.cc/150?u=Luca",
+                                hasChildren: true, isExpanded: false,
+                                children: [
+                                    { name: "Anna Vitale", id: "11223", avatar: "https://i.pravatar.cc/150?u=Anna" }
+                                ]
+                            }
+                        ]
+                    },
+                    { name: "David Okafor", id: "77234", avatar: "https://i.pravatar.cc/150?u=David" }
                 ]
             },
             {
                 name: "Sophia Evans",
                 id: "10293",
-                rank: "GOLD",
-                level: 2,
                 teamSize: 3901,
                 gv: "$892K",
                 avatar: "https://i.pravatar.cc/150?u=Sophia",
-                hasChildren: true
+                hasChildren: true,
+                isExpanded: false,
+                children: [
+                    { name: "James Wilson", id: "44122", avatar: "https://i.pravatar.cc/150?u=James" }
+                ]
             }
         ]
+    });
+
+    const expandToLevel = (node, targetLevel) => {
+        if (!node.children) return node;
+        const shouldExpand = targetLevel === 'All' || node.level < parseInt(targetLevel);
+        return {
+            ...node,
+            isExpanded: shouldExpand,
+            children: node.children.map(child => expandToLevel(child, targetLevel))
+        };
     };
+
+    const handleSetVisibleLevels = (level) => {
+        setVisibleLevels(level);
+        setTree(expandToLevel(tree, level));
+    };
+
+    const handleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            viewportRef.current.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
+    const toggleNodeExpansion = (nodeId) => {
+        const updateNode = (node) => {
+            if (node.id === nodeId) {
+                return { ...node, isExpanded: !node.isExpanded };
+            }
+            if (node.children) {
+                return { ...node, children: node.children.map(updateNode) };
+            }
+            return node;
+        };
+        setTree(updateNode(tree));
+    };
+
+    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 2));
+    const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.5));
+    const handleResetZoom = () => {
+        setZoom(1);
+        setPosition({ x: 0, y: 0 });
+    };
+
+    const handleMouseDown = (e) => {
+        if (e.button !== 0) return;
+        setIsDragging(true);
+        setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        setPosition({
+            x: e.clientX - dragStart.x,
+            y: e.clientY - dragStart.y
+        });
+    };
+
+    const handleMouseUp = () => setIsDragging(false);
+
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging]);
+
+    const getPrunedTree = (node, currentLevel, maxLevel, search) => {
+        let matchesSearch = !search ||
+            node.name.toLowerCase().includes(search.toLowerCase()) ||
+            node.id.includes(search);
+
+        let processedChildren = null;
+        const shouldRecurse = !!search || maxLevel === 'All' || currentLevel < parseInt(maxLevel);
+
+        if (node.children && shouldRecurse) {
+            processedChildren = node.children
+                .map(child => getPrunedTree(child, currentLevel + 1, maxLevel, search))
+                .filter(Boolean);
+        }
+
+        const hasMatchingChild = processedChildren?.length > 0;
+
+        if (matchesSearch) {
+            return { ...node, children: processedChildren, isMatched: true, isExpanded: search ? true : node.isExpanded };
+        } else if (hasMatchingChild) {
+            return { ...node, children: processedChildren, isMatched: false, isExpanded: search ? true : node.isExpanded };
+        }
+
+        return null;
+    };
+
+    const displayedTree = getPrunedTree(tree, 1, visibleLevels, searchQuery);
 
     const views = [
         { icon: "account_tree", label: "Unilevel Tree" },
         { icon: "view_list", label: "List Directory" },
-        { icon: "monitoring", label: "Rank Tracker" },
         { icon: "group_add", label: "Enrollment" },
         { icon: "analytics", label: "Analytics" }
     ];
 
     return (
-        <div className="flex h-screen bg-[#f8fafc] font-display overflow-hidden">
-            <Sidebar />
+        <div className="flex h-full overflow-hidden relative">
 
             {/* Left Inner Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
-                <div className="p-6">
-                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-1">VIEWS</h5>
+            <aside className={`bg-white border-r border-slate-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out absolute md:relative z-30 h-full ${isSubSidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full md:w-0 md:translate-x-0 opacity-0 overflow-hidden border-none'}`}>
+                <div className="p-6 min-w-[256px]">
+                    <div className="flex items-center justify-between mb-6 px-1">
+                        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">VIEW OPTIONS</h5>
+                        <button
+                            onClick={() => setSubSidebarOpen(false)}
+                            className="md:hidden text-slate-400 hover:text-primary transition-all p-1"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
                     <nav className="space-y-1">
                         {views.map(view => (
                             <button
@@ -158,7 +285,7 @@ export default function Genealogy() {
                 <div className="mt-auto p-6 space-y-4">
                     <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Tree Capacity</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Capacity</span>
                             <span className="text-[9px] font-bold text-[#172b4d]">12,402 / 20k</span>
                         </div>
                         <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
@@ -168,174 +295,134 @@ export default function Genealogy() {
                 </div>
             </aside>
 
-            {/* Main Tree Area */}
+            {/* Tree Area */}
             <main className="flex-1 flex flex-col relative bg-[#f1f5f9] overflow-hidden">
-                {/* Top Navigation */}
-                <div className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0 z-10">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
-                                <span className="material-symbols-outlined text-2xl font-bold">account_tree</span>
-                            </div>
-                            <h1 className="text-xl font-bold text-[#172b4d] tracking-tight">Global Genealogy</h1>
-                        </div>
-
-                        <div className="hidden lg:flex items-center gap-6 border-l border-slate-200 pl-8">
-                            {['Genealogy', 'Commissions', 'Reports', 'Settings'].map((item) => (
-                                <button key={item} className={`text-xs font-bold uppercase tracking-widest ${item === 'Genealogy' ? 'text-primary border-b-2 border-primary pb-px' : 'text-slate-400 hover:text-slate-600'}`}>
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <button className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-full transition-all">
-                            <span className="material-symbols-outlined">notifications</span>
-                        </button>
-                        <button className="px-5 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
-                            Admin Console
-                        </button>
-                        <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX_dj4KfY6NKcsjryLVAz302mj4ap8VZXGDmA847VctRCQyj5SuefFtzW0hnb1Cdgs9Enl7l70_ui1jrHWj_sHQbVOxhoP5-8IMCQ7YhkZJpZdhDRIRMiSbXTyu5aMODTEN7waowtGKb9UztPBdt2sRD4Hc7XzQRV0anhyY9qDS78D8Yu8LGSpObqn_iBmb2uYWvKhS6vpENUHMdorRAYZdAvw0BvNYBKAzflWEy95LHdPocZOu9pJ0wbfmFzRLyfKxxhfXcvyhQg" className="w-full h-full object-cover" alt="" />
-                        </div>
-                    </div>
-                </div>
-
                 {/* Tree Controls */}
-                <div className="absolute top-24 left-8 right-8 z-10 flex items-center justify-between pointer-events-none">
-                    <div className="flex items-center gap-4 pointer-events-auto">
-                        <div className="relative w-80">
-                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                <div className="p-3 md:p-8 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 z-10">
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                        <button
+                            onClick={() => setSubSidebarOpen(!isSubSidebarOpen)}
+                            className={`p-2.5 md:p-3 bg-white border border-slate-200 rounded-2xl shadow-sm text-slate-500 hover:text-primary transition-all ${isSubSidebarOpen ? 'text-primary' : ''}`}
+                        >
+                            <span className="material-symbols-outlined text-[20px]">{isSubSidebarOpen ? 'menu_open' : 'menu'}</span>
+                        </button>
+                        <div className="relative flex-1 md:w-80">
+                            <span className="material-symbols-outlined absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base md:text-lg">search</span>
                             <input
                                 type="text"
-                                placeholder="Find User ID or Name..."
-                                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary text-sm font-medium"
+                                placeholder="Search Name or ID..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-white border border-slate-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary text-xs md:text-sm font-medium"
                             />
                         </div>
-                        <button className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm text-slate-500 hover:bg-slate-50 transition-all">
-                            <span className="material-symbols-outlined text-[20px]">fullscreen</span>
-                        </button>
                     </div>
 
-                    <div className="flex items-center gap-2 pointer-events-auto bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-1.5 bg-white p-1 md:p-1.5 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto max-w-full no-scrollbar">
                         {['3 Levels', '5 Levels', 'All'].map(level => (
-                            <button key={level} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${level === '3 Levels' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-slate-50'}`}>
+                            <button
+                                key={level}
+                                onClick={() => handleSetVisibleLevels(level)}
+                                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] md:text-xs font-bold transition-all whitespace-nowrap ${visibleLevels === level ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-slate-50'}`}
+                            >
                                 {level}
                             </button>
                         ))}
-                        <div className="w-px h-6 bg-slate-100 mx-2"></div>
-                        <button className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
-                            <span className="material-symbols-outlined text-[20px]">filter_list</span>
-                            <span>Filter Ranks</span>
+                        <div className="w-px h-5 md:h-6 bg-slate-100 mx-0.5 md:mx-1"></div>
+                        <button
+                            onClick={handleFullscreen}
+                            className="p-1.5 md:p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
+                        >
+                            <span className="material-symbols-outlined text-[18px] md:text-[20px]">fullscreen</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Tree Viewport (Scrollable) */}
-                <div className="flex-1 overflow-auto p-32 flex justify-center items-start scroll-smooth cursor-grab active:cursor-grabbing">
-                    <TreeNode
-                        member={treeData}
-                        isRoot
-                        onSelect={setSelectedMember}
-                        isSelected={selectedMember?.id === treeData.id}
-                    />
-                </div>
 
-                {/* Navigation Minimap Placeholder */}
-                <div className="absolute bottom-8 left-8 p-4 bg-white/80 backdrop-blur-md rounded-3xl border border-white/50 shadow-2xl space-y-2 pointer-events-auto">
-                    <div className="w-32 h-20 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center relative overflow-hidden">
-                        <div className="w-8 h-8 border-2 border-primary bg-primary/5 rounded-lg"></div>
-                        <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-primary rounded-full"></div>
+                {/* Viewport */}
+                <div
+                    ref={viewportRef}
+                    onMouseDown={handleMouseDown}
+                    className="flex-1 overflow-hidden relative cursor-grab active:cursor-grabbing select-none"
+                >
+                    <div
+                        className="absolute inset-0 p-16 md:p-32 flex justify-center items-start scroll-smooth transition-transform duration-75"
+                        style={{
+                            transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                            transformOrigin: 'top center'
+                        }}
+                    >
+                        {displayedTree ? (
+                            <TreeNode
+                                member={displayedTree}
+                                isRoot
+                                onSelect={setSelectedMember}
+                                isSelected={selectedMember?.id === tree.id}
+                                onToggle={toggleNodeExpansion}
+                            />
+                        ) : (
+                            <div className="mt-20 text-center space-y-4">
+                                <span className="material-symbols-outlined text-6xl text-slate-200">person_off</span>
+                                <p className="text-slate-400 font-bold">No members found matching your search</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {/* Zoom Controls */}
-                <div className="absolute bottom-8 right-8 flex flex-col gap-2 pointer-events-auto">
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-                        <button className="w-12 h-12 flex items-center justify-center text-slate-500 hover:bg-primary hover:text-white transition-all">
+                <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col">
+                        <button onClick={handleZoomIn} className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-all border-b border-slate-100">
                             <span className="material-symbols-outlined">add</span>
                         </button>
-                        <div className="w-full h-px bg-slate-100"></div>
-                        <button className="w-12 h-12 flex items-center justify-center text-slate-500 hover:bg-primary hover:text-white transition-all">
+                        <button onClick={handleZoomOut} className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-all">
                             <span className="material-symbols-outlined">remove</span>
                         </button>
                     </div>
-                    <button className="w-12 h-12 bg-white rounded-2xl border border-slate-200 shadow-xl flex items-center justify-center text-slate-500 hover:bg-primary hover:text-white transition-all">
+                    <button onClick={handleResetZoom} className="w-10 h-10 bg-white rounded-2xl border border-slate-200 shadow-xl flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-all">
                         <span className="material-symbols-outlined">center_focus_strong</span>
                     </button>
                 </div>
             </main>
 
-            {/* Right Details Sidebar */}
+            {/* Right Sidebar (Details) */}
             {selectedMember && (
-                <aside className="w-96 bg-white border-l border-slate-200 flex flex-col shrink-0 animate-in slide-in-from-right duration-300">
+                <aside className="fixed md:relative inset-y-0 right-0 w-80 md:w-96 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 animate-in slide-in-from-right duration-300 shadow-2xl md:shadow-none">
                     <div className="p-6 flex items-center justify-between border-b border-slate-50">
-                        <h3 className="text-lg font-black text-[#172b4d]">User Details</h3>
-                        <button
-                            onClick={() => setSelectedMember(null)}
-                            className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
-                        >
-                            <span className="material-symbols-outlined">close</span>
+                        <h3 className="text-sm font-black text-[#172b4d] uppercase tracking-widest">Profile Detail</h3>
+                        <button onClick={() => setSelectedMember(null)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                            <span className="material-symbols-outlined text-[20px]">close</span>
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-10">
+                    <div className="flex-1 overflow-y-auto p-8 md:p-10">
                         <div className="flex flex-col items-center text-center space-y-4 mb-10">
-                            <div className="w-32 h-32 rounded-[2.5rem] border-4 border-white shadow-2xl overflow-hidden mb-2">
+                            <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2.5rem] border-4 border-white shadow-xl overflow-hidden mb-2">
                                 <img src={selectedMember.avatar} className="w-full h-full object-cover" alt="" />
                             </div>
                             <div>
-                                <h4 className="text-2xl font-black text-[#172b4d] tracking-tight">{selectedMember.name}</h4>
-                                <div className="mt-2 px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-full inline-block">
-                                    {selectedMember.rank} MEMBER
-                                </div>
-                                <p className="text-xs text-slate-400 font-bold mt-3">Affiliate ID: #{selectedMember.id}</p>
+                                <h4 className="text-xl md:text-2xl font-black text-[#172b4d] tracking-tight">{selectedMember.name}</h4>
                             </div>
                         </div>
 
-                        <div className="space-y-8">
-                            <div className="space-y-4">
-                                <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">PERFORMANCE KPIS</h5>
-                                <div className="space-y-2">
-                                    {[
-                                        { label: "Personal Volume", value: "$12,450" },
-                                        { label: "Team Volume", value: selectedMember.gv || "$0", color: "text-primary" },
-                                        { label: "Direct Referrals", value: selectedMember.teamSize || "0" }
-                                    ].map(kpi => (
-                                        <div key={kpi.label} className="bg-slate-50 p-4 rounded-2xl flex items-center justify-between border border-slate-100">
-                                            <span className="text-sm text-slate-500 font-medium">{kpi.label}</span>
-                                            <span className={`text-sm font-black ${kpi.color || 'text-[#172b4d]'}`}>{kpi.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                        <div className="space-y-6">
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
+                                <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">ID</span>
+                                <span className="text-sm font-black text-[#172b4d]">#{selectedMember.id}</span>
                             </div>
-
-                            <div className="space-y-4">
-                                <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">SPONSOR INFO</h5>
-                                <div className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-primary/30 transition-all">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white overflow-hidden">
-                                            <img src="https://i.pravatar.cc/150?u=Alexander" alt="" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-[#172b4d]">Alexander Sterling</p>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ID: #88291</p>
-                                        </div>
-                                    </div>
-                                    <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">open_in_new</span>
+                            {selectedMember.gv && (
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
+                                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">GV</span>
+                                    <span className="text-sm font-black text-green-600">{selectedMember.gv}</span>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 
-                    <div className="p-8 space-y-3 bg-slate-50 border-t border-slate-100">
+                    <div className="p-6 md:p-8 bg-slate-50/50 border-t border-slate-100 grid grid-cols-1 gap-3">
                         <button className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
                             <span className="material-symbols-outlined text-lg">message</span>
-                            <span>Contact User</span>
-                        </button>
-                        <button className="w-full py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all">
-                            View Full Profile
+                            <span>Message</span>
                         </button>
                     </div>
                 </aside>

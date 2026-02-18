@@ -18,6 +18,7 @@
   --color-success: #10b981;
 
   --font-display: "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
 
   --radius-default: 0.25rem;
   --radius-lg: 0.5rem;
@@ -39,10 +40,20 @@
     color: #1754cf;
     border-right: 3px solid #1754cf;
   }
+
   .glass-header {
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
