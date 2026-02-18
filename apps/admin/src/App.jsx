@@ -14,6 +14,7 @@ import Withdrawals from "./pages/Withdrawals";
 import KYCVerification from "./pages/KYCVerification";
 import KYCDetails from "./pages/KYCDetails";
 import Login from "./pages/Login";
+import Tickets from "./pages/Tickets";
 
 import Layout from "./components/Layout";
 
@@ -54,6 +55,7 @@ function App() {
 
             <Route path="/kyc" element={<KYCVerification />} />
             <Route path="/kyc/:userId" element={<KYCDetails />} />
+            <Route path="/tickets" element={<Tickets />} />
           </Route>
         </Routes>
       </BrowserRouter>

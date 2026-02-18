@@ -173,6 +173,9 @@ const TicketsSection = () => {
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase">
                   Subject
                 </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase">
+                  Category
+                </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase hidden md:table-cell">
                   Description
                 </th>
@@ -203,12 +206,19 @@ const TicketsSection = () => {
                       ).toLocaleDateString()}
                     </div>
                   </td>
+                  <td className="px-6 py-4 hidden md:table-cell">
+                    <span
+                      className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}
+                    >
+                      {ticket.status}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 hidden md:table-cell max-w-[200px] truncate text-slate-600 text-xs md:text-sm">
                     {ticket.description}
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell">
                     <span
-                      className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}
+                      className={`px- py-1 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}
                     >
                       {ticket.status}
                     </span>
