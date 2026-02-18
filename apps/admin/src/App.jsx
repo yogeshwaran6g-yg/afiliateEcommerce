@@ -20,11 +20,14 @@ import Layout from "./components/Layout";
 
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         <Routes>
           <Route path="/admin/login" element={<Login />} />
 
