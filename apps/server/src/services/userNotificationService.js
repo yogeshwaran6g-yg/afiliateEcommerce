@@ -3,7 +3,7 @@ import { srvRes } from "#src/utils/helper.js";
 
 const userNotificationService = {
 
-    create: async function ({ user_id, type, title }) {
+    create: async function ({ user_id, type, title, description }) {
         try {
             if (!user_id || !type || !title) {
                 return srvRes(400, "Missing required fields: user_id, type, title");
@@ -11,10 +11,10 @@ const userNotificationService = {
 
             const sql = `
                 INSERT INTO user_notifications 
-                (user_id, type, title)
-                VALUES (?, ?, ?)
+                (user_id, type, title, description)
+                VALUES (?, ?, ?, ?)
             `;
-            const params = [user_id, type, title];
+            const params = [user_id, type, title, description || null];
 
             const result = await queryRunner(sql, params);
             if (result?.affectedRows > 0) {
@@ -121,6 +121,24 @@ const userNotificationService = {
             return srvRes(200, `Marked ${result?.affectedRows || 0} notifications as read`);
         } catch (e) {
             console.error("markAllAsRead error:", e);
+            throw e;
+        }
+    },
+
+    deleteNotification: async function (id, user_id) {
+        try {
+            const sql = `
+                DELETE FROM user_notifications 
+                WHERE id = ? AND user_id = ?
+            `;
+            const result = await queryRunner(sql, [id, user_id]);
+
+            if (result?.affectedRows > 0) {
+                return srvRes(200, "Notification deleted successfully");
+            }
+            return srvRes(404, "Notification not found or not owned by user");
+        } catch (e) {
+            console.error("deleteNotification error:", e);
             throw e;
         }
     }

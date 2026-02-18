@@ -46,5 +46,11 @@ router.get('/notifications/:id', notificationController.getNotificationById);
 router.post('/notifications', upload.single('image'), notificationController.createNotification);
 router.put('/notifications/:id', upload.single('image'), notificationController.updateNotification);
 router.delete('/notifications/:id', notificationController.deleteNotification);
+// Wallet transactions
+router.get('/wallet-transactions', adminController.getWalletTransactions);
+
+// Support Tickets
+router.get('/tickets', adminController.getTickets);
+router.post('/tickets/update-status', adminController.updateTicketStatus);
 
 export default router;

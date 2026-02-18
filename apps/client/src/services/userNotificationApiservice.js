@@ -44,9 +44,19 @@ export const markAllAsRead = async () => {
     }
 };
 
+export const deleteNotification = async (id) => {
+    try {
+        const response = await api.delete(endpoints.delete(id));
+        return response;
+    } catch (error) {
+        handleApiError(error, "Delete Notification");
+    }
+};
+
 export default {
     getNotifications,
     getUnreadCount,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    deleteNotification
 };

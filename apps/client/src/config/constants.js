@@ -41,6 +41,7 @@ export const constants = {
       unreadCount: "/api/v1/user-notifications/unread-count",
       markAsRead: (id) => `/api/v1/user-notifications/mark-as-read/${id}`,
       markAllAsRead: "/api/v1/user-notifications/mark-all-as-read",
+      delete: (id) => `/api/v1/user-notifications/${id}`,
     },
     wallet: {
       base: "/api/v1/wallet",

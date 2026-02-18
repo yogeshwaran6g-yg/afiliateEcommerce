@@ -6,6 +6,11 @@ const createTicket = async (req, res) => {
         const userId = req.user.id;
         const { category, subject, description } = req.body;
 
+        const VALID_CATEGORIES = ['ORDER', 'PAYMENT', 'WALLET', 'ACCOUNT', 'OTHER'];
+        if (!category || !VALID_CATEGORIES.includes(category.toUpperCase())) {
+            return rtnRes(res, 400, "Invalid or missing ticket category");
+        }
+
         let image = null;
         if (req.file) {
             image = `/uploads/tickets/${req.file.filename}`;

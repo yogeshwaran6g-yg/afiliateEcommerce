@@ -281,11 +281,11 @@ const TicketsSection = () => {
                 <option value="" disabled>
                   Select category
                 </option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
+                <option value="ORDER">Order</option>
+                <option value="PAYMENT">Payment</option>
+                <option value="WALLET">Wallet</option>
+                <option value="ACCOUNT">Account</option>
+                <option value="OTHER">Other</option>
               </select>
             </div>
 
