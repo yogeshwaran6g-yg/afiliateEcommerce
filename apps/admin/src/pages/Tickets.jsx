@@ -277,10 +277,11 @@ export default function Tickets() {
                                     className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                 >
                                     <option value="">All Categories</option>
-                                    <option value="GENERAL">General</option>
+                                    <option value="ORDER">Order</option>
                                     <option value="PAYMENT">Payment</option>
+                                    <option value="WALLET">Wallet</option>
                                     <option value="ACCOUNT">Account</option>
-                                    <option value="TECHNICAL">Technical</option>
+                                    <option value="OTHER">Other</option>
                                 </select>
                                 <select
                                     value={filters.priority}

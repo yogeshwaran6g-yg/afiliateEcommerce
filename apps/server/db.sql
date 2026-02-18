@@ -414,7 +414,7 @@ CREATE TABLE `recharge_requests` (
 CREATE TABLE `tickets` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id` BIGINT UNSIGNED NOT NULL,
-    `category` VARCHAR(100) NOT NULL,
+    `category` ENUM('ORDER', 'PAYMENT', 'WALLET', 'ACCOUNT', 'OTHER') NOT NULL,
     `subject` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
     `image` VARCHAR(255) NULL,
