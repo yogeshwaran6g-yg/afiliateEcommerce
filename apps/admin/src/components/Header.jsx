@@ -10,7 +10,7 @@ export default function Header({ title = "Analytics Overview", onMenuClick }) {
                 >
                     <span className="material-symbols-outlined font-bold text-[22px]">menu</span>
                 </button>
-                <h1 className="text-sm md:text-xl font-bold text-[#172b4d] tracking-tight truncate leading-tight">{title}</h1>
+                <h1 className="text-sm md:text-xl font-semibold text-slate-800 truncate leading-tight">{title}</h1>
 
             </div>
 

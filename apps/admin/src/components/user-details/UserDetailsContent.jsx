@@ -43,12 +43,10 @@ const UserDetailsContent = ({
             {/* Simple Tab Control */}
             <div className="bg-slate-100/50 p-1.5 rounded-2xl border border-slate-100 inline-flex flex-wrap items-center gap-1">
                 {[
-                    { id: 'WALLET', label: 'Wallet', icon: 'account_balance_wallet' },
-                    { id: 'BANKING', label: 'Banking', icon: 'assured_workload' },
-                    { id: 'REFERRALS', label: 'Referrals', icon: 'hub' },
                     { id: 'ACTIVATION', label: 'Activation', icon: 'bolt' },
                     { id: 'KYC', label: 'KYC', icon: 'verified_user' },
-                    { id: 'ACTIVITY', label: 'Activity', icon: 'history' }
+                    { id: 'WALLET', label: 'Wallet', icon: 'account_balance_wallet' },
+                    { id: 'REFERRALS', label: 'Referrals', icon: 'hub' }
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -125,56 +123,7 @@ const UserDetailsContent = ({
                 </div>
             )}
 
-            {/* TAB CONTENT: BANKING */}
-            {activeTab === 'BANKING' && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400">
-                    <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                        <div className="flex flex-col md:flex-row gap-10">
-                            <div className="flex-1 space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                        <span className="material-symbols-outlined text-2xl">account_balance</span>
-                                    </div>
-                                    <div className="space-y-0.5">
-                                        <p className="text-xs font-bold text-slate-800 uppercase tracking-wider">{user.bank_name || 'Bank Name Not Added'}</p>
-                                        <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Primary Account</p>
-                                    </div>
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Account Number</p>
-                                        <p className="text-sm font-semibold text-slate-700 tracking-wider">{user.bank_account_number || '••••••••••••'}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">IFSC Code</p>
-                                        <p className="text-sm font-semibold text-slate-700">{user.bank_ifsc || '••••••••'}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="w-px bg-slate-100 hidden md:block"></div>
-
-                            <div className="flex-1 space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                        <span className="material-symbols-outlined text-2xl">person_outline</span>
-                                    </div>
-                                    <div className="space-y-0.5">
-                                        <p className="text-xs font-bold text-slate-800 uppercase tracking-wider">{user.bank_account_name || 'Account Holder Not Added'}</p>
-                                        <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Holder Name</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${user.bank_status === 'VERIFIED' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
-                                        Status: {user.bank_status || 'Pending'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* TAB CONTENT: REFERRALS */}
             {activeTab === 'REFERRALS' && (
@@ -373,21 +322,7 @@ const UserDetailsContent = ({
                 </div>
             )}
 
-            {/* TAB CONTENT: ACTIVITY */}
-            {activeTab === 'ACTIVITY' && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
-                    <div className="bg-white rounded-3xl border border-slate-200 p-16 text-center shadow-sm">
-                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-2xl text-slate-300">history</span>
-                        </div>
-                        <h4 className="text-lg font-bold text-slate-800">No Activity Yet</h4>
-                        <p className="text-xs text-slate-500 font-medium mt-2">Activity logs for this user will appear here.</p>
-                        <button className="mt-8 px-6 py-2.5 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-colors">
-                            Refresh
-                        </button>
-                    </div>
-                </div>
-            )}
+
 
         </div>
     );

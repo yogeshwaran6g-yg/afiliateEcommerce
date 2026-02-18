@@ -68,7 +68,7 @@ export default function Withdrawals() {
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Processing Withdrawal Requests...</p>
+                    <p className="text-slate-500 font-semibold text-sm animate-pulse">Loading withdrawals...</p>
                 </div>
             </div>
         );
@@ -79,13 +79,13 @@ export default function Withdrawals() {
             {/* Page Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                        <span className="hover:text-primary cursor-pointer transition-colors">Finance</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <span className="hover:text-primary cursor-pointer transition-colors">Admin</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">Withdrawal Requests</span>
+                        <span className="text-primary font-bold">Withdrawals</span>
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Liquid Asset Outflow</h2>
-                    <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Review and authorize distributor payout requests to ensure financial integrity.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Withdrawals</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Review and authorize distributor payout requests.</p>
                 </div>
             </div>
 
@@ -125,8 +125,8 @@ export default function Withdrawals() {
                                 key={tab.value}
                                 onClick={() => setActiveFilter(tab.value)}
                                 className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab.value
-                                        ? 'bg-white text-primary shadow-lg shadow-primary/10'
-                                        : 'text-slate-400 hover:text-slate-600'
+                                    ? 'bg-white text-primary shadow-lg shadow-primary/10'
+                                    : 'text-slate-400 hover:text-slate-600'
                                     }`}
                             >
                                 {tab.label}
@@ -161,7 +161,7 @@ export default function Withdrawals() {
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">BANK PARAMETERS</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">REQUESTED ON</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">AUTHORIZATION</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTION</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -213,7 +213,7 @@ export default function Withdrawals() {
                                         </td>
                                         <td className="px-10 py-6">
                                             <div className="flex items-center justify-end gap-3">
-                                                {request.status === 'REVIEW_PENDING' && (
+                                                {request.status === 'REVIEW_PENDING' ? (
                                                     <div className="flex items-center gap-2">
                                                         <button
                                                             onClick={() => handleOpenActionModal(request, "APPROVE")}
@@ -227,6 +227,15 @@ export default function Withdrawals() {
                                                         >
                                                             VOID
                                                         </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-2 text-slate-300">
+                                                        <span className="material-symbols-outlined text-lg">
+                                                            {request.status === 'APPROVED' ? 'check_circle' : 'cancel'}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest leading-none">
+                                                            {request.status === 'APPROVED' ? 'FINALIZED' : 'VOIDED'}
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>

@@ -36,7 +36,7 @@ export default function Dashboard() {
                     showPulse={true}
                 />
                 <MetricCard
-                    title="Pending Withdrawals"
+                    title="Pending Requests"
                     value="42 Req."
                     icon="error"
                     subValue="24 Critical"

@@ -450,13 +450,13 @@ export default function Products() {
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                        <span>Home</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                        <span>Admin</span>
                         <span className="material-symbols-outlined text-xs">chevron_right</span>
-                        <span className="text-primary font-black">Product Management</span>
+                        <span className="text-primary font-bold">Products</span>
                     </div>
-                    <h2 className="text-2xl font-black text-[#172b4d] tracking-tight">Enterprise Product Catalog</h2>
-                    <p className="text-sm text-slate-500 font-medium">Create, manage, and distribute products across your global MLM platform.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Products</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Create and manage your enterprise product catalog.</p>
                 </div>
 
                 <button
