@@ -15,6 +15,8 @@ import KYCVerification from "./pages/KYCVerification";
 import KYCDetails from "./pages/KYCDetails";
 import Login from "./pages/Login";
 import Tickets from "./pages/Tickets";
+import WalletTransactions from "./pages/WalletTransactions";
+import UserNotifications from "./pages/UserNotifications";
 
 import Layout from "./components/Layout";
 
@@ -46,6 +48,7 @@ function App() {
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/recharges" element={<Recharges />} />
             <Route path="/withdrawals" element={<Withdrawals />} />
+            <Route path="/wallet-transactions" element={<WalletTransactions />} />
 
             <Route path="/users" element={<Users />} />
             <Route path="/users/:userId" element={<UserDetails />} />
@@ -53,6 +56,7 @@ function App() {
             <Route path="/kyc" element={<KYCVerification />} />
             <Route path="/kyc/:userId" element={<KYCDetails />} />
             <Route path="/tickets" element={<Tickets />} />
+            <Route path="/user-notifications" element={<UserNotifications />} />
           </Route>
         </Routes>
       </BrowserRouter>

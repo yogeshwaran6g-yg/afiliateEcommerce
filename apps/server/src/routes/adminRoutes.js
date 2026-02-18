@@ -53,4 +53,10 @@ router.get('/wallet-transactions', adminController.getWalletTransactions);
 router.get('/tickets', adminController.getTickets);
 router.post('/tickets/update-status', adminController.updateTicketStatus);
 
+// User Notifications management
+router.get('/user-notifications', adminController.getUserNotifications);
+router.post('/user-notifications', adminController.sendUserNotification);
+router.post('/user-notifications/broadcast', adminController.broadcastUserNotification);
+router.delete('/user-notifications/:id', adminController.deleteUserNotification);
+
 export default router;

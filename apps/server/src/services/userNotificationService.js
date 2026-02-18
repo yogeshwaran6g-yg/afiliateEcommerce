@@ -11,10 +11,10 @@ const userNotificationService = {
 
             const sql = `
                 INSERT INTO user_notifications 
-                (user_id, type, title, description)
+                (user_id, title, type, description)
                 VALUES (?, ?, ?, ?)
             `;
-            const params = [user_id, type, title, description || null];
+            const params = [user_id, title, type, description || null];
 
             const result = await queryRunner(sql, params);
             if (result?.affectedRows > 0) {
@@ -27,32 +27,72 @@ const userNotificationService = {
         }
     },
 
-    get: async function ({ user_id, unread_only = false, page = 1, limit = 20, type = null }) {
+    broadcast: async function ({ type, title, description }) {
         try {
-            if (!user_id) return srvRes(400, "user_id is required");
+            if (!type || !title) {
+                return srvRes(400, "Missing required fields: type, title");
+            }
 
-            let sql = `SELECT * FROM user_notifications WHERE user_id = ?`;
-            const params = [user_id];
+            // Get all active users
+            const users = await queryRunner(`SELECT id FROM users WHERE is_active = 1`);
 
+            if (!users || users.length === 0) {
+                return srvRes(200, "No active users to broadcast to");
+            }
+
+            const values = users.map(u => [u.id, title, type, description || null]);
+            const sql = `
+                INSERT INTO user_notifications 
+                (user_id, title, type, description)
+                VALUES ?
+            `;
+
+            const result = await queryRunner(sql, [values]);
+
+            return srvRes(201, `Broadcasted notification to ${result?.affectedRows || 0} users`);
+        } catch (e) {
+            console.error("broadcast notification error:", e);
+            throw e;
+        }
+    },
+
+    get: async function ({ user_id = null, unread_only = false, page = 1, limit = 20, type = null }) {
+        try {
+            let sql = `
+                SELECT un.*, u.name as user_name, u.email as user_email, u.phone as user_phone
+                FROM user_notifications un
+                LEFT JOIN users u ON un.user_id = u.id
+                WHERE 1=1
+            `;
+            const params = [];
+
+            if (user_id) {
+                sql += ` AND un.user_id = ?`;
+                params.push(user_id);
+            }
             if (unread_only === true || unread_only === "true" || unread_only === 1) {
-                sql += ` AND is_read = 0`;
+                sql += ` AND un.is_read = 0`;
             }
             if (type) {
-                sql += ` AND type = ?`;
+                sql += ` AND un.type = ?`;
                 params.push(type);
             }
 
-            sql += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+            sql += ` ORDER BY un.created_at DESC LIMIT ? OFFSET ?`;
             params.push(parseInt(limit), (parseInt(page) - 1) * parseInt(limit));
 
             const notifications = await queryRunner(sql, params);
 
             // Total count for pagination
-            let countSql = `SELECT COUNT(*) as total FROM user_notifications WHERE user_id = ?`;
-            const countParams = [user_id];
-            if (unread_only) countSql += ` AND is_read = 0`;
+            let countSql = `SELECT COUNT(*) as total FROM user_notifications un WHERE 1=1`;
+            const countParams = [];
+            if (user_id) {
+                countSql += ` AND un.user_id = ?`;
+                countParams.push(user_id);
+            }
+            if (unread_only) countSql += ` AND un.is_read = 0`;
             if (type) {
-                countSql += ` AND type = ?`;
+                countSql += ` AND un.type = ?`;
                 countParams.push(type);
             }
             const [{ total }] = await queryRunner(countSql, countParams);
@@ -68,6 +108,25 @@ const userNotificationService = {
             });
         } catch (e) {
             console.error("get user notifications error:", e);
+            throw e;
+        }
+    },
+
+    getById: async function (id) {
+        try {
+            const sql = `
+                SELECT un.*, u.name as user_name, u.email as user_email, u.phone as user_phone
+                FROM user_notifications un
+                LEFT JOIN users u ON un.user_id = u.id
+                WHERE un.id = ?
+            `;
+            const [notification] = await queryRunner(sql, [id]);
+            if (notification) {
+                return srvRes(200, "Notification found", notification);
+            }
+            return srvRes(404, "Notification not found");
+        } catch (e) {
+            console.error("getById user notification error:", e);
             throw e;
         }
     },
@@ -125,18 +184,22 @@ const userNotificationService = {
         }
     },
 
-    deleteNotification: async function (id, user_id) {
+    deleteNotification: async function (id, user_id = null) {
         try {
-            const sql = `
-                DELETE FROM user_notifications 
-                WHERE id = ? AND user_id = ?
-            `;
-            const result = await queryRunner(sql, [id, user_id]);
+            let sql = `DELETE FROM user_notifications WHERE id = ?`;
+            const params = [id];
+
+            if (user_id) {
+                sql += ` AND user_id = ?`;
+                params.push(user_id);
+            }
+
+            const result = await queryRunner(sql, params);
 
             if (result?.affectedRows > 0) {
                 return srvRes(200, "Notification deleted successfully");
             }
-            return srvRes(404, "Notification not found or not owned by user");
+            return srvRes(404, "Notification not found");
         } catch (e) {
             console.error("deleteNotification error:", e);
             throw e;

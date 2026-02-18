@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
     const { user, logout } = useAuth();
-    const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') ? 'Transactions' : null);
+    const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') || location.pathname.includes('wallet-transactions') ? 'Transactions' : null);
 
     const sections = [
         {
@@ -15,6 +15,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 { icon: "inventory_2", label: "Product Catalog", path: "/products" },
                 { icon: "campaign", label: "Announcements", path: "/announcements" },
                 { icon: "person_search", label: "User Management", path: "/users" },
+                { icon: "mail", label: "User Notifications", path: "/user-notifications" },
                 { icon: "verified_user", label: "KYC Verification", path: "/kyc" },
                 { icon: "account_tree", label: "Tree View", path: "/genealogy" },
             ]
@@ -28,6 +29,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     label: "Transactions",
                     subItems: [
                         { label: "Record History", path: "/transactions" },
+                        { label: "Wallet Transactions", path: "/wallet-transactions" },
                         { label: "Recharges", path: "/recharges" },
                         { label: "Withdrawals", path: "/withdrawals" },
                     ]
