@@ -152,17 +152,19 @@ export default function Payouts() {
             {/* Table View */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 md:p-8 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-                    <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-2xl w-fit">
-                        {["All", "Pending", "Completed"].map(tab => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`px-4 md:px-6 py-2 rounded-[0.9rem] text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
-                                    }`}
-                            >
-                                {tab}
-                            </button>
-                        ))}
+                    <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-2xl w-fit overflow-x-auto no-scrollbar max-w-full">
+                        <div className="flex items-center gap-1.5 min-w-max">
+                            {["All", "Pending", "Completed"].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`px-4 md:px-6 py-2 rounded-[0.9rem] text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                                        }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -178,37 +180,99 @@ export default function Payouts() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[900px]">
-                        <thead className="bg-slate-50/50">
-                            <tr>
-                                <th className="px-8 py-5">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.length === requests.length}
-                                        onChange={toggleAll}
-                                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
+                <div className="p-0">
+                    {/* Mobile Card View */}
+                    <div className="block lg:hidden divide-y divide-slate-50">
+                        {requests.map(req => (
+                            <div key={req.id} className={`p-4 md:p-6 space-y-4 hover:bg-slate-50/30 transition-colors ${selectedItems.includes(req.id) ? 'bg-primary/5' : ''}`}>
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="relative shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedItems.includes(req.id)}
+                                                onChange={() => toggleSelect(req.id)}
+                                                className="absolute -top-1 -left-1 w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer z-10"
+                                            />
+                                            <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white overflow-hidden shadow-sm">
+                                                <img src={req.avatar} className="w-full h-full object-cover" alt="" />
+                                            </div>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h4 className="text-xs font-bold text-[#172b4d] tracking-tight truncate">{req.userName}</h4>
+                                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">ID: {req.userId}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <div className="text-sm font-black text-[#172b4d] leading-none">${req.amount}</div>
+                                        <span className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest mt-1 ${req.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                                            req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
+                                            }`}>
+                                            {req.status}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-50/50 rounded-2xl p-3 flex items-center justify-between border border-slate-100/50 gap-4">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <div className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-slate-400 border border-slate-100 shrink-0">
+                                            <span className="material-symbols-outlined text-sm">{req.methodIcon}</span>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-bold text-[#172b4d] truncate">{req.method}</p>
+                                            <p className="text-[8px] text-slate-400 font-medium font-mono truncate">{req.methodDetail}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest shrink-0">{req.date}</p>
+                                </div>
+
+                                {req.status === 'PENDING' && (
+                                    <div className="flex items-center gap-2 pt-1">
+                                        <button className="flex-1 py-2 bg-green-500 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all shadow-md shadow-green-500/10 uppercase">
+                                            APPROVE
+                                        </button>
+                                        <button className="flex-1 py-2 bg-red-50 text-red-600 text-[9px] font-black rounded-lg active:scale-95 transition-all uppercase">
+                                            REJECT
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block overflow-x-auto">
+                        <table className="w-full text-left min-w-[900px]">
+                            <thead className="bg-slate-50/50">
+                                <tr>
+                                    <th className="px-8 py-5 text-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.length === requests.length}
+                                            onChange={toggleAll}
+                                            className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
+                                        />
+                                    </th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">USER DETAILS</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">AMOUNT</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">METHOD</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">DATE</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {requests.map(req => (
+                                    <PayoutRow
+                                        key={req.id}
+                                        request={req}
+                                        isSelected={selectedItems.includes(req.id)}
+                                        onSelect={toggleSelect}
                                     />
-                                </th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">USER DETAILS</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">AMOUNT</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">METHOD</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">DATE</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {requests.map(req => (
-                                <PayoutRow
-                                    key={req.id}
-                                    request={req}
-                                    isSelected={selectedItems.includes(req.id)}
-                                    onSelect={toggleSelect}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">

@@ -107,26 +107,26 @@ export default function KYCDetails() {
     ];
 
     return (
-        <div className="p-4 md:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
-            <div className="flex items-center justify-between">
+        <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8 max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
-                        className="w-10 h-10 bg-white rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary transition-all shadow-sm"
+                        className="w-10 h-10 bg-white rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary transition-all shadow-sm shrink-0"
                     >
                         <span className="material-symbols-outlined text-lg">arrow_back</span>
                     </button>
-                    <div>
-                        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Verification Details</h2>
-                        <p className="text-slate-500 font-medium text-xs mt-0.5">User: {user.name} (ID: {user.id})</p>
+                    <div className="min-w-0">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight truncate">Verification Details</h2>
+                        <p className="text-slate-500 font-medium text-[10px] md:text-xs mt-0.5 truncate">User: {user.name} (ID: {user.id})</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center w-full md:w-auto">
                     <button
                         onClick={handleApproveAll}
                         disabled={processing}
-                        className={`px-6 py-3 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 active:scale-95 transition-all flex items-center gap-2 ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full md:w-auto px-6 py-3 bg-slate-800 text-white rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2 ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {processing && <span className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>}
                         Approve All Documents
@@ -182,32 +182,32 @@ export default function KYCDetails() {
                 <div className="xl:col-span-8 space-y-6">
                     {sections.map((section, idx) => (
                         <div key={idx} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-6 hover:shadow-md transition-all">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
-                                        <span className="material-symbols-outlined text-xl">{section.icon}</span>
+                                    <div className="w-10 md:w-12 h-10 md:h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100 shrink-0">
+                                        <span className="material-symbols-outlined text-lg md:text-xl">{section.icon}</span>
                                     </div>
-                                    <div>
-                                        <h4 className="text-sm font-bold text-slate-800 tracking-tight">{section.title}</h4>
+                                    <div className="min-w-0">
+                                        <h4 className="text-xs md:text-sm font-black text-[#172b4d] tracking-tight truncate">{section.title}</h4>
                                         <div className="flex items-center gap-2 mt-0.5">
-                                            <span className={`text-[10px] font-bold uppercase tracking-wide ${section.status === 'VERIFIED' ? 'text-green-600' : 'text-slate-400'}`}>
+                                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${section.status === 'VERIFIED' ? 'text-green-600' : 'text-slate-400'}`}>
                                                 {section.status || 'Not Submitted'}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 w-full sm:w-auto">
                                     <button
                                         disabled={processing || section.status === 'VERIFIED'}
                                         onClick={() => handleKYCAction(idx === 0 ? 'identity' : idx === 1 ? 'address' : 'bank', 'VERIFIED')}
-                                        className={`px-4 py-2 bg-green-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-green-700 transition-all ${processing || section.status === 'VERIFIED' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all ${processing || section.status === 'VERIFIED' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         Approve
                                     </button>
                                     <button
                                         disabled={processing || section.status === 'REJECTED'}
                                         onClick={() => handleKYCAction(idx === 0 ? 'identity' : idx === 1 ? 'address' : 'bank', 'REJECTED')}
-                                        className={`px-4 py-2 bg-white border border-slate-200 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-red-50 transition-all ${processing || section.status === 'REJECTED' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-50 transition-all ${processing || section.status === 'REJECTED' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         Reject
                                     </button>
