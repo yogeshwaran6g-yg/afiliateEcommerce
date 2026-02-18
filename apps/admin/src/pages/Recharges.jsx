@@ -71,7 +71,7 @@ export default function Recharges() {
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Processing Financial Requests...</p>
+                    <p className="text-slate-500 font-semibold text-sm animate-pulse">Loading recharges...</p>
                 </div>
             </div>
         );
@@ -82,13 +82,13 @@ export default function Recharges() {
             {/* Page Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                        <span className="hover:text-primary cursor-pointer transition-colors">Finance</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <span className="hover:text-primary cursor-pointer transition-colors">Admin</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">Recharge Requests</span>
+                        <span className="text-primary font-bold">Recharges</span>
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Capital Influx</h2>
-                    <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Validate and approve distributor wallet recharges to maintain platform liquidity.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Recharges</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Validate and approve distributor wallet recharges.</p>
                 </div>
             </div>
 
@@ -128,8 +128,8 @@ export default function Recharges() {
                                 key={tab.value}
                                 onClick={() => setActiveFilter(tab.value)}
                                 className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab.value
-                                        ? 'bg-white text-primary shadow-lg shadow-primary/10'
-                                        : 'text-slate-400 hover:text-slate-600'
+                                    ? 'bg-white text-primary shadow-lg shadow-primary/10'
+                                    : 'text-slate-400 hover:text-slate-600'
                                     }`}
                             >
                                 {tab.label}

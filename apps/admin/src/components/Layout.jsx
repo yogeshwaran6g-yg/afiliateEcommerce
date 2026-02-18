@@ -5,9 +5,11 @@ import Header from "./Header";
 
 export default function Layout() {
     const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const toggleSidebar = () => setMobileSidebarOpen(!isMobileSidebarOpen);
     const closeSidebar = () => setMobileSidebarOpen(false);
+    const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
     return (
         <div className="flex w-full h-screen bg-[#f8fafc] font-display overflow-hidden">
@@ -21,9 +23,14 @@ export default function Layout() {
                 ></div>
             )}
 
-            <Sidebar isOpen={isMobileSidebarOpen} onClose={closeSidebar} />
+            <Sidebar
+                isOpen={isMobileSidebarOpen}
+                onClose={closeSidebar}
+                isCollapsed={isCollapsed}
+                onToggleCollapse={toggleCollapse}
+            />
 
-            <main className="flex-1 flex flex-col min-w-0 w-full">
+            <main className="flex-1 flex flex-col min-w-0 w-full transition-all duration-300">
 
                 <Header onMenuClick={toggleSidebar} />
                 <div className="flex-1 overflow-y-auto h-full">

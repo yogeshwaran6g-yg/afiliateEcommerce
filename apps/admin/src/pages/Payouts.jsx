@@ -89,15 +89,13 @@ export default function Payouts() {
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                        <span>Home</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                        <span>Admin</span>
                         <span className="material-symbols-outlined text-xs">chevron_right</span>
-                        <span>Finance</span>
-                        <span className="material-symbols-outlined text-xs">chevron_right</span>
-                        <span className="text-primary font-black">Payout Requests</span>
+                        <span className="text-primary font-bold">Payouts</span>
                     </div>
-                    <h2 className="text-2xl font-black text-[#172b4d] tracking-tight">Withdrawal Requests</h2>
-                    <p className="text-sm text-slate-500 font-medium">Manage member withdrawal requests and monitor platform liquidity.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Payouts</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Manage member withdrawal requests and monitor platform liquidity.</p>
                 </div>
 
                 <button className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none">

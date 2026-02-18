@@ -36,9 +36,14 @@ export default function KYCVerification() {
     return (
         <div className="p-4 md:p-8 lg:p-10 space-y-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h2 className="text-4xl font-black text-[#172b4d] tracking-tighter">KYC Verification</h2>
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-1">Identity & Compliance Oversight</p>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <span>Admin</span>
+                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <span className="text-primary font-bold">Verification</span>
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Verification</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Review and approve user identification documents.</p>
                 </div>
 
                 <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
@@ -111,9 +116,9 @@ export default function KYCVerification() {
                                         <td className="px-8 py-6 whitespace-nowrap text-right">
                                             <button
                                                 onClick={() => navigate(`/kyc/${record.dbId}`)}
-                                                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-slate-900/10 hover:shadow-xl hover:translate-y-[-2px] transition-all active:scale-95"
+                                                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-slate-800 transition-all active:scale-95"
                                             >
-                                                Verify Dossier
+                                                Review Details
                                             </button>
                                         </td>
                                     </tr>

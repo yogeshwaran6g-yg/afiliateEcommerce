@@ -28,6 +28,7 @@ router.put('/users/:userId', adminController.updateUser);
 
 // KYC management
 router.get('/kyc', adminController.getKYCRecords);
+router.put('/kyc/:userId', adminController.updateKYCStatus);
 
 // Product management leveraging existing productController
 import productController from '../controllers/productController.js';

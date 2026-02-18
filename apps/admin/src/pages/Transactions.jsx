@@ -67,13 +67,13 @@ export default function Transactions() {
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                        <span>Finance</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <span>Admin</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary">Transaction Logs</span>
+                        <span className="text-primary font-bold">Transactions</span>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tight">Ledger Operations</h2>
-                    <p className="text-sm md:text-lg text-slate-500 font-medium">Monitoring real-time financial movements across the entire MLM ecosystem.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Transactions</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Monitoring real-time financial movements.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
