@@ -23,6 +23,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
         {
             title: "Finance",
             items: [
+                { icon: "settings_suggest", label: "Commission Config", path: "/settings/commission" },
                 { icon: "payments", label: "Commissions", path: "/payouts" },
                 {
                     icon: "swap_horiz",

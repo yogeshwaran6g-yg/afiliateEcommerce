@@ -201,57 +201,104 @@ export default function Users() {
                 </div>
             </div>
 
-            {/* Users Table */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-slate-50/50 border-b border-slate-50">
-                            <tr>
-                                <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User Details</th>
-                                <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Joined On</th>
-                                <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
+            {/* Users Table / Mobile Cards */}
+            <div className={`bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in duration-500 ${filteredUsers.length === 0 ? 'p-10' : ''}`}>
+                {filteredUsers.length === 0 ? (
+                    <div className="flex flex-col items-center gap-4 text-center py-20">
+                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                            <span className="material-symbols-outlined text-4xl">person_off</span>
+                        </div>
+                        <p className="text-sm font-bold text-slate-400">No users found matching the filter.</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Mobile Card View */}
+                        <div className="block lg:hidden p-4 space-y-4">
                             {filteredUsers.map((user, i) => (
-                                <tr key={i} className={`hover:bg-slate-50/50 transition-colors group`}>
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 rounded-full ${user.color || 'bg-slate-100 text-slate-600'} flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200`}>
+                                <div key={i} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 space-y-4">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className={`w-12 h-12 rounded-full ${user.color || 'bg-slate-100 text-slate-600'} flex items-center justify-center font-bold text-sm shrink-0 border border-slate-200 shadow-sm`}>
                                                 {user.avatar}
                                             </div>
                                             <div className="min-w-0">
                                                 <h4 className="text-sm font-bold text-slate-800 tracking-tight truncate">{user.name}</h4>
-                                                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5 truncate">ID: {user.id}</p>
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">ID: {user.id}</p>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className="text-xs font-semibold text-slate-600">{user.joined}</span>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wide ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : (user.status === 'BLOCKED' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700')
-                                            }`}>
+                                        <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : (user.status === 'BLOCKED' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700')}`}>
                                             {user.status}
                                         </span>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center justify-end gap-2 pr-2">
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                                        <div className="space-y-0.5">
+                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Joined On</p>
+                                            <p className="text-[11px] font-bold text-slate-600">{user.joined}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => navigate(`/users/${user.dbId}`)}
-                                                className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-lg transition-all"
-                                                title="View Details"
+                                                className="flex items-center gap-2 px-4 py-2 bg-white text-primary text-[10px] font-black uppercase tracking-widest rounded-xl border border-primary/10 shadow-sm transition-all active:scale-95"
                                             >
-                                                <span className="material-symbols-outlined text-xl">visibility</span>
+                                                <span className="material-symbols-outlined text-sm font-bold">visibility</span>
+                                                Details
                                             </button>
                                         </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full text-left min-w-[800px]">
+                                <thead className="bg-slate-50/50 border-b border-slate-50">
+                                    <tr>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User Details</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Joined On</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {filteredUsers.map((user, i) => (
+                                        <tr key={i} className={`hover:bg-slate-50/50 transition-colors group`}>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-12 h-12 rounded-full ${user.color || 'bg-slate-100 text-slate-600'} flex items-center justify-center font-black text-xs shrink-0 border border-slate-200 group-hover:scale-110 transition-transform`}>
+                                                        {user.avatar}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <h4 className="text-sm font-bold text-slate-800 tracking-tight truncate">{user.name}</h4>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5 truncate">ID: {user.id}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className="text-xs font-bold text-slate-600">{user.joined}</span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className={`px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${user.status === 'ACTIVE' ? 'bg-green-50 text-green-700 border-green-100' : (user.status === 'BLOCKED' ? 'bg-red-50 text-red-700 border-red-100' : 'bg-amber-50 text-amber-700 border-amber-100')}`}>
+                                                    {user.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <button
+                                                    onClick={() => navigate(`/users/${user.dbId}`)}
+                                                    className="p-2.5 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all"
+                                                    title="View Details"
+                                                >
+                                                    <span className="material-symbols-outlined text-xl">visibility</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* View User Modal */}
