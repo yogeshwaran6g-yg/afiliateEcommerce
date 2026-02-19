@@ -2,14 +2,22 @@ import React, { useState, useEffect } from "react";
 import userNotificationApiService from "../services/userNotificationApiService";
 import userApiService from "../services/userApiService";
 
-const NotificationDrawer = ({ isOpen, onClose, onSave, loading }) => {
-    const [formData, setFormData] = useState({
+const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [] }) => {
+    const initialFormState = {
         user_id: "",
-        type: "",
+        type: "ORDER",
         title: "",
         description: "",
         isBroadcast: false
-    });
+    };
+
+    const [formData, setFormData] = useState(initialFormState);
+
+    useEffect(() => {
+        if (isOpen) {
+            setFormData(initialFormState);
+        }
+    }, [isOpen]);
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -63,16 +71,21 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading }) => {
 
                         {!formData.isBroadcast && (
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-[#172b4d] ml-1">Recipient User ID <span className="text-red-500">*</span></label>
-                                <input
-                                    type="number"
+                                <label className="text-sm font-bold text-[#172b4d] ml-1">Recipient User <span className="text-red-500">*</span></label>
+                                <select
                                     name="user_id"
                                     value={formData.user_id}
                                     onChange={handleInputChange}
                                     required={!formData.isBroadcast}
-                                    placeholder="Enter DB ID of the user"
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all"
-                                />
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all appearance-none"
+                                >
+                                    <option value="">Select a user</option>
+                                    {users.map(user => (
+                                        <option key={user.dbId} value={user.dbId}>
+                                            {user.name} ({user.phone})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         )}
 
@@ -138,20 +151,37 @@ export default function UserNotifications() {
     const [drawerLoading, setDrawerLoading] = useState(false);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 20, pages: 0 });
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         fetchNotifications();
+        fetchUsers();
     }, [pagination.page]);
+
+    const fetchUsers = async () => {
+        try {
+            const data = await userApiService.getUsers();
+            setUsers(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Failed to fetch users:", err);
+            setUsers([]);
+        }
+    };
 
     const fetchNotifications = async () => {
         try {
             setLoading(true);
             const data = await userNotificationApiService.getNotifications({ page: pagination.page, limit: pagination.limit });
-            setNotifications(data.items);
-            setPagination(data.pagination);
+            if (data && data.items) {
+                setNotifications(data.items);
+                setPagination(data.pagination);
+            } else {
+                setNotifications([]);
+            }
             setError(null);
         } catch (err) {
             setError(err.message || "Failed to load notifications");
+            setNotifications([]);
         } finally {
             setLoading(false);
         }
@@ -197,7 +227,7 @@ export default function UserNotifications() {
         }
     };
 
-    if (loading && notifications.length === 0) {
+    if (loading && (!notifications || notifications.length === 0)) {
         return (
             <div className="p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
@@ -220,6 +250,14 @@ export default function UserNotifications() {
                     <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Notification Hub</h2>
                     <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Send targeted alerts and messages to individual distributors or broadcast to the entire network.</p>
                 </div>
+
+                {error && (
+                    <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3 text-red-600">
+                        <span className="material-symbols-outlined">error</span>
+                        <p className="text-sm font-bold">{error}</p>
+                        <button onClick={fetchNotifications} className="ml-auto underline text-xs">Retry</button>
+                    </div>
+                )}
 
                 <button
                     onClick={handleOpenDrawer}
@@ -248,31 +286,29 @@ export default function UserNotifications() {
                                     <td className="px-10 py-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                {item.user_name?.charAt(0) || item.user_id}
+                                                {item?.user_name?.charAt(0) || item?.user_id}
                                             </div>
                                             <div className="min-w-0">
-                                                <h4 className="text-sm font-black text-[#172b4d] tracking-tight truncate">{item.user_name || 'System User'}</h4>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Recipient ID: {item.user_id}</p>
+                                                <h4 className="text-sm font-black text-[#172b4d] tracking-tight truncate">{item?.user_name || 'System User'}</h4>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Recipient ID: {item?.user_id}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-10 py-6">
                                         <div className="max-w-md">
-                                            <h4 className="text-sm font-bold text-[#172b4d] tracking-tight">{item.title}</h4>
-                                            <p className="text-[11px] text-slate-400 font-medium truncate mt-1">{item.description}</p>
-                                            <p className="text-[9px] text-slate-300 mt-1 font-bold">{new Date(item.created_at).toLocaleString()}</p>
+                                            <h4 className="text-sm font-bold text-[#172b4d] tracking-tight">{item?.title}</h4>
+                                            <p className="text-[11px] text-slate-400 font-medium truncate mt-1">{item?.description}</p>
+                                            <p className="text-[9px] text-slate-300 mt-1 font-bold">{item?.created_at ? new Date(item.created_at).toLocaleString() : ''}</p>
                                         </div>
                                     </td>
                                     <td className="px-10 py-6">
-                                        <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${item.type === 'DANGER' ? 'bg-red-50 text-red-600' :
-
-                                                            item.type === 'ORDER' ? 'bg-purple-50 text-purple-600' :
-                                                                item.type === 'PAYMENT' ? 'bg-emerald-50 text-emerald-600' :
-                                                                    item.type === 'WALLET' ? 'bg-indigo-50 text-indigo-600' :
-                                                                        item.type === 'ACCOUNT' ? 'bg-slate-100 text-slate-600' :
-                                                                            'bg-slate-50 text-slate-400'
+                                        <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${item?.type === 'ORDER' ? 'bg-purple-50 text-purple-600' :
+                                            item?.type === 'PAYMENT' ? 'bg-emerald-50 text-emerald-600' :
+                                                item?.type === 'WALLET' ? 'bg-indigo-50 text-indigo-600' :
+                                                    item?.type === 'ACCOUNT' ? 'bg-slate-100 text-slate-600' :
+                                                        'bg-slate-50 text-slate-400'
                                             }`}>
-                                            {item.type}
+                                            {item?.type}
                                         </span>
                                     </td>
                                     <td className="px-10 py-6">
@@ -342,6 +378,7 @@ export default function UserNotifications() {
                 onClose={() => setDrawerOpen(false)}
                 onSave={handleSave}
                 loading={drawerLoading}
+                users={users}
             />
         </div>
     );
