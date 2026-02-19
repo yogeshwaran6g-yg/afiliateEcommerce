@@ -341,8 +341,8 @@ CREATE TABLE `notifications` (
 CREATE TABLE `user_notifications` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
-    `type` VARCHAR(50) NOT NULL,
     `title` VARCHAR(255) NOT NULL,
+    `type` ENUM( 'ORDER', 'PAYMENT', 'WALLET', 'ACCOUNT', 'OTHER') NOT NULL,
     `description` TEXT NULL,
     `is_read` TINYINT(1) NOT NULL DEFAULT 0,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

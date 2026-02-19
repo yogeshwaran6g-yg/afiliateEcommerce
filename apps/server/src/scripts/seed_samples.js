@@ -105,8 +105,8 @@ export const seedSamples = async (connection, adminId, adminWalletId) => {
 
   // 6. User Notifications
   await connection.execute(
-    `INSERT INTO user_notifications (user_id, type, title, is_read) VALUES (?, ?, ?, ?)`,
-    [adminId, "SYSTEM", "Welcome!", false]
+    `INSERT INTO user_notifications (user_id, title, type, is_read) VALUES (?, ?, ?, ?)`,
+    [adminId, "Welcome!", "INFO", false]
   );
 
   // 7. Sample Order

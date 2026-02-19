@@ -1,6 +1,7 @@
-                  import { activateUser } from '#services/userService.js';
+import { activateUser } from '#services/userService.js';
 import withdrawalService from '#services/withdrawalService.js';
 import rechargeService from '#services/rechargeService.js';
+import userNotificationService from '#services/userNotificationService.js';
 import { queryRunner } from '#config/db.js';
 import { rtnRes, log } from '#utils/helper.js';
 
@@ -275,8 +276,7 @@ const adminController = {
             log(`Error in getKYCRecords: ${e.message}`, "error");
 
         }
-    },    
-
+    },
     getWalletTransactions: async function (req, res) {
         try {
             const { page = 1, limit = 50, userId, transactionType, entryType, status, startDate, endDate } = req.query;
@@ -330,10 +330,18 @@ const adminController = {
                     u.name as user_name,
                     u.phone as user_phone,
                     u.email as user_email,
-                    w.balance as current_balance
+                    w.balance as current_balance,
+                    rr.proof_image,
+                    rr.payment_method,
+                    rr.payment_reference,
+                    wr.bank_details,
+                    wr.platform_fee,
+                    wr.net_amount
                 FROM wallet_transactions wt
                 JOIN wallets w ON wt.wallet_id = w.id
                 JOIN users u ON w.user_id = u.id
+                LEFT JOIN recharge_requests rr ON wt.reference_table = 'recharge_requests' AND wt.reference_id = rr.id
+                LEFT JOIN withdrawal_requests wr ON wt.reference_table = 'withdrawal_requests' AND wt.reference_id = wr.id
                 ${whereClause}
                 ORDER BY wt.created_at DESC
                 LIMIT ? OFFSET ?
@@ -344,7 +352,10 @@ const adminController = {
             return res.json({
                 success: true,
                 data: {
-                    transactions,
+                    transactions: transactions.map(t => ({
+                        ...t,
+                        bank_details: t.bank_details ? (typeof t.bank_details === 'string' ? JSON.parse(t.bank_details) : t.bank_details) : null
+                    })),
                     pagination: {
                         page: parseInt(page),
                         limit: parseInt(limit),
@@ -502,8 +513,58 @@ const adminController = {
             log(`Error in updateKYCStatus: ${e.message}`, "error");
             return rtnRes(res, 500, "internal error");
         }
-    }
+    },
 
-}    
+    getUserNotifications: async function (req, res) {
+        try {
+            const result = await userNotificationService.get(req.query);
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (e) {
+            log(`Error in getUserNotifications: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    sendUserNotification: async function (req, res) {
+        try {
+            const { user_id, type, title, description } = req.body;
+            if (!user_id || !type || !title) {
+                return rtnRes(res, 400, "Missing required fields: user_id, type, title");
+            }
+
+            const result = await userNotificationService.create({ user_id, type, title, description });
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (e) {
+            log(`Error in sendUserNotification: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    broadcastUserNotification: async function (req, res) {
+        try {
+            const { type, title, description } = req.body;
+            if (!type || !title) {
+                return rtnRes(res, 400, "Missing required fields: type, title");
+            }
+
+            const result = await userNotificationService.broadcast({ type, title, description });
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (e) {
+            log(`Error in broadcastUserNotification: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    deleteUserNotification: async function (req, res) {
+        try {
+            const { id } = req.params;
+            const result = await userNotificationService.deleteNotification(id);
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (e) {
+            log(`Error in deleteUserNotification: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    }
+}
 
 export default adminController;

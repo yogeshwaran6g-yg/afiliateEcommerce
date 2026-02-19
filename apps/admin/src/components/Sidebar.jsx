@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }) {
     const location = useLocation();
     const { user, logout } = useAuth();
-    const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') ? 'Transactions' : null);
+    const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') || location.pathname.includes('wallet-transactions') ? 'Transactions' : null);
 
     const sections = [
         {
@@ -14,9 +14,10 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
                 { icon: "dashboard", label: "Dashboard", path: "/" },
                 { icon: "inventory_2", label: "Products", path: "/products" },
                 { icon: "campaign", label: "Announcements", path: "/announcements" },
-                { icon: "person_search", label: "Users", path: "/users" },
-                { icon: "verified_user", label: "KYC", path: "/kyc" },
-                { icon: "account_tree", label: "Network", path: "/genealogy" },
+                { icon: "person_search", label: "User Management", path: "/users" },
+                { icon: "mail", label: "User Notifications", path: "/user-notifications" },
+                { icon: "verified_user", label: "KYC Verification", path: "/kyc" },
+                { icon: "account_tree", label: "Tree View", path: "/genealogy" },
             ]
         },
         {
@@ -27,7 +28,8 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
                     icon: "swap_horiz",
                     label: "Transactions",
                     subItems: [
-                        { label: "History", path: "/transactions" },
+                        { label: "Record History", path: "/transactions" },
+                        { label: "Wallet Transactions", path: "/wallet-transactions" },
                         { label: "Recharges", path: "/recharges" },
                         { label: "Withdrawals", path: "/withdrawals" },
                     ]
