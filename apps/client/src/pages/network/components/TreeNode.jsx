@@ -48,25 +48,25 @@ const TreeNode = ({
         )}
 
         <div
-          className={`group/card bg-white border border-slate-200 rounded-[20px] p-4 cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:border-primary/50 hover:-translate-y-1 active:scale-[0.98] w-[260px] md:w-[320px] shrink-0 relative z-10 overflow-hidden shadow-sm`}
+          className={`group/card bg-white border border-slate-200 rounded-2xl p-2.5 md:p-3 cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:border-primary/50 hover:-translate-y-1 active:scale-[0.98] w-[180px] md:w-[220px] shrink-0 relative z-10 overflow-hidden shadow-sm`}
           onClick={() => onOpenModal(node)}
         >
           {/* Level Accent Background */}
           <div className={`absolute top-0 left-0 w-1.5 h-full ${getLevelBadgeClass(node.level)} opacity-80`} />
 
           {/* Header Section */}
-          <div className="flex items-start justify-between mb-3 relative z-10">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-2 relative z-10">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="relative shrink-0">
                 <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-lg opacity-0 group-hover/card:opacity-100 transition-opacity" />
                 {node.avatar ? (
                   <img
                     src={node.avatar}
                     alt={node.name}
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-2xl object-cover border-2 border-white shadow-sm transition-transform duration-500 group-hover/card:rotate-3"
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-xl object-cover border-2 border-white shadow-sm transition-transform duration-500 group-hover/card:rotate-3"
                   />
                 ) : (
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm md:text-lg border-2 border-white shadow-sm">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs md:text-sm border-2 border-white shadow-sm">
                     {avatarInitials}
                   </div>
                 )}
@@ -75,17 +75,17 @@ const TreeNode = ({
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="font-bold text-slate-900 tracking-tight truncate text-xs md:text-base group-hover/card:text-primary transition-colors">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <h3 className="font-bold text-slate-900 tracking-tight truncate text-[11px] md:text-sm group-hover/card:text-primary transition-colors">
                     {node.name}
                   </h3>
                   <span
-                    className={`${getLevelBadgeClass(node.level)} px-2 py-0.5 text-white text-[7px] md:text-[9px] font-black rounded-full uppercase tracking-widest`}
+                    className={`${getLevelBadgeClass(node.level)} px-1.5 py-0.5 text-white text-[6px] md:text-[8px] font-black rounded-full uppercase tracking-wider`}
                   >
                     {isRoot ? "ROOT" : `LVL ${node.level}`}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                <div className="flex items-center gap-1 text-[7px] md:text-[9px] text-slate-400 font-bold uppercase tracking-wider">
                   <Calendar className="w-2.5 h-2.5" />
                   <span>Joined {new Date(node.joinDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
@@ -98,7 +98,7 @@ const TreeNode = ({
                   e.stopPropagation();
                   onToggleExpand(node.id);
                 }}
-                className={`p-1.5 rounded-xl transition-all border ${isExpanded ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100"}`}
+                className={`p-1 rounded-lg transition-all border ${isExpanded ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100"}`}
               >
                 <ChevronRight className={`w-3.5 md:w-4 h-3.5 md:h-4 transition-transform duration-300 ${isExpanded ? "rotate-90" : ""}`} />
               </button>
@@ -106,45 +106,45 @@ const TreeNode = ({
           </div>
 
           {/* New Attractive Stats Section */}
-          <div className="grid grid-cols-3 gap-2 mb-3 relative z-10">
-            <div className="bg-slate-50/50 p-1.5 rounded-xl border border-slate-100 text-center transition-colors group-hover/card:bg-white group-hover/card:border-slate-200">
-              <p className="text-[7px] md:text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">
+          <div className="grid grid-cols-3 gap-1.5 mb-2 relative z-10">
+            <div className="bg-slate-50/50 p-1 rounded-lg border border-slate-100 text-center transition-colors group-hover/card:bg-white group-hover/card:border-slate-200">
+              <p className="text-[6px] md:text-[8px] text-slate-400 font-black uppercase tracking-wide mb-0.5">
                 Direct
               </p>
-              <p className="text-sm md:text-lg font-black text-slate-800">
+              <p className="text-xs md:text-sm font-black text-slate-800">
                 {node.directRefs}
               </p>
             </div>
-            <div className="bg-slate-50/50 p-2 rounded-2xl border border-slate-100 text-center transition-colors group-hover/card:bg-white group-hover/card:border-slate-200">
-              <p className="text-[7px] md:text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">
+            <div className="bg-slate-50/50 p-1 rounded-lg border border-slate-100 text-center transition-colors group-hover/card:bg-white group-hover/card:border-slate-200">
+              <p className="text-[6px] md:text-[8px] text-slate-400 font-black uppercase tracking-wide mb-0.5">
                 Network
               </p>
-              <p className="text-sm md:text-lg font-black text-slate-800">
+              <p className="text-xs md:text-sm font-black text-slate-800">
                 {node.networkSize}
               </p>
             </div>
-            <div className="bg-primary/5 p-1.5 rounded-xl border border-primary/10 text-center group-hover/card:bg-primary/10 transition-colors">
-              <p className="text-[7px] md:text-[9px] text-primary/60 font-black uppercase tracking-widest mb-1">
+            <div className="bg-primary/5 p-1 rounded-lg border border-primary/10 text-center group-hover/card:bg-primary/10 transition-colors">
+              <p className="text-[6px] md:text-[8px] text-primary/60 font-black uppercase tracking-wide mb-0.5">
                 Earnings
               </p>
-              <p className="text-sm md:text-lg font-black text-primary">
+              <p className="text-xs md:text-sm font-black text-primary">
                 ₹{node.earnings.toLocaleString()}
               </p>
             </div>
           </div>
 
           {/* Improved Footer Actions */}
-          <div className="flex items-center gap-2 relative z-10">
+          <div className="flex items-center gap-1.5 relative z-10">
             {!isRoot && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onViewTree(node);
                 }}
-                className="flex-[1.5] py-2 bg-slate-900 text-white text-[9px] md:text-[10px] font-bold rounded-xl transition-all shadow-md hover:bg-primary active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
+                className="flex-[1.5] py-1.5 bg-slate-900 text-white text-[8px] md:text-[9px] font-bold rounded-lg transition-all shadow-md hover:bg-primary active:scale-95 flex items-center justify-center gap-1 uppercase tracking-wider"
               >
-                <GitBranch className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                <span>View Downline</span>
+                <GitBranch className="w-3 h-3" />
+                <span>Downline</span>
               </button>
             )}
             <button
@@ -152,7 +152,7 @@ const TreeNode = ({
                 e.stopPropagation();
                 onOpenModal(node);
               }}
-              className="flex-1 py-2 bg-white hover:bg-slate-50 text-slate-700 text-[9px] md:text-[10px] font-bold rounded-xl transition-all border border-slate-200 flex items-center justify-center gap-2 active:scale-95 shadow-sm uppercase tracking-widest"
+              className="flex-1 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-[8px] md:text-[9px] font-bold rounded-lg transition-all border border-slate-200 flex items-center justify-center gap-1 active:scale-95 shadow-sm uppercase tracking-wider"
             >
               <User className="w-3 h-3 md:w-3.5 md:h-3.5" />
               <span>Profile</span>
