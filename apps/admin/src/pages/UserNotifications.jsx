@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import userNotificationApiService from "../services/userNotificationApiService";
-import userApiService from "../services/userApiService";
+import { useUserNotifications } from "../hooks/useUserNotifications";
 
 const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], initialUserId = "" }) => {
     const initialFormState = {
@@ -184,103 +183,22 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
 };
 
 export default function UserNotifications() {
-    const { userId } = useParams();
-    const location = useLocation();
-    const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [drawerLoading, setDrawerLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 20, pages: 0 });
-    const [users, setUsers] = useState([]);
-    const [usersLoaded, setUsersLoaded] = useState(false);
-
-    useEffect(() => {
-        fetchNotifications();
-    }, [pagination.page, userId]);
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    // Auto-open drawer only after users are loaded (avoids race condition)
-    useEffect(() => {
-        if (usersLoaded && location.pathname.includes("/send/") && userId) {
-            setDrawerOpen(true);
-        }
-    }, [usersLoaded, location.pathname, userId]);
-
-    const fetchUsers = async () => {
-        try {
-            const data = await userApiService.getUsers();
-            setUsers(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error("Failed to fetch users:", err);
-            setUsers([]);
-        } finally {
-            setUsersLoaded(true);
-        }
-    };
-
-    const fetchNotifications = async () => {
-        try {
-            setLoading(true);
-            const params = {
-                page: pagination.page,
-                limit: pagination.limit
-            };
-
-            if (userId) {
-                params.user_id = userId;
-            }
-
-            const data = await userNotificationApiService.getNotifications(params);
-            if (data && data.items) {
-                setNotifications(data.items);
-                setPagination(data.pagination);
-            } else {
-                setNotifications([]);
-            }
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load notifications");
-            setNotifications([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleOpenDrawer = () => {
-        setDrawerOpen(true);
-    };
-
-    const handleSave = async (formData) => {
-        try {
-            setDrawerLoading(true);
-            await userNotificationApiService.sendNotification({
-                user_id: formData.user_id,
-                type: formData.type,
-                title: formData.title,
-                description: formData.description
-            });
-            setDrawerOpen(false);
-            fetchNotifications();
-        } catch (err) {
-            alert(err.message || "Failed to send notification");
-        } finally {
-            setDrawerLoading(false);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm("Are you sure you want to delete this notification record?")) return;
-        try {
-            await userNotificationApiService.deleteNotification(id);
-            fetchNotifications();
-        } catch (err) {
-            alert(err.message || "Failed to delete notification");
-        }
-    };
+    const {
+        userId,
+        isDrawerOpen,
+        notifications,
+        loading,
+        drawerLoading,
+        error,
+        pagination,
+        users,
+        fetchNotifications,
+        handleOpenDrawer,
+        handleCloseDrawer,
+        handleSave,
+        handleDelete,
+        setPage
+    } = useUserNotifications();
 
     if (loading && (!notifications || notifications.length === 0)) {
         return (
@@ -411,14 +329,14 @@ export default function UserNotifications() {
                         <div className="flex gap-2">
                             <button
                                 disabled={pagination.page === 1}
-                                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                                onClick={() => setPage(pagination.page - 1)}
                                 className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
                             >
                                 Previous
                             </button>
                             <button
                                 disabled={pagination.page === pagination.pages}
-                                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                                onClick={() => setPage(pagination.page + 1)}
                                 className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
                             >
                                 Next
@@ -430,7 +348,7 @@ export default function UserNotifications() {
 
             <NotificationDrawer
                 isOpen={isDrawerOpen}
-                onClose={() => setDrawerOpen(false)}
+                onClose={handleCloseDrawer}
                 onSave={handleSave}
                 loading={drawerLoading}
                 users={users}

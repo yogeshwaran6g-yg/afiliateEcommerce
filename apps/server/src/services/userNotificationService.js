@@ -58,6 +58,7 @@ const userNotificationService = {
 
     get: async function ({ user_id = null, unread_only = false, page = 1, limit = 20, type = null }) {
         try {
+            
             let sql = `
                 SELECT un.*, u.name as user_name, u.email as user_email, u.phone as user_phone
                 FROM user_notifications un
