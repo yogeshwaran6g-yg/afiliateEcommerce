@@ -5,8 +5,10 @@ import {
   User,
   MessageCircle,
   Lock,
+  Calendar,
 } from "lucide-react";
 
+// Simplified level badge colors
 const TreeNode = ({
   node,
   maxDepth,
@@ -20,81 +22,12 @@ const TreeNode = ({
   const isExpanded = expandedNodes.has(node.id);
   const canExpand = hasChildren && node.level < maxDepth;
 
-  // Level-based configuration for ultra-responsiveness
-  const config = {
-    root: {
-      padding: "p-4 md:p-6",
-      avatar: "w-12 h-12 md:w-16 md:h-16",
-      title: "text-lg md:text-xl",
-      gap: "gap-4",
-      stats: "grid-cols-3",
-      width: "max-w-md",
-      connectorOffset: "left-[31px]",
-      childPadding: "pl-8 md:pl-12",
-      childMargin: "ml-[31px]",
-    },
-    lv1: {
-      padding: "p-3 md:p-5",
-      avatar: "w-10 h-10 md:w-14 md:h-14",
-      title: "text-base md:text-lg",
-      gap: "gap-3",
-      stats: "grid-cols-3",
-      width: "max-w-sm md:max-w-md",
-      connectorOffset: "left-[23px] md:left-[31px]",
-      childPadding: "pl-6 md:pl-12",
-      childMargin: "ml-[23px] md:ml-[31px]",
-    },
-    lv2: {
-      padding: "p-2.5 md:p-4",
-      avatar: "w-9 h-9 md:w-12 md:h-12",
-      title: "text-sm md:text-base",
-      gap: "gap-2",
-      stats: "grid-cols-3",
-      width: "max-w-xs md:max-w-sm",
-      connectorOffset: "left-[21px] md:left-[31px]",
-      childPadding: "pl-4 md:pl-12",
-      childMargin: "ml-[21px] md:ml-[31px]",
-    },
-    lvN: {
-      padding: "p-2 md:p-3",
-      avatar: "w-8 h-8 md:w-10 md:h-10",
-      title: "text-xs md:text-sm",
-      gap: "gap-2",
-      stats: "flex flex-wrap gap-2",
-      width: "max-w-[280px] md:max-w-xs",
-      connectorOffset: "left-[19px] md:left-[31px]",
-      childPadding: "pl-3 md:pl-6",
-      childMargin: "ml-[19px] md:ml-[31px]",
-    },
+  const getLevelBadgeClass = (level) => {
+    if (level === 0) return "bg-amber-500";
+    if (level === 1) return "bg-blue-500";
+    if (level === 2) return "bg-purple-500";
+    return "bg-slate-500";
   };
-
-  const c = isRoot
-    ? config.root
-    : node.level === 1
-      ? config.lv1
-      : node.level === 2
-        ? config.lv2
-        : config.lvN;
-
-  const levelBadgeClass = `bg-gradient-to-r ${
-    node.level === 0
-      ? "from-amber-400 to-orange-500"
-      : node.level === 1
-        ? "from-blue-500 to-blue-600"
-        : node.level === 2
-          ? "from-purple-500 to-purple-600"
-          : "from-slate-400 to-slate-500"
-  }`;
-
-  const borderClass = isRoot
-    ? "border-slate-200 hover:border-primary/50 shadow-blue-100/50"
-    : node.level === 1
-      ? "border-blue-100 hover:border-blue-200 shadow-blue-50/50"
-      : node.level === 2
-        ? "border-purple-100 hover:border-purple-200 shadow-purple-50/50"
-        : "border-slate-100 hover:border-slate-200 shadow-slate-50/50";
-
-  const glowClass = isExpanded ? "shadow-md ring-2 ring-primary/5" : "shadow-sm";
 
   const avatarInitials = node.name
     .split(" ")
@@ -103,131 +36,115 @@ const TreeNode = ({
     .slice(0, 2)
     .toUpperCase();
 
-
   return (
-    <div className={`relative ${isRoot ? "" : "mt-4 md:mt-6"}`}>
-      {!isRoot && (
-        <>
-          <div
-            className={`absolute ${c.connectorOffset} top-[-16px] md:top-[-24px] w-[1.5px] md:h-[24px] h-[16px] bg-slate-200/80`}
-          />
-          <div
-            className={`absolute ${c.connectorOffset} top-[24px] md:top-[31px] w-[16px] md:w-[24px] h-[1.5px] bg-slate-200/80`}
-          />
-        </>
-      )}
+    <div className="flex items-start group/node">
+      <div className="relative py-4">
+        {/* Horizontal connector from Left (Incoming) */}
+        {!isRoot && (
+          <div className="absolute left-[-24px] md:left-[-32px] top-1/2 -translate-y-1/2 flex items-center">
+            <div className="w-[24px] md:w-[32px] h-px bg-slate-300" />
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 -ml-0.5" />
+          </div>
+        )}
 
-      <div className="flex flex-col">
         <div
-          className={`bg-white rounded-2xl md:rounded-3xl border ${borderClass} ${glowClass} ${c.padding} cursor-pointer transition-all hover:bg-slate-50 hover:shadow-lg active:scale-[0.99] ${c.width}`}
+          className={`group/card bg-white border border-slate-200 rounded-[20px] p-4 cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:border-primary/50 hover:-translate-y-1 active:scale-[0.98] w-[260px] md:w-[320px] shrink-0 relative z-10 overflow-hidden shadow-sm`}
           onClick={() => onOpenModal(node)}
         >
-          {/* View 1 & 2: Avatar & Profile Info (Name, Level, Date) */}
-          <div className={`flex items-start justify-between ${node.level <= 2 ? "mb-3 md:mb-5" : "mb-2"}`}>
-            <div className={`flex items-center ${c.gap} flex-1 min-w-0`}>
+          {/* Level Accent Background */}
+          <div className={`absolute top-0 left-0 w-1.5 h-full ${getLevelBadgeClass(node.level)} opacity-80`} />
+
+          {/* Header Section */}
+          <div className="flex items-start justify-between mb-3 relative z-10">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="relative shrink-0">
+                <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-lg opacity-0 group-hover/card:opacity-100 transition-opacity" />
                 {node.avatar ? (
                   <img
                     src={node.avatar}
                     alt={node.name}
-                    className={`${c.avatar} rounded-xl md:rounded-2xl object-cover border-2 ${
-                      isRoot
-                        ? "border-amber-100"
-                        : node.level === 1
-                          ? "border-blue-100"
-                          : node.level === 2
-                            ? "border-purple-100"
-                            : "border-slate-100"
-                    }`}
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-2xl object-cover border-2 border-white shadow-sm transition-transform duration-500 group-hover/card:rotate-3"
                   />
                 ) : (
-                  <div
-                    className={`${c.avatar} rounded-xl md:rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold ${node.level > 2 ? "text-xs" : "text-sm md:text-xl"}`}
-                  >
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm md:text-lg border-2 border-white shadow-sm">
                     {avatarInitials}
                   </div>
                 )}
-                {node.level <= 3 && (
-                  <div
-                    className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 md:w-4 md:h-4 rounded-full border-2 md:border-[3px] border-white ${node.status === "active" ? "bg-emerald-500" : "bg-slate-300"}`}
-                  />
-                )}
+                <div
+                  className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 md:w-3.5 md:h-3.5 rounded-full border-2 border-white z-10 shadow-sm ${node.status === "active" ? "bg-emerald-500" : "bg-slate-300"}`}
+                />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <h3 className={`font-bold text-slate-900 truncate ${c.title}`}>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h3 className="font-bold text-slate-900 tracking-tight truncate text-xs md:text-base group-hover/card:text-primary transition-colors">
                     {node.name}
                   </h3>
                   <span
-                    className={`${levelBadgeClass} px-1.5 py-0.5 text-white text-[8px] md:text-[10px] font-black rounded-md md:rounded-lg shadow-sm whitespace-nowrap`}
+                    className={`${getLevelBadgeClass(node.level)} px-2 py-0.5 text-white text-[7px] md:text-[9px] font-black rounded-full uppercase tracking-widest`}
                   >
                     {isRoot ? "ROOT" : `LVL ${node.level}`}
                   </span>
                 </div>
-                <p className="text-[9px] md:text-xs text-slate-400 font-medium">
-                  {new Date(node.joinDate).toLocaleDateString()}
-                </p>
+                <div className="flex items-center gap-1.5 text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <Calendar className="w-2.5 h-2.5" />
+                  <span>Joined {new Date(node.joinDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
               </div>
             </div>
-            
-            {/* Action 1: Expand Toggle (View 6 part A) */}
+
             {canExpand && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleExpand(node.id);
                 }}
-                className={`p-1.5 md:p-2 bg-slate-50 hover:bg-slate-100 rounded-lg md:rounded-xl transition-all border border-slate-100 ${isExpanded ? "rotate-90" : ""}`}
+                className={`p-1.5 rounded-xl transition-all border ${isExpanded ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100"}`}
               >
-                <ChevronRight className="w-3.5 h-3.5 md:w-5 md:h-5 text-slate-400" />
+                <ChevronRight className={`w-3.5 md:w-4 h-3.5 md:h-4 transition-transform duration-300 ${isExpanded ? "rotate-90" : ""}`} />
               </button>
             )}
           </div>
 
-          {/* Views 3, 4, 5: Direct, Network, Earnings Stats */}
-          <div className={`${node.level <= 2 ? "grid" : ""} ${c.stats} mb-3 md:mb-5`}>
-            {/* View 3: Direct */}
-            <div className="bg-slate-50/50 p-1.5 md:p-2.5 rounded-lg md:rounded-2xl text-center border border-slate-100/50 flex-1 min-w-[60px]">
-              <p className="text-[7px] md:text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+          {/* New Attractive Stats Section */}
+          <div className="grid grid-cols-3 gap-2 mb-3 relative z-10">
+            <div className="bg-slate-50/50 p-1.5 rounded-xl border border-slate-100 text-center transition-colors group-hover/card:bg-white group-hover/card:border-slate-200">
+              <p className="text-[7px] md:text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">
                 Direct
               </p>
-              <p className="text-xs md:text-sm font-black text-slate-800">
+              <p className="text-sm md:text-lg font-black text-slate-800">
                 {node.directRefs}
               </p>
             </div>
-            {/* View 4: Network */}
-            <div className="bg-slate-50/50 p-1.5 md:p-2.5 rounded-lg md:rounded-2xl text-center border border-slate-100/50 flex-1 min-w-[60px]">
-              <p className="text-[7px] md:text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+            <div className="bg-slate-50/50 p-2 rounded-2xl border border-slate-100 text-center transition-colors group-hover/card:bg-white group-hover/card:border-slate-200">
+              <p className="text-[7px] md:text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">
                 Network
               </p>
-              <p className="text-xs md:text-sm font-black text-slate-800">
+              <p className="text-sm md:text-lg font-black text-slate-800">
                 {node.networkSize}
               </p>
             </div>
-            {/* View 5: Earnings (INR) */}
-            <div className="bg-primary/5 p-1.5 md:p-2.5 rounded-lg md:rounded-2xl text-center border border-primary/10 flex-1 min-w-[70px]">
-              <p className="text-[7px] md:text-[9px] text-primary/70 font-bold uppercase tracking-wider mb-0.5">
+            <div className="bg-primary/5 p-1.5 rounded-xl border border-primary/10 text-center group-hover/card:bg-primary/10 transition-colors">
+              <p className="text-[7px] md:text-[9px] text-primary/60 font-black uppercase tracking-widest mb-1">
                 Earnings
               </p>
-              <p className="text-xs md:text-sm font-black text-primary">
+              <p className="text-sm md:text-lg font-black text-primary">
                 ₹{node.earnings.toLocaleString()}
               </p>
             </div>
           </div>
 
-          {/* View 6 part B: Footer Actions */}
-          <div className="flex items-center gap-1.5 md:gap-2">
+          {/* Improved Footer Actions */}
+          <div className="flex items-center gap-2 relative z-10">
             {!isRoot && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onViewTree(node);
                 }}
-                className="flex-[2] px-3 py-1.5 md:py-2.5 bg-primary text-white text-[10px] md:text-xs font-bold rounded-lg md:rounded-xl transition-all shadow-md shadow-primary/20 hover:bg-primary/90 flex items-center justify-center gap-1.5 hover:shadow-lg active:scale-95"
+                className="flex-[1.5] py-2 bg-slate-900 text-white text-[9px] md:text-[10px] font-bold rounded-xl transition-all shadow-md hover:bg-primary active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
               >
-                <GitBranch className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                <span className="hidden xs:inline">View Tree</span>
-                <span className="xs:hidden">Tree</span>
+                <GitBranch className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                <span>View Downline</span>
               </button>
             )}
             <button
@@ -235,60 +152,58 @@ const TreeNode = ({
                 e.stopPropagation();
                 onOpenModal(node);
               }}
-              className={`flex-1 px-3 py-1.5 md:py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] md:text-xs font-bold rounded-lg md:rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 ${isRoot ? "w-full" : ""}`}
+              className="flex-1 py-2 bg-white hover:bg-slate-50 text-slate-700 text-[9px] md:text-[10px] font-bold rounded-xl transition-all border border-slate-200 flex items-center justify-center gap-2 active:scale-95 shadow-sm uppercase tracking-widest"
             >
-              <User className="w-3 md:w-3.5 h-3 md:h-3.5" />
-              <span className={isRoot || node.level <= 2 ? "" : "hidden"}>
-                {isRoot ? "Root Details" : "Details"}
-              </span>
+              <User className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Profile</span>
             </button>
-            {isRoot && (
-              <button className="p-1.5 md:p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg md:rounded-xl transition-all">
-                <MessageCircle className="w-3.5 md:w-4 h-3.5 md:h-4" />
-              </button>
-            )}
           </div>
         </div>
 
-
-        {/* Children Render */}
+        {/* Horizontal connector to Right (Outgoing) */}
         {isExpanded && hasChildren && (
-          <div className={`${c.childPadding} border-l-2 border-slate-200/50 ${c.childMargin} mt-4 md:mt-6 space-y-4 md:space-y-6 relative`}>
-            {/* Horizontal join line indicator at dropdown arrow level */}
-            {node.children.map((child) => (
-              <TreeNode
-                key={child.id}
-                node={child}
-                maxDepth={maxDepth}
-                expandedNodes={expandedNodes}
-                onToggleExpand={onToggleExpand}
-                onViewTree={onViewTree}
-                onOpenModal={onOpenModal}
-              />
-            ))}
+          <div className="absolute right-[-24px] md:right-[-32px] top-1/2 -translate-y-1/2 flex items-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary -mr-0.5 z-20" />
+            <div className="w-[24px] md:w-[32px] h-px bg-primary/40 shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]" />
           </div>
         )}
+      </div>
 
-        {/* Depth Limit Placeholder */}
-        {isExpanded && hasChildren && node.level >= maxDepth && (
-          <div className={`${c.childPadding} ${c.childMargin} mt-4 md:mt-6`}>
-            <div className="bg-slate-50 rounded-2xl md:rounded-[32px] border border-slate-200 border-dashed p-4 md:p-6 flex items-center gap-3 md:gap-4 max-w-sm">
-              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-100 shrink-0">
-                <Lock className="w-5 h-5 md:w-6 md:h-6 text-slate-300" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h5 className="font-bold text-slate-700 text-sm md:text-base">
-                  Deeper Levels Locked
-                </h5>
-                <p className="text-[10px] md:text-xs text-slate-400 font-medium">
-                  Click "View Tree" on this member to explore further
-                </p>
-              </div>
+      {/* Children Container - Vertical stack on the right */}
+      {isExpanded && hasChildren && (
+        <div className="flex flex-col ml-[24px] md:ml-[32px] pl-[24px] md:pl-[32px] border-l border-dashed border-slate-300 space-y-6 py-2">
+          {node.children.map((child) => (
+            <TreeNode
+              key={child.id}
+              node={child}
+              maxDepth={maxDepth}
+              expandedNodes={expandedNodes}
+              onToggleExpand={onToggleExpand}
+              onViewTree={onViewTree}
+              onOpenModal={onOpenModal}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Depth Limit Placeholder */}
+      {isExpanded && hasChildren && node.level >= maxDepth && (
+        <div className="flex flex-col ml-[24px] md:ml-[32px] pl-[24px] md:pl-[32px] border-l border-dashed border-slate-300 py-4">
+          <div className="bg-white/50 backdrop-blur-md rounded-2xl border border-slate-200 border-dashed p-5 flex items-center gap-4 max-w-sm shadow-sm group/limit hover:border-primary/40 transition-colors">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-100 shrink-0 group-hover/limit:scale-110 transition-transform">
+              <Lock className="w-5 md:w-6 h-5 md:h-6 text-slate-300" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h5 className="font-black text-slate-800 text-xs md:text-sm tracking-tight group-hover/limit:text-primary transition-colors">
+                Growth Potential
+              </h5>
+              <p className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                Focus to explore deeper
+              </p>
             </div>
           </div>
-        )}
-
-      </div>
+        </div>
+      )}
     </div>
   );
 };
