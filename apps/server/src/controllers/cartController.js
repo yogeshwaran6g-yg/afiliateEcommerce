@@ -24,7 +24,7 @@ export const addToCart = async (req, res) => {
         }
 
         const result = await cartService.addToCart(userId, productId, quantity || 1);
-        return rtnRes(res, 200, 'Product added to cart', result);
+        return rtnRes(res, 200, 'Product successfully added to cartttttt', result);
     } catch (error) {
         return rtnRes(res, 500, error.message);
     }

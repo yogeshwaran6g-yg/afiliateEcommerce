@@ -123,7 +123,7 @@ const NetworkTree = () => {
         <div className="absolute -bottom-[10%] -right-[5%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="relative z-10 flex-1 px-4 md:px-6 py-2 md:py-3 max-w-[98%] mx-auto w-full flex flex-col h-[max(100vh,800px)]">
+      <div className="relative z-10 flex-1 px-2 md:px-6 py-2 md:py-3 max-w-[98%] mx-auto w-full flex flex-col h-[max(100vh,800px)]">
         {/* Title Section */}
         <div className="mb-2">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
@@ -240,7 +240,7 @@ const NetworkTree = () => {
         </div>
 
         {/* Tree View Container - Maximized Height */}
-        <div className="relative border border-slate-200 bg-white rounded-2xl p-3 md:p-6 shadow-sm overflow-auto flex-1 h-full scrollbar-hide mb-2">
+        <div className="relative border border-slate-200 bg-white rounded-2xl p-3 md:p-6 shadow-sm overflow-auto flex-1 h-full scrollbar-hide mb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           <div className="inline-flex min-w-full justify-start items-start py-2">
             <TreeNode
               node={currentRoot}

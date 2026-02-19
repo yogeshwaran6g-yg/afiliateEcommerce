@@ -78,8 +78,9 @@ const userNotificationService = {
                 params.push(type);
             }
 
-            sql += ` ORDER BY un.created_at DESC LIMIT ? OFFSET ?`;
-            params.push(parseInt(limit), (parseInt(page) - 1) * parseInt(limit));
+            const safeLimit = Math.max(1, parseInt(limit) || 20);
+            const safeOffset = Math.max(0, (Math.max(1, parseInt(page) || 1) - 1) * safeLimit);
+            sql += ` ORDER BY un.created_at DESC LIMIT ${safeLimit} OFFSET ${safeOffset}`;
 
             const notifications = await queryRunner(sql, params);
 
