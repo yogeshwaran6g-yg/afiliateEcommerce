@@ -369,8 +369,38 @@ export default function Products() {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
-
     const IMAGE_BASE_URL = 'http://localhost:4000/uploads/products/';
+
+    const getProductImages = (prod) => {
+        let images = [];
+        if (Array.isArray(prod.images)) {
+            images = prod.images;
+        } else {
+            try {
+                images = JSON.parse(prod.images || "[]");
+                if (!Array.isArray(images)) images = [images];
+            } catch (e) {
+                images = prod.images ? [prod.images] : [];
+            }
+        }
+        return images;
+    };
+
+    const getFirstImageUrl = (images) => {
+        const firstImage = images[0];
+        let imageUrl = "https://images.unsplash.com/photo-1584017444311-6ad0998fcebe?w=100&h=100&fit=crop";
+
+        if (typeof firstImage === 'string' && firstImage.trim() !== "") {
+            if (firstImage.startsWith('http')) {
+                imageUrl = firstImage;
+            } else {
+                const base = IMAGE_BASE_URL.endsWith('/') ? IMAGE_BASE_URL.slice(0, -1) : IMAGE_BASE_URL;
+                const path = firstImage.startsWith('/') ? firstImage : `/${firstImage}`;
+                imageUrl = `${base}${path}`;
+            }
+        }
+        return imageUrl;
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -450,13 +480,13 @@ export default function Products() {
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                        <span>Home</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                        <span>Admin</span>
                         <span className="material-symbols-outlined text-xs">chevron_right</span>
-                        <span className="text-primary font-black">Product Management</span>
+                        <span className="text-primary font-bold">Products</span>
                     </div>
-                    <h2 className="text-2xl font-black text-[#172b4d] tracking-tight">Enterprise Product Catalog</h2>
-                    <p className="text-sm text-slate-500 font-medium">Create, manage, and distribute products across your global MLM platform.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Products</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Create and manage your enterprise product catalog.</p>
                 </div>
 
                 <button
@@ -486,7 +516,7 @@ export default function Products() {
                 </div>
             </div>
 
-            {/* Table View */}
+            {/* Desktop Table View / Mobile Card View Wrapper */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
                 <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="relative w-full lg:w-96 group">
@@ -509,7 +539,76 @@ export default function Products() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile Grid Layout (Visible on small screens) */}
+                <div className="block md:hidden p-4 space-y-4">
+                    {filteredProducts.map((prod, i) => {
+                        const images = getProductImages(prod);
+                        const imageUrl = getFirstImageUrl(images);
+
+                        return (
+                            <div key={i} className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 space-y-5">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden shadow-sm border border-slate-200/50 shrink-0">
+                                        <img src={imageUrl} className="w-full h-full object-cover" alt="" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-base font-black text-[#172b4d] truncate">{prod.name}</h4>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">SKU: {prod.slug.toUpperCase()}</p>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${prod.is_active ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
+                                            {prod.is_active ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 h-px bg-slate-100/50 w-full"></div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price & Reward</p>
+                                        <div className="flex flex-col">
+                                            <span className="text-base font-black text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</span>
+                                            <span className="text-xs text-primary font-black flex items-center gap-1">
+                                                <span className="material-symbols-outlined text-[14px]">deployed_code</span>
+                                                {prod.pv} PV
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1 text-right">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory</p>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <span className={`text-base font-bold ${prod.stock <= prod.low_stock_alert ? 'text-amber-600' : 'text-slate-600'}`}>{prod.stock} Units</span>
+                                            {prod.stock <= prod.low_stock_alert && (
+                                                <span className="material-symbols-outlined text-amber-500 text-lg animate-pulse">report_problem</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2">
+                                    <button
+                                        onClick={() => handleEdit(prod)}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">edit</span>
+                                        Edit Product
+                                    </button>
+                                    <div className="w-4"></div>
+                                    <button
+                                        onClick={() => handleDelete(prod.id)}
+                                        className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-500 border border-red-100 rounded-xl hover:bg-red-100 transition-all active:scale-95 shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined text-xl">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Desktop Table Layout (Visible on md and up) */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left min-w-[800px]">
                         <thead className="bg-slate-50/70 border-b border-slate-50">
                             <tr>
@@ -522,30 +621,8 @@ export default function Products() {
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {filteredProducts.map((prod, i) => {
-                                let images = [];
-                                if (Array.isArray(prod.images)) {
-                                    images = prod.images;
-                                } else {
-                                    try {
-                                        images = JSON.parse(prod.images || "[]");
-                                        if (!Array.isArray(images)) images = [images];
-                                    } catch (e) {
-                                        images = prod.images ? [prod.images] : [];
-                                    }
-                                }
-
-                                const firstImage = images[0];
-                                let imageUrl = "https://images.unsplash.com/photo-1584017444311-6ad0998fcebe?w=100&h=100&fit=crop";
-
-                                if (typeof firstImage === 'string' && firstImage.trim() !== "") {
-                                    if (firstImage.startsWith('http')) {
-                                        imageUrl = firstImage;
-                                    } else {
-                                        const base = IMAGE_BASE_URL.endsWith('/') ? IMAGE_BASE_URL.slice(0, -1) : IMAGE_BASE_URL;
-                                        const path = firstImage.startsWith('/') ? firstImage : `/${firstImage}`;
-                                        imageUrl = `${base}${path}`;
-                                    }
-                                }
+                                const images = getProductImages(prod);
+                                const imageUrl = getFirstImageUrl(images);
 
                                 return (
                                     <tr key={i} className="hover:bg-slate-50/50 transition-colors">

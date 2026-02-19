@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:4000/api/v1";
+import { api } from "../util/axios";
 
 const authApiService = {
     login: async (phone, password) => {
@@ -11,26 +11,7 @@ const authApiService = {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ phone, password })
-            });
-
-            // Handle non-JSON responses gracefully
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error(`Server returned non-JSON response (${response.status})`);
-            }
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Authentication failed');
-            }
-
+            const data = await api.post("/auth/login", { phone, password });
             return data.data; // Should contain user and token
         } catch (error) {
             console.error('Error in authApiService.login:', error);

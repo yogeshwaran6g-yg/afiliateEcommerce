@@ -56,13 +56,13 @@ export default function Reports() {
         <div className="p-4 md:p-8 lg:p-12 space-y-12">
             {/* Header Section */}
             <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
                     <span>Admin</span>
                     <span className="material-symbols-outlined text-sm">chevron_right</span>
-                    <span className="text-primary">System Reports</span>
+                    <span className="text-primary font-bold">Reports</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tight">Advanced System Reports</h2>
-                <p className="text-sm md:text-lg text-slate-500 font-medium max-w-2xl">Generate, configure, and download granular data exports for your MLM ecosystem.</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Reports</h2>
+                <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Generate and download granular data exports.</p>
             </div>
 
             {/* Report Config Cards */}

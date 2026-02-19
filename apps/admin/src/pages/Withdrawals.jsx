@@ -68,7 +68,7 @@ export default function Withdrawals() {
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Processing Withdrawal Requests...</p>
+                    <p className="text-slate-500 font-semibold text-sm animate-pulse">Loading withdrawals...</p>
                 </div>
             </div>
         );
@@ -79,13 +79,13 @@ export default function Withdrawals() {
             {/* Page Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                        <span className="hover:text-primary cursor-pointer transition-colors">Finance</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <span className="hover:text-primary cursor-pointer transition-colors">Admin</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">Withdrawal Requests</span>
+                        <span className="text-primary font-bold">Withdrawals</span>
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Liquid Asset Outflow</h2>
-                    <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Review and authorize distributor payout requests to ensure financial integrity.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Withdrawals</h2>
+                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Review and authorize distributor payout requests.</p>
                 </div>
             </div>
 
@@ -125,8 +125,8 @@ export default function Withdrawals() {
                                 key={tab.value}
                                 onClick={() => setActiveFilter(tab.value)}
                                 className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab.value
-                                        ? 'bg-white text-primary shadow-lg shadow-primary/10'
-                                        : 'text-slate-400 hover:text-slate-600'
+                                    ? 'bg-white text-primary shadow-lg shadow-primary/10'
+                                    : 'text-slate-400 hover:text-slate-600'
                                     }`}
                             >
                                 {tab.label}
@@ -150,103 +150,188 @@ export default function Withdrawals() {
                 </div>
             </div>
 
-            {/* Withdrawals Table */}
-            <div className="bg-white rounded-5xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[1100px]">
-                        <thead className="bg-slate-50/50">
-                            <tr>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">DISTRIBUTOR</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">PAYOUT MAGNITUDE</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">BANK PARAMETERS</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">REQUESTED ON</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">AUTHORIZATION</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
+            {/* Withdrawals Table / Mobile Cards */}
+            <div className={`bg-white rounded-[2.5rem] md:rounded-5xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in duration-500 ${filteredWithdrawals.length === 0 ? 'p-10' : ''}`}>
+                {filteredWithdrawals.length === 0 ? (
+                    <div className="flex flex-col items-center gap-4 text-center py-20 px-6">
+                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                            <span className="material-symbols-outlined text-4xl font-light">account_balance</span>
+                        </div>
+                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-relaxed">No payout requests matching the criteria</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Mobile Card View */}
+                        <div className="block lg:hidden divide-y divide-slate-50">
                             {filteredWithdrawals.map((request, i) => {
                                 const bank = typeof request.bank_details === 'string' ? JSON.parse(request.bank_details) : request.bank_details;
                                 return (
-                                    <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-10 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                    <div key={i} className="p-4 md:p-6 space-y-4 hover:bg-slate-50/30 transition-colors">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-[10px] shrink-0 shadow-md">
                                                     {request.user_name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h4 className="text-sm font-black text-[#172b4d] tracking-tight truncate">{request.user_name}</h4>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">{request.user_phone}</p>
+                                                    <h4 className="text-xs font-black text-[#172b4d] tracking-tight truncate">{request.user_name}</h4>
+                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{request.user_phone}</p>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td className="px-10 py-6">
-                                            <div className="text-lg font-black text-red-600">₹{Number(request.amount).toLocaleString()}</div>
-                                        </td>
-                                        <td className="px-10 py-6">
-                                            <div className="min-w-0 space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">account_balance</span>
-                                                    <p className="text-[11px] font-bold text-[#172b4d] truncate uppercase tracking-wider">{bank?.bank_name || 'N/A'}</p>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">tag</span>
-                                                    <p className="text-[10px] font-medium text-slate-500 truncate tracking-widest font-mono uppercase">{bank?.account_number || 'N/A'}</p>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">vpn_key</span>
-                                                    <p className="text-[10px] font-medium text-slate-400 truncate tracking-widest font-mono uppercase">IFSC: {bank?.ifsc || 'N/A'}</p>
-                                                </div>
+                                            <div className="text-right">
+                                                <div className="text-sm font-black text-red-600 leading-none">₹{Number(request.amount).toLocaleString()}</div>
+                                                <span className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest mt-1 ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                    request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                                                    }`}>
+                                                    {request.status.replace("_", " ")}
+                                                </span>
                                             </div>
-                                        </td>
-                                        <td className="px-10 py-6">
-                                            <span className="text-sm font-medium text-slate-500">
-                                                {new Date(request.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                            </span>
-                                        </td>
-                                        <td className="px-10 py-6">
-                                            <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                                request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
-                                                }`}>
-                                                {request.status.replace("_", " ")}
-                                            </span>
-                                        </td>
-                                        <td className="px-10 py-6">
-                                            <div className="flex items-center justify-end gap-3">
-                                                {request.status === 'REVIEW_PENDING' && (
-                                                    <div className="flex items-center gap-2">
+                                        </div>
+
+                                        <div className="bg-slate-50/50 rounded-2xl p-3 space-y-2 border border-slate-100/50">
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-[14px] text-slate-400">account_balance</span>
+                                                <p className="text-[10px] font-bold text-[#172b4d] uppercase truncate">{bank?.bank_name || 'N/A'}</p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-[14px] text-slate-400">tag</span>
+                                                <p className="text-[9px] font-bold text-slate-500 font-mono tracking-widest truncate">{bank?.account_number || 'N/A'}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                                {new Date(request.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                {request.status === 'REVIEW_PENDING' ? (
+                                                    <>
                                                         <button
                                                             onClick={() => handleOpenActionModal(request, "APPROVE")}
-                                                            className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
+                                                            className="px-3 py-2 bg-slate-900 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all shadow-md shadow-slate-900/10 uppercase"
                                                         >
                                                             DISBURSE
                                                         </button>
                                                         <button
                                                             onClick={() => handleOpenActionModal(request, "REJECT")}
-                                                            className="px-4 py-2 bg-red-50 text-red-600 text-[10px] font-black rounded-xl hover:bg-red-100 transition-all active:scale-95"
+                                                            className="px-3 py-2 bg-red-50 text-red-600 text-[9px] font-black rounded-lg active:scale-95 transition-all uppercase"
                                                         >
                                                             VOID
                                                         </button>
+                                                    </>
+                                                ) : (
+                                                    <div className="flex items-center gap-1.5 text-slate-300">
+                                                        <span className="material-symbols-outlined text-sm font-bold">
+                                                            {request.status === 'APPROVED' ? 'verified_user' : 'cancel'}
+                                                        </span>
+                                                        <span className="text-[8px] font-black uppercase tracking-widest font-display">
+                                                            {request.status === 'APPROVED' ? 'SETTLED' : 'VOIDED'}
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 );
                             })}
-                            {filteredWithdrawals.length === 0 && (
-                                <tr>
-                                    <td colSpan="6" className="px-10 py-24 text-center">
-                                        <div className="flex flex-col items-center gap-4 text-slate-300">
-                                            <span className="material-symbols-outlined text-7xl font-light">account_balance</span>
-                                            <p className="text-sm font-bold uppercase tracking-[0.2em] opacity-60">No payment outflow requests identified</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full text-left min-w-[1100px]">
+                                <thead className="bg-slate-50/50">
+                                    <tr>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">DISTRIBUTOR</th>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">PAYOUT MAGNITUDE</th>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">BANK PARAMETERS</th>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">REQUESTED ON</th>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {filteredWithdrawals.map((request, i) => {
+                                        const bank = typeof request.bank_details === 'string' ? JSON.parse(request.bank_details) : request.bank_details;
+                                        return (
+                                            <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                                                <td className="px-10 py-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                                            {request.user_name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <h4 className="text-sm font-black text-[#172b4d] tracking-tight truncate">{request.user_name}</h4>
+                                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">{request.user_phone}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-10 py-6">
+                                                    <div className="text-lg font-black text-red-600">₹{Number(request.amount).toLocaleString()}</div>
+                                                </td>
+                                                <td className="px-10 py-6">
+                                                    <div className="min-w-0 space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">account_balance</span>
+                                                            <p className="text-[11px] font-bold text-[#172b4d] truncate uppercase tracking-wider">{bank?.bank_name || 'N/A'}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">tag</span>
+                                                            <p className="text-[10px] font-medium text-slate-500 truncate tracking-widest font-mono uppercase">{bank?.account_number || 'N/A'}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">vpn_key</span>
+                                                            <p className="text-[10px] font-medium text-slate-400 truncate tracking-widest font-mono uppercase">IFSC: {bank?.ifsc || 'N/A'}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-10 py-6">
+                                                    <span className="text-sm font-medium text-slate-500">
+                                                        {new Date(request.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                </td>
+                                                <td className="px-10 py-6">
+                                                    <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                        request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                                                        }`}>
+                                                        {request.status.replace("_", " ")}
+                                                    </span>
+                                                </td>
+                                                <td className="px-10 py-6">
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        {request.status === 'REVIEW_PENDING' ? (
+                                                            <div className="flex items-center gap-2">
+                                                                <button
+                                                                    onClick={() => handleOpenActionModal(request, "APPROVE")}
+                                                                    className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
+                                                                >
+                                                                    DISBURSE
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleOpenActionModal(request, "REJECT")}
+                                                                    className="px-4 py-2 bg-red-50 text-red-600 text-[10px] font-black rounded-xl hover:bg-red-100 transition-all active:scale-95"
+                                                                >
+                                                                    VOID
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2 text-slate-300">
+                                                                <span className="material-symbols-outlined text-lg">
+                                                                    {request.status === 'APPROVED' ? 'check_circle' : 'cancel'}
+                                                                </span>
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest leading-none">
+                                                                    {request.status === 'APPROVED' ? 'FINALIZED' : 'VOIDED'}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Action Modal (Approve/Reject) */}

@@ -127,3 +127,12 @@ referal
 
 
 add rate limiter
+
+
+
+
+❌ Don’t activate user directly from activation table
+❌ Don’t distribute commission on manual PENDING
+❌ Don’t update wallet without transaction
+❌ Don’t cancel order without reversing wallet + commission
+❌ Don’t mix activation and purchase logic

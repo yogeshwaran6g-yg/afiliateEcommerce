@@ -480,6 +480,40 @@ const adminController = {
         }
 
     },
+      updateKYCStatus: async function (req, res) {
+        try {
+            const { userId } = req.params;
+            const { type, status } = req.body;
+
+            if (!userId || !type || !status) {
+                return rtnRes(res, 400, "userId, type, and status are required");
+            }
+
+            const validTypes = ['identity', 'address', 'bank'];
+            const validStatuses = ['VERIFIED', 'REJECTED', 'PENDING'];
+
+            if (!validTypes.includes(type)) {
+                return rtnRes(res, 400, "Invalid verification type");
+            }
+
+            if (!validStatuses.includes(status)) {
+                return rtnRes(res, 400, "Invalid status");
+            }
+
+            const fieldName = `${type}_status`;
+
+            await queryRunner(`
+                UPDATE profiles 
+                SET ${fieldName} = ? 
+                WHERE user_id = ?
+            `, [status, userId]);
+
+            return rtnRes(res, 200, `KYC ${type} status updated to ${status}`);
+        } catch (e) {
+            log(`Error in updateKYCStatus: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
 
     getUserNotifications: async function (req, res) {
         try {
