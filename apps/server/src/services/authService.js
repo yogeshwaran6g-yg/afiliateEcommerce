@@ -98,22 +98,23 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
         };
 
         try {
-            const response = await fetchWithTimeout(env.WHATSUP_BASE_URL, {
-                method: "POST",
-                headers,
-                body: JSON.stringify(payload)
-            });
+            console.log("otp", otp);
+            // const response = await fetchWithTimeout(env.WHATSUP_BASE_URL, {
+            //     method: "POST",
+            //     headers,
+            //     body: JSON.stringify(payload)
+            // });
 
-            if (!response.result) {
-                log(`Fetch failed: ${env.WHATSUP_BASE_URL}`, "error");
-                return { code: 500, message: "Failed to connect to OTP service" };
-            }
+            // if (!response.result) {
+            //     log(`Fetch failed: ${env.WHATSUP_BASE_URL}`, "error");
+            //     return { code: 500, message: "Failed to connect to OTP service" };
+            // }
 
-            const result = await response.res.json();
-            if (result.result !== 'success' && !result.response) {
-                log(`OTP service error: ${JSON.stringify(result)}`, "error");
-                return { code: 500, message: "OTP service provider error" };
-            }
+            // const result = await response.res.json();
+            // if (result.result !== 'success' && !result.response) {
+            //     log(`OTP service error: ${JSON.stringify(result)}`, "error");
+            //     return { code: 500, message: "OTP service provider error" };
+            // }
         } catch (fetchErr) {
             log(`fetch error: ${fetchErr.message}`, "error");
             return { code: 500, message: "Failed to send OTP (fetch error)" };
