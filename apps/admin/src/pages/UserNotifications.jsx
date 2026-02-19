@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import userNotificationApiService from "../services/userNotificationApiService";
 import userApiService from "../services/userApiService";
 
@@ -16,10 +16,21 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        if (isOpen) {
-            setFormData({ ...initialFormState, user_id: initialUserId });
+        if (isOpen && users.length > 0) {
+            const matchedUser = users.find(u =>
+                u.dbId === initialUserId ||
+                u.id?.toString() === initialUserId?.toString() ||
+                u.name?.toLowerCase() === initialUserId?.toLowerCase() ||
+                u.name?.toLowerCase().replace(/\s+/g, '-') === initialUserId?.toLowerCase()
+            );
+
+            if (matchedUser) {
+                setFormData(prev => ({ ...prev, user_id: matchedUser.dbId }));
+            } else if (initialUserId) {
+                setFormData(prev => ({ ...prev, user_id: initialUserId }));
+            }
         }
-    }, [isOpen, initialUserId]);
+    }, [isOpen, initialUserId, users]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -44,7 +55,11 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
         onSave(formData);
     };
 
-    const selectedUser = users.find(u => u.dbId === formData.user_id);
+    const selectedUser = users.find(u =>
+        u.dbId === formData.user_id ||
+        u.id?.toString() === formData.user_id?.toString() ||
+        u.name?.toLowerCase() === formData.user_id?.toLowerCase()
+    );
 
     if (!isOpen) return null;
 
@@ -78,7 +93,7 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all cursor-pointer flex justify-between items-center"
                                 >
                                     <span className={selectedUser ? "" : "text-slate-400"}>
-                                        {selectedUser ? `${selectedUser.name}` : "Select a user"}
+                                        {selectedUser ? `${selectedUser.name}` : (formData.user_id ? "Resolving user..." : "Select a user")}
                                     </span>
                                     <span className="material-symbols-outlined text-slate-400">
                                         expand_more
@@ -98,7 +113,7 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
                                                         }}
                                                         className={`px-4 py-3 text-sm font-bold cursor-pointer hover:bg-slate-50 transition-colors ${formData.user_id === user.dbId ? 'text-primary bg-primary/5' : 'text-[#172b4d]'}`}
                                                     >
-                                                        {user.name} 
+                                                        {user.name}
                                                     </div>
                                                 ))
                                             ) : (
@@ -119,7 +134,7 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
                                 value={formData.type}
                                 onChange={handleInputChange}
                                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all cursor-pointer flex justify-between items-center"
-                                >
+                            >
                                 <option value="ORDER">Order</option>
                                 <option value="PAYMENT">Payment</option>
                                 <option value="WALLET">Wallet</option>
@@ -170,6 +185,7 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
 
 export default function UserNotifications() {
     const { userId } = useParams();
+    const location = useLocation();
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -177,6 +193,7 @@ export default function UserNotifications() {
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 20, pages: 0 });
     const [users, setUsers] = useState([]);
+    const [usersLoaded, setUsersLoaded] = useState(false);
 
     useEffect(() => {
         fetchNotifications();
@@ -186,6 +203,13 @@ export default function UserNotifications() {
         fetchUsers();
     }, []);
 
+    // Auto-open drawer only after users are loaded (avoids race condition)
+    useEffect(() => {
+        if (usersLoaded && location.pathname.includes("/send/") && userId) {
+            setDrawerOpen(true);
+        }
+    }, [usersLoaded, location.pathname, userId]);
+
     const fetchUsers = async () => {
         try {
             const data = await userApiService.getUsers();
@@ -193,6 +217,8 @@ export default function UserNotifications() {
         } catch (err) {
             console.error("Failed to fetch users:", err);
             setUsers([]);
+        } finally {
+            setUsersLoaded(true);
         }
     };
 

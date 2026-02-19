@@ -59,6 +59,7 @@ function App() {
             <Route path="/kyc" element={<KYCVerification />} />
             <Route path="/kyc/:userId" element={<KYCDetails />} />
             <Route path="/tickets" element={<Tickets />} />
+            <Route path="/user-notifications/send/:userId" element={<UserNotifications />} />
             <Route path="/user-notifications/:userId?" element={<UserNotifications />} />
           </Route>
         </Routes>
