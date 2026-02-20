@@ -14,6 +14,7 @@ export const constants = {
       profile: "/api/v1/auth/profile",
       completeRegistration: "/api/v1/auth/complete-registration",
       cancelRegistration: "/api/v1/auth/cancel-registration",
+      cancelSignup: "/api/v1/auth/cancel-signup",
     },
     categories: {
       base: "/api/v1/categories",
