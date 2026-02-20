@@ -4,46 +4,40 @@ import rechargeService from '#services/rechargeService.js';
 import userNotificationService from '#services/userNotificationService.js';
 import { queryRunner } from '#config/db.js';
 import { rtnRes, log } from '#utils/helper.js';
+import * as orderService from '#services/orderService.js';
 
 const adminController = {
     approvePayment: async function (req, res) {
         try {
-            const { paymentId } = req.body;
-            if (!paymentId) return rtnRes(res, 400, "paymentId is required");
+            const { orderId } = req.body;
+            const adminComment = req.body.adminComment || "Approved by admin";
 
-            const [payment] = await queryRunner('SELECT * FROM activation_payments_details WHERE id = ?', [paymentId]);
-            if (!payment) return rtnRes(res, 404, "Payment record not found");
-
-            if (payment.status !== 'PENDING') {
-                return rtnRes(res, 400, `Payment is already ${payment.status}`);
+            if (!orderId) {
+                return rtnRes(res, 400, "orderId is required");
             }
 
-            await activateUser(payment.user_id, paymentId);
+            log(`Admin approving payment for order ${orderId}`, "info");
+            await orderService.verifyOrderPayment(orderId, 'APPROVED', adminComment);
 
-            return rtnRes(res, 200, "Payment approved and user activated successfully");
-
+            return rtnRes(res, 200, "Payment approved successfully");
         } catch (e) {
             log(`Error in approvePayment: ${e.message}`, "error");
-            rtnRes(res, 500, "internal error");
+            rtnRes(res, 500, e.message || "internal error");
         }
     },
 
     rejectPayment: async function (req, res) {
         try {
-            const { paymentId, reason } = req.body;
-            if (!paymentId) return rtnRes(res, 400, "paymentId is required");
+            const { orderId, reason } = req.body;
+            if (!orderId) return rtnRes(res, 400, "orderId is required");
 
-            const [payment] = await queryRunner('SELECT * FROM activation_payments_details WHERE id = ?', [paymentId]);
-            if (!payment) return rtnRes(res, 404, "Payment record not found");
-
-            await queryRunner('UPDATE activation_payments_details SET status = "REJECTED", admin_comment = ? WHERE id = ?', [reason || "Rejected by admin", paymentId]);
-            await queryRunner('UPDATE users SET account_activation_status = "REJECTED" WHERE id = ?', [payment.user_id]);
+            log(`Admin rejecting payment for order ${orderId}`, "info");
+            await orderService.verifyOrderPayment(orderId, 'REJECTED', reason || "Rejected by admin");
 
             return rtnRes(res, 200, "Payment rejected and user notified");
-
         } catch (e) {
             log(`Error in rejectPayment: ${e.message}`, "error");
-            rtnRes(res, 500, "internal error");
+            rtnRes(res, 500, e.message || "internal error");
         }
     },
 

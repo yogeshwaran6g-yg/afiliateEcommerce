@@ -195,16 +195,15 @@ export default function CompleteRegistration() {
                 email: formData.email,
                 password: formData.password,
                 selectedProductId: formData.selectedProduct.id,
+                paymentMethod: 'MANUAL', // New users always pay manually
                 paymentType: formData.paymentType,
                 proof: formData.proof
             };
 
-            // console.log("Form Data to be submitted:", registrationData);
-
             const response = await completeRegistration(registrationData);
             
             if (response.success) {
-                toast.success('Registration and payment submitted successfully! Your account is now under review. Please sign in with your new password.');
+                toast.success('Registration completed and activation order created! Your account is under review.');
                 logout();
                 navigate('/login');
             } else {

@@ -9,21 +9,42 @@ import { log } from '#utils/helper.js';
  * @returns {Promise<object>} - The created order details.
  */
 export const createOrder = async (orderData) => {
-    const { userId, items, totalAmount, shippingAddress, paymentStatus = 'PENDING' } = orderData;
+    const { 
+        userId, 
+        items, 
+        totalAmount, 
+        shippingAddress, 
+        paymentMethod, // 'WALLET' or 'MANUAL'
+        paymentType, // 'UPI' or 'BANK' (for manual)
+        transactionReference, // (for manual)
+        proofUrl, // (for manual)
+        orderType = 'PRODUCT_PURCHASE'
+    } = orderData;
+    
     const connection = await pool.getConnection();
 
     try {
         await connection.beginTransaction();
 
-        // 1. Generate Order Number (Simple timestamp + random suffix for now)
+        // 1. Generate Order Number
         const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
         // 2. Create Order
-        log(`Creating order ${orderNumber} for user ${userId}`, "info");
+        log(`Creating ${orderType} order ${orderNumber} for user ${userId} via ${paymentMethod}`, "info");
+        
+        let paymentStatus = 'PENDING';
+        if (paymentMethod === 'WALLET') {
+            const wallet = await walletService.getWalletByUserId(userId, connection);
+            if (parseFloat(wallet.balance) < totalAmount) {
+                throw new Error("Insufficient wallet balance");
+            }
+            paymentStatus = 'PAID';
+        }
+
         const [orderResult] = await connection.query(
-            `INSERT INTO orders (order_number, user_id, total_amount, status, payment_status, shipping_address) 
-             VALUES (?, ?, ?, 'PROCESSING', ?, ?)`,
-            [orderNumber, userId, totalAmount, paymentStatus, JSON.stringify(shippingAddress)]
+            `INSERT INTO orders (order_number, user_id, total_amount, status, order_type, payment_status, payment_method, shipping_address) 
+             VALUES (?, ?, ?, 'PROCESSING', ?, ?, ?, ?)`,
+            [orderNumber, userId, totalAmount, orderType, paymentStatus, paymentMethod, JSON.stringify(shippingAddress)]
         );
 
         const orderId = orderResult.insertId;
@@ -37,27 +58,131 @@ export const createOrder = async (orderData) => {
             );
         }
 
-        // 4. Insert Initial Tracking
-        await connection.query(
-            `INSERT INTO order_tracking (order_id, title, description, status_time) 
-             VALUES (?, 'Order Placed', 'Your order has been placed successfully.', NOW())`,
-            [orderId]
-        );
+        // 4. Handle Payment Details
+        if (paymentMethod === 'MANUAL' && proofUrl) {
+            await connection.query(
+                `INSERT INTO order_payments (order_id, payment_type, transaction_reference, proof_url, status) 
+                 VALUES (?, ?, ?, ?, 'PENDING')`,
+                [orderId, paymentType, transactionReference, proofUrl]
+            );
+            
+            if (orderType === 'ACTIVATION') {
+                await connection.query(
+                    'UPDATE users SET account_activation_status = ? WHERE id = ?',
+                    ['UNDER_REVIEW', userId]
+                );
+            }
+        } else if (paymentMethod === 'WALLET') {
+            const transactionType = orderType === 'ACTIVATION' ? 'ACTIVATION_PURCHASE' : 'PRODUCT_PURCHASE';
+            await walletService.updateWalletBalance(
+                userId,
+                totalAmount,
+                'DEBIT',
+                transactionType,
+                'orders',
+                orderId,
+                `Payment for ${orderType} order ${orderNumber}`,
+                'SUCCESS',
+                null,
+                connection
+            );
 
-        // 5. Commission Distribution (if applicable immediately)
-        // Note: Usually commission is distributed after payment/delivery, but keeping logic placeholder
-        if (paymentStatus === 'PAID') {
-            // await distributeCommission(orderId, userId, totalAmount, connection); 
+            if (orderType === 'ACTIVATION') {
+                await connection.query(
+                    'UPDATE users SET account_activation_status = "ACTIVATED", is_active = TRUE WHERE id = ?',
+                    [userId]
+                );
+                
+                const [userRows] = await connection.execute('SELECT referred_by FROM users WHERE id = ?', [userId]);
+                if (userRows[0]?.referred_by) {
+                    await connection.query('CALL sp_add_referral(?, ?)', [userRows[0].referred_by, userId]);
+                }
+            }
+            
+            await distributeCommission(orderId, userId, totalAmount, connection);
         }
 
+        // 5. Insert Initial Tracking
+        await connection.query(
+            `INSERT INTO order_tracking (order_id, title, description, status_time) 
+             VALUES (?, 'Order Placed', ?, NOW())`,
+            [orderId, paymentMethod === 'MANUAL' ? 'Your order has been placed and is awaiting payment verification.' : 'Your order has been placed and payment confirmed.']
+        );
+
         await connection.commit();
-        return { orderId, orderNumber, status: 'PROCESSING' };
+        return { orderId, orderNumber, status: 'PROCESSING', paymentStatus };
     } catch (error) {
-        await connection.rollback();
+        if (connection) await connection.rollback();
         log(`Error in createOrder: ${error.message}`, "error");
         throw error;
     } finally {
-        connection.release();
+        if (connection) connection.release();
+    }
+};
+
+/**
+ * Updates an order payment status (usually called by admin).
+ */
+export const verifyOrderPayment = async (orderId, status, adminComment) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const [orders] = await connection.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+        if (orders.length === 0) throw new Error("Order not found");
+        const order = orders[0];
+
+        await connection.query(
+            'UPDATE order_payments SET status = ?, admin_comment = ? WHERE order_id = ?',
+            [status, adminComment, orderId]
+        );
+
+        if (status === 'APPROVED') {
+            await connection.query(
+                'UPDATE orders SET payment_status = "PAID" WHERE id = ?',
+                [orderId]
+            );
+
+            if (order.order_type === 'ACTIVATION') {
+                await connection.query(
+                    'UPDATE users SET account_activation_status = "ACTIVATED", is_active = TRUE WHERE id = ?',
+                    [order.user_id]
+                );
+                
+                const [userRows] = await connection.execute('SELECT referred_by FROM users WHERE id = ?', [order.user_id]);
+                if (userRows[0]?.referred_by) {
+                    await connection.query('CALL sp_add_referral(?, ?)', [userRows[0].referred_by, order.user_id]);
+                }
+            }
+
+            await distributeCommission(orderId, order.user_id, order.total_amount, connection);
+
+            await connection.query(
+                `INSERT INTO order_tracking (order_id, title, description) VALUES (?, 'Payment Verified', 'Your payment has been successfully verified.')`,
+                [orderId]
+            );
+        } else {
+            if (order.order_type === 'ACTIVATION') {
+                await connection.query(
+                    'UPDATE users SET account_activation_status = "REJECTED" WHERE id = ?',
+                    [order.user_id]
+                );
+            }
+            
+            await connection.query(
+                `INSERT INTO order_tracking (order_id, title, description) VALUES (?, 'Payment Rejected', ?)`,
+                [orderId, adminComment || 'Your payment proof was rejected.']
+            );
+        }
+
+        await connection.commit();
+        return { success: true };
+    } catch (error) {
+        if (connection) await connection.rollback();
+        log(`Error in verifyOrderPayment: ${error.message}`, "error");
+        throw error;
+    } finally {
+        if (connection) connection.release();
     }
 };
 
@@ -68,7 +193,7 @@ export const createOrder = async (orderData) => {
  */
 export const getOrdersByUserId = async (userId) => {
     const [rows] = await pool.execute(
-        `SELECT id, order_number, total_amount, status, payment_status, created_at 
+        `SELECT id, order_number, total_amount, status, order_type, payment_status, payment_method, created_at 
          FROM orders 
          WHERE user_id = ? 
          ORDER BY created_at DESC`,
@@ -84,16 +209,17 @@ export const getOrdersByUserId = async (userId) => {
  * @returns {Promise<object>} - Order details.
  */
 export const getOrderById = async (orderId, userId) => {
-    // 1. Get Order Details
     const [orders] = await pool.execute(
-        `SELECT * FROM orders WHERE id = ? AND user_id = ?`,
+        `SELECT o.*, op.payment_type, op.transaction_reference, op.proof_url, op.status as verification_status, op.admin_comment 
+         FROM orders o
+         LEFT JOIN order_payments op ON o.id = op.order_id
+         WHERE o.id = ? AND o.user_id = ?`,
         [orderId, userId]
     );
 
     if (orders.length === 0) return null;
     const order = orders[0];
 
-    // 2. Get Order Items
     const [items] = await pool.execute(
         `SELECT oi.*, p.name as product_name, p.images 
          FROM order_items oi 
@@ -102,7 +228,6 @@ export const getOrderById = async (orderId, userId) => {
         [orderId]
     );
 
-    // 3. Get Order Tracking
     const [tracking] = await pool.execute(
         `SELECT * FROM order_tracking WHERE order_id = ? ORDER BY status_time DESC`,
         [orderId]

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import walletApiService from "../services/walletApiService";
 
 const STATUS_COLORS = {
     SUCCESS: 'bg-green-100 text-green-700',
@@ -310,17 +311,13 @@ export default function WalletTransactions() {
     const fetchTransactions = async () => {
         try {
             setLoading(true);
-            const queryParams = new URLSearchParams({
+            const queryParams = {
                 page: pagination.page,
                 limit: pagination.limit,
                 ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== ''))
-            });
+            };
 
-            const response = await fetch(`/api/admin/wallet-transactions?${queryParams}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-
-            const data = await response.json();
+            const data = await walletApiService.getWalletTransactions(queryParams);
             if (data.success) {
                 setTransactions(data.data.transactions);
                 setPagination(prev => ({ ...prev, ...data.data.pagination }));

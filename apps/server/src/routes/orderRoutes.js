@@ -15,7 +15,7 @@ router.post('/upload', checkActivated, paymentUpload.single('proof'), (req, res)
     res.status(200).json({ proofUrl });
 });
 
-router.post('/', checkActivated, orderController.createOrder);
+router.post('/', orderController.createOrder);
 router.get('/my-orders', orderController.getMyOrders);
 router.get('/:id', orderController.getOrderById);
 

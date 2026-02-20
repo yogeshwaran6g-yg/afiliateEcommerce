@@ -1,5 +1,4 @@
-
-DELIMITER //
+DELIMITER / /
 
 -- Procedure: sp_add_referral
 -- Adds a user to the referral tree
@@ -26,8 +25,6 @@ BEGIN
     
     COMMIT;
 END //
-
-
 
 -- Procedure: sp_distribute_commission
 -- Calculates and inserts commissions for an order
@@ -65,5 +62,4 @@ BEGIN
     COMMIT;
 END //
 
-DELIMITER ;
-
+DELIMITER;

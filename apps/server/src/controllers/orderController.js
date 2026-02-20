@@ -19,6 +19,12 @@ const createOrder = async (req, res) => {
             return rtnRes(res, 400, "Items, Total Amount, and Shipping Address are required");
         }
 
+        // Allow non-activated users to create ACTIVATION orders only
+        const effectiveOrderType = orderType || 'PRODUCT_PURCHASE';
+        if (effectiveOrderType !== 'ACTIVATION' && (!req.user.is_active || req.user.account_activation_status !== 'ACTIVATED')) {
+            return rtnRes(res, 403, "Your account is not activated. Please complete activation first.");
+        }
+
         const order = await orderService.createOrder({
             userId,
             items,

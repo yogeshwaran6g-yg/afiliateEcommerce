@@ -8,6 +8,8 @@ router.use(protect);
 
 router.get('/', userNotificationController.getNotifications);
 router.get('/unread-count', userNotificationController.getUnreadCount);
+
+
 router.put('/mark-as-read/:id', userNotificationController.markAsRead);
 router.put('/mark-all-as-read', userNotificationController.markAllAsRead);
 router.delete('/:id', userNotificationController.deleteNotification);

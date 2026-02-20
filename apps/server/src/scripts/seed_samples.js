@@ -1,126 +1,184 @@
 import { log } from "../utils/helper.js";
+import { callSP } from "../config/db.js";
+import walletService from "../services/walletService.js";
 
 export const seedSamples = async (connection, adminId, adminWalletId) => {
-  log("Seeding sample data (withdrawals, recharges, tickets, notifications, orders)...", "info");
+  log("Seeding comprehensive sample data for all tables...", "info");
 
-  // 1. Withdrawal record
-  const [withdrawalResult] = await connection.execute(
-    `INSERT INTO withdrawal_requests (
-      user_id, amount, platform_fee, net_amount, status, bank_details, admin_comment
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      adminId,
-      10000.0,
-      500.0, // 5% of 10000
-      9500.0,
-      "APPROVED",
-      JSON.stringify({
-        account_name: "Admin",
-        bank_name: "State Bank of India",
-        account_number: "12345678901234",
-        ifsc: "SBIN0001234",
-      }),
-      "Admin withdrawal - approved",
-    ],
-  );
+  // Get all users except admin
+  const [users] = await connection.execute("SELECT id, name FROM users WHERE id != ?", [adminId]);
+  const userIds = users.map(u => u.id);
+  
+  // Find products
+  const [products] = await connection.execute("SELECT id, name, sale_price FROM products");
+  if (products.length === 0) {
+    log("No products found to seed orders. Skipping complex order seeding.", "warning");
+    return;
+  }
 
-  // 2. Recharge record
-  const [rechargeResult] = await connection.execute(
-    `INSERT INTO recharge_requests (
-      user_id, amount, payment_method, payment_reference, proof_image, status, admin_comment
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      adminId,
-      5000.0,
-      "UPI",
-      "UPI123456789",
-      "/uploads/admin/recharge_proof.jpg",
-      "APPROVED",
-      "Admin recharge - approved",
-    ],
-  );
+  // 1. Seed OTPs for some users
+  log("Seeding mock OTPs...", "info");
+  for (let i = 0; i < 5; i++) {
+    const userId = userIds[i % userIds.length];
+    await connection.execute(
+      "INSERT IGNORE INTO otp (user_id, otp_hash, purpose, expires_at) VALUES (?, ?, ?, ?)",
+      [userId, "hash_123456", "login", new Date(Date.now() + 3600000).toISOString().slice(0, 19).replace('T', ' ')]
+    );
+  }
 
-  // 3. Random Wallet Transactions
-  let currentBalance = 50000.0;
-  for (let i = 0; i < 15; i++) {
-    const isCredit = Math.random() > 0.4;
-    const amount = Math.floor(Math.random() * 2000) + 100;
-    const daysAgo = Math.floor(Math.random() * 20);
+  // 2. Seed Profiles and Addresses for a few users
+  log("Seeding profiles and addresses for users...", "info");
+  for (let i = 0; i < 5; i++) {
+    const userId = userIds[i];
+    await connection.execute(
+      `INSERT INTO profiles (user_id, dob, identity_status, bank_status) VALUES (?, ?, ?, ?)`,
+      [userId, "1990-05-10", "VERIFIED", "VERIFIED"]
+    );
+    await connection.execute(
+      `INSERT INTO addresses (user_id, address_line1, city, state, country, pincode, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [userId, `Street ${i}`, "Bangalore", "Karnataka", "India", "560001", true]
+    );
+  }
 
-    let entryType, transactionType, balanceBefore, balanceAfter, description;
+  // 3. Seed Recharge Requests (Some approved, some pending)
+  log("Seeding recharge requests...", "info");
+  for (let i = 0; i < 5; i++) {
+    const userId = userIds[i];
+    const amount = (i + 1) * 2000;
+    const status = i % 2 === 0 ? "APPROVED" : "REVIEW_PENDING";
+    
+    const [rechargeResult] = await connection.execute(
+      `INSERT INTO recharge_requests (user_id, amount, payment_method, payment_reference, status) VALUES (?, ?, ?, ?, ?)`,
+      [userId, amount, "UPI", `REF-${userId}-${i}`, status]
+    );
 
-    if (isCredit) {
-      entryType = "CREDIT";
-      transactionType = Math.random() > 0.5 ? "REFERRAL_COMMISSION" : "RECHARGE_REQUEST";
-      balanceBefore = currentBalance;
-      currentBalance += amount;
-      balanceAfter = currentBalance;
-      description = `Random credit transaction #${i + 1}`;
-    } else {
-      entryType = "DEBIT";
-      transactionType = "WITHDRAWAL_REQUEST";
-      balanceBefore = currentBalance;
-      currentBalance -= amount;
-      balanceAfter = currentBalance;
-      description = `Random debit transaction #${i + 1}`;
+    if (status === "APPROVED") {
+      // Credit wallet
+      const [wallet] = await connection.execute("SELECT id, balance FROM wallets WHERE user_id = ?", [userId]);
+      if (wallet[0]) {
+        const balanceBefore = parseFloat(wallet[0].balance);
+        const balanceAfter = balanceBefore + amount;
+        await connection.execute("UPDATE wallets SET balance = ? WHERE id = ?", [balanceAfter, wallet[0].id]);
+        await connection.execute(
+          `INSERT INTO wallet_transactions (wallet_id, entry_type, transaction_type, amount, balance_before, balance_after, reference_table, reference_id, status) 
+           VALUES (?, 'CREDIT', 'RECHARGE_REQUEST', ?, ?, ?, 'recharge_requests', ?, 'SUCCESS')`,
+          [wallet[0].id, amount, balanceBefore, balanceAfter, rechargeResult.insertId]
+        );
+      }
+    }
+  }
+
+  // 4. Seed Orders, Payments, and Commissions
+  log("Seeding orders, payments, and referral commissions...", "info");
+  for (let i = 0; i < 8; i++) {
+    const userId = userIds[i % userIds.length];
+    const product = products[i % products.length];
+    const amount = product.sale_price;
+    const orderNumber = `ORD-${Date.now()}-${i}`;
+    const paymentMethod = i % 2 === 0 ? "WALLET" : "MANUAL";
+    const paymentStatus = i < 6 ? "PAID" : "PENDING";
+    const orderStatus = i < 4 ? "DELIVERED" : "PROCESSING";
+
+    const [orderResult] = await connection.execute(
+      `INSERT INTO orders (user_id, order_number, total_amount, status, order_type, payment_status, payment_method, shipping_address) 
+       VALUES (?, ?, ?, ?, 'PRODUCT_PURCHASE', ?, ?, 'Mock Address, India')`,
+      [userId, orderNumber, amount, orderStatus, paymentStatus, paymentMethod]
+    );
+    const orderId = orderResult.insertId;
+
+    await connection.execute(
+      "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, 1, ?)",
+      [orderId, product.id, amount]
+    );
+
+    if (paymentMethod === "MANUAL") {
+      await connection.execute(
+        `INSERT INTO order_payments (order_id, payment_type, transaction_reference, proof_url, status) 
+         VALUES (?, 'UPI', ?, '/uploads/mock/proof.jpg', ?)`,
+        [orderId, `TXN-${orderId}`, paymentStatus === "PAID" ? "APPROVED" : "PENDING"]
+      );
     }
 
-    if (currentBalance >= 0) {
-      const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+    if (paymentStatus === "PAID") {
+      // Distribute Commissions
+      await callSP("sp_distribute_commission", [orderId, 0, userId, amount], connection);
+
+      // Approve some commissions to test wallet updates
+      const [commissions] = await connection.execute(
+        "SELECT id, amount, upline_id FROM referral_commission_distribution WHERE order_id = ? AND status = 'PENDING'",
+        [orderId]
+      );
+
+      for (const comm of commissions) {
+        // Only approve some commissions to keep some pending
+        if (Math.random() > 0.3) {
+          await connection.execute(
+            "UPDATE referral_commission_distribution SET status = 'APPROVED', approved_at = NOW() WHERE id = ?",
+            [comm.id]
+          );
+
+          // Update Wallet Balance
+          await walletService.updateWalletBalance(
+            comm.upline_id,
+            comm.amount,
+            'CREDIT',
+            'REFERRAL_COMMISSION',
+            'referral_commission_distribution',
+            comm.id,
+            `Commission for Order ${orderNumber}`,
+            'SUCCESS',
+            null,
+            connection
+          );
+        }
+      }
+    }
+  }
+
+  // 5. Seed Withdrawal Requests
+  log("Seeding withdrawal requests...", "info");
+  for (let i = 0; i < 3; i++) {
+    const userId = userIds[i];
+    const [wallet] = await connection.execute("SELECT id, balance FROM wallets WHERE user_id = ?", [userId]);
+    if (wallet[0] && parseFloat(wallet[0].balance) > 500) {
+      const amount = 500;
+      const fee = 25;
+      const net = 475;
+      
+      const [withdrawalResult] = await connection.execute(
+        `INSERT INTO withdrawal_requests (user_id, amount, platform_fee, net_amount, status, bank_details) 
+         VALUES (?, ?, ?, ?, 'REVIEW_PENDING', ?)`,
+        [userId, amount, fee, net, JSON.stringify({ bank: "Sample Bank", acc: "12345" })]
+      );
+
+      // Lock balance for pending withdrawal
       await connection.execute(
-        `INSERT INTO wallet_transactions (
-          wallet_id, entry_type, transaction_type, amount, balance_before, balance_after,
-          reference_table, reference_id, description, status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [adminWalletId, entryType, transactionType, amount, balanceBefore, balanceAfter, null, null, description, "SUCCESS", createdAt]
+        "UPDATE wallets SET balance = balance - ?, locked_balance = locked_balance + ? WHERE id = ?",
+        [amount, amount, wallet[0].id]
+      );
+      
+      await connection.execute(
+        `INSERT INTO wallet_transactions (wallet_id, entry_type, transaction_type, amount, balance_before, balance_after, reference_table, reference_id, status) 
+         VALUES (?, 'DEBIT', 'WITHDRAWAL_REQUEST', ?, ?, ?, 'withdrawal_requests', ?, 'PENDING')`,
+        [wallet[0].id, amount, wallet[0].balance, parseFloat(wallet[0].balance) - amount, withdrawalResult.insertId]
       );
     }
   }
 
-  // Update final balance
-  await connection.execute("UPDATE wallets SET balance = ? WHERE id = ?", [currentBalance, adminWalletId]);
-
-  // 4. Notifications
-  const notifications = [
-    ["Welcome to AffiliateEcom", "Start your journey with us today.", "We are happy to have you here.", null, "2026-12-31 23:59:59"],
-    ["Big Sale!", "Up to 50% off on all items.", "Grab the best deals of the season.", null, "2026-12-31 23:59:59"],
-  ];
-  for (const [heading, sDesc, lDesc, img, endTime] of notifications) {
-    await connection.execute(
-      `INSERT INTO notifications (heading, short_description, long_description, image_url, advertisement_end_time) VALUES (?, ?, ?, ?, ?)`,
-      [heading, sDesc, lDesc, img, endTime],
-    );
-  }
-
-  // 5. Tickets
-  const tickets = [
-    { category: "Support", subject: "Issue with withdrawal", description: "Where is my money?", priority: "HIGH", status: "OPEN" },
-  ];
-  for (const ticket of tickets) {
+  // 6. Seed Tickets and Notifications
+  log("Seeding tickets and notifications...", "info");
+  for (let i = 0; i < 5; i++) {
+    const userId = userIds[i % userIds.length];
     await connection.execute(
       `INSERT INTO tickets (user_id, category, subject, description, priority, status) VALUES (?, ?, ?, ?, ?, ?)`,
-      [adminId, ticket.category, ticket.subject, ticket.description, ticket.priority, ticket.status]
+      [userId, 'ORDER', `Sample Ticket ${i}`, 'I have an issue with my order.', 'MEDIUM', 'OPEN']
+    );
+    await connection.execute(
+      `INSERT INTO user_notifications (user_id, title, type, description) VALUES (?, ?, ?, ?)`,
+      [userId, `Welcome Notification ${i}`, 'ACCOUNT', 'Welcome to the platform!']
     );
   }
 
-  // 6. User Notifications
-  await connection.execute(
-    `INSERT INTO user_notifications (user_id, title, type, is_read) VALUES (?, ?, ?, ?)`,
-    [adminId, "Welcome!", "INFO", false]
-  );
-
-  // 7. Sample Order
-  const [orderResult] = await connection.execute(
-    `INSERT INTO orders (user_id, order_number, total_amount, status, payment_status, shipping_address) VALUES (?, ?, ?, 'DELIVERED', 'PAID', '123 Admin St, Chennai')`,
-    [adminId, "ORD-" + Date.now(), 1098.00]
-  );
-  const orderId = orderResult.insertId;
-  log(`Created sample order with ID: ${orderId}`, "info");
-
-  await connection.execute(
-    `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
-    [orderId, 1, 1, 899.00]
-  );
-
-  log("Sample data seeded.", "success");
+  log("Sample data seeding completed successfully!", "success");
 };
+
