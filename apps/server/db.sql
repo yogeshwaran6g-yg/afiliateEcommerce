@@ -62,37 +62,18 @@ CREATE TABLE `users` (
     `is_blocked` BOOLEAN NOT NULL DEFAULT FALSE,
     `account_activation_status` ENUM(
         'NOT_STARTED',
-        'PAYMENT_PENDING',
+        'PENDING_PAYMENT',
         'UNDER_REVIEW',
         'ACTIVATED',
         'REJECTED'
     ) DEFAULT 'NOT_STARTED',
-    `selected_product_id` BIGINT UNSIGNED NULL,
     `referred_by` BIGINT UNSIGNED NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-    CONSTRAINT `fk_users_selected_product` FOREIGN KEY (`selected_product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
+    CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE = InnoDB;
 
--- 4. Activation Payments Table
-CREATE TABLE `activation_payments_details` (
-    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `user_id` BIGINT UNSIGNED NOT NULL,
-    `product_id` BIGINT UNSIGNED NOT NULL,
-    `payment_type` ENUM('UPI', 'BANK') NOT NULL,
-    `proof_url` VARCHAR(255) NOT NULL,
-    `status` ENUM(
-        'PENDING',
-        'APPROVED',
-        'REJECTED'
-    ) DEFAULT 'PENDING',
-    `admin_comment` TEXT,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_activation_payment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_activation_payment_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
-) ENGINE = InnoDB;
+-- Activation Payments table removed in favor of unified order flow
 
 -- 5. OTP Table
 CREATE TABLE `otp` (
@@ -110,28 +91,54 @@ CREATE TABLE `otp` (
 -- 6. Orders Table
 CREATE TABLE orders (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    order_number VARCHAR(50) NOT NULL UNIQUE,
-    user_id BIGINT UNSIGNED NOT NULL,
-    total_amount DECIMAL(10, 2) NOT NULL,
-    status ENUM(
+    `order_number` VARCHAR(50) NOT NULL UNIQUE,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `total_amount` DECIMAL(10, 2) NOT NULL,
+    `status` ENUM(
         'PROCESSING',
         'SHIPPED',
         'OUT_FOR_DELIVERY',
         'DELIVERED',
         'CANCELLED'
     ) NOT NULL DEFAULT 'PROCESSING',
-    order_type ENUM(
+    `order_type` ENUM(
         'ACTIVATION',
         'PRODUCT_PURCHASE'
     ) NOT NULL,
-    payment_status ENUM('PENDING', 'PAID', 'FAILED') DEFAULT 'PENDING',
-    shipping_address TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `payment_status` ENUM(
+        'PENDING',
+        'PAID',
+        'FAILED',
+        'REFUNDED'
+    ) DEFAULT 'PENDING',
+    `payment_method` ENUM('WALLET', 'MANUAL') NULL,
+    `shipping_address` TEXT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_orders_user_id (user_id),
     KEY idx_orders_status (status),
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 6b. Order Payments Table (Manual verification)
+CREATE TABLE order_payments (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    order_id BIGINT UNSIGNED NOT NULL,
+    payment_type ENUM('UPI', 'BANK') NOT NULL,
+    transaction_reference VARCHAR(255) NULL,
+    proof_url VARCHAR(255) NOT NULL,
+    status ENUM(
+        'PENDING',
+        'APPROVED',
+        'REJECTED'
+    ) DEFAULT 'PENDING',
+    admin_comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_op_order_id (order_id),
+    CONSTRAINT fk_op_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE order_items (
@@ -156,27 +163,6 @@ CREATE TABLE order_tracking (
     KEY idx_tracking_order_id (order_id),
     CONSTRAINT fk_tracking_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
 );
-
-CREATE TABLE order_payment_proofs (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    order_id BIGINT UNSIGNED NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL,
-    payment_type ENUM('UPI', 'BANK') NOT NULL,
-    transaction_reference VARCHAR(100) NULL,
-    proof_url VARCHAR(255) NOT NULL,
-    status ENUM(
-        'PENDING',
-        'APPROVED',
-        'REJECTED'
-    ) DEFAULT 'PENDING',
-    admin_comment TEXT NULL,
-    reviewed_by BIGINT UNSIGNED NULL,
-    reviewed_at DATETIME NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_order_payment_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
-    CONSTRAINT fk_order_payment_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-) ENGINE = InnoDB;
 
 -- 7. Referral Commission Config Table
 CREATE TABLE `referral_commission_config` (
@@ -342,7 +328,13 @@ CREATE TABLE `user_notifications` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
     `title` VARCHAR(255) NOT NULL,
-    `type` ENUM( 'ORDER', 'PAYMENT', 'WALLET', 'ACCOUNT', 'OTHER') NOT NULL,
+    `type` ENUM(
+        'ORDER',
+        'PAYMENT',
+        'WALLET',
+        'ACCOUNT',
+        'OTHER'
+    ) NOT NULL,
     `description` TEXT NULL,
     `is_read` TINYINT(1) NOT NULL DEFAULT 0,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -375,6 +367,8 @@ CREATE TABLE `wallet_transactions` (
         'RECHARGE_REQUEST',
         'WITHDRAWAL_REQUEST',
         'REFERRAL_COMMISSION',
+        'ACTIVATION_PURCHASE',
+        'PRODUCT_PURCHASE',
         'ADMIN_ADJUSTMENT',
         'REVERSAL'
     ) NOT NULL,
@@ -386,6 +380,7 @@ CREATE TABLE `wallet_transactions` (
     `reversal_of` BIGINT UNSIGNED NULL,
     `status` ENUM(
         'SUCCESS',
+        'PENDING',
         'FAILED',
         'REVERSED'
     ) NOT NULL DEFAULT 'SUCCESS',
@@ -445,7 +440,13 @@ CREATE TABLE `recharge_requests` (
 CREATE TABLE `tickets` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id` BIGINT UNSIGNED NOT NULL,
-    `category` ENUM('ORDER', 'PAYMENT', 'WALLET', 'ACCOUNT', 'OTHER') NOT NULL,
+    `category` ENUM(
+        'ORDER',
+        'PAYMENT',
+        'WALLET',
+        'ACCOUNT',
+        'OTHER'
+    ) NOT NULL,
     `subject` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
     `image` VARCHAR(255) NULL,
@@ -473,7 +474,6 @@ CREATE TABLE `settings` (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB;
-
 
 -- transaction_type ENUM(
 --     'ACTIVATION_PURCHASE',

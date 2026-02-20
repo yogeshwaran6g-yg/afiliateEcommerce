@@ -61,9 +61,12 @@ export const distributeCommission = async (
           comm.upline_id,
           comm.amount,
           "CREDIT",
-          "COMMISSION",
+          "REFERRAL_COMMISSION",
+          "referral_commission_distribution",
           comm.id,
           `Commission from level downline user ${userId} for order ${orderId}`,
+          "SUCCESS",
+          null,
           runner,
         );
 

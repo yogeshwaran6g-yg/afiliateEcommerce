@@ -1,5 +1,6 @@
 import authService from '#services/authService.js';
 import { createUser, existinguserFieldsCheck, findUserByPhone, updateRegistrationDetails } from '#services/userService.js';
+import * as orderService from '#services/orderService.js';
 import { rtnRes, log } from '#utils/helper.js';
 import { queryRunner } from '#config/db.js';
 
@@ -65,12 +66,16 @@ const authController = {
 
     completeRegistration: async function (req, res) {
         try {
-            const userId = req.user.id; // From protection middleware
-            const { name, email, password, selectedProductId, paymentType } = req.body;
+            const userId = req.user.id; 
+            const { name, email, password, selectedProductId, paymentMethod, paymentType, transactionReference } = req.body;
             const proofFile = req.file;
 
-            if (!name || !password || !selectedProductId || !paymentType || !proofFile) {
-                return rtnRes(res, 400, "Missing required fields or payment proof");
+            if (!name || !password || !selectedProductId || !paymentMethod) {
+                return rtnRes(res, 400, "Missing required fields");
+            }
+
+            if (paymentMethod === 'MANUAL' && !proofFile) {
+                return rtnRes(res, 400, "Payment proof is required for manual payment");
             }
 
             // 1. Check if user is verified
@@ -79,36 +84,38 @@ const authController = {
                 return rtnRes(res, 403, "Mobile not verified. Access denied.");
             }
 
-            // 1b. Check for existing pending payment
-            const pendingPayments = await queryRunner(
-                'SELECT id FROM activation_payments_details WHERE user_id = ? AND status = ?',
-                [userId, 'PENDING']
-            );
-            if (pendingPayments && pendingPayments.length > 0) {
-                return rtnRes(res, 400, "You already have a payment proof under review.");
-            }
-
             // 2. Update user details
             await updateRegistrationDetails(userId, {
                 name,
                 email,
-                password,
-                selectedProductId
+                password
             });
 
-            // 3. Create payment record
-            const proofUrl = `/uploads/${proofFile.filename}`;
-            await queryRunner(
-                `INSERT INTO activation_payments_details (user_id, product_id, payment_type, proof_url, status) 
-                 VALUES (?, ?, ?, ?, ?)`,
-                [userId, selectedProductId, paymentType, proofUrl, 'PENDING']
-            );
+            // 3. Create ACTIVATION order
+            const [product] = await queryRunner('SELECT sale_price FROM products WHERE id = ?', [selectedProductId]);
+            if (!product) {
+                return rtnRes(res, 404, "Product not found");
+            }
 
-            return rtnRes(res, 200, "Registration and payment proof submitted successfully. Under review.");
+            const proofUrl = proofFile ? `/uploads/${proofFile.filename}` : null;
+            
+            const result = await orderService.createOrder({
+                userId,
+                items: [{ productId: selectedProductId, quantity: 1, price: product.sale_price }],
+                totalAmount: product.sale_price,
+                shippingAddress: { type: 'REGISTRATION', address: 'Not provided yet' },
+                paymentMethod,
+                paymentType,
+                transactionReference,
+                proofUrl,
+                orderType: 'ACTIVATION'
+            });
+
+            return rtnRes(res, 201, "Registration completed and activation order created", result);
 
         } catch (e) {
             log(`CompleteRegistration error: ${e.message}`, "error");
-            rtnRes(res, 500, "internal error");
+            rtnRes(res, 500, e.message || "internal error");
         }
     },
 

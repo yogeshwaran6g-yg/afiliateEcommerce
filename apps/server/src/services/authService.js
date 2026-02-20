@@ -199,7 +199,7 @@ export const verifyOtp = async (userId, otp, purpose) => {
         if (purpose === 'signup') {
             await queryRunner(
                 'UPDATE users SET is_phone_verified = TRUE, account_activation_status = ? WHERE id = ?',
-                ['PAYMENT_PENDING', userId]
+                ['PENDING_PAYMENT', userId]
             );
         } else {
             await queryRunner('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);

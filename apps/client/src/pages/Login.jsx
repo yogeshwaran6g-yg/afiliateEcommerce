@@ -121,11 +121,18 @@ const Login = () => {
                         </button>
                     </div>
                 </form>
-
-                <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    <span className="material-symbols-outlined text-sm">shield</span>
-                    Enterprise Grade Security
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-slate-500 font-medium">
+                    Dont have an account? {" "}
+                    <Link
+                      to="/signup"
+                      className="font-bold text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Sign Up
+                    </Link>
+                  </p>
                 </div>
+                
             </div>
         </div>
     );

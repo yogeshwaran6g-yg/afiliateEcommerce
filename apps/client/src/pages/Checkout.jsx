@@ -86,7 +86,7 @@ export default function Checkout() {
                     type: selectedAddress,
                     address: selectedAddress === "main" ? "123 Business Parkway, Suite 100, Manhattan, New York, 10001" : "456 Enterprise Drive, Austin, Texas, 73301"
                 },
-                paymentMethod,
+                paymentMethod: paymentMethod === 'wallet' ? 'WALLET' : 'MANUAL',
                 paymentType: paymentMethod === 'direct' ? paymentType : null,
                 transactionReference: paymentMethod === 'direct' ? transactionReference : null,
                 proofUrl

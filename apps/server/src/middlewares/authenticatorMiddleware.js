@@ -69,7 +69,7 @@ export const authorize = (...roles) => {
 export const checkActivated = (req, res, next) => {
     if (req.user.role === 'ADMIN') return next(); // Admins always have access
     
-    if (!req.user.is_active || req.user.activation_status !== 'ACTIVATED') {
+    if (!req.user.is_active || req.user.account_activation_status !== 'ACTIVATED') {
         return rtnRes(res, 403, "Your account is not activated. Please complete registration and make purchase.");
     }
     next();
