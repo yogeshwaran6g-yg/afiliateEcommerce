@@ -10,7 +10,7 @@ export const CartProvider = ({ children }) => {
     const { isAuthenticated, user } = useContext(AuthContext);
     const [cartItems, setCartItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [shipping, setShipping] = useState(12.00);
+    const [shipping, setShipping] = useState(50.00);
     const [taxRate, setTaxRate] = useState(0.08);
 
     // Load cart and settings when authentication status changes
