@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ActivityFeed from "./ActivityFeed";
 import Announcements from "./Announcements";
 import SupportBanner from "./SupportBanner";
+import { toast } from "react-toastify";
 import { useNotifications } from "../../hooks/useNotificationService";
 import { useUserNotification, useMarkAsReadMutation, useDeleteNotificationMutation } from "../../hooks/useUserNotification";
 
@@ -94,7 +95,10 @@ const CommunicationCenter = () => {
     const handleNotificationClick = (notification) => {
         setSelectedNotificationId(notification.id);
         if (!notification.is_read) {
-            markAsReadMutation.mutate(notification.id);
+            markAsReadMutation.mutate(notification.id, {
+                onSuccess: () => toast.success("Marked as read"),
+                onError: () => toast.error("Failed to mark as read"),
+            });
         }
 
         // Scroll to detail on mobile
@@ -116,7 +120,10 @@ const CommunicationCenter = () => {
         if (selectedNotificationId === notificationId) {
             setSelectedNotificationId(null);
         }
-        deleteNotificationMutation.mutate(notificationId);
+        deleteNotificationMutation.mutate(notificationId, {
+            onSuccess: () => toast.success("Notification deleted"),
+            onError: () => toast.error("Failed to delete notification"),
+        });
     };
 
     return (

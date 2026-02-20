@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../hooks/useAuthService";
 import useAuth from "../hooks/useAuth";
@@ -20,10 +21,12 @@ const Login = () => {
         try {
             const response = await loginMutation.mutateAsync({ phone, password });
             if (response.success) {
+                toast.success("Login successful! Welcome back.");
                 navigate("/dashboard");
             }
         } catch (err) {
             console.error("Login failed:", err);
+            toast.error(err?.message || "Login failed. Please check your credentials.");
         }
     };
 

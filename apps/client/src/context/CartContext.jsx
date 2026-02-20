@@ -46,6 +46,7 @@ export const CartProvider = ({ children }) => {
         try {
             const updatedItems = await cartService.addToCart(product, quantity);
             setCartItems([...updatedItems]);
+            toast.success("Product added to cart!");
         } catch (error) {
             console.error("Add to cart failed:", error);
             toast.error(error.message || "Failed to add item to cart");
@@ -57,8 +58,10 @@ export const CartProvider = ({ children }) => {
         try {
             const updatedItems = await cartService.removeFromCart(productId);
             setCartItems([...updatedItems]);
+            toast.success("Product removed from cart.");
         } catch (error) {
             console.error("Remove from cart failed:", error);
+            toast.error(error.message || "Failed to remove item from cart");
         }
     }, []);
 
@@ -69,6 +72,7 @@ export const CartProvider = ({ children }) => {
             setCartItems([...updatedItems]);
         } catch (error) {
             console.error("Update quantity failed:", error);
+            toast.error(error.message || "Failed to update quantity");
         }
     }, []);
 
@@ -87,8 +91,10 @@ export const CartProvider = ({ children }) => {
         try {
             const updatedItems = await cartService.clearCart();
             setCartItems([...updatedItems]);
+            toast.success("Cart cleared.");
         } catch (error) {
             console.error("Clear cart failed:", error);
+            toast.error(error.message || "Failed to clear cart");
         }
     }, []);
 
