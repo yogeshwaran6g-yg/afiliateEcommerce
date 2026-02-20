@@ -16,6 +16,7 @@ router.post('/reset-password', authController.resetPassword);
 router.get('/profile', protect, authController.getProfile);
 router.put('/profile', protect, authController.updateProfile);
 router.post('/complete-registration', protect, paymentUpload.single('proof'), authController.completeRegistration);
+router.post('/cancel-registration', protect, authController.cancelRegistration);
 router.put('/update-password', protect, authController.updatePassword);
 
 
