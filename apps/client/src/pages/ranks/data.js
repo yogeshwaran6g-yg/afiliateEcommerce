@@ -2,7 +2,7 @@ export const rewards = [
     {
         id: 1,
         title: "Fast Start Bonus",
-        value: "$1,000",
+        value: "₹1,000",
         description: "Awarded for reaching Ruby rank within your first 30 days.",
         status: "UNLOCKED",
         statusColor: "bg-green-100 text-green-700",
@@ -15,7 +15,7 @@ export const rewards = [
     {
         id: 2,
         title: "Elite Timepiece",
-        value: "$2,500 Val.",
+        value: "₹2,500 Val.",
         description:
             "Reached Platinum rank and maintained for 2 consecutive months.",
         status: "READY TO CLAIM",
@@ -28,7 +28,7 @@ export const rewards = [
     {
         id: 3,
         title: "Luxury Car Allowance",
-        value: "$15k Fund",
+        value: "₹15k Fund",
         description: "Maintain Diamond rank with 20,000 Group Volume.",
         status: "IN PROGRESS",
         statusColor: "bg-slate-100 text-slate-700",

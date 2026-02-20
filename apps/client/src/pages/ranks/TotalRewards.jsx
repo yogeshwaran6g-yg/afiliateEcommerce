@@ -9,7 +9,7 @@ const TotalRewards = () => {
                     Total Rewards Claimed
                 </div>
                 <div className="text-3xl md:text-5xl font-black mb-6">
-                    $24,850
+                    ₹24,850
                     <span className="text-base md:text-xl text-slate-500 ml-1">.00</span>
                 </div>
 

@@ -69,7 +69,7 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
                 <div className={`flex ${isList ? 'flex-row items-end justify-between gap-4' : 'flex-col gap-4'} mt-auto`}>
                     <div className="flex flex-col gap-2">
                         <div className="text-lg md:text-xl font-bold text-slate-900">
-                            ${parseFloat(product.sale_price).toFixed(2)}
+                            ₹{parseFloat(product.sale_price).toFixed(2)}
                         </div>
                         {/* PV and Commission */}
                         <div className="flex items-center gap-3">
