@@ -132,6 +132,15 @@ export const completeRegistration = async (registrationData) => {
     }
 };
 
+export const cancelRegistration = async () => {
+    try {
+        const response = await api.post(authEndpoints.cancelRegistration || '/api/v1/auth/cancel-registration');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: 'Failed to cancel registration' };
+    }
+};
+
 export default {
     login,
     signup,
@@ -142,5 +151,7 @@ export default {
     updatePassword,
     logout,
     isAuthenticated,
-    getCurrentUser
+    getCurrentUser,
+    completeRegistration,
+    cancelRegistration
 };

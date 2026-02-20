@@ -1,5 +1,5 @@
 import authService from '#services/authService.js';
-import { createUser, existinguserFieldsCheck, findUserByPhone, updateRegistrationDetails } from '#services/userService.js';
+import { createUser, existinguserFieldsCheck, findUserByPhone, updateRegistrationDetails, deleteIncompleteUser } from '#services/userService.js';
 import * as orderService from '#services/orderService.js';
 import { rtnRes, log } from '#utils/helper.js';
 import { queryRunner } from '#config/db.js';
@@ -236,6 +236,21 @@ const authController = {
             return rtnRes(res, result.code, result.message, result.data);
         } catch (e) {
             console.log("err from updatePassword ", e);
+            rtnRes(res, 500, "internal error");
+        }
+    },
+
+    cancelRegistration: async function (req, res) {
+        try {
+            const userId = req.user.id;
+            const result = await deleteIncompleteUser(userId);
+            if (result.success) {
+                return rtnRes(res, 200, result.message);
+            } else {
+                return rtnRes(res, 400, result.message);
+            }
+        } catch (e) {
+            log(`CancelRegistration error: ${e.message}`, "error");
             rtnRes(res, 500, "internal error");
         }
     }

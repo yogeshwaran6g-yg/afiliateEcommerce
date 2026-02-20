@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { completeRegistration, getCurrentUser, logout } from '../services/authApiService';
+import { completeRegistration, getCurrentUser, logout, cancelRegistration } from '../services/authApiService';
 import { getProducts } from '../services/productService';
 import { toast } from 'react-toastify';
 
@@ -29,6 +29,40 @@ export default function CompleteRegistration() {
     const [productsLoading, setProductsLoading] = useState(true);
     const [error, setError] = useState('');
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const cleanupTriggered = useRef(false);
+
+    // Function to handle account deletion on abandonment
+    const handleAbandonment = async (isManual = false) => {
+        if (isSubmitting || cleanupTriggered.current) return;
+
+        const user = getCurrentUser();
+        const token = localStorage.getItem('accessToken');
+
+        if (!user || !token) return;
+
+        cleanupTriggered.current = true;
+
+        try {
+            // If it's a manual call (internal navigation), use the service (axios)
+            // If it's a beforeunload call, use fetch keepalive to ensure it works on tab close
+            if (isManual) {
+                await cancelRegistration().catch(e => console.error('Cleanup service failed:', e));
+            } else {
+                const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+                fetch(`${apiBaseUrl}/api/v1/auth/cancel-registration`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    keepalive: true
+                });
+            }
+            logout(); // Clear local storage
+        } catch (err) {
+            console.error('Cleanup failed:', err);
+        }
+    };
 
     useEffect(() => {
         const user = getCurrentUser();
@@ -37,7 +71,14 @@ export default function CompleteRegistration() {
             navigate('/signup');
             return;
         }
-        
+
+        // Add event listener for tab close / window refresh
+        const handleBeforeUnload = (e) => {
+            handleAbandonment(false);
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
         // Fetch real products
         const fetchProducts = async () => {
             try {
@@ -56,7 +97,15 @@ export default function CompleteRegistration() {
         };
 
         fetchProducts();
-    }, [navigate]);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            // Handle internal navigation away (unmount)
+            if (!isSubmitting) {
+                handleAbandonment(true);
+            }
+        };
+    }, [navigate, isSubmitting]);
 
     const validateField = (name, value) => {
         let error = "";
@@ -95,10 +144,10 @@ export default function CompleteRegistration() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        
+
         // Clear global error when user starts typing
         if (error) setError('');
-        
+
         // Field validation
         const fieldError = validateField(name, value);
         setErrors(prev => ({ ...prev, [name]: fieldError }));
@@ -116,7 +165,7 @@ export default function CompleteRegistration() {
         if (file) {
             const fileName = (file.name || "").toLowerCase();
             const fileType = (file.type || "").toLowerCase();
-            
+
             // Allow based on MIME type or Extension (safer for some OS/Browsers)
             const allowedExtensions = ['.jpg', '.jpeg', '.png'];
             const isAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
@@ -137,7 +186,7 @@ export default function CompleteRegistration() {
 
             setFormData(prev => ({ ...prev, proof: file }));
             setErrors(prev => ({ ...prev, proof: "" }));
-            
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setProofPreview(reader.result);
@@ -153,7 +202,7 @@ export default function CompleteRegistration() {
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         // Personal Info
         ['firstName', 'lastName', 'email', 'password', 'confirmPassword'].forEach(field => {
             const err = validateField(field, formData[field]);
@@ -182,7 +231,7 @@ export default function CompleteRegistration() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        
+
         if (!validateForm()) {
             setError('Please correct the highlighted errors before submitting.');
             return;
@@ -201,10 +250,11 @@ export default function CompleteRegistration() {
             };
 
             const response = await completeRegistration(registrationData);
-            
+
             if (response.success) {
+                setIsSubmitting(true);
                 toast.success('Registration completed and activation order created! Your account is under review.');
-                logout();
+                logout(); // Still logout to clear session, but setIsSubmitting(true) prevents cleanup effect
                 navigate('/login');
             } else {
                 setError(response.message || 'Registration failed');
@@ -241,40 +291,40 @@ export default function CompleteRegistration() {
                                 {error}
                             </div>
                         )}
-                        
-                        <PersonalInfoSection 
-                            formData={formData} 
-                            handleInputChange={handleInputChange} 
-                            errors={errors} 
+
+                        <PersonalInfoSection
+                            formData={formData}
+                            handleInputChange={handleInputChange}
+                            errors={errors}
                         />
 
                         <div className="border-t border-slate-100"></div>
 
-                        <ProductSelectionSection 
-                            products={products} 
-                            selectedProduct={formData.selectedProduct} 
-                            handleProductChange={handleProductChange} 
+                        <ProductSelectionSection
+                            products={products}
+                            selectedProduct={formData.selectedProduct}
+                            handleProductChange={handleProductChange}
                             errors={errors}
                             loading={productsLoading}
                         />
 
                         <div className="border-t border-slate-100"></div>
 
-                        <PaymentSection 
-                            paymentType={formData.paymentType} 
+                        <PaymentSection
+                            paymentType={formData.paymentType}
                             setPaymentType={(type) => {
                                 setFormData(prev => ({ ...prev, paymentType: type }));
                                 setErrors(prev => ({ ...prev, paymentType: "" }));
-                            }} 
+                            }}
                             errors={errors}
                         />
 
                         <div className="border-t border-slate-100"></div>
 
-                        <ProofUploadSection 
-                            proofPreview={proofPreview} 
-                            handleProofChange={handleProofChange} 
-                            removeProof={removeProof} 
+                        <ProofUploadSection
+                            proofPreview={proofPreview}
+                            handleProofChange={handleProofChange}
+                            removeProof={removeProof}
                             errors={errors}
                         />
 

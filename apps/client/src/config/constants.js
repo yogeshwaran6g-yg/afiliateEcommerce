@@ -13,6 +13,7 @@ export const constants = {
       updatePassword: "/api/v1/auth/update-password",
       profile: "/api/v1/auth/profile",
       completeRegistration: "/api/v1/auth/complete-registration",
+      cancelRegistration: "/api/v1/auth/cancel-registration",
     },
     categories: {
       base: "/api/v1/categories",

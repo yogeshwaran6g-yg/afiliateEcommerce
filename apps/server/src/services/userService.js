@@ -184,3 +184,37 @@ export const getUserNotifications = async (userId, limit = 10) => {
         throw error;
     }
 };
+
+export const deleteIncompleteUser = async (userId) => {
+    try {
+        return await transactionRunner(async (connection) => {
+            // Check if user exists and is not activated
+            const [rows] = await connection.execute(
+                'SELECT id, account_activation_status, password FROM users WHERE id = ?',
+                [userId]
+            );
+
+            if (!rows || rows.length === 0) {
+                return { success: false, message: "User not found" };
+            }
+
+            const user = rows[0];
+
+            // Safety check: Only delete if status is NOT_STARTED or PENDING_PAYMENT 
+            // AND password is not set (indicating incomplete registration form)
+            if (
+                (user.account_activation_status === 'NOT_STARTED' || user.account_activation_status === 'PENDING_PAYMENT') &&
+                !user.password
+            ) {
+                log(`Deleting incomplete user account: ${userId}`, "info");
+                await connection.execute('DELETE FROM users WHERE id = ?', [userId]);
+                return { success: true, message: "Incomplete user deleted" };
+            }
+
+            return { success: false, message: "User is already partially registered or activated" };
+        });
+    } catch (error) {
+        log(`Error deleting incomplete user ${userId}: ${error.message}`, "error");
+        throw error;
+    }
+};
