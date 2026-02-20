@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Sidebar({ isOpen, onClose }) {
+  const { user } = useAuth();
   const location = useLocation();
   const [expandedGroups, setExpandedGroups] = useState({});
 
