@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import WalletHeader from "./WalletHeader";
 import WalletStats from "./WalletStats";
 import TransactionHistory from "./TransactionHistory";
-import WalletFooter from "./WalletFooter";
+
 import { useWallet, useTransactions } from "../../hooks/useWallet";
 import WithdrawFundsForm from "./WithdrawFundsForm";
 import AddFunds from "./AddFunds";
@@ -91,7 +91,7 @@ function Wallet() {
             />
           </div>
         </div>
-        <WalletFooter />
+
       </main>
 
       {/* Withdraw Modal */}

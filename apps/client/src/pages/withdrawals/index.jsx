@@ -3,7 +3,7 @@ import WithdrawalHeader from "./WithdrawalHeader";
 import BankDetailsCard from "./BankDetailsCard";
 import WithdrawalForm from "./WithdrawalForm";
 
-import WithdrawalFooter from "./WithdrawalFooter";
+
 import { ProfileContext } from "../../context/ProfileContext";
 import { useWallet, useWithdrawalRequests } from "../../hooks/useWallet";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ export default function Withdrawals() {
     });
 
     const [withdrawAmount, setWithdrawAmount] = useState(0);
-    
+
     const availableBalance = walletData?.balance || 0;
     const commissionPercent = settingsData?.withdraw_commission ?? 5.0;
     const maxWithdrawAmount = settingsData?.maximum_amount_per_withdraw ?? 50000.0;
@@ -48,10 +48,10 @@ export default function Withdrawals() {
             <WithdrawalHeader availableBalance={availableBalance} isLoading={isWalletLoading} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <BankDetailsCard 
-                    profile={profile} 
-                    isLoading={isProfileLoading} 
-                    status={bankKycStatus} 
+                <BankDetailsCard
+                    profile={profile}
+                    isLoading={isProfileLoading}
+                    status={bankKycStatus}
                 />
                 <WithdrawalForm
                     withdrawAmount={withdrawAmount}
@@ -70,7 +70,7 @@ export default function Withdrawals() {
                 />
             </div>
 
-            <WithdrawalFooter />
+
         </div>
     );
 }

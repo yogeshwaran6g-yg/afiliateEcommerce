@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import NetworkHeader from "./NetworkHeader";
 import LevelTabs from "./LevelTabs";
 import MemberTable from "./MemberTable";
-import NetworkFooter from "./NetworkFooter";
+
 import { useReferralOverview, useTeamMembers } from "../../hooks/useReferrals";
 
 export default function Network() {
@@ -11,15 +11,15 @@ export default function Network() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const { 
-    data: overviewData, 
+  const {
+    data: overviewData,
     isLoading: isOverviewLoading,
-    error: overviewError 
+    error: overviewError
   } = useReferralOverview();
 
-  const { 
-    data: teamData, 
-    isLoading: isTeamLoading, 
+  const {
+    data: teamData,
+    isLoading: isTeamLoading,
     error: teamError,
     isPreviousData
   } = useTeamMembers(activeLevel, page, limit);
@@ -60,8 +60,8 @@ export default function Network() {
           activeLevel={activeLevel}
           setActiveLevel={handleLevelChange}
         />
-        <MemberTable 
-          members={teamData?.members || []} 
+        <MemberTable
+          members={teamData?.members || []}
           isLoading={isTeamLoading}
           error={teamError}
           pagination={teamData?.pagination}
@@ -71,7 +71,7 @@ export default function Network() {
             setPage(1);
           }}
         />
-        <NetworkFooter />
+
       </div>
     </div>
   );
