@@ -1,0 +1,145 @@
+{
+  "timestamp": "2026-02-19T10:58:07.170Z",
+  "summary": {
+    "totalChecks": 25,
+    "passed": 25,
+    "failed": 0,
+    "manualPurchase": "PASSED",
+    "walletPurchase": "PASSED"
+  },
+  "manualPurchase": {
+    "steps": [
+      {
+        "name": "Create Order",
+        "pass": true,
+        "detail": "Order ID: 21, Number: ORD-1771498684601-623"
+      },
+      {
+        "name": "Payment Status = PENDING",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "DB: Order exists",
+        "pass": true,
+        "detail": "status=PROCESSING, payment_status=PENDING, payment_method=MANUAL"
+      },
+      {
+        "name": "DB: payment_status = PENDING",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "DB: payment_method = MANUAL",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "DB: Order items created",
+        "pass": true,
+        "detail": "1 item(s)"
+      },
+      {
+        "name": "DB: Payment record exists",
+        "pass": true,
+        "detail": "type=UPI, status=PENDING, ref=TEST-UPI-REF-1771498683777"
+      },
+      {
+        "name": "DB: Tracking entry exists",
+        "pass": true,
+        "detail": "Title: \"Order Placed\""
+      },
+      {
+        "name": "GET Order API",
+        "pass": true,
+        "detail": "Items: 1, Tracking: 1"
+      },
+      {
+        "name": "Wallet NOT debited (manual flow)",
+        "pass": true,
+        "detail": "Balance: ₹1426.00"
+      },
+      {
+        "name": "Edge: Missing fields rejected",
+        "pass": true,
+        "detail": "Items, Total Amount, and Shipping Address are required"
+      },
+      {
+        "name": "Edge: Unauthorized rejected",
+        "pass": true,
+        "detail": ""
+      }
+    ],
+    "passed": true
+  },
+  "walletPurchase": {
+    "steps": [
+      {
+        "name": "Create Order",
+        "pass": true,
+        "detail": "Order ID: 22, Number: ORD-1771498686264-481"
+      },
+      {
+        "name": "Payment Status = PAID",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "DB: Order exists",
+        "pass": true,
+        "detail": "status=PROCESSING, payment_status=PAID, payment_method=WALLET"
+      },
+      {
+        "name": "DB: payment_status = PAID",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "DB: payment_method = WALLET",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "DB: Order items created",
+        "pass": true,
+        "detail": "1 item(s)"
+      },
+      {
+        "name": "DB: No manual payment record (expected)",
+        "pass": true,
+        "detail": "0 record(s)"
+      },
+      {
+        "name": "Wallet debited correctly",
+        "pass": true,
+        "detail": "Before: ₹1426, After: ₹527, Debited: ₹899.00"
+      },
+      {
+        "name": "DB: Wallet transaction recorded",
+        "pass": true,
+        "detail": "type=DEBIT, purpose=PRODUCT_PURCHASE, amount=₹899.00, status=SUCCESS"
+      },
+      {
+        "name": "DB: Tracking entry exists",
+        "pass": true,
+        "detail": "Title: \"Order Placed\""
+      },
+      {
+        "name": "DB: Commission distribution",
+        "pass": true,
+        "detail": "1 commission record(s) created"
+      },
+      {
+        "name": "GET Order API",
+        "pass": true,
+        "detail": "Items: 1, Tracking: 1"
+      },
+      {
+        "name": "Edge: Insufficient balance rejected",
+        "pass": true,
+        "detail": ""
+      }
+    ],
+    "passed": true
+  }
+}

@@ -50,7 +50,7 @@ export const getUserReviewPendingRechareRequestCount = async (id) => {
 };
 
 export const updateRegistrationDetails = async (userId, details, connection = null) => {
-    const { name, email, password, referralId, selectedProductId } = details;
+    const { name, email, password } = details;
 
     const runner = connection || queryRunner;
 
@@ -60,28 +60,28 @@ export const updateRegistrationDetails = async (userId, details, connection = nu
         hashedPassword = await bcrypt.hash(password, salt);
     }
 
-    // If referralId is provided, we might need to verify it or store it if not already stored.
-    // The requirement says "insert into ref tree" happens later.
-
     const sql = `
         UPDATE users SET 
             name = COALESCE(?, name), 
             email = COALESCE(?, email), 
             password = COALESCE(?, password),
-            selected_product_id = COALESCE(?, selected_product_id),
-            account_activation_status = 'UNDER_REVIEW'
+            account_activation_status = 'PENDING_PAYMENT'
         WHERE id = ?
     `;
 
-    await runner(sql, [name, email, hashedPassword, selectedProductId, userId]);
+    await runner(sql, [name, email, hashedPassword, userId]);
 };
 
-export const activateUser = async (userId, paymentId = null) => {
-    return await transactionRunner(async (connection) => {
-        log(`Activating user: ${userId}${paymentId ? ` via payment: ${paymentId}` : ''}`, "info");
+/**
+ * Activates a user, sets status to ACTIVATED, and inserts into referral tree.
+ */
+export const activateUser = async (userId, connection = null) => {
+    return await transactionRunner(async (conn) => {
+        const runner = connection || conn;
+        log(`Activating user: ${userId}`, "info");
 
         // 1. Get user details including referrer
-        const [userRows] = await connection.execute(
+        const [userRows] = await runner.execute(
             'SELECT id, referred_by FROM users WHERE id = ?',
             [userId]
         );
@@ -92,52 +92,16 @@ export const activateUser = async (userId, paymentId = null) => {
 
         const user = userRows[0];
 
-        // 2. Update user status and payment status together
-        await connection.execute(
-            'UPDATE users SET account_activation_status = "ACTIVATED" WHERE id = ?',
+        // 2. Update user status
+        await runner.execute(
+            'UPDATE users SET account_activation_status = "ACTIVATED", is_active = TRUE WHERE id = ?',
             [userId]
         );
-
-        if (paymentId) {
-            await connection.execute(
-                'UPDATE activation_payments_details SET status = "APPROVED" WHERE id = ?',
-                [paymentId]
-            );
-        }
 
         // 3. Insert into referral tree if referrer exists
         if (user.referred_by) {
             log(`Inserting user ${userId} into referral tree with referrer ${user.referred_by}`, "info");
-            await createReferral(user.referred_by, userId, connection);
-        }
-
-        // 4. Trigger commission distribution
-        // Fetch payment details and product ID from activation records
-        const [paymentRows] = await connection.execute(
-            'SELECT id, product_id FROM activation_payments_details WHERE user_id = ? AND status = "APPROVED" ORDER BY created_at DESC LIMIT 1',
-            [userId]
-        );
-
-        if (paymentRows && paymentRows.length > 0) {
-            const payment = paymentRows[0];
-            const [productRows] = await connection.execute(
-                'SELECT sale_price FROM products WHERE id = ?',
-                [payment.product_id]
-            );
-
-            if (productRows && productRows.length > 0) {
-                const amount = productRows[0].sale_price;
-
-                // 4a. Create an order record to satisfy FK constraints
-                const [orderResult] = await connection.execute(
-                    'INSERT INTO orders (user_id, amount, status) VALUES (?, ?, ?)',
-                    [userId, amount, 'COMPLETED']
-                );
-                const orderId = orderResult.insertId;
-
-                log(`Distributing commission for user ${userId}, amount ${amount} (Order: ${orderId}, via activation payment ${payment.id})`, "info");
-                await distributeCommission(orderId, userId, amount, connection);
-            }
+            await createReferral(user.referred_by, userId, runner);
         }
 
         return { success: true };
