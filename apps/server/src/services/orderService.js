@@ -1,5 +1,5 @@
 import pool from '#config/db.js';
-import { distributeCommission } from '#services/referralService.js';
+import { distributeCommission, createReferral } from '#services/referralService.js';
 import walletService from '#services/walletService.js';
 import { log } from '#utils/helper.js';
 
@@ -151,7 +151,7 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
                 
                 const [userRows] = await connection.execute('SELECT referred_by FROM users WHERE id = ?', [order.user_id]);
                 if (userRows[0]?.referred_by) {
-                    await connection.query('CALL sp_add_referral(?, ?)', [userRows[0].referred_by, order.user_id]);
+                    await createReferral(userRows[0].referred_by, order.user_id, connection);
                 }
             }
 

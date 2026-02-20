@@ -35,8 +35,11 @@ const authController = {
 
             let referredBy = null;
             if (referralCode) {
-                const results = await queryRunner(`select id from users where referral_id = ?`, [referralCode]);
+                const results = await queryRunner(`select id, account_activation_status from users where referral_id = ?`, [referralCode]);
                 if (results && results.length > 0) {
+                    if (results[0].account_activation_status !== 'ACTIVATED') {
+                        return rtnRes(res, 400, "Referrer is not activated yet. Only activated users can refer others.");
+                    }
                     referredBy = results[0].id;
                 } else {
                     return rtnRes(res, 400, "Invalid referral id");

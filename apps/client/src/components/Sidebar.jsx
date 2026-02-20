@@ -223,20 +223,29 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         {/* Invite Button */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-          <Link
-            to="/network/my-team"
-            onClick={() => {
-              if (window.innerWidth < 1024) onClose();
-            }}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
-          >
-            <span className="material-symbols-outlined text-lg">
-              person_add
-            </span>
-            <span className="text-sm">Invite Member</span>
-          </Link>
-        </div>
+        {user?.account_activation_status === 'ACTIVATED' ? (
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+            <Link
+              to="/network/my-team"
+              onClick={() => {
+                if (window.innerWidth < 1024) onClose();
+              }}
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
+            >
+              <span className="material-symbols-outlined text-lg">
+                person_add
+              </span>
+              <span className="text-sm">Invite Member</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+              <p className="text-[10px] text-amber-700 font-bold uppercase leading-tight">Activation Required</p>
+              <p className="text-xs text-amber-600 mt-1">Activate your account to start referring members.</p>
+            </div>
+          </div>
+        )}
       </aside>
     </>
   );

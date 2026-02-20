@@ -144,22 +144,22 @@ export default function Header({ toggleSidebar }) {
 
           {/* User Profile - Simplified on mobile */}
           {user && (
-            <Link
-              to="/profile"
+              <Link
+                to="/profile"
               className="flex items-center gap-3 pl-2 md:pl-4 border-l border-slate-200 group"
-            >
-              <div className="text-right hidden md:block">
-                <div className="font-semibold text-sm group-hover:text-primary transition-colors">
-                  {user.name || "User"}
+              >
+                <div className="text-right hidden md:block">
+                  <div className="font-semibold text-sm group-hover:text-primary transition-colors">
+                    {user.name || "User"}
+                  </div>
+                  <div className="text-xs text-amber-600 font-medium">
+                    {user.rank || "Member"}
+                  </div>
                 </div>
-                <div className="text-xs text-amber-600 font-medium">
-                  {user.rank || "Member"}
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-linear-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-base shadow-sm group-hover:shadow-md transition-all">
+                  {getInitials(user.name)}
                 </div>
-              </div>
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-linear-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-base shadow-sm group-hover:shadow-md transition-all">
-                {getInitials(user.name)}
-              </div>
-            </Link>
+              </Link>
           )}
         </div>
       </div>
