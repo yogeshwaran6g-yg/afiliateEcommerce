@@ -70,8 +70,7 @@ export default function AddFundsForm() {
       navigate("/wallet");
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          "Failed to submit payment request. Please try again.",
+        error.message || "Failed to submit payment request. Please try again.",
       );
     }
   };

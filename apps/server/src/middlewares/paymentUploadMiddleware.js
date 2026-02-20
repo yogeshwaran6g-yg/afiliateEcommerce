@@ -26,20 +26,21 @@ const fileFilter = (req, file, cb) => {
     const allowedMimeTypes = [
         "image/jpeg",
         "image/jpg",
-        "image/png"
+        "image/png",
+        "image/x-png" // Added for older browser/OS variations
     ];
 
     const ext = path.extname(file.originalname).toLowerCase();
-
     const allowedExtensions = [".jpeg", ".jpg", ".png"];
 
     if (
-        allowedMimeTypes.includes(file.mimetype) &&
+        allowedMimeTypes.includes(file.mimetype) ||
         allowedExtensions.includes(ext)
     ) {
         return cb(null, true);
     }
 
+    console.warn(`[Upload Rejected] Mimetype: ${file.mimetype}, Extension: ${ext}`);
     return cb(new Error("Only jpg, jpeg, and png are allowed!"), false);
 };
 
