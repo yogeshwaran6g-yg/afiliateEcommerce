@@ -74,17 +74,6 @@ export default function Settings() {
                     <div className="absolute top-0 right-0 -mr-16 -mt-16 bg-rose-50/30 dark:bg-rose-900/10 size-64 rounded-full blur-3xl pointer-events-none"></div>
                 </div>
             </div>
-
-            <footer className="mt-20 py-8 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-500">
-                    <div>© 2024 Affiliate Ecommerce. Dashboard Settings v1.0</div>
-                    <div className="flex items-center gap-6">
-                        <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-primary transition-colors">Security</a>
-                        <a href="#" className="hover:text-primary transition-colors">Help</a>
-                    </div>
-                </div>
-            </footer>
         </div >
     );
 }
