@@ -242,7 +242,10 @@ const authController = {
 
     cancelRegistration: async function (req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user?.id || req.body.userId;
+            if (!userId) {
+                return rtnRes(res, 400, "userId is required for cancellation");
+            }
             const result = await deleteIncompleteUser(userId);
             if (result.success) {
                 return rtnRes(res, 200, result.message);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useVerifyOtpMutation, useResendOtpMutation } from "../hooks/useAuthService";
+import { cancelRegistration } from "../services/authApiService";
 import useAuth from "../hooks/useAuth";
 
 const Otp = () => {
@@ -23,6 +24,8 @@ const Otp = () => {
         return 100;
     });
     const [localError, setLocalError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const cleanupTriggered = useRef(false);
 
     const { error: authError } = useAuth();
     const verifyOtpMutation = useVerifyOtpMutation();
@@ -32,6 +35,36 @@ const Otp = () => {
 
     const loading = verifyOtpMutation.isPending || resendOtpMutation.isPending;
     const error = verifyOtpMutation.error?.message || resendOtpMutation.error?.message || authError;
+
+    // Function to handle account deletion on abandonment
+    const handleAbandonment = async (isManual = false) => {
+        if (isSubmitting || cleanupTriggered.current || !userId) return;
+
+        cleanupTriggered.current = true;
+
+        try {
+            if (isManual) {
+                await cancelRegistration(userId).catch(e => console.error('Cleanup service failed:', e));
+            } else {
+                const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+                fetch(`${apiBaseUrl}/api/v1/auth/cancel-signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId }),
+                    keepalive: true
+                });
+            }
+            // Clear session storage related to this signup
+            sessionStorage.removeItem("pendingUserId");
+            sessionStorage.removeItem("pendingPhone");
+            sessionStorage.removeItem("pendingPurpose");
+            sessionStorage.removeItem("otpExpiry");
+        } catch (err) {
+            console.error('Cleanup failed:', err);
+        }
+    };
 
     useEffect(() => {
         if (!userId) {
@@ -45,6 +78,21 @@ const Otp = () => {
             const expiry = Date.now() + 100 * 1000;
             sessionStorage.setItem("otpExpiry", expiry.toString());
         }
+
+        // Add event listener for tab close / window refresh
+        const handleBeforeUnload = (e) => {
+            handleAbandonment(false);
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            // Handle internal navigation away (unmount)
+            if (!isSubmitting) {
+                handleAbandonment(true);
+            }
+        };
     }, []);
 
     useEffect(() => {
@@ -123,6 +171,7 @@ const Otp = () => {
         }
 
         try {
+            setIsSubmitting(true);
             const response = await verifyOtpMutation.mutateAsync({ userId, otp: otpString });
             if (response.success) {
                 // If the backend returns token/user (it should now), 
@@ -135,8 +184,11 @@ const Otp = () => {
 
                 toast.success("Phone verified successfully!");
                 navigate("/complete-registration");
+            } else {
+                setIsSubmitting(false);
             }
         } catch (err) {
+            setIsSubmitting(false);
             console.error("OTP Error:", err);
             toast.error(err?.message || "OTP verification failed. Please try again.");
         }

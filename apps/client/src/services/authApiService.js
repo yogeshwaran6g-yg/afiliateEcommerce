@@ -132,9 +132,11 @@ export const completeRegistration = async (registrationData) => {
     }
 };
 
-export const cancelRegistration = async () => {
+export const cancelRegistration = async (userId = null) => {
     try {
-        const response = await api.post(authEndpoints.cancelRegistration || '/api/v1/auth/cancel-registration');
+        const endpoint = userId ? (authEndpoints.cancelSignup || '/api/v1/auth/cancel-signup') : (authEndpoints.cancelRegistration || '/api/v1/auth/cancel-registration');
+        const data = userId ? { userId } : {};
+        const response = await api.post(endpoint, data);
         return response.data;
     } catch (error) {
         throw error.response?.data || { message: 'Failed to cancel registration' };

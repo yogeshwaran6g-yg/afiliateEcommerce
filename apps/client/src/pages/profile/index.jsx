@@ -5,11 +5,7 @@ import PersonalDetails from "./sections/PersonalDetails";
 import VerificationStatus from "./VerificationStatus";
 
 import { useNavigate } from "react-router-dom";
-import { useForgotPasswordMutation } from "../../hooks/useAuthService";
-
 export default function Profile() {
-  const navigate = useNavigate();
-  const forgotPasswordMutation = useForgotPasswordMutation();
   const { user, profile, isLoading, updateProfile } =
     useContext(ProfileContext);
 
@@ -68,29 +64,6 @@ export default function Profile() {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (!user?.phone) {
-      toast.error("Phone number not found. Please update your profile first.");
-      return;
-    }
-
-    try {
-      const result = await forgotPasswordMutation.mutateAsync(user.phone);
-      if (result.success) {
-        toast.success("Security code sent successfully!");
-        navigate("/reset-password", {
-          state: {
-            userId: result.data.userId,
-            phone: user.phone,
-          },
-        });
-      }
-    } catch (error) {
-      toast.error(
-        error.message || "Failed to initiate password reset. Please try again.",
-      );
-    }
-  };
 
   if (isLoading && !user) {
     return (
@@ -144,44 +117,6 @@ export default function Profile() {
 
           <VerificationStatus section="bank" />
 
-          {/* Account Security */}
-          <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="size-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-                <span className="material-symbols-outlined">security</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">
-                Account Security
-              </h3>
-            </div>
-            <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-              Protect your account by regularly updating your password. We will
-              send a secure code to your registered mobile number
-              <span className="font-semibold text-slate-800 ml-1">
-                {user?.phone ? `(***-***-${user.phone.slice(-4)})` : ""}
-              </span>
-              .
-            </p>
-            <button
-              onClick={handleResetPassword}
-              disabled={forgotPasswordMutation.isPending}
-              className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3.5 rounded-2xl border border-slate-200 transition-all active:scale-[0.98] disabled:opacity-50"
-            >
-              {forgotPasswordMutation.isPending ? (
-                <>
-                  <div className="size-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
-                  <span>Sending Code...</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-xl">
-                    lock_reset
-                  </span>
-                  <span>Reset Password</span>
-                </>
-              )}
-            </button>
-          </div>
         </div>
       </div>
 
