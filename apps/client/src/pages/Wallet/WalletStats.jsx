@@ -132,7 +132,7 @@ export default function WalletStats({ wallet, transactions = [] }) {
             </span>
           </div>
           <span className="text-sm font-semibold text-white/80 uppercase tracking-wider">
-            Withdrawable
+            Wallet balance
           </span>
         </div>
         <div className="flex items-baseline gap-2 relative z-10">

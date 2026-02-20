@@ -23,15 +23,24 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const allowedMimeTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png"
+    ];
 
-    if (extname && mimetype) {
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    const allowedExtensions = [".jpeg", ".jpg", ".png"];
+
+    if (
+        allowedMimeTypes.includes(file.mimetype) &&
+        allowedExtensions.includes(ext)
+    ) {
         return cb(null, true);
-    } else {
-        cb(new Error('Error: Only jpg, jpeg, and png are allowed!'));
     }
+
+    return cb(new Error("Only jpg, jpeg, and png are allowed!"), false);
 };
 
 const paymentUpload = multer({
