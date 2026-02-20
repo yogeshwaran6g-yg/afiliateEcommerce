@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import Footer from "./Footer";
 
 export default function ClientLayout() {
     const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
@@ -18,8 +19,11 @@ export default function ClientLayout() {
                     toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
                 />
 
-                <main className="flex-1 overflow-y-auto w-full">
-                    <Outlet />
+                <main className="flex-1 overflow-y-auto w-full flex flex-col">
+                    <div className="flex-1">
+                        <Outlet />
+                    </div>
+                    <Footer />
                 </main>
             </div>
         </div>

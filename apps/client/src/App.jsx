@@ -30,6 +30,8 @@ import Signup from "./pages/Signup";
 import Otp from "./pages/Otp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import PrivacyTerms from "./pages/PrivacyTerms";
+
 
 function App() {
   return (
@@ -86,6 +88,8 @@ function App() {
                       path="/notifications"
                       element={<CommunicationCenter />}
                     />
+                    <Route path="/privacy-terms" element={<PrivacyTerms />} />
+
                   </Route>
                 </Route>
 

@@ -22,7 +22,6 @@ export default function Sidebar({ isOpen, onClose }) {
       items: [
         { icon: "storefront", label: "Products", path: "/products" },
         { icon: "shopping_bag", label: "Orders", path: "/orders" },
-        { icon: "shopping_cart", label: "Cart", path: "/cart" },
       ],
     },
     {

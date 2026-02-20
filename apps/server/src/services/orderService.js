@@ -9,18 +9,19 @@ import { log } from '#utils/helper.js';
  * @returns {Promise<object>} - The created order details.
  */
 export const createOrder = async (orderData) => {
-    const { 
-        userId, 
-        items, 
-        totalAmount, 
-        shippingAddress, 
+    const {
+        userId,
+        items,
+        totalAmount,
+        shippingCost = 0.00,
+        shippingAddress,
         paymentMethod, // 'WALLET' or 'MANUAL'
         paymentType, // 'UPI' or 'BANK' (for manual)
         transactionReference, // (for manual)
         proofUrl, // (for manual)
         orderType = 'PRODUCT_PURCHASE'
     } = orderData;
-    
+
     const connection = await pool.getConnection();
 
     try {
@@ -31,7 +32,7 @@ export const createOrder = async (orderData) => {
 
         // 2. Create Order
         log(`Creating ${orderType} order ${orderNumber} for user ${userId} via ${paymentMethod}`, "info");
-        
+
         let paymentStatus = 'PENDING';
         if (paymentMethod === 'WALLET') {
             const wallet = await walletService.getWalletByUserId(userId, connection);
@@ -42,9 +43,9 @@ export const createOrder = async (orderData) => {
         }
 
         const [orderResult] = await connection.query(
-            `INSERT INTO orders (order_number, user_id, total_amount, status, order_type, payment_status, payment_method, shipping_address) 
-             VALUES (?, ?, ?, 'PROCESSING', ?, ?, ?, ?)`,
-            [orderNumber, userId, totalAmount, orderType, paymentStatus, paymentMethod, JSON.stringify(shippingAddress)]
+            `INSERT INTO orders (order_number, user_id, total_amount, shipping_cost, status, order_type, payment_status, payment_method, shipping_address) 
+             VALUES (?, ?, ?, ?, 'PROCESSING', ?, ?, ?, ?)`,
+            [orderNumber, userId, totalAmount, shippingCost, orderType, paymentStatus, paymentMethod, JSON.stringify(shippingAddress)]
         );
 
         const orderId = orderResult.insertId;
@@ -65,7 +66,7 @@ export const createOrder = async (orderData) => {
                  VALUES (?, ?, ?, ?, 'PENDING')`,
                 [orderId, paymentType, transactionReference, proofUrl]
             );
-            
+
             if (orderType === 'ACTIVATION') {
                 await connection.query(
                     'UPDATE users SET account_activation_status = ? WHERE id = ?',
@@ -92,13 +93,13 @@ export const createOrder = async (orderData) => {
                     'UPDATE users SET account_activation_status = "ACTIVATED", is_active = TRUE WHERE id = ?',
                     [userId]
                 );
-                
+
                 const [userRows] = await connection.execute('SELECT referred_by FROM users WHERE id = ?', [userId]);
                 if (userRows[0]?.referred_by) {
                     await connection.query('CALL sp_add_referral(?, ?)', [userRows[0].referred_by, userId]);
                 }
             }
-            
+
             await distributeCommission(orderId, userId, totalAmount, connection);
         }
 
@@ -148,7 +149,7 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
                     'UPDATE users SET account_activation_status = "ACTIVATED", is_active = TRUE WHERE id = ?',
                     [order.user_id]
                 );
-                
+
                 const [userRows] = await connection.execute('SELECT referred_by FROM users WHERE id = ?', [order.user_id]);
                 if (userRows[0]?.referred_by) {
                     await connection.query('CALL sp_add_referral(?, ?)', [userRows[0].referred_by, order.user_id]);
@@ -168,7 +169,7 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
                     [order.user_id]
                 );
             }
-            
+
             await connection.query(
                 `INSERT INTO order_tracking (order_id, title, description) VALUES (?, 'Payment Rejected', ?)`,
                 [orderId, adminComment || 'Your payment proof was rejected.']
@@ -193,7 +194,7 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
  */
 export const getOrdersByUserId = async (userId) => {
     const [rows] = await pool.execute(
-        `SELECT id, order_number, total_amount, status, order_type, payment_status, payment_method, created_at 
+        `SELECT id, order_number, total_amount, shipping_cost, status, order_type, payment_status, payment_method, created_at 
          FROM orders 
          WHERE user_id = ? 
          ORDER BY created_at DESC`,

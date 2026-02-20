@@ -117,22 +117,6 @@ export default function Profile() {
         </div>
       </div>
 
-      <footer className="mt-20 py-8 border-t border-slate-200">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-500">
-          <div>© 2024 Affiliate Ecommerce. Secure KYC Verification.</div>
-          <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-primary transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-primary transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-primary transition-colors">
-              Help
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

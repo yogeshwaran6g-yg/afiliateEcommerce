@@ -32,121 +32,116 @@ export default function Header({ toggleSidebar }) {
   const { data: unreadCount = 0 } = useUnreadCount();
 
   return (
-    <header className="glass-header sticky top-0 z-10 px-4 md:px-8 py-3 md:py-4 border-b border-slate-200">
-      <div className="flex items-center justify-between gap-4 md:gap-6">
+    <header className="glass-header sticky top-0 z-20 px-4 md:px-8 py-3 border-b border-primary/10 shadow-sm backdrop-blur-md">
+      <div className="flex items-center justify-between gap-4 md:gap-8 w-full">
         {/* Left Section: Menu & Search */}
-        <div className="flex items-center gap-4 flex-1 max-w-xl">
-          {/* Mobile Menu Toggle */}
+        <div className="flex items-center gap-4 flex-1 max-w-2xl">
           <button
             onClick={toggleSidebar}
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
+            className="p-2.5 hover:bg-primary/5 rounded-2xl text-slate-600 hover:text-primary transition-all active:scale-95 group focus:ring-4 focus:ring-primary/10"
+            aria-label="Toggle Sidebar"
           >
-            <span className="material-symbols-outlined">menu</span>
+            <span className="material-symbols-outlined text-[24px]">menu</span>
           </button>
 
-          {/* Search Bar - Hidden on small mobile */}
-          <div className="hidden sm:block flex-1">
+          {/* Search Bar */}
+          <div className="hidden sm:block flex-1 group max-w-md">
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all text-[20px]">
                 search
               </span>
               <input
                 type="text"
-                placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                placeholder="Search anything..."
+                className="w-full pl-12 pr-12 py-2.5 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white text-sm transition-all shadow-xs"
               />
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1 px-1.5 py-0.5 bg-white border border-slate-200 rounded-lg shadow-xs">
+                <span className="text-[10px] font-bold text-slate-400">/</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 md:gap-4">
-          {/* Available Payout - Simplified on mobile */}
-          <div className="text-right hidden xs:block">
-            <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide hidden md:block">
-              Available Payout
+        <div className="flex items-center gap-3 md:gap-6">
+          <div className="hidden xs:flex items-center gap-3.5 px-4 py-2 bg-linear-to-r from-primary/10 to-transparent rounded-2xl border border-primary/10 group cursor-default hover:border-primary/20 transition-all">
+            <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-xs text-primary group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-[20px] font-variation-fill">account_balance_wallet</span>
             </div>
-            <div className="text-base md:text-xl font-bold text-primary">
-              $4,250.00
+            <div className="flex flex-col">
+              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">
+                Available
+              </div>
+              <div className="text-sm md:text-[15px] font-extrabold text-slate-900 group-hover:text-primary transition-colors leading-none">
+                $4,250.00
+              </div>
             </div>
           </div>
 
-          {/* Cart Icon */}
-          <Link
-            to="/cart"
-            className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors group"
-          >
-            <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-              shopping_cart
-            </span>
-            {totalItemsCount > 0 && (
-              <span className="absolute top-1 right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-bounce-subtle">
-                {totalItemsCount}
-              </span>
-            )}
-          </Link>
+          <div className="flex items-center gap-2">
+            {/* Cart Icon */}
+            <Link
+              to="/cart"
+              className="relative p-2.5 bg-slate-50/50 hover:bg-primary/5 rounded-2xl transition-all group active:scale-95 text-slate-600 hover:text-primary border border-transparent hover:border-primary/10"
+            >
+              <span className="material-symbols-outlined text-[24px]">shopping_cart</span>
+              {totalItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110 transform -translate-x-1 translate-y-1">
+                  {totalItemsCount}
+                </span>
+              )}
+            </Link>
 
-          {/* Notification Bell */}
-          <Link to="/notifications" className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors group">
-            <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-              notifications
-            </span>
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </Link>
+            {/* Notification Bell */}
+            <Link
+              to="/notifications"
+              className="relative p-2.5 bg-slate-50/50 hover:bg-primary/5 rounded-2xl transition-all group active:scale-95 text-slate-600 hover:text-primary border border-transparent hover:border-primary/10"
+            >
+              <span className="material-symbols-outlined text-[24px]">notifications</span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110 transform -translate-x-1 translate-y-1">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          </div>
 
-          {/* Action Buttons - Icons only on mobile */}
-          <div className="flex items-center gap-1 md:gap-3">
-            {!user && !isLoading && (
+          <div className="flex items-center gap-4 pl-4 md:pl-6 border-l border-slate-200">
+            {user && !isLoading ? (
+              <div className="flex items-center gap-3 group px-2.5 py-1.5 rounded-2xl hover:bg-primary/5 transition-all cursor-pointer border border-transparent hover:border-primary/10" onClick={() => navigate("/profile")}>
+                <div className="text-right hidden sm:block">
+                  <div className="font-bold text-sm text-slate-900 group-hover:text-primary transition-colors leading-tight">
+                    {user.name}
+                  </div>
+                  <div className="inline-flex mt-0.5 px-1.5 py-0.5 bg-primary/10 rounded-lg">
+                    <span className="text-[9px] text-primary font-black uppercase tracking-tighter">
+                    </span>
+                  </div>
+                </div>
+                <div className="w-10 h-10 bg-linear-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20 group-active:scale-95 transition-all">
+                  {getInitials(user.name)}
+                </div>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
+                  className="p-2 text-slate-300 hover:text-danger hover:bg-danger/5 rounded-xl transition-all active:scale-95 ml-1 hidden lg:flex"
+                  title="Logout"
+                >
+                  <span className="material-symbols-outlined text-[22px]">logout</span>
+                </button>
+              </div>
+            ) : !isLoading && (
               <Link
                 to="/login"
-                className="p-2 md:px-4 md:py-2 border border-primary text-primary rounded-lg font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2"
+                className="px-6 py-2.5 bg-primary text-white rounded-2xl font-bold text-sm hover:bg-primary/90 transition-all shadow-sm hover:shadow-lg hover:shadow-primary/20 active:scale-95"
               >
-                <span className="material-symbols-outlined text-lg">login</span>
-                <span className="hidden md:inline">Login</span>
+                Sign In
               </Link>
             )}
-
-            {user && !isLoading && (
-              <button
-                onClick={handleLogout}
-                className="p-2 md:px-4 md:py-2 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-100 transition-all flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined text-lg">logout</span>
-                <span className="hidden md:inline">Logout</span>
-              </button>
-            )}
-
-            <button className="p-2 md:px-4 md:py-2 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">
-                download
-              </span>
-              <span className="hidden md:inline">Export</span>
-            </button>
           </div>
-
-          {/* User Profile - Simplified on mobile */}
-          {user && (
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 pl-2 md:pl-4 border-l border-slate-200 group"
-            >
-              <div className="text-right hidden md:block">
-                <div className="font-semibold text-sm group-hover:text-primary transition-colors">
-                  {user.name || "User"}
-                </div>
-                <div className="text-xs text-amber-600 font-medium">
-                  {user.rank || "Member"}
-                </div>
-              </div>
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-linear-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-base shadow-sm group-hover:shadow-md transition-all">
-                {getInitials(user.name)}
-              </div>
-            </Link>
-          )}
         </div>
       </div>
     </header>

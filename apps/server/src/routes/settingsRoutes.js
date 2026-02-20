@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.use(protect);
 router.get('/withdrawal', settingsController.getWithdrawalSettings);
+router.get('/shipping', settingsController.getShippingSettings);
 
 export default router;

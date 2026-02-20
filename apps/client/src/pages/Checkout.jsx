@@ -7,8 +7,8 @@ import { toast } from "react-toastify";
 
 export default function Checkout() {
     const navigate = useNavigate();
-    const { cartItems, subtotal, total, isLoading: cartLoading, clearCart } = useCart();
-    
+    const { cartItems, subtotal, total, shipping, isLoading: cartLoading, clearCart } = useCart();
+
     const [selectedAddress, setSelectedAddress] = useState("main");
     const [paymentMethod, setPaymentMethod] = useState("wallet"); // 'wallet' or 'direct'
     const [paymentType, setPaymentType] = useState("UPI"); // 'UPI' or 'BANK'
@@ -82,6 +82,7 @@ export default function Checkout() {
                     price: item.price
                 })),
                 totalAmount: total,
+                shippingCost: shipping,
                 shippingAddress: {
                     type: selectedAddress,
                     address: selectedAddress === "main" ? "123 Business Parkway, Suite 100, Manhattan, New York, 10001" : "456 Enterprise Drive, Austin, Texas, 73301"
@@ -251,8 +252,8 @@ export default function Checkout() {
                                             {canUseWallet ? "Ready to Pay" : "Insufficient Balance"}
                                         </h4>
                                         <p className={`text-xs ${canUseWallet ? "text-emerald-700" : "text-red-700"}`}>
-                                            {canUseWallet 
-                                                ? `The total amount of ₹${total.toFixed(2)} will be debited from your wallet.` 
+                                            {canUseWallet
+                                                ? `The total amount of ₹${total.toFixed(2)} will be debited from your wallet.`
                                                 : `You need ₹${(total - walletBalance).toFixed(2)} more in your wallet. Please use Direct Payment instead.`}
                                         </p>
                                     </div>
@@ -287,7 +288,7 @@ export default function Checkout() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 mb-2">Payment Via</label>
-                                            <select 
+                                            <select
                                                 value={paymentType}
                                                 onChange={(e) => setPaymentType(e.target.value)}
                                                 className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -321,7 +322,7 @@ export default function Checkout() {
                                                 {proofPreview ? (
                                                     <div className="relative inline-block">
                                                         <img src={proofPreview} alt="Preview" className="h-32 rounded-lg" />
-                                                        <button 
+                                                        <button
                                                             onClick={(e) => { e.preventDefault(); setProofFile(null); setProofPreview(null); }}
                                                             className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs z-20"
                                                         >
@@ -370,7 +371,7 @@ export default function Checkout() {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600">Shipping</span>
-                                <span className="font-semibold text-emerald-600 uppercase">Free</span>
+                                <span className="font-semibold text-slate-900">₹{shipping.toFixed(2)}</span>
                             </div>
                         </div>
 
@@ -381,7 +382,7 @@ export default function Checkout() {
                         </div>
 
                         {/* Place Order Button */}
-                        <button 
+                        <button
                             disabled={isSubmitting || (paymentMethod === 'wallet' && !canUseWallet)}
                             onClick={handleSubmit}
                             className={`w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all mb-4 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed`}

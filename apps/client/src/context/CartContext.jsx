@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useMemo, useCallback, useContext } from "react";
 import cartService from "../services/cartService";
+import settingsService from "../services/settingsService";
 import { AuthContext } from "./AuthContext";
 import { toast } from "react-toastify";
 
@@ -9,14 +10,12 @@ export const CartProvider = ({ children }) => {
     const { isAuthenticated, user } = useContext(AuthContext);
     const [cartItems, setCartItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [shipping, setShipping] = useState(12.00);
+    const [taxRate, setTaxRate] = useState(0.08);
 
-    // Constants for calculation
-    const shipping = 12.00;
-    const taxRate = 0.08;
-
-    // Load cart when authentication status changes
+    // Load cart and settings when authentication status changes
     useEffect(() => {
-        const loadCart = async () => {
+        const loadCartAndSettings = async () => {
             if (!isAuthenticated) {
                 setCartItems([]);
                 setIsLoading(false);
@@ -25,16 +24,25 @@ export const CartProvider = ({ children }) => {
 
             try {
                 setIsLoading(true);
-                const items = await cartService.getCart();
-                setCartItems(Array.isArray(items) ? items : []);
+                // Fetch cart items and shipping settings in parallel
+                const [cartResponse, shippingResponse] = await Promise.all([
+                    cartService.getCart(),
+                    settingsService.getShippingSettings().catch(() => ({ success: false }))
+                ]);
+
+                setCartItems(Array.isArray(cartResponse) ? cartResponse : []);
+
+                if (shippingResponse?.success && shippingResponse?.data) {
+                    setShipping(shippingResponse.data.shipping_cost);
+                }
             } catch (error) {
-                console.error("Failed to load cart:", error);
+                console.error("Failed to load cart or settings:", error);
                 setCartItems([]);
             } finally {
                 setIsLoading(false);
             }
         };
-        loadCart();
+        loadCartAndSettings();
     }, [isAuthenticated, user]);
 
     // Add item
@@ -98,7 +106,7 @@ export const CartProvider = ({ children }) => {
         [cartItems]);
 
     const tax = useMemo(() => subtotal * taxRate, [subtotal]);
-    const total = useMemo(() => subtotal + shipping + tax, [subtotal, tax]);
+    const total = useMemo(() => subtotal + shipping + tax, [subtotal, tax, shipping]);
 
 
     const totalItemsCount = useMemo(() =>
@@ -121,7 +129,7 @@ export const CartProvider = ({ children }) => {
         taxRate
     }), [
         cartItems, isLoading, addToCart, removeFromCart, updateQuantity,
-        setQuantity, clearCart, subtotal, tax, total, totalItemsCount
+        setQuantity, clearCart, subtotal, tax, total, totalItemsCount, shipping
     ]);
 
     return (
