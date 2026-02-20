@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 export default function Checkout() {
     const navigate = useNavigate();
-    const { cartItems, subtotal, total, isLoading: cartLoading, clearCart } = useCart();
+    const { cartItems, subtotal, total, shipping, isLoading: cartLoading, clearCart } = useCart();
 
     const [selectedAddress, setSelectedAddress] = useState("main");
     const [paymentMethod, setPaymentMethod] = useState("wallet"); // 'wallet' or 'direct'
@@ -82,6 +82,7 @@ export default function Checkout() {
                     price: item.price
                 })),
                 totalAmount: total,
+                shippingCost: shipping,
                 shippingAddress: {
                     type: selectedAddress,
                     address: selectedAddress === "main" ? "123 Business Parkway, Suite 100, Manhattan, New York, 10001" : "456 Enterprise Drive, Austin, Texas, 73301"
@@ -370,7 +371,7 @@ export default function Checkout() {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600">Shipping</span>
-                                <span className="font-semibold text-emerald-600 uppercase">Free</span>
+                                <span className="font-semibold text-slate-900">₹{shipping.toFixed(2)}</span>
                             </div>
                         </div>
 

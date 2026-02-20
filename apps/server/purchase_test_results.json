@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-02-19T10:58:07.170Z",
+  "timestamp": "2026-02-20T08:14:30.158Z",
   "summary": {
-    "totalChecks": 25,
-    "passed": 25,
+    "totalChecks": 26,
+    "passed": 26,
     "failed": 0,
     "manualPurchase": "PASSED",
     "walletPurchase": "PASSED"
@@ -12,7 +12,7 @@
       {
         "name": "Create Order",
         "pass": true,
-        "detail": "Order ID: 21, Number: ORD-1771498684601-623"
+        "detail": "Order ID: 9, Number: ORD-1771575270093-812"
       },
       {
         "name": "Payment Status = PENDING",
@@ -23,6 +23,11 @@
         "name": "DB: Order exists",
         "pass": true,
         "detail": "status=PROCESSING, payment_status=PENDING, payment_method=MANUAL"
+      },
+      {
+        "name": "DB: shipping_cost = 0",
+        "pass": true,
+        "detail": ""
       },
       {
         "name": "DB: payment_status = PENDING",
@@ -42,7 +47,7 @@
       {
         "name": "DB: Payment record exists",
         "pass": true,
-        "detail": "type=UPI, status=PENDING, ref=TEST-UPI-REF-1771498683777"
+        "detail": "type=UPI, status=PENDING, ref=TEST-UPI-REF-1771575270056"
       },
       {
         "name": "DB: Tracking entry exists",
@@ -57,7 +62,7 @@
       {
         "name": "Wallet NOT debited (manual flow)",
         "pass": true,
-        "detail": "Balance: ₹1426.00"
+        "detail": "Balance: ₹1500.00"
       },
       {
         "name": "Edge: Missing fields rejected",
@@ -77,7 +82,7 @@
       {
         "name": "Create Order",
         "pass": true,
-        "detail": "Order ID: 22, Number: ORD-1771498686264-481"
+        "detail": "Order ID: 10, Number: ORD-1771575270119-923"
       },
       {
         "name": "Payment Status = PAID",
@@ -112,7 +117,7 @@
       {
         "name": "Wallet debited correctly",
         "pass": true,
-        "detail": "Before: ₹1426, After: ₹527, Debited: ₹899.00"
+        "detail": "Before: ₹1500, After: ₹601, Debited: ₹899.00"
       },
       {
         "name": "DB: Wallet transaction recorded",

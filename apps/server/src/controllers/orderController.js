@@ -4,15 +4,16 @@ import { rtnRes, log } from '#utils/helper.js';
 const createOrder = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { 
-            items, 
-            totalAmount, 
-            shippingAddress, 
+        const {
+            items,
+            totalAmount,
+            shippingCost,
+            shippingAddress,
             paymentMethod,
             paymentType,
             transactionReference,
             proofUrl,
-            orderType 
+            orderType
         } = req.body;
 
         if (!items || items.length === 0 || !totalAmount || !shippingAddress) {
@@ -29,6 +30,7 @@ const createOrder = async (req, res) => {
             userId,
             items,
             totalAmount,
+            shippingCost: shippingCost || 0,
             shippingAddress,
             paymentMethod,
             paymentType,

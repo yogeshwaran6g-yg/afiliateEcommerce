@@ -94,6 +94,7 @@ CREATE TABLE orders (
     `order_number` VARCHAR(50) NOT NULL UNIQUE,
     `user_id` BIGINT UNSIGNED NOT NULL,
     `total_amount` DECIMAL(10, 2) NOT NULL,
+    `shipping_cost` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     `status` ENUM(
         'PROCESSING',
         'SHIPPED',

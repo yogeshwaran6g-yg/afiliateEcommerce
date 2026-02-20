@@ -69,6 +69,7 @@ export const constants = {
     },
     settings: {
       withdrawal: "/api/v1/settings/withdrawal",
+      shipping: "/api/v1/settings/shipping",
     },
   },
 };

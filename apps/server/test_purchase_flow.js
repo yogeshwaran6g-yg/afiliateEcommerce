@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken';
 
 const BASE_URL = 'http://localhost:4000/api/v1';
 const JWT_SECRET = 'hereTheJwtKeyYG!@$%^&*seceret';
-const DB_CONFIG = { host: 'localhost', user: 'root', password: '', database: 'afiliateecommerce', port: 3306 };
+const DB_CONFIG = { host: 'localhost', user: 'root', password: '', database: 'notification', port: 3306 };
 
 // ─── Helpers ───────────────────────────────────────────────────────
 const results = { manual: { steps: [], passed: false }, wallet: { steps: [], passed: false } };
@@ -95,9 +95,11 @@ async function testManualPurchase(conn, { testUser, testProduct, token }) {
 
   try {
     // Step 1: Create order with payment method MANUAL
+    const shippingCost = 12.00;
     const orderPayload = {
       items: [{ productId: testProduct.id, quantity: 1, price: parseFloat(testProduct.sale_price) }],
-      totalAmount: parseFloat(testProduct.sale_price),
+      totalAmount: parseFloat(testProduct.sale_price) + shippingCost,
+      shippingCost: shippingCost,
       shippingAddress: { address: '123 Test Street', city: 'Chennai', state: 'Tamil Nadu', pincode: '600001' },
       paymentMethod: 'MANUAL',
       paymentType: 'UPI',
@@ -131,6 +133,12 @@ async function testManualPurchase(conn, { testUser, testProduct, token }) {
     if (dbOrders.length > 0) {
       const o = dbOrders[0];
       step('manual', 'DB: Order exists', true, `status=${o.status}, payment_status=${o.payment_status}, payment_method=${o.payment_method}`);
+
+      if (parseFloat(o.shipping_cost) === shippingCost) {
+        step('manual', 'DB: shipping_cost = ' + shippingCost, true);
+      } else {
+        step('manual', 'DB: shipping_cost = ' + shippingCost, false, `Got: ${o.shipping_cost}`);
+      }
 
       if (o.payment_status === 'PENDING') {
         step('manual', 'DB: payment_status = PENDING', true);
@@ -365,8 +373,8 @@ async function main() {
     const totalPassed = allSteps.filter(s => s.pass).length;
     const totalFailed = allSteps.filter(s => !s.pass).length;
 
-    console.log(`  Manual Purchase: ${results.manual.passed ? '✅ PASSED' : '❌ FAILED'} (${results.manual.steps.filter(s=>s.pass).length}/${results.manual.steps.length} steps)`);
-    console.log(`  Wallet Purchase: ${results.wallet.passed ? '✅ PASSED' : '❌ FAILED'} (${results.wallet.steps.filter(s=>s.pass).length}/${results.wallet.steps.length} steps)`);
+    console.log(`  Manual Purchase: ${results.manual.passed ? '✅ PASSED' : '❌ FAILED'} (${results.manual.steps.filter(s => s.pass).length}/${results.manual.steps.length} steps)`);
+    console.log(`  Wallet Purchase: ${results.wallet.passed ? '✅ PASSED' : '❌ FAILED'} (${results.wallet.steps.filter(s => s.pass).length}/${results.wallet.steps.length} steps)`);
     console.log(`\n  Total: ${totalPassed} passed, ${totalFailed} failed out of ${allSteps.length} checks`);
 
     // Write results to file
