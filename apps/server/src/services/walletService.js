@@ -142,9 +142,7 @@ export const updateWalletBalance = async (
   metadata = null,
   connection = null,
 ) => {
-  return await transactionRunner(async (conn) => {
-    const runner = connection || conn;
-
+  const executeUpdate = async (runner) => {
     // 1. Get wallet and lock row for update
     const [walletRows] = await runner.execute(
       "SELECT id, balance, locked_balance FROM wallets WHERE user_id = ? FOR UPDATE",
@@ -223,7 +221,13 @@ export const updateWalletBalance = async (
       newBalance: newBalance,
       newLockedBalance: newLockedBalance,
     };
-  });
+  };
+
+  if (connection) {
+    return await executeUpdate(connection);
+  } else {
+    return await transactionRunner(executeUpdate);
+  }
 };
 
 export const holdBalance = async (

@@ -339,9 +339,8 @@ CREATE TABLE `user_notifications` (
     `is_read` TINYINT(1) NOT NULL DEFAULT 0,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX `idx_user_read` (`user_id`, `is_read`),
-    INDEX `idx_user_created` (`user_id`, `created_at`),
-    INDEX `idx_type` (`type`)
+    INDEX `idx_type` (`type`),
+    CONSTRAINT `fk_user_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
 -- 16. Wallets Table

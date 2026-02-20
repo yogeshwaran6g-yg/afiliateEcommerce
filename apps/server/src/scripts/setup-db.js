@@ -52,6 +52,7 @@ const setupDB = async (connection) => {
     "products",
     "category",
     "order_tracking",
+    "order_payments",
     "order_items",
     "orders",
     "users",
@@ -100,10 +101,11 @@ const setupDB = async (connection) => {
     .filter((block) => block.trim().toLowerCase().includes("create procedure"));
 
   for (let block of spBlocks) {
-    let cleanBlock = block.trim();
-    cleanBlock = cleanBlock
-      .replace(/DELIMITER\s+\/\//gi, "")
-      .replace(/DELIMITER\s+;/gi, "");
+    let cleanBlock = block
+      .split("\n")
+      .filter((line) => !line.trim().toUpperCase().startsWith("DELIMITER"))
+      .join("\n")
+      .trim();
 
     if (cleanBlock) {
       try {

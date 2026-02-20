@@ -1,4 +1,4 @@
-DELIMITER
+DELIMITER / /
 
 -- Procedure: sp_add_referral
 -- Adds a user to the referral tree
@@ -24,7 +24,7 @@ BEGIN
       AND rt.level < 6;
     
     COMMIT;
-END
+END //
 
 -- Procedure: sp_distribute_commission
 -- Calculates and inserts commissions for an order
@@ -60,6 +60,6 @@ BEGIN
       AND u_upline.account_activation_status = 'ACTIVATED';
 
     COMMIT;
-END
+END //
 
 DELIMITER;
