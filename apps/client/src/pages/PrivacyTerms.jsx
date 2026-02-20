@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 
 const PrivacyTerms = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="bg-[#f8fafc] min-h-screen">
             <div className="px-4 md:px-8 py-8 md:py-12 max-w-4xl mx-auto">
@@ -30,7 +33,7 @@ const PrivacyTerms = () => {
                                 This document outlines our practices and your rights.
                             </p>
                         </div>
-                       
+
                     </div>
 
                     <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden crystal-shadow p-8 md:p-12 space-y-16">
@@ -153,18 +156,20 @@ const PrivacyTerms = () => {
                             Our support team is here to help you understand how we protect your information and what your responsibilities are.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <a href="mailto:support@affiliate.com" className="px-8 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all">
+                            <button
+                                onClick={() => navigate("/support", { state: { activeTab: "contact" } })}
+                                className="px-8 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all"
+                            >
                                 Contact Support
-                            </a>
-                            <button className="px-8 py-3 text-slate-600 font-semibold hover:bg-slate-50 rounded-xl transition-all">
+                            </button>
+                            <button
+                                onClick={() => navigate("/support", { state: { activeTab: "faq" } })}
+                                className="px-8 py-3 text-slate-600 font-semibold hover:bg-slate-50 rounded-xl transition-all"
+                            >
                                 Help Center
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <div className="mt-12 text-center text-slate-400 text-xs">
-                    &copy; 2024 Affiliate Ecommerce Platform. All rights reserved.
                 </div>
             </div>
         </div>

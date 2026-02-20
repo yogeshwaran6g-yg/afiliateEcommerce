@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import SupportHeader from "./SupportHeader";
 import FAQSection from "./FAQSection";
 import TicketsSection from "./TicketsSection";
 import SupportSidebar from "./SupportSidebar";
-import SupportFooter from "./SupportFooter";
+
 import { faqs, tickets } from "./data";
 
 export default function Support() {
-    const [activeTab, setActiveTab] = useState("faq");
+    const location = useLocation();
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || "faq");
+
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveTab(location.state.activeTab);
+        }
+    }, [location.state]);
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -25,7 +33,7 @@ export default function Support() {
                     <SupportSidebar />
                 </div>
             </div>
-            <SupportFooter />
+
         </div>
     );
 }
