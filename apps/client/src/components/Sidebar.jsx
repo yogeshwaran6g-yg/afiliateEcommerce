@@ -60,6 +60,7 @@ export default function Sidebar({ isOpen, onClose }) {
       title: "System",
       items: [
         { icon: "person", label: "Profile", path: "/profile" },
+        { icon: "settings", label: "Setting", path: "/settings" },
         { icon: "help_center", label: "Help Center", path: "/support" },
       ],
     },
@@ -153,8 +154,8 @@ export default function Sidebar({ isOpen, onClose }) {
                         <button
                           onClick={() => toggleGroup(item.label)}
                           className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${expandedGroups[item.label]
-                              ? "text-primary bg-primary/5"
-                              : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            ? "text-primary bg-primary/5"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                             }`}
                         >
                           <span
@@ -181,8 +182,8 @@ export default function Sidebar({ isOpen, onClose }) {
                                 if (window.innerWidth < 1024) onClose();
                               }}
                               className={`w-full flex items-center gap-3 pl-11 pr-4 py-2 rounded-lg text-xs font-semibold transition-all ${isActive(subItem.path)
-                                  ? "text-primary bg-primary/10"
-                                  : "text-slate-500 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                ? "text-primary bg-primary/10"
+                                : "text-slate-500 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                                 }`}
                             >
                               <span>{subItem.label}</span>
@@ -200,8 +201,8 @@ export default function Sidebar({ isOpen, onClose }) {
                           if (window.innerWidth < 1024) onClose();
                         }}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${isActive(item.path)
-                            ? "bg-primary/10 text-primary"
-                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                          ? "bg-primary/10 text-primary"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                           }`}
                       >
                         <span

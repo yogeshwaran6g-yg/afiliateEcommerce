@@ -220,6 +220,21 @@ const authController = {
             console.log("err from resetPassword ", e);
             rtnRes(res, 500, "internal error");
         }
+    },
+
+    updatePassword: async function (req, res) {
+        try {
+            const userId = req.user.id;
+            const { oldPassword, newPassword } = req.body;
+            if (!oldPassword || !newPassword) {
+                return rtnRes(res, 400, "oldPassword and newPassword are required");
+            }
+            const result = await authService.updatePassword(userId, oldPassword, newPassword);
+            return rtnRes(res, result.code, result.message, result.data);
+        } catch (e) {
+            console.log("err from updatePassword ", e);
+            rtnRes(res, 500, "internal error");
+        }
     }
 
 }

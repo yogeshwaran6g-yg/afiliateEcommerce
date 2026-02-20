@@ -1,6 +1,6 @@
 import express from 'express';
 import authController from '#controllers/authController.js';
-import { protect, authorize} from "#src/middlewares/authenticatorMiddleware.js";
+import { protect, authorize } from "#src/middlewares/authenticatorMiddleware.js";
 import paymentUpload from '#src/middlewares/paymentUploadMiddleware.js';
 
 const router = express.Router();
@@ -16,6 +16,7 @@ router.post('/reset-password', authController.resetPassword);
 router.get('/profile', protect, authController.getProfile);
 router.put('/profile', protect, authController.updateProfile);
 router.post('/complete-registration', protect, paymentUpload.single('proof'), authController.completeRegistration);
+router.put('/update-password', protect, authController.updatePassword);
 
 
 export default router;

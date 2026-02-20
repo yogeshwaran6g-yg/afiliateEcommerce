@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { ProfileContext } from "../context/ProfileContext";
-import { useCart } from "../hooks/useCart";
+import { useCart } from "../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../hooks/useAuthService";
 import { toast } from "react-toastify";

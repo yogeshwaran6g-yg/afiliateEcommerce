@@ -1,5 +1,5 @@
 import React from "react";
-import { useCart } from "../../hooks/useCart";
+import { useCart } from "../../context/CartContext";
 
 export default function ProductCard({ product, viewMode = 'grid' }) {
     const { addToCart } = useCart();

@@ -357,6 +357,37 @@ export const resetPassword = async (userId, otp, newPassword) => {
 };
 
 
+export const updatePassword = async (userId, oldPassword, newPassword) => {
+    try {
+        // 1. Fetch user to get current hashed password
+        const users = await queryRunner('SELECT password FROM users WHERE id = ?', [userId]);
+        if (users.length === 0) {
+            return { code: 404, message: "User not found" };
+        }
+
+        const user = users[0];
+
+        // 2. Verify old password
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return { code: 400, message: "Incorrect old password" };
+        }
+
+        // 3. Hash and update new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await queryRunner('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+
+        return { code: 200, message: "Password updated successfully" };
+
+    } catch (e) {
+        log(`Update Password error: ${e.message}`, "error");
+        return { code: 500, message: "Internal server error" };
+    }
+};
+
+
 export default {
     login,
     sendOtp,
@@ -365,5 +396,6 @@ export default {
     getProfile,
     updateProfile,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updatePassword
 };

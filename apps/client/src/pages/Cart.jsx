@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../hooks/useCart";
+import { useCart } from "../context/CartContext";
 import CartItem from "./cart/CartItem";
 import CartSummary from "./cart/CartSummary";
 import EmptyCart from "./cart/EmptyCart";
@@ -31,7 +31,7 @@ export default function Cart() {
             {/* Page Header */}
             <div>
                 <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Shopping Cart</h1>
-               
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
