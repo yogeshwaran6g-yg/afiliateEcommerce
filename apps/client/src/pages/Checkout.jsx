@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../hooks/useCart";
+import { useCart } from "../context/CartContext";
 import walletService from "../services/walletService";
 import orderService from "../services/orderService";
 import { toast } from "react-toastify";

@@ -1,86 +1,39 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useResetPasswordMutation, useResendOtpMutation } from "../hooks/useAuthService";
+import { useResetPasswordMutation, useUpdatePasswordMutation } from "../hooks/useAuthService";
 
 const ResetPassword = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get userId and phone from location state
+    // isUpdate means user is coming from settings (authenticated)
+    const isUpdate = location.state?.isUpdate === true;
+    // For forgot password flow (unauthenticated)
     const userId = location.state?.userId;
-    const phone = location.state?.phone;
 
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+    const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [timer, setTimer] = useState(100);
     const [localError, setLocalError] = useState("");
 
     const resetPasswordMutation = useResetPasswordMutation();
-    const resendOtpMutation = useResendOtpMutation();
+    const updatePasswordMutation = useUpdatePasswordMutation();
 
-    const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
-
-    const loading = resetPasswordMutation.isPending || resendOtpMutation.isPending;
-    const mutationError = resetPasswordMutation.error?.message || resendOtpMutation.error?.message;
+    const loading = resetPasswordMutation.isPending || updatePasswordMutation.isPending;
+    const mutationError = resetPasswordMutation.error?.message || updatePasswordMutation.error?.message;
 
     useEffect(() => {
-        if (!userId) {
+        if (!isUpdate && !userId) {
             navigate("/forgot-password");
         }
-    }, [userId, navigate]);
-
-    useEffect(() => {
-        let interval;
-        if (timer > 0) {
-            interval = setInterval(() => {
-                setTimer((prev) => prev - 1);
-            }, 1000);
-        }
-        return () => clearInterval(interval);
-    }, [timer]);
-
-    const handleOtpChange = (index, value) => {
-        if (isNaN(value)) return;
-        const newOtp = [...otp];
-        newOtp[index] = value.substring(value.length - 1);
-        setOtp(newOtp);
-
-        if (value && index < 5) {
-            inputRefs[index + 1].current.focus();
-        }
-    };
-
-    const handleKeyDown = (index, e) => {
-        if (e.key === "Backspace" && !otp[index] && index > 0) {
-            inputRefs[index - 1].current.focus();
-        }
-    };
-
-    const handleResend = async () => {
-        if (timer > 0) return;
-        try {
-            await resendOtpMutation.mutateAsync({ userId, phone, purpose: "forgot" });
-            setTimer(100);
-            setLocalError("");
-            toast.success("OTP resent successfully!");
-        } catch (err) {
-            console.error("Resend Error:", err);
-            toast.error(err?.message || "Failed to resend OTP. Please try again.");
-        }
-    };
+    }, [isUpdate, userId, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLocalError("");
-
-        const otpString = otp.join("");
-        if (otpString.length < 6) {
-            setLocalError("Please enter all 6 digits");
-            return;
-        }
 
         if (newPassword !== confirmPassword) {
             setLocalError("Passwords do not match");
@@ -88,14 +41,50 @@ const ResetPassword = () => {
         }
 
         try {
-            const response = await resetPasswordMutation.mutateAsync({ userId, otp: otpString, newPassword });
-            if (response.success) {
-                toast.success("Password reset successful! Please sign in.");
-                navigate("/login");
+            if (isUpdate) {
+                if (!oldPassword) {
+                    setLocalError("Old password is required");
+                    return;
+                }
+                const response = await updatePasswordMutation.mutateAsync({ oldPassword, newPassword });
+                if (response.success) {
+                    toast.success("Password updated successfully!");
+                    navigate("/settings");
+                }
+            } else {
+                const otpString = otp.join("");
+                if (otpString.length < 6) {
+                    setLocalError("Please enter all 6 digits");
+                    return;
+                }
+                const response = await resetPasswordMutation.mutateAsync({ userId, otp: otpString, newPassword });
+                if (response.success) {
+                    toast.success("Password reset successful! Please sign in.");
+                    navigate("/login");
+                }
             }
         } catch (err) {
-            console.error("Reset Password Error:", err);
-            toast.error(err?.message || "Password reset failed. Please try again.");
+            console.error("Password reset error:", err);
+            toast.error(err?.message || "Operation failed. Please try again.");
+        }
+    };
+
+    const handleOtpChange = (index, value) => {
+        if (isNaN(value)) return;
+        const newOtp = [...otp];
+        newOtp[index] = value.substring(value.length - 1);
+        setOtp(newOtp);
+
+        const nextInput = document.getElementById(`otp-${index + 1}`);
+        if (value && nextInput) {
+            nextInput.focus();
+        }
+    };
+
+    const handleKeyDown = (index, e) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            const prevInput = document.getElementById(`otp-${index - 1}`);
+            if (prevInput) prevInput.focus();
         }
     };
 
@@ -107,10 +96,12 @@ const ResetPassword = () => {
                         <span className="material-symbols-outlined text-3xl">lock_reset</span>
                     </div>
                     <h2 className="mt-6 text-3xl font-bold text-slate-900 tracking-tight">
-                        Reset Password
+                        {isUpdate ? "Update Password" : "Reset Password"}
                     </h2>
                     <p className="mt-2 text-sm text-slate-500 font-medium">
-                        Enter the code sent to your phone and your new password.
+                        {isUpdate
+                            ? "Set a new password for your account."
+                            : "Enter the code sent to your phone and your new password."}
                     </p>
                 </div>
 
@@ -122,24 +113,40 @@ const ResetPassword = () => {
                             </div>
                         )}
 
-                        <div>
-                            <label className="text-sm font-bold text-slate-700 ml-1 mb-2 block">OTP Code</label>
-                            <div className="flex justify-between gap-2 mb-4">
-                                {otp.map((digit, index) => (
-                                    <input
-                                        key={index}
-                                        ref={inputRefs[index]}
-                                        type="text"
-                                        inputMode="numeric"
-                                        maxLength={1}
-                                        value={digit}
-                                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                                        onKeyDown={(e) => handleKeyDown(index, e)}
-                                        className="w-12 h-14 text-center text-xl font-bold border-2 border-slate-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-                                    />
-                                ))}
+                        {!isUpdate ? (
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 ml-1 mb-2 block">OTP Code</label>
+                                <div className="flex justify-between gap-2 mb-4">
+                                    {otp.map((digit, index) => (
+                                        <input
+                                            key={index}
+                                            id={`otp-${index}`}
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength={1}
+                                            value={digit}
+                                            onChange={(e) => handleOtpChange(index, e.target.value)}
+                                            onKeyDown={(e) => handleKeyDown(index, e)}
+                                            className="w-12 h-14 text-center text-xl font-bold border-2 border-slate-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 ml-1">Old Password</label>
+                                <div className="mt-1 relative">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all shadow-sm"
+                                        placeholder="••••••••"
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <label className="text-sm font-bold text-slate-700 ml-1">New Password</label>
@@ -147,7 +154,7 @@ const ResetPassword = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     required
-                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
+                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all shadow-sm"
                                     placeholder="••••••••"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
@@ -170,7 +177,7 @@ const ResetPassword = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     required
-                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all"
+                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all shadow-sm"
                                     placeholder="••••••••"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -179,29 +186,32 @@ const ResetPassword = () => {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="pt-2">
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/20 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+                            className={`group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/20 ${loading ? "opacity-70 cursor-not-allowed" : "hover:scale-[1.01] active:scale-[0.99]"}`}
                         >
-                            {loading ? "Resetting..." : "Reset Password"}
+                            {loading ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="size-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
+                                    <span>Processing...</span>
+                                </div>
+                            ) : (isUpdate ? "Update Password" : "Reset Password")}
                         </button>
                     </div>
                 </form>
 
-                <div className="mt-6 text-center">
-                    <p className="text-sm text-slate-500 font-medium">
-                        Didn't receive code?{" "}
+                {isUpdate && (
+                    <div className="text-center">
                         <button
-                            onClick={handleResend}
-                            disabled={timer > 0}
-                            className={`font-bold transition-colors ${timer > 0 ? "text-slate-400 cursor-not-allowed" : "text-primary hover:text-primary/80"}`}
+                            onClick={() => navigate("/settings")}
+                            className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors"
                         >
-                            {timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP"}
+                            Cancel and Return
                         </button>
-                    </p>
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -22,6 +22,7 @@ import NetworkTree from "./pages/network/NetworkTree";
 import Cart from "./pages/Cart";
 import Support from "./pages/support/index";
 import Profile from "./pages/profile/index";
+import Settings from "./pages/settings/index";
 import Wallet from "./pages/Wallet";
 import CompleteRegistration from "./pages/CompleteRegistration";
 import Withdrawals from "./pages/withdrawals/index";
@@ -76,6 +77,7 @@ function App() {
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/support" element={<Support />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="/wallet" element={<Wallet />} />
                     <Route
                       path="/wallet/add-funds"

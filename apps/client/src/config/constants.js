@@ -10,6 +10,7 @@ export const constants = {
       logout: "/api/v1/auth/logout",
       forgotPassword: "/api/v1/auth/forgot-password",
       resetPassword: "/api/v1/auth/reset-password",
+      updatePassword: "/api/v1/auth/update-password",
       profile: "/api/v1/auth/profile",
       completeRegistration: "/api/v1/auth/complete-registration",
     },

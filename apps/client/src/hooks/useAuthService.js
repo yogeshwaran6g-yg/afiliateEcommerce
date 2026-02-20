@@ -127,6 +127,17 @@ export const useResetPasswordMutation = () => {
 };
 
 /**
+ * Hook for updating password (authenticated).
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
+ */
+export const useUpdatePasswordMutation = () => {
+    return useMutation({
+        mutationFn: ({ oldPassword, newPassword }) => authService.updatePassword(oldPassword, newPassword),
+    });
+};
+
+/**
  * Hook for logging out.
  * Clears local storage and all query cache.
  * 

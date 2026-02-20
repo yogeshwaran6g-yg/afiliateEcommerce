@@ -85,6 +85,15 @@ export const resetPassword = async (userId, otp, newPassword) => {
     }
 };
 
+export const updatePassword = async (oldPassword, newPassword) => {
+    try {
+        const response = await api.put(authEndpoints.updatePassword, { oldPassword, newPassword });
+        return response;
+    } catch (error) {
+        handleApiError(error, "Update Password");
+    }
+};
+
 export const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
@@ -100,7 +109,7 @@ export const getCurrentUser = () => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
 };
- 
+
 export const completeRegistration = async (registrationData) => {
     try {
         const formData = new FormData();
@@ -130,6 +139,7 @@ export default {
     resendOtp,
     forgotPassword,
     resetPassword,
+    updatePassword,
     logout,
     isAuthenticated,
     getCurrentUser
