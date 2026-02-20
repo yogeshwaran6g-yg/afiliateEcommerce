@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from "../services/userNotificationApiservice";
+import { getNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../services/userNotificationApiservice";
 
 // Refactor: Use strings for keys to avoid nested array footguns in React Query matching
 export const USER_NOTIFICATION_QUERY_KEY = "userNotifications";

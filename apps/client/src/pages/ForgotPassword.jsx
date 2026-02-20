@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useForgotPasswordMutation } from "../hooks/useAuthService";
 
@@ -23,6 +24,7 @@ const ForgotPassword = () => {
         try {
             const response = await forgotPasswordMutation.mutateAsync(phone);
             if (response.success && response.data?.userId) {
+                toast.success("Reset code sent to your phone!");
                 navigate("/reset-password", {
                     state: {
                         userId: response.data.userId,
@@ -32,6 +34,7 @@ const ForgotPassword = () => {
             }
         } catch (err) {
             console.error("Forgot password failed:", err);
+            toast.error(err?.message || "Failed to send reset code. Please try again.");
         }
     };
 

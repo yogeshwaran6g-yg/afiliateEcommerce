@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useVerifyOtpMutation, useResendOtpMutation } from "../hooks/useAuthService";
 import useAuth from "../hooks/useAuth";
@@ -104,8 +105,10 @@ const Otp = () => {
             setTimer(newTimer);
             sessionStorage.setItem("otpExpiry", (Date.now() + newTimer * 1000).toString());
             setLocalError("");
+            toast.success("OTP resent successfully!");
         } catch (err) {
             console.error("Resend Error:", err);
+            toast.error(err?.message || "Failed to resend OTP. Please try again.");
         }
     };
 
@@ -124,16 +127,18 @@ const Otp = () => {
             if (response.success) {
                 // If the backend returns token/user (it should now), 
                 // authApiService.verifyOtp already stored them in localStorage.
-                
+
                 sessionStorage.removeItem("pendingUserId");
                 sessionStorage.removeItem("pendingPhone");
                 sessionStorage.removeItem("pendingPurpose");
                 sessionStorage.removeItem("otpExpiry");
-                
+
+                toast.success("Phone verified successfully!");
                 navigate("/complete-registration");
             }
         } catch (err) {
             console.error("OTP Error:", err);
+            toast.error(err?.message || "OTP verification failed. Please try again.");
         }
     };
 

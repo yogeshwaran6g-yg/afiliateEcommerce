@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useResetPasswordMutation, useResendOtpMutation } from "../hooks/useAuthService";
 
@@ -64,8 +65,10 @@ const ResetPassword = () => {
             await resendOtpMutation.mutateAsync({ userId, phone, purpose: "forgot" });
             setTimer(100);
             setLocalError("");
+            toast.success("OTP resent successfully!");
         } catch (err) {
             console.error("Resend Error:", err);
+            toast.error(err?.message || "Failed to resend OTP. Please try again.");
         }
     };
 
@@ -87,10 +90,12 @@ const ResetPassword = () => {
         try {
             const response = await resetPasswordMutation.mutateAsync({ userId, otp: otpString, newPassword });
             if (response.success) {
+                toast.success("Password reset successful! Please sign in.");
                 navigate("/login");
             }
         } catch (err) {
             console.error("Reset Password Error:", err);
+            toast.error(err?.message || "Password reset failed. Please try again.");
         }
     };
 

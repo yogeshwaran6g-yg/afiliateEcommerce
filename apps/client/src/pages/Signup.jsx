@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useSignupMutation } from "../hooks/useAuthService";
 import useAuth from "../hooks/useAuth";
@@ -50,6 +51,7 @@ const Signup = () => {
         sessionStorage.setItem("pendingPhone", formData.phone);
         sessionStorage.setItem("pendingPurpose", "signup");
 
+        toast.success("OTP sent successfully! Please verify your phone.");
         navigate("/verify-otp", {
           state: {
             userId: response.data.userId,
@@ -60,6 +62,7 @@ const Signup = () => {
       }
     } catch (err) {
       console.error("Signup failed:", err);
+      toast.error(err?.message || "Signup failed. Please try again.");
     }
   };
 
@@ -120,11 +123,10 @@ const Signup = () => {
                 <input
                   name="referralId"
                   type="text"
-                  className={`appearance-none block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all ${
-                    isReferralReadOnly
+                  className={`appearance-none block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary text-sm transition-all ${isReferralReadOnly
                       ? "bg-slate-100 cursor-not-allowed opacity-75"
                       : "bg-white"
-                  }`}
+                    }`}
                   placeholder="REF123456"
                   value={formData.referralId}
                   onChange={handleChange}
@@ -151,9 +153,8 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/20 mt-4 ${
-                loading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
+              className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/20 mt-4 ${loading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
             >
               {loading ? (
                 <span className="flex items-center gap-2">

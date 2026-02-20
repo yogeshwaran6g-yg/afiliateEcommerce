@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { ProfileContext } from "../context/ProfileContext";
 import { useCart } from "../hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../hooks/useAuthService";
+import { toast } from "react-toastify";
 import { useUnreadCount } from "../hooks/useUserNotification";
 
 export default function Header({ toggleSidebar }) {
@@ -14,9 +15,11 @@ export default function Header({ toggleSidebar }) {
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
+      toast.success("Logged out successfully.");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);
+      toast.error("Logout failed. Please try again.");
     }
   };
 
@@ -30,6 +33,17 @@ export default function Header({ toggleSidebar }) {
   };
 
   const { data: unreadCount = 0 } = useUnreadCount();
+  const hasShownToast = useRef(false);
+
+  useEffect(() => {
+    if (unreadCount > 0 && !hasShownToast.current) {
+      hasShownToast.current = true;
+      toast.info(`You have ${unreadCount} new notification${unreadCount > 1 ? 's' : ''}`, {
+        toastId: 'unread-notifications',
+        autoClose: 4000,
+      });
+    }
+  }, [unreadCount]);
 
   return (
     <header className="glass-header sticky top-0 z-10 px-4 md:px-8 py-3 md:py-4 border-b border-slate-200">
