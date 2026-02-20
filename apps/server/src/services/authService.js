@@ -6,12 +6,12 @@ import { env } from '#config/env.js';
 import { findUserByPhone, findUserById } from '#services/userService.js';
 
 const generateToken = (user) => {
-    if(!env.JWT_SECRET){
+    if (!env.JWT_SECRET) {
         throw new Error("jwt seceret not found");
     }
     return jwt.sign(
         { id: user.id, role: user.role },
-        env.JWT_SECRET ,
+        env.JWT_SECRET,
         { expiresIn: '1d' }
     );
 };
@@ -32,10 +32,10 @@ export const login = async (phone, password) => {
         }
 
         if (!user.password) {
-            return { 
-                    code: 401, 
-                    message: "Password not set for this account. Please use OTP to reset password if supported." 
-                };
+            return {
+                code: 401,
+                message: "Password not set for this account. Please use OTP to reset password if supported."
+            };
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -98,26 +98,27 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
         };
 
         try {
-            console.log("otp", otp);
-            // const response = await fetchWithTimeout(env.WHATSUP_BASE_URL, {
-            //     method: "POST",
-            //     headers,
-            //     body: JSON.stringify(payload)
-            // });
+            if (env.ENABLE_WHATSAPP_OTP) {
+                const response = await fetchWithTimeout(env.WHATSUP_BASE_URL, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify(payload)
+                });
 
-            // if (!response.result) {
-            //     log(`Fetch failed: ${env.WHATSUP_BASE_URL}`, "error");
-            //     return { code: 500, message: "Failed to connect to OTP service" };
-            // }
-
-            // const result = await response.res.json();
-            // if (result.result !== 'success' && !result.response) {
-            //     log(`OTP service error: ${JSON.stringify(result)}`, "error");
-            //     return { code: 500, message: "OTP service provider error" };
-            // }
+                if (!response.result) {
+                    log(`Fetch failed: ${env.WHATSUP_BASE_URL}`, "error");
+                    // We continue even if fetch fails for logging purposes or to allow local testing
+                } else {
+                    const result = await response.res.json();
+                    if (result.result !== 'success' && !result.response) {
+                        log(`OTP service error: ${JSON.stringify(result)}`, "error");
+                    }
+                }
+            } else {
+                log(`WhatsApp OTP disabled, skipping send for ${phone}. OTP: ${otp}`, "info");
+            }
         } catch (fetchErr) {
             log(`fetch error: ${fetchErr.message}`, "error");
-            return { code: 500, message: "Failed to send OTP (fetch error)" };
         }
 
         // Hash OTP before storing
@@ -221,7 +222,7 @@ export const verifyOtp = async (userId, otp, purpose) => {
             message: "OTP verified successfully",
             data: { user, token }
         };
-        
+
     } catch (e) {
         log(`Verify OTP error: ${e.message}`, "error");
         return { code: 500, message: "Internal server error" };

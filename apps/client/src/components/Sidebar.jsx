@@ -45,8 +45,8 @@ export default function Sidebar({ isOpen, onClose }) {
             },
           ],
         },
-        { icon: "military_tech", label: "Ranks", path: "/ranks" },
-        { icon: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
+        // { icon: "military_tech", label: "Ranks", path: "/ranks" },
+        // { icon: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
       ],
     },
     {
@@ -59,7 +59,7 @@ export default function Sidebar({ isOpen, onClose }) {
     {
       title: "System",
       items: [
-        { icon: "settings", label: "Settings", path: "/profile" },
+        { icon: "person", label: "Profile", path: "/profile" },
         { icon: "help_center", label: "Help Center", path: "/support" },
       ],
     },
@@ -152,11 +152,10 @@ export default function Sidebar({ isOpen, onClose }) {
                       <div>
                         <button
                           onClick={() => toggleGroup(item.label)}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${
-                            expandedGroups[item.label]
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${expandedGroups[item.label]
                               ? "text-primary bg-primary/5"
                               : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                          }`}
+                            }`}
                         >
                           <span
                             className={`material-symbols-outlined text-xl transition-colors ${expandedGroups[item.label] ? "text-primary" : "text-slate-400 group-hover:text-slate-600"}`}
@@ -181,11 +180,10 @@ export default function Sidebar({ isOpen, onClose }) {
                               onClick={() => {
                                 if (window.innerWidth < 1024) onClose();
                               }}
-                              className={`w-full flex items-center gap-3 pl-11 pr-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                                isActive(subItem.path)
+                              className={`w-full flex items-center gap-3 pl-11 pr-4 py-2 rounded-lg text-xs font-semibold transition-all ${isActive(subItem.path)
                                   ? "text-primary bg-primary/10"
                                   : "text-slate-500 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
-                              }`}
+                                }`}
                             >
                               <span>{subItem.label}</span>
                               {isActive(subItem.path) && (
@@ -201,11 +199,10 @@ export default function Sidebar({ isOpen, onClose }) {
                         onClick={() => {
                           if (window.innerWidth < 1024) onClose();
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${
-                          isActive(item.path)
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all group ${isActive(item.path)
                             ? "bg-primary/10 text-primary"
                             : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                        }`}
+                          }`}
                       >
                         <span
                           className={`material-symbols-outlined text-xl transition-colors ${isActive(item.path) ? "text-primary" : "text-slate-400 group-hover:text-slate-600"}`}

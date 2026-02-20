@@ -61,8 +61,8 @@
 //             className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-colors"
 //             href="#"
 //           >
-//             <span className="material-symbols-outlined">settings</span>
-//             <span>Settings</span>
+//             <span className="material-symbols-outlined">person</span>
+//             <span>Profile</span>
 //           </a>
 //           <a
 //             className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-colors"
@@ -102,10 +102,10 @@
 //               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
 //                 Available Payout
 //               </span>
-//               <span className="text-primary font-bold text-lg">$4,250.00</span>
+//               <span className="text-primary font-bold text-lg">₹4,250.00</span>
 //             </div>
 //             <div className="flex items-center gap-3">
-//               <Link 
+//               <Link
 //                 className="relative p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
 //                 to="/notifications"
 //               >
@@ -165,7 +165,7 @@
 //                 </span>
 //               </div>
 //               <p className="text-slate-500 text-sm font-medium">Total Lifetime Earnings</p>
-//               <h3 className="text-2xl font-bold mt-1">$12,450.00</h3>
+//               <h3 className="text-2xl font-bold mt-1">₹12,450.00</h3>
 //               <p className="text-xs text-slate-400 mt-4 italic font-medium">Updated 5m ago</p>
 //             </div>
 
@@ -181,7 +181,7 @@
 //                   </div>
 //                 </div>
 //                 <p className="text-white/80 text-sm font-medium">Withdrawable Balance</p>
-//                 <h3 className="text-3xl font-bold text-white mt-1">$2,100.50</h3>
+//                 <h3 className="text-3xl font-bold text-white mt-1">₹2,100.50</h3>
 //                 <div className="mt-auto pt-6">
 //                   <button className="w-full bg-white text-primary font-bold py-2 rounded-lg text-sm hover:bg-slate-100 transition-colors">
 //                     Withdraw Funds
@@ -231,7 +231,7 @@
 //               <div className="flex items-center justify-between mb-8">
 //                 <div>
 //                   <h4 className="text-lg font-bold">Monthly Income</h4>
-//                   <p className="text-sm text-slate-500 font-medium">$1,200 Average per month</p>
+//                   <p className="text-sm text-slate-500 font-medium">₹1,200 Average per month</p>
 //                 </div>
 //                 <select className="text-xs font-bold border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg px-2 py-1 focus:ring-primary">
 //                   <option>Last 6 Months</option>
@@ -349,7 +349,7 @@
 //                     </td>
 //                     <td className="px-6 py-4 text-sm font-medium">Commission</td>
 //                     <td className="px-6 py-4 text-sm text-slate-500 font-medium">Oct 12, 2023</td>
-//                     <td className="px-6 py-4 text-sm font-bold text-right text-green-600">+$124.00</td>
+//                     <td className="px-6 py-4 text-sm font-bold text-right text-green-600">+₹124.00</td>
 //                     <td className="px-6 py-4 text-center">
 //                       <span className="px-2 py-1 text-[10px] font-bold rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
 //                         Completed
@@ -370,7 +370,7 @@
 //                     </td>
 //                     <td className="px-6 py-4 text-sm font-medium">Upgrade Bonus</td>
 //                     <td className="px-6 py-4 text-sm text-slate-500 font-medium">Oct 11, 2023</td>
-//                     <td className="px-6 py-4 text-sm font-bold text-right text-green-600">+$250.00</td>
+//                     <td className="px-6 py-4 text-sm font-bold text-right text-green-600">+₹250.00</td>
 //                     <td className="px-6 py-4 text-center">
 //                       <span className="px-2 py-1 text-[10px] font-bold rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
 //                         Completed
@@ -391,7 +391,7 @@
 //                     </td>
 //                     <td className="px-6 py-4 text-sm font-medium">Payout</td>
 //                     <td className="px-6 py-4 text-sm text-slate-500 font-medium">Oct 10, 2023</td>
-//                     <td className="px-6 py-4 text-sm font-bold text-right text-slate-900 dark:text-white">-$500.00</td>
+//                     <td className="px-6 py-4 text-sm font-bold text-right text-slate-900 dark:text-white">-₹500.00</td>
 //                     <td className="px-6 py-4 text-center">
 //                       <span className="px-2 py-1 text-[10px] font-bold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
 //                         Processing

@@ -5,7 +5,7 @@ const transactions = [
         subtitle: "Level 2 Distributor",
         type: "Commission",
         date: "Oct 12, 2023",
-        amount: "+$124.00",
+        amount: "+₹124.00",
         status: "Completed",
         color: "from-blue-400 to-blue-600"
     },
@@ -15,7 +15,7 @@ const transactions = [
         subtitle: "Direct Referral",
         type: "Upgrade Bonus",
         date: "Oct 11, 2023",
-        amount: "+$250.00",
+        amount: "+₹250.00",
         status: "Completed",
         color: "from-green-400 to-green-600"
     },
@@ -25,7 +25,7 @@ const transactions = [
         subtitle: "Bank Transfer (**** 4291)",
         type: "Payout",
         date: "Oct 10, 2023",
-        amount: "-$500.00",
+        amount: "-₹500.00",
         status: "Processing",
         color: "from-purple-400 to-purple-600"
     },

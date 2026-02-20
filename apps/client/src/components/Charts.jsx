@@ -9,7 +9,7 @@ export default function Charts() {
                 <div className="flex items-start justify-between mb-6">
                     <div>
                         <h4 className="font-bold text-lg text-slate-900">Monthly Income</h4>
-                        <p className="text-sm text-slate-500 mt-1">$1,200 Average per month</p>
+                        <p className="text-sm text-slate-500 mt-1">₹1,200 Average per month</p>
                     </div>
                     <div className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-semibold text-slate-600">
                         Last 6 Months

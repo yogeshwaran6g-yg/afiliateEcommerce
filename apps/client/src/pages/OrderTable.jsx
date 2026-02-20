@@ -48,7 +48,7 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
                       </div>
                     </td>
                     <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">{formatDate(order.created_at)}</td>
-                    <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-bold text-slate-900">${order.total_amount}</td>
+                    <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-bold text-slate-900">₹{order.total_amount}</td>
                     <td className="px-4 md:px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${statusColor}`}>
                         {order.status}
@@ -82,12 +82,12 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
                                       <p className="text-sm font-bold text-slate-900">{item.product_name}</p>
                                       <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
                                     </div>
-                                    <p className="text-sm font-bold text-slate-900">${item.price}</p>
+                                    <p className="text-sm font-bold text-slate-900">₹{item.price}</p>
                                   </div>
                                 ))}
                                 <div className="flex justify-between pt-2 border-t border-slate-200">
                                   <span className="font-bold text-slate-900">Total</span>
-                                  <span className="font-bold text-primary">${order.total_amount}</span>
+                                  <span className="font-bold text-primary">₹{order.total_amount}</span>
                                 </div>
                               </div>
                             </div>

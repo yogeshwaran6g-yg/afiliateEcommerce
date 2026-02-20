@@ -81,7 +81,7 @@ export default function Header({ toggleSidebar }) {
               Available Payout
             </div>
             <div className="text-base md:text-xl font-bold text-primary">
-              $4,250.00
+              ₹4,250.00
             </div>
           </div>
 

@@ -22,6 +22,7 @@ export const env = {
 
   WHATSUP_BASE_URL: process.env.WHATSUP_BASE_URL,
   WHATSUP_OTP_TOKEN: process.env.WHATSUP_OTP_TOKEN,
+  ENABLE_WHATSAPP_OTP: process.env.ENABLE_WHATSAPP_OTP === "true",
 
   OTP_RESEND_COOLDOWN: Number(process.env.OTP_RESEND_COOLDOWN) || 100
 
