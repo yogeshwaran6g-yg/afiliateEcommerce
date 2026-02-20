@@ -1,29 +1,51 @@
-import React, { useState, useEffect } from "react";
-import userNotificationApiService from "../services/userNotificationApiService";
-import userApiService from "../services/userApiService";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { useUserNotifications } from "../hooks/useUserNotifications";
 
-const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [] }) => {
+const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], initialUserId = "" }) => {
     const initialFormState = {
-        user_id: "",
+        user_id: initialUserId,
         type: "ORDER",
         title: "",
         description: "",
-        isBroadcast: false
     };
 
     const [formData, setFormData] = useState(initialFormState);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
-        if (isOpen) {
-            setFormData(initialFormState);
+        if (isOpen && users.length > 0) {
+            const matchedUser = users.find(u =>
+                u.dbId === initialUserId ||
+                u.id?.toString() === initialUserId?.toString() ||
+                u.name?.toLowerCase() === initialUserId?.toLowerCase() ||
+                u.name?.toLowerCase().replace(/\s+/g, '-') === initialUserId?.toLowerCase()
+            );
+
+            if (matchedUser) {
+                setFormData(prev => ({ ...prev, user_id: matchedUser.dbId }));
+            } else if (initialUserId) {
+                setFormData(prev => ({ ...prev, user_id: initialUserId }));
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, initialUserId, users]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: value
         }));
     };
 
@@ -31,6 +53,12 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [] }) =>
         e.preventDefault();
         onSave(formData);
     };
+
+    const selectedUser = users.find(u =>
+        u.dbId === formData.user_id ||
+        u.id?.toString() === formData.user_id?.toString() ||
+        u.name?.toLowerCase() === formData.user_id?.toLowerCase()
+    );
 
     if (!isOpen) return null;
 
@@ -55,39 +83,48 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [] }) =>
 
                 <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
                     <div className="space-y-6">
-                        <div className="flex items-center gap-3 bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                            <input
-                                type="checkbox"
-                                name="isBroadcast"
-                                id="isBroadcast"
-                                checked={formData.isBroadcast}
-                                onChange={handleInputChange}
-                                className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
-                            />
-                            <label htmlFor="isBroadcast" className="text-sm font-bold text-primary cursor-pointer select-none">
-                                Broadcast to All Active Users
-                            </label>
-                        </div>
+                        <div className="space-y-2" ref={dropdownRef}>
+                            <label className="text-sm font-bold text-[#172b4d] ml-1">Recipient User <span className="text-red-500">*</span></label>
 
-                        {!formData.isBroadcast && (
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-[#172b4d] ml-1">Recipient User <span className="text-red-500">*</span></label>
-                                <select
-                                    name="user_id"
-                                    value={formData.user_id}
-                                    onChange={handleInputChange}
-                                    required={!formData.isBroadcast}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all appearance-none"
+                            <div className="relative">
+                                <div
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all cursor-pointer flex justify-between items-center"
                                 >
-                                    <option value="">Select a user</option>
-                                    {users.map(user => (
-                                        <option key={user.dbId} value={user.dbId}>
-                                            {user.name} ({user.phone})
-                                        </option>
-                                    ))}
-                                </select>
+                                    <span className={selectedUser ? "" : "text-slate-400"}>
+                                        {selectedUser ? `${selectedUser.name}` : (formData.user_id ? "Resolving user..." : "Select a user")}
+                                    </span>
+                                    <span className="material-symbols-outlined text-slate-400">
+                                        expand_more
+                                    </span>
+                                </div>
+
+                                {isDropdownOpen && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 shadow-xl rounded-xl z-[110] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                                        <div className="max-h-[160px] overflow-y-auto py-1 custom-scrollbar">
+                                            {users.length > 0 ? (
+                                                users.map(user => (
+                                                    <div
+                                                        key={user.dbId}
+                                                        onClick={() => {
+                                                            setFormData(p => ({ ...p, user_id: user.dbId }));
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        className={`px-4 py-3 text-sm font-bold cursor-pointer hover:bg-slate-50 transition-colors ${formData.user_id === user.dbId ? 'text-primary bg-primary/5' : 'text-[#172b4d]'}`}
+                                                    >
+                                                        {user.name}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="px-4 py-3 text-center text-slate-400 text-xs font-bold">
+                                                    No users found
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-[#172b4d] ml-1">Notification Type <span className="text-red-500">*</span></label>
@@ -95,7 +132,8 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [] }) =>
                                 name="type"
                                 value={formData.type}
                                 onChange={handleInputChange}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all appearance-none">
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all cursor-pointer flex justify-between items-center"
+                            >
                                 <option value="ORDER">Order</option>
                                 <option value="PAYMENT">Payment</option>
                                 <option value="WALLET">Wallet</option>
@@ -145,87 +183,22 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [] }) =>
 };
 
 export default function UserNotifications() {
-    const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [drawerLoading, setDrawerLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 20, pages: 0 });
-    const [users, setUsers] = useState([]);
-
-    useEffect(() => {
-        fetchNotifications();
-        fetchUsers();
-    }, [pagination.page]);
-
-    const fetchUsers = async () => {
-        try {
-            const data = await userApiService.getUsers();
-            setUsers(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error("Failed to fetch users:", err);
-            setUsers([]);
-        }
-    };
-
-    const fetchNotifications = async () => {
-        try {
-            setLoading(true);
-            const data = await userNotificationApiService.getNotifications({ page: pagination.page, limit: pagination.limit });
-            if (data && data.items) {
-                setNotifications(data.items);
-                setPagination(data.pagination);
-            } else {
-                setNotifications([]);
-            }
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load notifications");
-            setNotifications([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleOpenDrawer = () => {
-        setDrawerOpen(true);
-    };
-
-    const handleSave = async (formData) => {
-        try {
-            setDrawerLoading(true);
-            if (formData.isBroadcast) {
-                await userNotificationApiService.broadcastNotification({
-                    type: formData.type,
-                    title: formData.title,
-                    description: formData.description
-                });
-            } else {
-                await userNotificationApiService.sendNotification({
-                    user_id: formData.user_id,
-                    type: formData.type,
-                    title: formData.title,
-                    description: formData.description
-                });
-            }
-            setDrawerOpen(false);
-            fetchNotifications();
-        } catch (err) {
-            alert(err.message || "Failed to send notification");
-        } finally {
-            setDrawerLoading(false);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm("Are you sure you want to delete this notification record?")) return;
-        try {
-            await userNotificationApiService.deleteNotification(id);
-            fetchNotifications();
-        } catch (err) {
-            alert(err.message || "Failed to delete notification");
-        }
-    };
+    const {
+        userId,
+        isDrawerOpen,
+        notifications,
+        loading,
+        drawerLoading,
+        error,
+        pagination,
+        users,
+        fetchNotifications,
+        handleOpenDrawer,
+        handleCloseDrawer,
+        handleSave,
+        handleDelete,
+        setPage
+    } = useUserNotifications();
 
     if (loading && (!notifications || notifications.length === 0)) {
         return (
@@ -248,7 +221,7 @@ export default function UserNotifications() {
                         <span className="text-primary font-black">Direct Messages</span>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">Notification Hub</h2>
-                    <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Send targeted alerts and messages to individual distributors or broadcast to the entire network.</p>
+                    <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">Send targeted alerts and messages to individual distributors via direct dispatch.</p>
                 </div>
 
                 {error && (
@@ -356,14 +329,14 @@ export default function UserNotifications() {
                         <div className="flex gap-2">
                             <button
                                 disabled={pagination.page === 1}
-                                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                                onClick={() => setPage(pagination.page - 1)}
                                 className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
                             >
                                 Previous
                             </button>
                             <button
                                 disabled={pagination.page === pagination.pages}
-                                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                                onClick={() => setPage(pagination.page + 1)}
                                 className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
                             >
                                 Next
@@ -375,10 +348,11 @@ export default function UserNotifications() {
 
             <NotificationDrawer
                 isOpen={isDrawerOpen}
-                onClose={() => setDrawerOpen(false)}
+                onClose={handleCloseDrawer}
                 onSave={handleSave}
                 loading={drawerLoading}
                 users={users}
+                initialUserId={userId}
             />
         </div>
     );
