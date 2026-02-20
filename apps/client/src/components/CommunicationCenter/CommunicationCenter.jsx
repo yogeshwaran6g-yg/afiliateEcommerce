@@ -15,9 +15,10 @@ const CommunicationCenter = () => {
 
     // Filter out expired notifications on frontend as well (double layer)
     const announcements = React.useMemo(() => {
-        if (!notificationsData?.success) return [];
+        if (!Array.isArray(notificationsData)) return [];
         const now = new Date();
-        return notificationsData.data.filter(notif => {
+        return notificationsData.filter(notif => {
+            if (!notif) return false;
             if (!notif.advertisement_end_time) return true;
             return new Date(notif.advertisement_end_time) > now;
         });

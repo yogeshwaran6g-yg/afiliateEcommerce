@@ -1,4 +1,4 @@
-:import authService from '#services/authService.js';
+import authService from '#services/authService.js';
 import { createUser, existinguserFieldsCheck, findUserByPhone, updateRegistrationDetails } from '#services/userService.js';
 import * as orderService from '#services/orderService.js';
 import { rtnRes, log } from '#utils/helper.js';
@@ -20,7 +20,7 @@ const authController = {
             }
 
             const existingUser = await findUserByPhone(phone);
-            
+
             if (existingUser) {
                 if (!existingUser.is_phone_verified) {
                     // Resend OTP for unverified user
@@ -43,11 +43,11 @@ const authController = {
                 }
             }
 
-            const user = await createUser({ 
-                phone, 
-                referredBy 
+            const user = await createUser({
+                phone,
+                referredBy
             });
-            if(!user.id){
+            if (!user.id) {
                 return rtnRes(res, 500, "Internal error");
             }
             // Send OTP
@@ -66,7 +66,7 @@ const authController = {
 
     completeRegistration: async function (req, res) {
         try {
-            const userId = req.user.id; 
+            const userId = req.user.id;
             const { name, email, password, selectedProductId, paymentMethod, paymentType, transactionReference } = req.body;
             const proofFile = req.file;
 
@@ -98,7 +98,7 @@ const authController = {
             }
 
             const proofUrl = proofFile ? `/uploads/${proofFile.filename}` : null;
-            
+
             const result = await orderService.createOrder({
                 userId,
                 items: [{ productId: selectedProductId, quantity: 1, price: product.sale_price }],
