@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import profileService from "../../services/profileService";
 import { ProfileContext } from "../../context/ProfileContext";
-import Toast from "../../components/ui/Toast";
 import { toast } from "react-toastify";
 
 export default function VerificationStatus({ section = "all" }) {
@@ -70,7 +69,6 @@ export default function VerificationStatus({ section = "all" }) {
     address: "idle",
     bank: "idle",
   });
-  const [toast, setToast] = useState(null);
 
   // Sync forms with profile data when it loads
   useEffect(() => {
@@ -134,10 +132,7 @@ export default function VerificationStatus({ section = "all" }) {
         await updateBank({ bankData, file });
       }
 
-      setToast({
-        message: `${key.charAt(0).toUpperCase() + key.slice(1)} submitted successfully!`,
-        type: "success",
-      });
+      toast.success(`${key.charAt(0).toUpperCase() + key.slice(1)} submitted successfully!`);
       setEditMode((prev) => ({ ...prev, [key]: false }));
       await refetchProfile();
     } catch (error) {
@@ -249,7 +244,7 @@ export default function VerificationStatus({ section = "all" }) {
       </div>
 
       {!editMode.identity &&
-      (identity.status === "verified" || identity.status === "pending") ? (
+        (identity.status === "verified" || identity.status === "pending") ? (
         <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
@@ -367,7 +362,7 @@ export default function VerificationStatus({ section = "all" }) {
       </div>
 
       {!editMode.address &&
-      (address.status === "verified" || address.status === "pending") ? (
+        (address.status === "verified" || address.status === "pending") ? (
         <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="col-span-2">
@@ -557,7 +552,7 @@ export default function VerificationStatus({ section = "all" }) {
       </div>
 
       {!editMode.bank &&
-      (bank.status === "verified" || bank.status === "pending") ? (
+        (bank.status === "verified" || bank.status === "pending") ? (
         <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 space-y-4 text-sm">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -710,13 +705,6 @@ export default function VerificationStatus({ section = "all" }) {
         </a>
         . Your data is securely stored.
       </p>
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   );
 }
