@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import productApiService from "../services/productApiService";
+import categoryApiService from "../services/categoryApiService";
 
 const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -65,9 +66,34 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
     if (!isOpen) return null;
 
+    const slugify = (text) => {
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/[\s_-]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => {
+            const newData = { ...prev, [name]: value };
+
+            // Auto-generate slug if name changes and user hasn't manually edited slug yet
+            if (name === "name") {
+                newData.slug = slugify(value);
+            }
+
+            return newData;
+        });
+    };
+
+    const handleRefreshSlug = () => {
+        setFormData(prev => ({
+            ...prev,
+            slug: slugify(prev.name) + (prev.name ? "-" + Math.random().toString(36).substring(2, 5) : "")
+        }));
     };
 
     const handleImageChange = (e) => {
@@ -150,7 +176,17 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-wider">SKU Code (Slug) <span className="text-primary">*</span></label>
+                                    <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-wider flex items-center justify-between">
+                                        <span>SKU Code (Slug) <span className="text-primary">*</span></span>
+                                        <button
+                                            type="button"
+                                            onClick={handleRefreshSlug}
+                                            className="text-[9px] bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors flex items-center gap-1"
+                                        >
+                                            <span className="material-symbols-outlined text-[10px] font-bold">magic_button</span>
+                                            Generate
+                                        </button>
+                                    </label>
                                     <input
                                         type="text"
                                         name="slug"

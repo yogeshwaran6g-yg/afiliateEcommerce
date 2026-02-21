@@ -7,7 +7,7 @@ const productService = {
             const {
                 name, slug, short_desc, long_desc, category_id,
                 original_price, sale_price, stock, stock_status,
-                low_stock_alert, images
+                low_stock_alert, images, is_active
             } = productData;
 
             // Validation: Check if category exists
