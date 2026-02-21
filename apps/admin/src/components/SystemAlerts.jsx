@@ -6,7 +6,7 @@ export default function SystemAlerts() {
             id: 1,
             type: "HIGH PRIORITY",
             title: "Large Withdrawal Flagged",
-            description: "User #8921 requested a payout of $4,500. Manual verification required.",
+            description: "User #8921 requested a payout of ₹4,500. Manual verification required.",
             time: "2m ago",
             color: "red"
         },

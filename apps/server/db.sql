@@ -374,6 +374,8 @@ CREATE TABLE `wallet_transactions` (
     `amount` DECIMAL(10, 2) NOT NULL CHECK (`amount` > 0),
     `balance_after` DECIMAL(10, 2) NOT NULL,
     `balance_before` DECIMAL(10, 2) NOT NULL,
+    `locked_after` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `locked_before` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     `reference_table` VARCHAR(50) NULL,
     `reference_id` BIGINT UNSIGNED NULL,
     `reversal_of` BIGINT UNSIGNED NULL,

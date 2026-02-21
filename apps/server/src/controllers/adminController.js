@@ -188,6 +188,13 @@ const adminController = {
             if (!userId) return rtnRes(res, 400, "userId is required");
 
             await transactionRunner(async (connection) => {
+                // Fetch current wallet state if balance or locked_balance is provided
+                let oldWallet = null;
+                if (balance !== undefined || locked_balance !== undefined) {
+                    const [rows] = await connection.execute('SELECT * FROM wallets WHERE user_id = ? FOR UPDATE', [userId]);
+                    oldWallet = rows[0];
+                }
+
                 // Update users table
                 await connection.execute(`
                     UPDATE users SET 
@@ -208,6 +215,9 @@ const adminController = {
 
                 // Update wallets table if balance or locked_balance is provided
                 if (balance !== undefined || locked_balance !== undefined) {
+                    const newBalance = balance !== undefined ? balance : (oldWallet ? oldWallet.balance : 0);
+                    const newLockedBalance = locked_balance !== undefined ? locked_balance : (oldWallet ? oldWallet.locked_balance : 0);
+
                     await connection.execute(`
                         UPDATE wallets SET 
                             balance = COALESCE(?, balance),
@@ -218,13 +228,45 @@ const adminController = {
                         locked_balance === undefined ? null : locked_balance,
                         userId
                     ]);
+
+                    // Log transaction if there's a difference
+                    if (oldWallet) {
+                        const balanceDiff = Number(newBalance) - Number(oldWallet.balance);
+                        const lockedDiff = Number(newLockedBalance) - Number(oldWallet.locked_balance);
+
+                        if (balanceDiff !== 0 || lockedDiff !== 0) {
+                            // We use the absolute total change for the 'amount' field as per table constraint amount > 0
+                            // If multiple balances change, we log it as one adjustment.
+                            const totalAbsDiff = Math.abs(balanceDiff) + Math.abs(lockedDiff);
+
+                            if (totalAbsDiff > 0) {
+                                await connection.execute(`
+                                    INSERT INTO wallet_transactions (
+                                        wallet_id, entry_type, transaction_type, 
+                                        amount, balance_before, balance_after,
+                                        locked_before, locked_after, 
+                                        status, description
+                                    ) VALUES (?, ?, 'ADMIN_ADJUSTMENT', ?, ?, ?, ?, ?, 'SUCCESS', ?)
+                                `, [
+                                    oldWallet.id,
+                                    balanceDiff >= 0 ? 'CREDIT' : 'DEBIT',
+                                    totalAbsDiff,
+                                    oldWallet.balance,
+                                    newBalance,
+                                    oldWallet.locked_balance,
+                                    newLockedBalance,
+                                    `Admin adjusted balance (Available: ${balanceDiff >= 0 ? '+' : ''}${balanceDiff}, Locked: ${lockedDiff >= 0 ? '+' : ''}${lockedDiff})`
+                                ]);
+                            }
+                        }
+                    }
                 }
             });
 
             return rtnRes(res, 200, "User updated successfully");
         } catch (e) {
             log(`Error in updateUser: ${e.message}`, "error");
-            return rtnRes(res, 500, "internal error");
+            return rtnRes(res, 500, e.message || "internal error");
         }
     },
 

@@ -11,7 +11,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <MetricCard
                     title="Total Sales"
-                    value="$428,590.00"
+                    value="₹428,590.00"
                     icon="payments"
                     trend="+12.5%"
                     iconBg="bg-green-100"
@@ -20,7 +20,7 @@ export default function Dashboard() {
                 />
                 <MetricCard
                     title="Total Payouts"
-                    value="$156,210.45"
+                    value="₹156,210.45"
                     icon="account_balance_wallet"
                     trend="+4.2%"
                     iconBg="bg-amber-100"

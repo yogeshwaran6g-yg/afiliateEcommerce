@@ -5,7 +5,7 @@ export default function TopAffiliates() {
         {
             name: "Marcus Vane",
             level: "Level 8 Diamond",
-            value: "$12,450",
+            value: "₹12,450",
             trend: "+14%",
             trendColor: "text-green-600",
             momentum: "up",
@@ -14,7 +14,7 @@ export default function TopAffiliates() {
         {
             name: "Sarah Jenkins",
             level: "Level 6 Platinum",
-            value: "$9,820",
+            value: "₹9,820",
             trend: "+8%",
             trendColor: "text-green-600",
             momentum: "none",
@@ -23,7 +23,7 @@ export default function TopAffiliates() {
         {
             name: "Lee Kwang",
             level: "Level 7 Emerald",
-            value: "$8,100",
+            value: "₹8,100",
             trend: "-2%",
             trendColor: "text-red-600",
             momentum: "down",

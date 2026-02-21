@@ -1,568 +1,438 @@
 <!doctype html>
 
 <html class="light" lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Notifications &amp; Announcements Center</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-      rel="stylesheet"
-    />
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#1754cf",
-              "background-light": "#f6f6f8",
-              "background-dark": "#111621",
-              success: "#07883b",
-            },
-            fontFamily: {
-              display: ["Inter", "sans-serif"],
-            },
-            borderRadius: {
-              DEFAULT: "0.25rem",
-              lg: "0.5rem",
-              xl: "0.75rem",
-              full: "9999px",
-            },
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Notifications &amp; Announcements Center</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1754cf",
+            "background-light": "#f6f6f8",
+            "background-dark": "#111621",
+            success: "#07883b",
+          },
+          fontFamily: {
+            display: ["Inter", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px",
           },
         },
-      };
-    </script>
-    <style>
-      body {
-        font-family: "Inter", sans-serif;
-      }
-      .material-symbols-outlined {
-        font-variation-settings:
-          "FILL" 0,
-          "wght" 400,
-          "GRAD" 0,
-          "opsz" 24;
-      }
-      .unread-dot {
-        width: 8px;
-        height: 8px;
-        background-color: #1754cf;
-        border-radius: 50%;
-      }
-    </style>
-  </head>
-  <body
-    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex"
-  >
-    <!-- Left Navigation Bar (SideNavBar Component modified) -->
-    <aside
-      class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col h-screen sticky top-0"
-    >
-      <div class="p-6">
-        <div class="flex items-center gap-3 mb-8">
-          <div
-            class="size-10 bg-primary rounded-lg flex items-center justify-center text-white"
-          >
-            <span class="material-symbols-outlined"
-              >account_balance_wallet</span
-            >
-          </div>
-          <div class="flex flex-col">
-            <h1
-              class="text-slate-900 dark:text-white text-base font-bold leading-none"
-            >
-              Distributor Pro
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">
-              ID: 9928341
-            </p>
-          </div>
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings:
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
+    }
+
+    .unread-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #1754cf;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex">
+  <!-- Left Navigation Bar (SideNavBar Component modified) -->
+  <aside
+    class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col h-screen sticky top-0">
+    <div class="p-6">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
         </div>
-        <nav class="space-y-1">
-          <a
-            class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            href="#"
-          >
-            <span class="material-symbols-outlined">dashboard</span>
-            <span class="text-sm font-medium">Dashboard</span>
-          </a>
-          <a
-            class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            href="#"
-          >
-            <span class="material-symbols-outlined"
-              >account_balance_wallet</span
-            >
-            <span class="text-sm font-medium">Wallet</span>
-          </a>
-          <a
-            class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            href="#"
-          >
-            <span class="material-symbols-outlined">group</span>
-            <span class="text-sm font-medium">Network</span>
-          </a>
-          <a
-            class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg"
-            href="#"
-          >
-            <span
-              class="material-symbols-outlined"
-              style="font-variation-settings: &quot;FILL&quot; 1"
-              >notifications</span
-            >
-            <span class="text-sm font-semibold">Notifications</span>
-          </a>
-          <a
-            class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            href="#"
-          >
-            <span class="material-symbols-outlined">campaign</span>
-            <span class="text-sm font-medium">Announcements</span>
-          </a>
-          <a
-            class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            href="#"
-          >
-            <span class="material-symbols-outlined">settings</span>
-            <span class="text-sm font-medium">Settings</span>
-          </a>
-        </nav>
-      </div>
-      <div class="mt-auto p-6 border-t border-slate-200 dark:border-slate-800">
-        <div class="flex items-center gap-3">
-          <div
-            class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"
-          >
-            <img
-              alt="User Profile"
-              data-alt="Portrait of a smiling professional male distributor"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLhoVFgqycJ3pe-Efn-BFvaDeMoB4ZK9pEYe7m9wrizdbGHwPdQL49Os8BwQfBmCBo0f2rguJ8w-iAi7-2fwPEzBXvXU7VmkwofUzHiiDJ75Wh64h7oeceZRZbN-SahpLrUk6N2DU7-r2CfWdu5kDszyQxdXEgIJx1T5Kjp_X_8M6YiasBkmZ2YHt2TzSncmt6RQV4SyenI3Cj80zpTf2H4h17J-F6wcAItr2nbmKWuZ-4A8-j54TAkCNiyJCAp-l3YyT7l3wU12A"
-            />
-          </div>
-          <div>
-            <p class="text-sm font-semibold">Alex Johnson</p>
-            <p class="text-xs text-slate-500">Platinum Tier</p>
-          </div>
+        <div class="flex flex-col">
+          <h1 class="text-slate-900 dark:text-white text-base font-bold leading-none">
+            Distributor Pro
+          </h1>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">
+            ID: 9928341
+          </p>
         </div>
       </div>
-    </aside>
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-      <!-- Header Bar -->
-      <header
-        class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-8 flex items-center justify-between shrink-0"
-      >
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-          Communication Center
-        </h2>
-        <div class="flex items-center gap-4">
-          <button
-            class="flex items-center gap-2 text-sm font-semibold text-primary hover:bg-primary/5 px-4 py-2 rounded-lg transition-colors"
-          >
-            <span class="material-symbols-outlined text-base">done_all</span>
-            Mark all as read
-          </button>
-          <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
-          <div class="relative">
+      <nav class="space-y-1">
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          href="#">
+          <span class="material-symbols-outlined">dashboard</span>
+          <span class="text-sm font-medium">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          href="#">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+          <span class="text-sm font-medium">Wallet</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          href="#">
+          <span class="material-symbols-outlined">group</span>
+          <span class="text-sm font-medium">Network</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" href="#">
+          <span class="material-symbols-outlined"
+            style="font-variation-settings: &quot;FILL&quot; 1">notifications</span>
+          <span class="text-sm font-semibold">Notifications</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          href="#">
+          <span class="material-symbols-outlined">campaign</span>
+          <span class="text-sm font-medium">Announcements</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          href="#">
+          <span class="material-symbols-outlined">settings</span>
+          <span class="text-sm font-medium">Settings</span>
+        </a>
+      </nav>
+    </div>
+    <div class="mt-auto p-6 border-t border-slate-200 dark:border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+          <img alt="User Profile" data-alt="Portrait of a smiling professional male distributor"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLhoVFgqycJ3pe-Efn-BFvaDeMoB4ZK9pEYe7m9wrizdbGHwPdQL49Os8BwQfBmCBo0f2rguJ8w-iAi7-2fwPEzBXvXU7VmkwofUzHiiDJ75Wh64h7oeceZRZbN-SahpLrUk6N2DU7-r2CfWdu5kDszyQxdXEgIJx1T5Kjp_X_8M6YiasBkmZ2YHt2TzSncmt6RQV4SyenI3Cj80zpTf2H4h17J-F6wcAItr2nbmKWuZ-4A8-j54TAkCNiyJCAp-l3YyT7l3wU12A" />
+        </div>
+        <div>
+          <p class="text-sm font-semibold">Alex Johnson</p>
+          <p class="text-xs text-slate-500">Platinum Tier</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <!-- Header Bar -->
+    <header
+      class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-8 flex items-center justify-between shrink-0">
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+        Communication Center
+      </h2>
+      <div class="flex items-center gap-4">
+        <button
+          class="flex items-center gap-2 text-sm font-semibold text-primary hover:bg-primary/5 px-4 py-2 rounded-lg transition-colors">
+          <span class="material-symbols-outlined text-base">done_all</span>
+          Mark all as read
+        </button>
+        <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
+        <div class="relative">
+          <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 cursor-pointer">search</span>
+        </div>
+      </div>
+    </header>
+    <!-- Split Pane Layout -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Left Pane: Notifications -->
+      <section
+        class="w-full lg:w-5/12 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex flex-col h-full">
+        <div class="p-6 pb-0">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-lg">Activity Feed</h3>
             <span
-              class="material-symbols-outlined text-slate-500 dark:text-slate-400 cursor-pointer"
-              >search</span
-            >
+              class="bg-primary/10 text-primary text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full">12
+              New</span>
+          </div>
+          <div class="flex border-b border-slate-200 dark:border-slate-800 gap-6 mb-4">
+            <button class="border-b-2 border-primary text-primary pb-3 text-sm font-bold">
+              All
+            </button>
+            <button class="border-b-2 border-transparent text-slate-500 pb-3 text-sm font-medium hover:text-slate-700">
+              Unread
+            </button>
+            <button class="border-b-2 border-transparent text-slate-500 pb-3 text-sm font-medium hover:text-slate-700">
+              Earnings
+            </button>
           </div>
         </div>
-      </header>
-      <!-- Split Pane Layout -->
-      <div class="flex flex-1 overflow-hidden">
-        <!-- Left Pane: Notifications -->
-        <section
-          class="w-full lg:w-5/12 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex flex-col h-full"
-        >
-          <div class="p-6 pb-0">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-bold text-lg">Activity Feed</h3>
-              <span
-                class="bg-primary/10 text-primary text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full"
-                >12 New</span
-              >
-            </div>
-            <div
-              class="flex border-b border-slate-200 dark:border-slate-800 gap-6 mb-4"
-            >
-              <button
-                class="border-b-2 border-primary text-primary pb-3 text-sm font-bold"
-              >
-                All
-              </button>
-              <button
-                class="border-b-2 border-transparent text-slate-500 pb-3 text-sm font-medium hover:text-slate-700"
-              >
-                Unread
-              </button>
-              <button
-                class="border-b-2 border-transparent text-slate-500 pb-3 text-sm font-medium hover:text-slate-700"
-              >
-                Earnings
-              </button>
-            </div>
-          </div>
-          <div class="flex-1 overflow-y-auto p-6 pt-0 space-y-3">
-            <!-- Notification Card 1 -->
-            <div
-              class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer hover:border-primary/30 transition-all"
-            >
-              <div class="flex gap-4">
-                <div
-                  class="size-10 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-success shrink-0"
-                >
-                  <span class="material-symbols-outlined">payments</span>
-                </div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-start">
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">
-                      Commission Received
-                    </p>
-                    <div class="unread-dot"></div>
-                  </div>
-                  <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                    $50.00 USD from Level 2 referral has been added to your
-                    wallet.
-                  </p>
-                  <p
-                    class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight"
-                  >
-                    <span class="material-symbols-outlined text-[14px]"
-                      >schedule</span
-                    >
-                    Just now
-                  </p>
-                </div>
+        <div class="flex-1 overflow-y-auto p-6 pt-0 space-y-3">
+          <!-- Notification Card 1 -->
+          <div
+            class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer hover:border-primary/30 transition-all">
+            <div class="flex gap-4">
+              <div
+                class="size-10 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-success shrink-0">
+                <span class="material-symbols-outlined">payments</span>
               </div>
-            </div>
-            <!-- Notification Card 2 -->
-            <div
-              class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer hover:border-primary/30 transition-all"
-            >
-              <div class="flex gap-4">
-                <div
-                  class="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary shrink-0"
-                >
-                  <span class="material-symbols-outlined">person_add</span>
-                </div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-start">
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">
-                      New Direct Referral
-                    </p>
-                    <div class="unread-dot"></div>
-                  </div>
-                  <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                    Welcome <span class="font-semibold">Sarah Jenkins</span> to
-                    your network. Send a welcome message!
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">
+                    Commission Received
                   </p>
-                  <p
-                    class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight"
-                  >
-                    <span class="material-symbols-outlined text-[14px]"
-                      >schedule</span
-                    >
-                    15 mins ago
-                  </p>
+                  <div class="unread-dot"></div>
                 </div>
-              </div>
-            </div>
-            <!-- Notification Card 3 -->
-            <div
-              class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer hover:border-primary/30 transition-all"
-            >
-              <div class="flex gap-4">
-                <div
-                  class="size-10 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 shrink-0"
-                >
-                  <span class="material-symbols-outlined">local_shipping</span>
-                </div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-start">
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">
-                      Order Shipped
-                    </p>
-                    <div class="unread-dot"></div>
-                  </div>
-                  <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                    Your physical marketing kit (Order #MLM-928) is on its way.
-                  </p>
-                  <p
-                    class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight"
-                  >
-                    <span class="material-symbols-outlined text-[14px]"
-                      >schedule</span
-                    >
-                    2 hours ago
-                  </p>
-                </div>
-              </div>
-            </div>
-            <!-- Notification Card 4 (Read State) -->
-            <div
-              class="bg-white/60 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer grayscale-[0.5] opacity-80"
-            >
-              <div class="flex gap-4">
-                <div
-                  class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0"
-                >
-                  <span class="material-symbols-outlined">security</span>
-                </div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-start">
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">
-                      Password Changed Successfully
-                    </p>
-                  </div>
-                  <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                    Your security profile was updated yesterday.
-                  </p>
-                  <p
-                    class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight"
-                  >
-                    <span class="material-symbols-outlined text-[14px]"
-                      >schedule</span
-                    >
-                    Yesterday at 4:30 PM
-                  </p>
-                </div>
-              </div>
-            </div>
-            <!-- Notification Card 5 (Read State) -->
-            <div
-              class="bg-white/60 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer grayscale-[0.5] opacity-80"
-            >
-              <div class="flex gap-4">
-                <div
-                  class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0"
-                >
-                  <span class="material-symbols-outlined">verified</span>
-                </div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-start">
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">
-                      KYC Verified
-                    </p>
-                  </div>
-                  <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                    Your identity verification has been approved by our
-                    compliance team.
-                  </p>
-                  <p
-                    class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight"
-                  >
-                    <span class="material-symbols-outlined text-[14px]"
-                      >schedule</span
-                    >
-                    2 days ago
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <!-- Right Pane: Announcements -->
-        <section
-          class="flex-1 bg-white dark:bg-slate-900 h-full overflow-y-auto"
-        >
-          <div class="max-w-4xl mx-auto p-8">
-            <div class="flex items-center justify-between mb-8">
-              <div>
-                <h3
-                  class="font-black text-3xl text-slate-900 dark:text-white tracking-tight"
-                >
-                  Company Announcements
-                </h3>
-                <p class="text-slate-500 dark:text-slate-400 mt-1">
-                  Stay informed with the latest news and updates from
-                  headquarters.
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  ₹50.00 from Level 2 referral has been added to your
+                  wallet.
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span>
+                  Just now
                 </p>
               </div>
             </div>
-            <div class="grid grid-cols-1 gap-8">
-              <!-- Featured Announcement 1 -->
-              <article
-                class="group rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all"
-              >
-                <div class="aspect-video relative overflow-hidden">
-                  <img
-                    alt="Convention Stage"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    data-alt="Grand stage with blue lighting for annual corporate convention event"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcKwEp-JzfC5eoU-KM62_PZkMQPfCLlstLlp1GtPUFO7VpfRSB5NZ6x1vBw05MMkvNWSelrZ6-CSJY_RpQ5s5YOzWkA8TmqYbKeOh7ODaOzHkHP4VpxawgY9GatzNfUja7p3Yt6Kk59QJmhdwQG-_edC4tjXFCqw3i4vYdOdBZnSIFU4D9lkKjcVIMZtTmhqa-2h4sx8hFl44NeO3KKiQItAeoWK33CW9cw6r4IZ-LxgYFWIlIGcXgCvAbIGqDNPXshnumEEoSJAM"
-                  />
-                  <div class="absolute top-4 left-4">
-                    <span
-                      class="bg-primary text-white text-[10px] uppercase font-black px-3 py-1 rounded-full"
-                      >Global Event</span
-                    >
-                  </div>
-                </div>
-                <div class="p-6">
-                  <div class="flex items-center gap-2 mb-3">
-                    <span
-                      class="text-xs font-semibold text-slate-400 uppercase tracking-widest"
-                      >Oct 24, 2024</span
-                    >
-                    <span class="size-1 bg-slate-200 rounded-full"></span>
-                    <span class="text-xs font-semibold text-primary"
-                      >Limited Tickets</span
-                    >
-                  </div>
-                  <h4
-                    class="text-2xl font-bold text-slate-900 dark:text-white mb-3"
-                  >
-                    Global Convention 2024: The Future of Fintech
-                  </h4>
-                  <p
-                    class="text-slate-600 dark:text-slate-400 leading-relaxed mb-6"
-                  >
-                    Join thousands of top distributors in Dubai for our biggest
-                    annual event yet. Featuring keynote speakers from the top 1%
-                    of the industry, exclusive product reveals, and networking
-                    opportunities that will transform your business.
-                  </p>
-                  <div
-                    class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800"
-                  >
-                    <div class="flex -space-x-2">
-                      <img
-                        alt="Attendee 1"
-                        class="size-8 rounded-full border-2 border-white dark:border-slate-900 object-cover"
-                        data-alt="Professional headshot of a male attendee"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmc3NqomMtX46DhBCo3QCEzPcb7ARCqZJKp7xxqIVCsb_yOyPCGutDKCfj36Rulug7MBomMmXnKdLyllzPIiuPUPOQM4I7ueTGf6ziV3mgqNwaOdAKEr5aUiJ2JLG66XtMGj_yS_ahzKrb_oBUc_H5r2oyQHBBamy3-C1cgx09zM6yoQKImbI8JF8FXc3mMHuUDYYyijivqgVwDBsmdn132BXTHLwaco2Q6g4D80UhHdkhZf47uybm2hGfoYdWVUPOD8oos523ttQ"
-                      />
-                      <img
-                        alt="Attendee 2"
-                        class="size-8 rounded-full border-2 border-white dark:border-slate-900 object-cover"
-                        data-alt="Professional headshot of a female attendee"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGHgiAffcS3DXYdHdaxvzoHFeLUqNYpNkQ4eBUN-RbGELMc79mTGFCjvM5t6CjJvbuL_tpeiSW0uwDcU6MRIkEwZ-RSGINZ6G9vvkbAKIafESg7m8cSIwlLRTBq1_eqtPh7t8q0KVBwE7fnwqguulrIxqJt2zhVEveVeFLQBZkraOJG2dADHI8ND_EERALZuaq12kSfpsTSeNglPl3EvviyfrgKCPgATgA1oYh9QMUhV7tAAThE2Qcypzo0GKk7cE7_cwqrVE3MJM"
-                      />
-                      <div
-                        class="size-8 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold"
-                      >
-                        +1.2k
-                      </div>
-                    </div>
-                    <button
-                      class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all"
-                    >
-                      Register Now
-                      <span class="material-symbols-outlined text-sm"
-                        >arrow_forward</span
-                      >
-                    </button>
-                  </div>
-                </div>
-              </article>
-              <!-- Secondary Announcement Grid -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Card 2 -->
-                <article
-                  class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 hover:border-primary/20 transition-all flex flex-col"
-                >
-                  <div class="mb-4">
-                    <span
-                      class="bg-success/10 text-success text-[10px] uppercase font-bold px-2 py-0.5 rounded-md"
-                      >Product Launch</span
-                    >
-                  </div>
-                  <h5 class="text-lg font-bold mb-2">
-                    New: Crypto Yield Portfolios
-                  </h5>
-                  <p
-                    class="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-1 line-clamp-2"
-                  >
-                    We are excited to announce three new diversified portfolio
-                    options for your clients, featuring optimized risk
-                    management tools.
-                  </p>
-                  <a
-                    class="text-primary text-sm font-bold flex items-center gap-1 group"
-                    href="#"
-                  >
-                    Read Full Update
-                    <span
-                      class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform"
-                      >chevron_right</span
-                    >
-                  </a>
-                </article>
-                <!-- Card 3 -->
-                <article
-                  class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 hover:border-primary/20 transition-all flex flex-col"
-                >
-                  <div class="mb-4">
-                    <span
-                      class="bg-primary/10 text-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-md"
-                      >Training</span
-                    >
-                  </div>
-                  <h5 class="text-lg font-bold mb-2">
-                    Quarterly Leadership Webinar
-                  </h5>
-                  <p
-                    class="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-1 line-clamp-2"
-                  >
-                    Save the date for our intensive leadership training session
-                    with Founder and CEO Marcus Thorne on Oct 30th.
-                  </p>
-                  <a
-                    class="text-primary text-sm font-bold flex items-center gap-1 group"
-                    href="#"
-                  >
-                    Add to Calendar
-                    <span
-                      class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform"
-                      >chevron_right</span
-                    >
-                  </a>
-                </article>
-              </div>
-              <!-- Info Banner -->
+          </div>
+          <!-- Notification Card 2 -->
+          <div
+            class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer hover:border-primary/30 transition-all">
+            <div class="flex gap-4">
               <div
-                class="bg-primary/5 rounded-2xl p-6 flex items-center gap-6 border border-primary/10"
-              >
-                <div
-                  class="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0"
-                >
-                  <span class="material-symbols-outlined text-primary"
-                    >support_agent</span
-                  >
-                </div>
-                <div class="flex-1">
-                  <h6 class="font-bold text-slate-900 dark:text-white">
-                    Need help?
-                  </h6>
-                  <p class="text-sm text-slate-500">
-                    Our support team is available 24/7 for all account and
-                    technical inquiries.
+                class="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined">person_add</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">
+                    New Direct Referral
                   </p>
+                  <div class="unread-dot"></div>
                 </div>
-                <button
-                  class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-5 py-2 rounded-lg text-sm font-bold whitespace-nowrap"
-                >
-                  Contact Support
-                </button>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  Welcome <span class="font-semibold">Sarah Jenkins</span> to
+                  your network. Send a welcome message!
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span>
+                  15 mins ago
+                </p>
               </div>
             </div>
           </div>
-        </section>
-      </div>
-    </main>
-  </body>
+          <!-- Notification Card 3 -->
+          <div
+            class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer hover:border-primary/30 transition-all">
+            <div class="flex gap-4">
+              <div
+                class="size-10 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 shrink-0">
+                <span class="material-symbols-outlined">local_shipping</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">
+                    Order Shipped
+                  </p>
+                  <div class="unread-dot"></div>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  Your physical marketing kit (Order #MLM-928) is on its way.
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span>
+                  2 hours ago
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Notification Card 4 (Read State) -->
+          <div
+            class="bg-white/60 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer grayscale-[0.5] opacity-80">
+            <div class="flex gap-4">
+              <div
+                class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                <span class="material-symbols-outlined">security</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">
+                    Password Changed Successfully
+                  </p>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  Your security profile was updated yesterday.
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span>
+                  Yesterday at 4:30 PM
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Notification Card 5 (Read State) -->
+          <div
+            class="bg-white/60 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative group cursor-pointer grayscale-[0.5] opacity-80">
+            <div class="flex gap-4">
+              <div
+                class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                <span class="material-symbols-outlined">verified</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">
+                    KYC Verified
+                  </p>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  Your identity verification has been approved by our
+                  compliance team.
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tight">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span>
+                  2 days ago
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Right Pane: Announcements -->
+      <section class="flex-1 bg-white dark:bg-slate-900 h-full overflow-y-auto">
+        <div class="max-w-4xl mx-auto p-8">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3 class="font-black text-3xl text-slate-900 dark:text-white tracking-tight">
+                Company Announcements
+              </h3>
+              <p class="text-slate-500 dark:text-slate-400 mt-1">
+                Stay informed with the latest news and updates from
+                headquarters.
+              </p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-8">
+            <!-- Featured Announcement 1 -->
+            <article
+              class="group rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all">
+              <div class="aspect-video relative overflow-hidden">
+                <img alt="Convention Stage"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  data-alt="Grand stage with blue lighting for annual corporate convention event"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcKwEp-JzfC5eoU-KM62_PZkMQPfCLlstLlp1GtPUFO7VpfRSB5NZ6x1vBw05MMkvNWSelrZ6-CSJY_RpQ5s5YOzWkA8TmqYbKeOh7ODaOzHkHP4VpxawgY9GatzNfUja7p3Yt6Kk59QJmhdwQG-_edC4tjXFCqw3i4vYdOdBZnSIFU4D9lkKjcVIMZtTmhqa-2h4sx8hFl44NeO3KKiQItAeoWK33CW9cw6r4IZ-LxgYFWIlIGcXgCvAbIGqDNPXshnumEEoSJAM" />
+                <div class="absolute top-4 left-4">
+                  <span class="bg-primary text-white text-[10px] uppercase font-black px-3 py-1 rounded-full">Global
+                    Event</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Oct 24, 2024</span>
+                  <span class="size-1 bg-slate-200 rounded-full"></span>
+                  <span class="text-xs font-semibold text-primary">Limited Tickets</span>
+                </div>
+                <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+                  Global Convention 2024: The Future of Fintech
+                </h4>
+                <p class="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                  Join thousands of top distributors in Dubai for our biggest
+                  annual event yet. Featuring keynote speakers from the top 1%
+                  of the industry, exclusive product reveals, and networking
+                  opportunities that will transform your business.
+                </p>
+                <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
+                  <div class="flex -space-x-2">
+                    <img alt="Attendee 1"
+                      class="size-8 rounded-full border-2 border-white dark:border-slate-900 object-cover"
+                      data-alt="Professional headshot of a male attendee"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmc3NqomMtX46DhBCo3QCEzPcb7ARCqZJKp7xxqIVCsb_yOyPCGutDKCfj36Rulug7MBomMmXnKdLyllzPIiuPUPOQM4I7ueTGf6ziV3mgqNwaOdAKEr5aUiJ2JLG66XtMGj_yS_ahzKrb_oBUc_H5r2oyQHBBamy3-C1cgx09zM6yoQKImbI8JF8FXc3mMHuUDYYyijivqgVwDBsmdn132BXTHLwaco2Q6g4D80UhHdkhZf47uybm2hGfoYdWVUPOD8oos523ttQ" />
+                    <img alt="Attendee 2"
+                      class="size-8 rounded-full border-2 border-white dark:border-slate-900 object-cover"
+                      data-alt="Professional headshot of a female attendee"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGHgiAffcS3DXYdHdaxvzoHFeLUqNYpNkQ4eBUN-RbGELMc79mTGFCjvM5t6CjJvbuL_tpeiSW0uwDcU6MRIkEwZ-RSGINZ6G9vvkbAKIafESg7m8cSIwlLRTBq1_eqtPh7t8q0KVBwE7fnwqguulrIxqJt2zhVEveVeFLQBZkraOJG2dADHI8ND_EERALZuaq12kSfpsTSeNglPl3EvviyfrgKCPgATgA1oYh9QMUhV7tAAThE2Qcypzo0GKk7cE7_cwqrVE3MJM" />
+                    <div
+                      class="size-8 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold">
+                      +1.2k
+                    </div>
+                  </div>
+                  <button
+                    class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
+                    Register Now
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+            <!-- Secondary Announcement Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Card 2 -->
+              <article
+                class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 hover:border-primary/20 transition-all flex flex-col">
+                <div class="mb-4">
+                  <span
+                    class="bg-success/10 text-success text-[10px] uppercase font-bold px-2 py-0.5 rounded-md">Product
+                    Launch</span>
+                </div>
+                <h5 class="text-lg font-bold mb-2">
+                  New: Crypto Yield Portfolios
+                </h5>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-1 line-clamp-2">
+                  We are excited to announce three new diversified portfolio
+                  options for your clients, featuring optimized risk
+                  management tools.
+                </p>
+                <a class="text-primary text-sm font-bold flex items-center gap-1 group" href="#">
+                  Read Full Update
+                  <span
+                    class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
+                </a>
+              </article>
+              <!-- Card 3 -->
+              <article
+                class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 hover:border-primary/20 transition-all flex flex-col">
+                <div class="mb-4">
+                  <span
+                    class="bg-primary/10 text-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-md">Training</span>
+                </div>
+                <h5 class="text-lg font-bold mb-2">
+                  Quarterly Leadership Webinar
+                </h5>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-1 line-clamp-2">
+                  Save the date for our intensive leadership training session
+                  with Founder and CEO Marcus Thorne on Oct 30th.
+                </p>
+                <a class="text-primary text-sm font-bold flex items-center gap-1 group" href="#">
+                  Add to Calendar
+                  <span
+                    class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
+                </a>
+              </article>
+            </div>
+            <!-- Info Banner -->
+            <div class="bg-primary/5 rounded-2xl p-6 flex items-center gap-6 border border-primary/10">
+              <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-primary">support_agent</span>
+              </div>
+              <div class="flex-1">
+                <h6 class="font-bold text-slate-900 dark:text-white">
+                  Need help?
+                </h6>
+                <p class="text-sm text-slate-500">
+                  Our support team is available 24/7 for all account and
+                  technical inquiries.
+                </p>
+              </div>
+              <button
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-5 py-2 rounded-lg text-sm font-bold whitespace-nowrap">
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+
 </html>
