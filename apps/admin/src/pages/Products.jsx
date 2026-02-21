@@ -383,7 +383,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                                     <div className="w-5 h-5 border-2 border-slate-200 rounded-full peer-checked:border-primary peer-checked:bg-white transition-all flex items-center justify-center">
                                         <div className="w-2.5 h-2.5 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Active Listing</span>
+                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Active</span>
                                 </div>
                             </label>
                             <label className="flex items-center gap-2.5 cursor-pointer group">
@@ -399,7 +399,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                                     <div className="w-5 h-5 border-2 border-slate-200 rounded-full peer-checked:border-slate-400 peer-checked:bg-white transition-all flex items-center justify-center">
                                         <div className="w-2.5 h-2.5 bg-slate-400 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Hidden / Draft</span>
+                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Inactive</span>
                                 </div>
                             </label>
                         </div>

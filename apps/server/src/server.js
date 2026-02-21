@@ -26,6 +26,7 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 app.use('/uploads/profiles', express.static(path.join(__dirname, 'uploads/profiles')));
 app.use('/uploads/products', express.static(path.join(__dirname, 'uploads/products')));
+app.use('/uploads/categories', express.static(path.join(__dirname, 'uploads/categories')));
 app.use('/uploads/kyc', express.static(path.join(__dirname, 'uploads/kyc')));
 app.use('/uploads/payments', express.static(path.join(__dirname, 'uploads/payments')));
 app.use('/uploads/tickets', express.static(path.join(__dirname, 'uploads/tickets')));
@@ -45,7 +46,7 @@ const server = app.listen(port || 4000, () => {
 // Graceful Shutdown
 const shutdown = async (signal) => {
   log(`\nReceived ${signal}. Shutting down gracefully...`, "info");
-  
+
   server.close(() => {
     log('HTTP server closed.', "info");
     process.exit(0);
