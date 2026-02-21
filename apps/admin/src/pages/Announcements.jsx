@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import announcementApiService from "../services/announcementApiService";
+import { toast } from "react-toastify";
 
 const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) => {
     const [formData, setFormData] = useState({
@@ -230,13 +231,15 @@ export default function Announcements() {
             setDrawerLoading(true);
             if (selectedAnnouncement) {
                 await announcementApiService.updateAnnouncement(selectedAnnouncement.id, formData);
+                toast.success("Announcement updated successfully");
             } else {
                 await announcementApiService.createAnnouncement(formData);
+                toast.success("Announcement created successfully");
             }
             setDrawerOpen(false);
             fetchAnnouncements();
         } catch (err) {
-            alert(err.message || "Failed to save announcement");
+            toast.error(err.message || "Failed to save announcement");
         } finally {
             setDrawerLoading(false);
         }
@@ -247,9 +250,10 @@ export default function Announcements() {
         try {
             setLoading(true);
             await announcementApiService.deleteAnnouncement(id);
+            toast.success("Announcement deleted successfully");
             fetchAnnouncements();
         } catch (err) {
-            alert(err.message || "Failed to delete announcement");
+            toast.error(err.message || "Failed to delete announcement");
             setLoading(false);
         }
     };

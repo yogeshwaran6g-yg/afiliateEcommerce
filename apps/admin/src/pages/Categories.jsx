@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import categoryApiService from "../services/categoryApiService";
+import { toast } from "react-toastify";
 
 export default function Categories() {
     const navigate = useNavigate();
@@ -60,8 +61,9 @@ export default function Categories() {
             }
             fetchCategories();
             handleReset();
+            toast.success(`Category ${formData.id ? 'updated' : 'created'} successfully`);
         } catch (err) {
-            alert(err.message || "Failed to save category");
+            toast.error(err.message || "Failed to save category");
         } finally {
             setSaving(false);
         }
@@ -108,8 +110,9 @@ export default function Categories() {
                 await categoryApiService.deleteCategory(id);
                 fetchCategories();
                 if (formData.id === id) handleReset();
+                toast.success("Category deleted successfully");
             } catch (err) {
-                alert(err.message || "Failed to delete category");
+                toast.error(err.message || "Failed to delete category");
             }
         }
     };

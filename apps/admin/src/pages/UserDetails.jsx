@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import userApiService from "../services/userApiService";
 import UserProfileSidebar from "../components/user-details/UserProfileSidebar";
 import UserDetailsContent from "../components/user-details/UserDetailsContent";
+import { toast } from "react-toastify";
 
 export default function UserDetails() {
     const { userId } = useParams();
@@ -46,9 +47,9 @@ export default function UserDetails() {
             await userApiService.updateUser(userId, editData);
             setUser(prev => ({ ...prev, ...editData }));
             setIsEditing(false);
-            // Optional: Show success toast
+            toast.success("Profile updated successfully");
         } catch (err) {
-            alert(err.message || "Failed to update profile");
+            toast.error(err.message || "Failed to update profile");
         } finally {
             setSaving(false);
         }
@@ -63,8 +64,9 @@ export default function UserDetails() {
             const updatedStatus = !user.is_blocked;
             await userApiService.updateUser(userId, { is_blocked: updatedStatus });
             setUser(prev => ({ ...prev, is_blocked: updatedStatus }));
+            toast.success(`User ${updatedStatus ? 'blocked' : 'unblocked'} successfully`);
         } catch (err) {
-            alert(err.message || "Failed to update block status");
+            toast.error(err.message || "Failed to update block status");
         } finally {
             setIsBlocking(false);
         }

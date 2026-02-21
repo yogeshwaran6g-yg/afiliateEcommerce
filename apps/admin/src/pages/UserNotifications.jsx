@@ -57,7 +57,7 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
     const selectedUser = users.find(u =>
         u.dbId === formData.user_id ||
         u.id?.toString() === formData.user_id?.toString() ||
-        u.name?.toLowerCase() === formData.user_id?.toLowerCase()
+        u.name?.toLowerCase() === formData.user_id?.toString().toLowerCase()
     );
 
     if (!isOpen) return null;

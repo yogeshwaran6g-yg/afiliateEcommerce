@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Header({ title = "Analytics Overview", onMenuClick }) {
     return (
@@ -35,10 +36,10 @@ export default function Header({ title = "Analytics Overview", onMenuClick }) {
 
                 {/* Icons */}
                 <div className="flex items-center gap-0.5 md:gap-2">
-                    <button className="relative p-2 md:p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all group">
+                    <Link to="/notifications" className="relative p-2 md:p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all group">
                         <span className="material-symbols-outlined text-[22px] md:text-2xl">notifications</span>
                         <span className="absolute top-2 md:top-2.5 right-2 md:right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white ring-2 ring-red-500/20"></span>
-                    </button>
+                    </Link>
                     <button className="hidden sm:flex p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all">
                         <span className="material-symbols-outlined">help</span>
                     </button>

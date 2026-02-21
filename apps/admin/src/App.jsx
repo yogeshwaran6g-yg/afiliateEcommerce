@@ -17,7 +17,9 @@ import Login from "./pages/Login";
 import Tickets from "./pages/Tickets";
 import WalletTransactions from "./pages/WalletTransactions";
 import UserNotifications from "./pages/UserNotifications";
+import Notifications from "./pages/Notifications";
 import Categories from "./pages/Categories";
+import ReferralLink from "./pages/ReferralLink";
 
 import Layout from "./components/Layout";
 
@@ -57,10 +59,12 @@ function App() {
 
             <Route path="/users" element={<Users />} />
             <Route path="/users/:userId" element={<UserDetails />} />
+            <Route path="/users/:userId/referral" element={<ReferralLink />} />
 
             <Route path="/kyc" element={<KYCVerification />} />
             <Route path="/kyc/:userId" element={<KYCDetails />} />
             <Route path="/tickets" element={<Tickets />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/user-notifications/send/:userId" element={<UserNotifications />} />
             <Route path="/user-notifications/:userId?" element={<UserNotifications />} />
           </Route>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
     const [mobileNumber, setMobileNumber] = useState("");
@@ -24,14 +25,18 @@ const Login = () => {
             // Demo fallback for specific credentials if API fails or for immediate use
             if (mobileNumber === "9000000000" && password === "admin123") {
                 await login(mobileNumber, password);
+                toast.success("Welcome back, Admin!");
                 navigate(from, { replace: true });
                 return;
             }
 
             await login(mobileNumber, password);
+            toast.success("Welcome back, Admin!");
             navigate(from, { replace: true });
         } catch (err) {
-            setError(err.message || "Invalid credentials. Please try again.");
+            const errorMsg = err.message || "Invalid credentials. Please try again.";
+            setError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setIsLoading(false);
         }

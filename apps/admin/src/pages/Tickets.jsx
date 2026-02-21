@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const STATUS_COLORS = {
     OPEN: 'bg-blue-100 text-blue-700',
@@ -154,12 +155,13 @@ export default function Tickets() {
             if (data.success) {
                 // Update local state
                 setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
+                toast.success("Ticket status updated successfully");
             } else {
-                alert(data.message || 'Failed to update status');
+                toast.error(data.message || 'Failed to update status');
             }
         } catch (error) {
             console.error('Error updating ticket status:', error);
-            alert('Error updating ticket status');
+            toast.error('Error updating ticket status');
         }
     };
 
@@ -230,7 +232,7 @@ export default function Tickets() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
+            <div className="bg-white rounded-4xl border border-slate-100 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-5">
                     <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Filter Tickets</h3>
                     <button

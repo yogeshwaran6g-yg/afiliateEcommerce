@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import productApiService from "../services/productApiService";
 import categoryApiService from "../services/categoryApiService";
+import { toast } from "react-toastify";
 
 const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -118,13 +119,15 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
             if (product?.id) {
                 await productApiService.updateProduct(product.id, data);
+                toast.success("Product updated successfully");
             } else {
                 await productApiService.createProduct(data);
+                toast.success("Product published successfully");
             }
             onSuccess();
             onClose();
         } catch (err) {
-            alert(err.message || "Failed to save product");
+            toast.error(err.message || "Failed to save product");
         } finally {
             setLoading(false);
         }
@@ -511,9 +514,10 @@ export default function Products() {
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
                 await productApiService.deleteProduct(id);
+                toast.success("Product deleted successfully");
                 fetchProducts();
             } catch (err) {
-                alert(err.message || "Failed to delete product");
+                toast.error(err.message || "Failed to delete product");
             }
         }
     };
