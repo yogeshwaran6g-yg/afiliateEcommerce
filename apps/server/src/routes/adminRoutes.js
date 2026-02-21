@@ -49,6 +49,7 @@ router.put('/notifications/:id', upload.single('image'), notificationController.
 router.delete('/notifications/:id', notificationController.deleteNotification);
 // Wallet transactions
 router.get('/wallet-transactions', adminController.getWalletTransactions);
+router.get('/transaction-metrics', adminController.getTransactionMetrics);
 
 // Support Tickets
 router.get('/tickets', adminController.getTickets);

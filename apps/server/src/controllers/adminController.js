@@ -47,7 +47,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await withdrawalService.approveWithdrawal(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -69,7 +69,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await withdrawalService.rejectWithdrawal(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -91,7 +91,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await rechargeService.approveRecharge(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -113,7 +113,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await rechargeService.rejectRecharge(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -246,6 +246,16 @@ const adminController = {
         }
     },
 
+    getTransactionMetrics: async function (req, res) {
+        try {
+            const metrics = await adminService.getTransactionMetrics();
+            return rtnRes(res, 200, "Metrics fetched successfully", metrics);
+        } catch (e) {
+            log(`Error in getTransactionMetrics: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
     getTickets: async function (req, res) {
         try {
             const { page = 1, limit = 50, ...filters } = req.query;
@@ -291,7 +301,7 @@ const adminController = {
         }
 
     },
-      updateKYCStatus: async function (req, res) {
+    updateKYCStatus: async function (req, res) {
         try {
             const { userId } = req.params;
             const { type, status } = req.body;
