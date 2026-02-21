@@ -447,6 +447,16 @@ const adminController = {
             log(`Error in markUserNotificationAsRead: ${e.message}`, "error");
             return rtnRes(res, 500, "internal error");
         }
+    },
+
+    getDashboardStats: async function (req, res) {
+        try {
+            const stats = await adminService.getDashboardStats();
+            return rtnRes(res, 200, "Dashboard stats fetched successfully", stats);
+        } catch (e) {
+            log(`Error in getDashboardStats Controller: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
     }
 }
 

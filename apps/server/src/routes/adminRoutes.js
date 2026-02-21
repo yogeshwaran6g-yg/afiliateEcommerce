@@ -11,6 +11,9 @@ const router = express.Router();
 router.post('/approve-payment', adminController.approvePayment);
 router.post('/reject-payment', adminController.rejectPayment);
 
+// Dashboard Statistics
+router.get('/stats', adminController.getDashboardStats);
+
 // Withdrawal approvals
 router.get('/withdrawals', adminController.getWithdrawals);
 router.post('/approve-withdrawal', adminController.approveWithdrawal);

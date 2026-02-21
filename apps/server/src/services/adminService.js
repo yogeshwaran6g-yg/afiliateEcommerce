@@ -308,6 +308,48 @@ const adminService = {
             log(`Error in updateTicketStatus Service: ${error.message}`, "error");
             throw error;
         }
+    },
+
+    /**
+     * Get comprehensive dashboard statistics.
+     */
+    getDashboardStats: async () => {
+        try {
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            // Format today's date for SQL (YYYY-MM-DD HH:MM:SS)
+            const todayStr = todayStart.toISOString().slice(0, 19).replace('T', ' ');
+
+            const queries = {
+                activeUsers: "SELECT COUNT(*) as count FROM users WHERE account_activation_status = 'ACTIVATED' AND is_blocked = 0",
+                pendingUsers: "SELECT COUNT(*) as count FROM users WHERE account_activation_status IN ('PENDING', 'UNDER_REVIEW')",
+                totalUsers: "SELECT COUNT(*) as count FROM users",
+                totalRecharges: "SELECT COUNT(*) as count FROM recharge_requests",
+                pendingRecharges: "SELECT COUNT(*) as count FROM recharge_requests WHERE status = 'REVIEW_PENDING'",
+                todayPendingRecharges: `SELECT COUNT(*) as count FROM recharge_requests WHERE status = 'REVIEW_PENDING' AND created_at >= '${todayStr}'`,
+                totalWithdrawals: "SELECT COUNT(*) as count FROM withdrawal_requests",
+                pendingWithdrawals: "SELECT COUNT(*) as count FROM withdrawal_requests WHERE status = 'REVIEW_PENDING'",
+                todayPendingWithdrawals: `SELECT COUNT(*) as count FROM withdrawal_requests WHERE status = 'REVIEW_PENDING' AND created_at >= '${todayStr}'`,
+                totalOrders: "SELECT COUNT(*) as count FROM orders",
+                todayOrders: `SELECT COUNT(*) as count FROM orders WHERE created_at >= '${todayStr}'`
+            };
+
+            const stats = {};
+            const keys = Object.keys(queries);
+
+            // Run all count queries in parallel
+            const results = await Promise.all(keys.map(key => queryRunner(queries[key])));
+
+            keys.forEach((key, index) => {
+                stats[key] = results[index][0].count;
+            });
+
+            return stats;
+        } catch (error) {
+            log(`Error in getDashboardStats Service: ${error.message}`, "error");
+            throw error;
+        }
     }
 };
 
