@@ -73,6 +73,9 @@ export const constants = {
       withdrawal: "/api/v1/settings/withdrawal",
       shipping: "/api/v1/settings/shipping",
     },
+    popupBanners: {
+      active: "/api/v1/popup-banners/active",
+    },
   },
 };
 

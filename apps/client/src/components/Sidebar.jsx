@@ -46,8 +46,6 @@ export default function Sidebar({ isOpen, onClose }) {
             },
           ],
         },
-        // { icon: "military_tech", label: "Ranks", path: "/ranks" },
-        // { icon: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
       ],
     },
     {

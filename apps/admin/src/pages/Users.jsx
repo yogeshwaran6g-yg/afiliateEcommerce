@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import userApiService from "../services/userApiService";
+import { toast } from "react-toastify";
 
 
 export default function Users() {
@@ -42,7 +43,7 @@ export default function Users() {
             setViewUser(details);
             setIsViewModalOpen(true);
         } catch (err) {
-            alert(err.message || "Failed to fetch user details");
+            toast.error(err.message || "Failed to fetch user details");
         } finally {
             setModalActionLoading(false);
         }
@@ -55,7 +56,7 @@ export default function Users() {
             setEditUser(details);
             setIsEditModalOpen(true);
         } catch (err) {
-            alert(err.message || "Failed to fetch user details");
+            toast.error(err.message || "Failed to fetch user details");
         } finally {
             setModalActionLoading(false);
         }
@@ -72,10 +73,11 @@ export default function Users() {
                 account_activation_status: editUser.account_activation_status,
                 is_blocked: editUser.is_blocked
             });
+            toast.success("User updated successfully");
             setIsEditModalOpen(false);
             fetchUsers(); // Refresh the list
         } catch (err) {
-            alert(err.message || "Failed to update user");
+            toast.error(err.message || "Failed to update user");
         } finally {
             setModalActionLoading(false);
         }
@@ -88,9 +90,10 @@ export default function Users() {
         try {
             setLoading(true);
             await userApiService.updateUser(dbId, { is_blocked: true });
+            toast.success("User access denied successfully");
             fetchUsers();
         } catch (err) {
-            alert(err.message || "Failed to block user");
+            toast.error(err.message || "Failed to block user");
             setLoading(false);
         }
     };
@@ -100,9 +103,10 @@ export default function Users() {
         try {
             setLoading(true);
             await userApiService.updateUser(dbId, { is_blocked: false });
+            toast.success("User access restored successfully");
             fetchUsers();
         } catch (err) {
-            alert(err.message || "Failed to unblock user");
+            toast.error(err.message || "Failed to unblock user");
             setLoading(false);
         }
     };

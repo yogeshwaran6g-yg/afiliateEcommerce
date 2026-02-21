@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUserDetails, useUpdateUserMutation } from "../hooks/useUserService";
 import UserProfileSidebar from "../components/user-details/UserProfileSidebar";
 import UserDetailsContent from "../components/user-details/UserDetailsContent";
+import { toast } from "react-toastify";
 
 export default function UserDetails() {
     const { userId } = useParams();
@@ -34,8 +35,8 @@ export default function UserDetails() {
             await updateUserMutation.mutateAsync({ userId, userData: editData });
             setIsEditing(false);
         } catch (err) {
-            alert(err.message || "Failed to update profile");
-        }
+            toast.error(err.message || "Failed to update profile");
+        } 
     };
 
     const handleBlockToggle = async () => {
@@ -44,9 +45,13 @@ export default function UserDetails() {
             if (!window.confirm(`Are you sure you want to ${action} this user?`)) return;
 
             const updatedStatus = !user.is_blocked;
-            await updateUserMutation.mutateAsync({ userId, userData: { is_blocked: updatedStatus } });
+            await userApiService.updateUser(userId, { is_blocked: updatedStatus });
+            setUser(prev => ({ ...prev, is_blocked: updatedStatus }));
+            toast.success(`User ${updatedStatus ? 'blocked' : 'unblocked'} successfully`);
         } catch (err) {
-            alert(err.message || "Failed to update block status");
+            toast.error(err.message || "Failed to update block status");
+        } finally {
+            setIsBlocking(false);
         }
     };
 

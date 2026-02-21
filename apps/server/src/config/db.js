@@ -42,9 +42,6 @@ export const queryRunner = async (sql, params = []) => {
   try {
     connection = await getConnection();
     const [rows, fields] = await connection.execute(sql, params);
-    if (rows.length === 0) {
-      return null;
-    }
     return rows;
   } catch (error) {
     log(`Query Error: ${error.message}`, "error", { sql });

@@ -2,7 +2,7 @@ import categoryService from "#src/services/categoryService.js";
 import { rtnRes } from "#src/utils/helper.js"
 
 const categoryController = {
-    getAllCategories: async function(req, res) {
+    getAllCategories: async function (req, res) {
         try {
             const { id, name, parent_id } = req.query;
             const filters = {};
@@ -12,7 +12,7 @@ const categoryController = {
 
             const result = await categoryService.get(filters);
             if (result.success && result.data) {
-                return rtnRes(res, 200, result.msg, result.data);   
+                return rtnRes(res, 200, result.msg, result.data);
             }
 
             return rtnRes(res, result.code, result.msg);
@@ -22,7 +22,7 @@ const categoryController = {
         }
     },
 
-    getCategoryById: async function(req, res) {
+    getCategoryById: async function (req, res) {
         try {
             const id = req.params.id || req.query.id || req.body.id;
             if (!id) {
@@ -41,11 +41,15 @@ const categoryController = {
         }
     },
 
-    createCategory: async function(req, res) {
+    createCategory: async function (req, res) {
         try {
             const { name } = req.body;
             if (!name) {
                 return rtnRes(res, 400, "Category name is required");
+            }
+
+            if (req.file) {
+                req.body.image = `/uploads/categories/${req.file.filename}`;
             }
 
             const result = await categoryService.create(req.body);
@@ -56,11 +60,15 @@ const categoryController = {
         }
     },
 
-    updateCategory: async function(req, res) {
+    updateCategory: async function (req, res) {
         try {
             const id = req.params.id;
             if (!id) {
                 return rtnRes(res, 400, "Category id is required");
+            }
+
+            if (req.file) {
+                req.body.image = `/uploads/categories/${req.file.filename}`;
             }
 
             const result = await categoryService.update(id, req.body);
@@ -71,7 +79,7 @@ const categoryController = {
         }
     },
 
-    deleteCategory: async function(req, res) {
+    deleteCategory: async function (req, res) {
         try {
             const id = req.params.id;
             if (!id) {

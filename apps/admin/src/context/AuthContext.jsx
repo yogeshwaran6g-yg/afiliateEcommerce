@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import authApiService from '../services/authApiService';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -35,6 +36,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         localStorage.removeItem('adminUser');
         localStorage.removeItem('adminToken');
+        toast.info("Logged out successfully");
     };
 
     return (

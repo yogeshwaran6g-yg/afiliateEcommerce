@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import userNotificationApiService from "../services/userNotificationApiService";
 import userApiService from "../services/userApiService";
+import { toast } from "react-toastify";
 
 export const useUserNotifications = () => {
     const { userId } = useParams();
@@ -92,8 +93,9 @@ export const useUserNotifications = () => {
             });
             setDrawerOpen(false);
             fetchNotifications();
+            toast.success("Notification sent successfully");
         } catch (err) {
-            alert(err.message || "Failed to send notification");
+            toast.error(err.message || "Failed to send notification");
         } finally {
             setDrawerLoading(false);
         }
@@ -104,8 +106,9 @@ export const useUserNotifications = () => {
         try {
             await userNotificationApiService.deleteNotification(id);
             fetchNotifications();
+            toast.info("Notification record deleted");
         } catch (err) {
-            alert(err.message || "Failed to delete notification");
+            toast.error(err.message || "Failed to delete notification");
         }
     };
 

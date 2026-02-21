@@ -16,7 +16,8 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
                 { icon: "campaign", label: "Announcements", path: "/announcements" },
                 { icon: "person_search", label: "User Management", path: "/users" },
                 { icon: "confirmation_number", label: "Tickets", path: "/tickets" },
-                { icon: "mail", label: "User Notifications", path: "/user-notifications" },
+                { icon: "notifications", label: "Notifications", path: "/notifications" },
+                { icon: "mail", label: "Send Notifications", path: "/user-notifications" },
                 { icon: "verified_user", label: "KYC Verification", path: "/kyc" },
                 { icon: "hub", label: "Network Explorer", path: "/genealogy" },
             ]

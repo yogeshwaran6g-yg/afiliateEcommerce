@@ -1,6 +1,7 @@
 import express from 'express';
 import adminController from '../controllers/adminController.js';
 import { protect, authorize } from '../middlewares/authenticatorMiddleware.js';
+import popupBannerController from '../controllers/popupBannerController.js';
 
 const router = express.Router();
 
@@ -10,6 +11,9 @@ const router = express.Router();
 
 router.post('/approve-payment', adminController.approvePayment);
 router.post('/reject-payment', adminController.rejectPayment);
+
+// Dashboard Statistics
+router.get('/stats', adminController.getDashboardStats);
 
 // Withdrawal approvals
 router.get('/withdrawals', adminController.getWithdrawals);
@@ -58,10 +62,18 @@ router.post('/tickets/update-status', adminController.updateTicketStatus);
 router.get('/user-notifications', adminController.getUserNotifications);
 router.post('/user-notifications', adminController.sendUserNotification);
 router.post('/user-notifications/broadcast', adminController.broadcastUserNotification);
+router.put('/user-notifications/mark-as-read/:id', adminController.markUserNotificationAsRead);
 router.delete('/user-notifications/:id', adminController.deleteUserNotification);
 
 // Referral management
 router.get('/users/:userId/referral-overview', adminController.getUserReferralOverview);
 router.get('/users/:userId/team/:level', adminController.getTeamMembersByLevel);
+// Popup Banners management
+
+
+router.get('/popup-banners', popupBannerController.getAll);
+router.post('/popup-banners', upload.single('logo'), popupBannerController.create);
+router.put('/popup-banners/:id', upload.single('logo'), popupBannerController.update);
+router.delete('/popup-banners/:id', popupBannerController.delete);
 
 export default router;

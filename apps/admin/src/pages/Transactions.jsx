@@ -33,7 +33,7 @@ const TransactionRow = ({ tx }) => (
         </td>
         <td className="px-8 py-5">
             <div className={`text-sm font-black ${tx.type === 'CREDIT' ? 'text-green-600' : 'text-[#172b4d]'}`}>
-                {tx.type === 'CREDIT' ? '+' : '-'}${tx.amount}
+                {tx.type === 'CREDIT' ? '+' : '-'}₹{tx.amount}
             </div>
         </td>
         <td className="px-8 py-5">
@@ -90,10 +90,10 @@ export default function Transactions() {
             {/* Overall Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: "Gross Volume (24h)", value: "$45,210", trend: "+12%", icon: "account_balance" },
-                    { label: "Admin Fees", value: "$3,450", trend: "+5%", icon: "toll" },
-                    { label: "Network Payouts", value: "$18,900", trend: "-2%", icon: "volunteer_activism" },
-                    { label: "Active Float", value: "$142,500", trend: "Stable", icon: "savings" },
+                    { label: "Gross Volume (24h)", value: "₹45,210", trend: "+12%", icon: "account_balance" },
+                    { label: "Admin Fees", value: "₹3,450", trend: "+5%", icon: "toll" },
+                    { label: "Network Payouts", value: "₹18,900", trend: "-2%", icon: "volunteer_activism" },
+                    { label: "Active Float", value: "₹142,500", trend: "Stable", icon: "savings" },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-4xl border border-slate-100 shadow-sm flex items-center gap-4">
 
@@ -166,7 +166,7 @@ export default function Transactions() {
                                             </div>
                                         </div>
                                         <div className={`text-sm font-black text-right shrink-0 ${tx.type === 'CREDIT' ? 'text-green-600' : 'text-[#172b4d]'}`}>
-                                            {tx.type === 'CREDIT' ? '+' : '-'}${tx.amount}
+                                            {tx.type === 'CREDIT' ? '+' : '-'}₹{tx.amount}
                                         </div>
                                     </div>
 

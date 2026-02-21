@@ -374,6 +374,8 @@ CREATE TABLE `wallet_transactions` (
     `amount` DECIMAL(10, 2) NOT NULL CHECK (`amount` > 0),
     `balance_after` DECIMAL(10, 2) NOT NULL,
     `balance_before` DECIMAL(10, 2) NOT NULL,
+    `locked_after` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `locked_before` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     `reference_table` VARCHAR(50) NULL,
     `reference_id` BIGINT UNSIGNED NULL,
     `reversal_of` BIGINT UNSIGNED NULL,
@@ -483,3 +485,15 @@ CREATE TABLE `settings` (
 --     'ADMIN_ADJUSTMENT',
 --     'REVERSAL'
 -- )
+
+-- 22. Popup Banners Table
+CREATE TABLE `popup_banners` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `logo` VARCHAR(255) NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `short_description` VARCHAR(255) NULL,
+    `long_description` TEXT NULL,
+    `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB;

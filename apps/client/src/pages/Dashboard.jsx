@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import StatsCards from "../components/StatsCards";
 import Charts from "../components/Charts";
 import TransactionsTable from "../components/TransactionsTable";
+import PopupBanner from "../components/PopupBanner";
 
 export default function Dashboard() {
     return (
         <div className="p-4 md:p-8 space-y-6">
+            {/* Dashboard Popup Banner */}
+            <PopupBanner />
+
             {/* Greeting */}
             <div className="mb-2">
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Good Morning, Alex!</h1>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useUserNotifications } from "../hooks/useUserNotifications";
+import { useUserNotification, useSendNotificationMutation, useDeleteNotificationMutation } from "../hooks/useUserNotification";
+import { useUsers } from "../hooks/useUserService";
 
 const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], initialUserId = "" }) => {
     const initialFormState = {
@@ -57,7 +58,7 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
     const selectedUser = users.find(u =>
         u.dbId === formData.user_id ||
         u.id?.toString() === formData.user_id?.toString() ||
-        u.name?.toLowerCase() === formData.user_id?.toLowerCase()
+        u.name?.toLowerCase() === formData.user_id?.toString().toLowerCase()
     );
 
     if (!isOpen) return null;
@@ -183,24 +184,46 @@ const NotificationDrawer = ({ isOpen, onClose, onSave, loading, users = [], init
 };
 
 export default function UserNotifications() {
-    const {
-        userId,
-        isDrawerOpen,
-        notifications,
-        loading,
-        drawerLoading,
-        error,
-        pagination,
-        users,
-        fetchNotifications,
-        handleOpenDrawer,
-        handleCloseDrawer,
-        handleSave,
-        handleDelete,
-        setPage
-    } = useUserNotifications();
+    const { userId } = useParams();
+    const location = useLocation();
+    const [page, setPage] = useState(1);
+    const [isDrawerOpen, setDrawerOpen] = useState(false);
 
-    if (loading && (!notifications || notifications.length === 0)) {
+    const { data: usersData, isLoading: usersLoading } = useUsers();
+    const users = Array.isArray(usersData) ? usersData : [];
+
+    const { data: notificationsData, isLoading: notificationsLoading, error, refetch } = useUserNotification({
+        page,
+        limit: 20,
+        ...(userId && { user_id: userId })
+    });
+
+    const sendMutation = useSendNotificationMutation();
+    const deleteMutation = useDeleteNotificationMutation();
+
+    useEffect(() => {
+        if (!usersLoading && location.pathname.includes("/send/") && userId) {
+            setDrawerOpen(true);
+        }
+    }, [usersLoading, location.pathname, userId]);
+
+    const handleOpenDrawer = () => setDrawerOpen(true);
+    const handleCloseDrawer = () => setDrawerOpen(false);
+
+    const handleSave = async (formData) => {
+        await sendMutation.mutateAsync(formData);
+        setDrawerOpen(false);
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm("Are you sure you want to delete this notification record?")) return;
+        await deleteMutation.mutateAsync(id);
+    };
+
+    const notifications = notificationsData?.items || [];
+    const pagination = notificationsData?.pagination || { total: 0, page: 1, limit: 20, pages: 0 };
+
+    if (notificationsLoading && notifications.length === 0) {
         return (
             <div className="p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
@@ -227,8 +250,8 @@ export default function UserNotifications() {
                 {error && (
                     <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3 text-red-600">
                         <span className="material-symbols-outlined">error</span>
-                        <p className="text-sm font-bold">{error}</p>
-                        <button onClick={fetchNotifications} className="ml-auto underline text-xs">Retry</button>
+                        <p className="text-sm font-bold">{error.message || error}</p>
+                        <button onClick={() => refetch()} className="ml-auto underline text-xs">Retry</button>
                     </div>
                 )}
 
@@ -350,7 +373,7 @@ export default function UserNotifications() {
                 isOpen={isDrawerOpen}
                 onClose={handleCloseDrawer}
                 onSave={handleSave}
-                loading={drawerLoading}
+                loading={sendMutation.isPending}
                 users={users}
                 initialUserId={userId}
             />

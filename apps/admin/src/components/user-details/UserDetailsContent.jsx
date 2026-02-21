@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import userApiService from '../../services/userApiService';
+import { toast } from 'react-toastify';
 
 const UserDetailsContent = ({
     user,
@@ -33,8 +34,9 @@ const UserDetailsContent = ({
             });
             setIsEditingWallet(false);
             if (refreshUser) refreshUser();
+            toast.success("Wallet updated successfully");
         } catch (error) {
-            alert(error.message || "Failed to update wallet");
+            toast.error(error.message || "Failed to update wallet");
         } finally {
             setSaving(false);
         }
@@ -70,13 +72,16 @@ const UserDetailsContent = ({
                             </div>
                         </button>
                     )}
-                    <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3">
-                        <span className="material-symbols-outlined text-lg text-primary font-bold">share</span>
+                    <button
+                        onClick={() => navigate(`/users/${userId}/referral`)}
+                        className="bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 hover:bg-slate-50 transition-colors group"
+                    >
+                        <span className="material-symbols-outlined text-lg text-primary font-bold group-hover:rotate-12 transition-transform">share</span>
                         <div className="text-left">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referral Code</p>
                             <p className="text-xs font-bold text-primary">{user.referral_id}</p>
                         </div>
-                    </div>
+                    </button>
                 </div>
             </div>
 

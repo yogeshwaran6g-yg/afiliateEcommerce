@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import productApiService from "../services/productApiService";
+import categoryApiService from "../services/categoryApiService";
+import { toast } from "react-toastify";
 
 const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -65,9 +67,34 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
     if (!isOpen) return null;
 
+    const slugify = (text) => {
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/[\s_-]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => {
+            const newData = { ...prev, [name]: value };
+
+            // Auto-generate slug if name changes and user hasn't manually edited slug yet
+            if (name === "name") {
+                newData.slug = slugify(value);
+            }
+
+            return newData;
+        });
+    };
+
+    const handleRefreshSlug = () => {
+        setFormData(prev => ({
+            ...prev,
+            slug: slugify(prev.name) + (prev.name ? "-" + Math.random().toString(36).substring(2, 5) : "")
+        }));
     };
 
     const handleImageChange = (e) => {
@@ -92,13 +119,15 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
             if (product?.id) {
                 await productApiService.updateProduct(product.id, data);
+                toast.success("Product updated successfully");
             } else {
                 await productApiService.createProduct(data);
+                toast.success("Product published successfully");
             }
             onSuccess();
             onClose();
         } catch (err) {
-            alert(err.message || "Failed to save product");
+            toast.error(err.message || "Failed to save product");
         } finally {
             setLoading(false);
         }
@@ -150,7 +179,17 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-wider">SKU Code (Slug) <span className="text-primary">*</span></label>
+                                    <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-wider flex items-center justify-between">
+                                        <span>SKU Code (Slug) <span className="text-primary">*</span></span>
+                                        <button
+                                            type="button"
+                                            onClick={handleRefreshSlug}
+                                            className="text-[9px] bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors flex items-center gap-1"
+                                        >
+                                            <span className="material-symbols-outlined text-[10px] font-bold">magic_button</span>
+                                            Generate
+                                        </button>
+                                    </label>
                                     <input
                                         type="text"
                                         name="slug"
@@ -347,7 +386,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                                     <div className="w-5 h-5 border-2 border-slate-200 rounded-full peer-checked:border-primary peer-checked:bg-white transition-all flex items-center justify-center">
                                         <div className="w-2.5 h-2.5 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Active Listing</span>
+                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Active</span>
                                 </div>
                             </label>
                             <label className="flex items-center gap-2.5 cursor-pointer group">
@@ -363,7 +402,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                                     <div className="w-5 h-5 border-2 border-slate-200 rounded-full peer-checked:border-slate-400 peer-checked:bg-white transition-all flex items-center justify-center">
                                         <div className="w-2.5 h-2.5 bg-slate-400 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Hidden / Draft</span>
+                                    <span className="text-sm font-bold text-slate-600 peer-checked:text-[#172b4d] ml-1">Inactive</span>
                                 </div>
                             </label>
                         </div>
@@ -475,9 +514,10 @@ export default function Products() {
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
                 await productApiService.deleteProduct(id);
+                toast.success("Product deleted successfully");
                 fetchProducts();
             } catch (err) {
-                alert(err.message || "Failed to delete product");
+                toast.error(err.message || "Failed to delete product");
             }
         }
     };

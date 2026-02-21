@@ -58,7 +58,16 @@ const userNotificationService = {
 
     get: async function ({ user_id = null, unread_only = false, page = 1, limit = 20, type = null }) {
         try {
-            
+            // Log raw input for unread_only to diagnose serialization issues
+            const isUnreadOnly =
+                unread_only === true ||
+                unread_only === "true" ||
+                unread_only === 1 ||
+                unread_only === "1" ||
+                unread_only === "unread";
+
+            console.log(`[DEBUG] getNotifications: unread_only="${unread_only}" (typeof: ${typeof unread_only}) -> parsed as: ${isUnreadOnly}`);
+
             let sql = `
                 SELECT un.*, u.name as user_name, u.email as user_email, u.phone as user_phone
                 FROM user_notifications un
@@ -71,7 +80,7 @@ const userNotificationService = {
                 sql += ` AND un.user_id = ?`;
                 params.push(user_id);
             }
-            if (unread_only === true || unread_only === "true" || unread_only === 1) {
+            if (isUnreadOnly) {
                 sql += ` AND un.is_read = 0`;
             }
             if (type) {
@@ -79,10 +88,11 @@ const userNotificationService = {
                 params.push(type);
             }
 
-            const safeLimit = Math.max(1, parseInt(limit) || 20);
+            const safeLimit = Math.max(1, parseInt(limit) || 50);
             const safeOffset = Math.max(0, (Math.max(1, parseInt(page) || 1) - 1) * safeLimit);
             sql += ` ORDER BY un.created_at DESC LIMIT ${safeLimit} OFFSET ${safeOffset}`;
 
+            console.log(`[DEBUG] Final SQL: ${sql}`);
             const notifications = await queryRunner(sql, params);
 
             // Total count for pagination
@@ -92,15 +102,21 @@ const userNotificationService = {
                 countSql += ` AND un.user_id = ?`;
                 countParams.push(user_id);
             }
-            if (unread_only) countSql += ` AND un.is_read = 0`;
+            if (isUnreadOnly) {
+                countSql += ` AND un.is_read = 0`;
+            }
             if (type) {
                 countSql += ` AND un.type = ?`;
                 countParams.push(type);
             }
-            const [{ total }] = await queryRunner(countSql, countParams);
+            const countResult = await queryRunner(countSql, countParams);
+            const total = countResult ? countResult[0].total : 0;
+
+            console.log(`[DEBUG] Fetch result: ${notifications.length} items, Total in DB: ${total}, isUnreadOnly: ${isUnreadOnly}`);
 
             return srvRes(200, "Notifications fetched", {
                 items: notifications,
+                debug: { isUnreadOnly, raw_unread_only: unread_only, user_id, type },
                 pagination: {
                     total: Number(total),
                     page: Number(page),
@@ -151,14 +167,17 @@ const userNotificationService = {
         }
     },
 
-    markAsRead: async function (id, user_id) {
+    markAsRead: async function (id, user_id = null) {
         try {
-            const sql = `
-                UPDATE user_notifications 
-                SET is_read = 1 
-                WHERE id = ? AND user_id = ?
-            `;
-            const result = await queryRunner(sql, [id, user_id]);
+            let sql = `UPDATE user_notifications SET is_read = 1 WHERE id = ?`;
+            const params = [id];
+
+            if (user_id) {
+                sql += ` AND user_id = ?`;
+                params.push(user_id);
+            }
+
+            const result = await queryRunner(sql, params);
 
             if (result?.affectedRows > 0) {
                 return srvRes(200, "Notification marked as read");
@@ -170,14 +189,17 @@ const userNotificationService = {
         }
     },
 
-    markAllAsRead: async function (user_id) {
+    markAllAsRead: async function (user_id = null) {
         try {
-            const sql = `
-                UPDATE user_notifications 
-                SET is_read = 1 
-                WHERE user_id = ? AND is_read = 0
-            `;
-            const result = await queryRunner(sql, [user_id]);
+            let sql = `UPDATE user_notifications SET is_read = 1 WHERE is_read = 0`;
+            const params = [];
+
+            if (user_id) {
+                sql += ` AND user_id = ?`;
+                params.push(user_id);
+            }
+
+            const result = await queryRunner(sql, params);
 
             return srvRes(200, `Marked ${result?.affectedRows || 0} notifications as read`);
         } catch (e) {

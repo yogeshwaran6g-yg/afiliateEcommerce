@@ -14,6 +14,7 @@ import userNotificationRoutes from './userNotificationRoutes.js';
 import walletRoutes from './walletRoutes.js';
 import ticketRoutes from './ticketRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
+import popupBannerRoutes from './popupBannerRoutes.js';
 
 const router = express.Router();
 
@@ -32,6 +33,7 @@ router.use('/user-notifications', userNotificationRoutes);
 router.use('/wallet', walletRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/popup-banners', popupBannerRoutes);
 
 export default router;
 

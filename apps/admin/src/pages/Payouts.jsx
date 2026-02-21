@@ -22,7 +22,7 @@ const PayoutRow = ({ request, isSelected, onSelect }) => (
             </div>
         </td>
         <td className="px-8 py-5">
-            <span className="text-sm font-black text-[#172b4d]">${request.amount}</span>
+            <span className="text-sm font-black text-[#172b4d]">₹{request.amount}</span>
         </td>
         <td className="px-8 py-5">
             <div className="flex items-center gap-3">
@@ -110,7 +110,7 @@ export default function Payouts() {
                     <div className="relative z-10 flex flex-col justify-center h-full">
                         <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Pending Amount</h5>
                         <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-4">
-                            <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">$124,500.00</div>
+                            <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">₹124,500.00</div>
                             <div className="mb-0.5 w-fit flex items-center gap-1 text-green-600 font-bold text-[10px] bg-green-50 px-2 py-0.5 rounded-lg border border-green-100">
                                 <span className="material-symbols-outlined text-xs">trending_up</span>
                                 <span>+12.5%</span>
@@ -135,7 +135,7 @@ export default function Payouts() {
                 <div className="bg-primary p-10 rounded-[2.5rem] shadow-2xl shadow-primary/30 relative overflow-hidden group">
                     <div className="relative z-10">
                         <h5 className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-6">Settled Last 24h</h5>
-                        <div className="text-3xl font-black text-white mb-8 tracking-tight">$45,210.32</div>
+                        <div className="text-3xl font-black text-white mb-8 tracking-tight">₹45,210.32</div>
 
                         <div className="space-y-3">
                             <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
@@ -204,7 +204,7 @@ export default function Payouts() {
                                         </div>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <div className="text-sm font-black text-[#172b4d] leading-none">${req.amount}</div>
+                                        <div className="text-sm font-black text-[#172b4d] leading-none">₹{req.amount}</div>
                                         <span className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest mt-1 ${req.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
                                             req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
                                             }`}>
