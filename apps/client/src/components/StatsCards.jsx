@@ -15,8 +15,8 @@ export default function StatsCards() {
   const [totalWhole, totalDecimal] = formatCurrencyParts(wallet?.total_income);
   const [monthWhole, monthDecimal] = formatCurrencyParts(wallet?.month_income);
   const [todayWhole, todayDecimal] = formatCurrencyParts(wallet?.today_income);
-  const [withdrawWhole, withdrawDecimal] = formatCurrencyParts(wallet?.balance);
-  const [walletWhole, walletDecimal] = formatCurrencyParts(wallet?.balance);
+  const [balanceWhole, balanceDecimal] = formatCurrencyParts(wallet?.balance);
+  const [lockedWhole, lockedDecimal] = formatCurrencyParts(wallet?.locked_balance);
 
   // Team Purchase Parts
   const [teamTotalWhole, teamTotalDecimal] = formatCurrencyParts(wallet?.total_team_purchase);
@@ -171,44 +171,37 @@ export default function StatsCards() {
         </div>
       </div>
 
-      {/* Wallet & Balances */}
+      {/* Wallet & Balances - Minimalist Design */}
       <div className="space-y-7">
         <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Wallet & Balances</h2>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Withdrawable Balance */}
-          <div className="bg-linear-to-br from-emerald-600 via-teal-600 to-cyan-700 rounded-3xl p-8 shadow-2xl hover:shadow-3xl hover:scale-[1.015] transition-all duration-300 relative overflow-hidden group">
-            <div className="relative z-10">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center ring-1 ring-white/30 mb-6">
-                <span className="material-symbols-outlined text-white text-3xl">account_balance_wallet</span>
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            {/* Available Balance */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm uppercase tracking-wider">
+                <span className="material-symbols-outlined text-emerald-600">account_balance_wallet</span>
+                Available Balance
               </div>
-              <div className="text-sm text-teal-100/90 font-semibold tracking-wide mb-2">Withdrawable Balance</div>
-              <div className="text-5xl font-black text-white leading-tight">
-                {isLoading ? "..." : <>₹{withdrawWhole}<span className="text-3xl font-bold">.{withdrawDecimal}</span></>}
+              <div className="text-5xl font-black text-slate-900">
+                {isLoading ? "..." : <>₹{balanceWhole}<span className="text-2xl font-bold opacity-50">.{balanceDecimal}</span></>}
               </div>
-              <button className="mt-8 w-full bg-white/95 text-emerald-800 font-bold py-3.5 px-6 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 shadow-md flex items-center justify-center gap-2 text-lg">
-                <span className="material-symbols-outlined">arrow_downward</span>
-                Withdraw Now
+              <button className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors flex items-center gap-2 w-fit">
+                <span className="material-symbols-outlined text-sm">arrow_downward</span>
+                Withdraw
               </button>
             </div>
-          </div>
 
-          {/* Wallet Balance */}
-          <div className="bg-linear-to-br from-amber-100 via-amber-50 to-white rounded-3xl p-8 border border-amber-200/60 shadow-xl hover:shadow-2xl hover:scale-[1.015] transition-all duration-300 relative overflow-hidden group">
-            <div className="relative z-10 space-y-7">
-              <div className="w-14 h-14 bg-amber-200/40 rounded-2xl flex items-center justify-center shadow-inner">
-                <span className="material-symbols-outlined text-amber-800 text-3xl">account_balance_wallet</span>
+            {/* Locked Balance */}
+            <div className="space-y-2 md:border-l md:pl-8 border-slate-100">
+              <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm uppercase tracking-wider">
+                <span className="material-symbols-outlined text-amber-500">lock</span>
+                Locked Balance
               </div>
-              <div>
-                <div className="text-sm text-amber-800/90 font-semibold tracking-wide mb-2">Wallet Balance</div>
-                <div className="text-5xl font-black text-amber-950 leading-tight">
-                  {isLoading ? "..." : <>₹{walletWhole}<span className="text-3xl font-bold">.{walletDecimal}</span></>}
-                </div>
+              <div className="text-4xl font-black text-slate-900/80">
+                {isLoading ? "..." : <>₹{lockedWhole}<span className="text-xl font-bold opacity-40">.{lockedDecimal}</span></>}
               </div>
-              <button className="w-full bg-linear-to-r from-amber-600 to-amber-700 text-white font-bold py-3.5 px-6 rounded-2xl hover:from-amber-700 hover:to-amber-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg">
-                <span className="material-symbols-outlined">tune</span>
-                Manage Wallet
-              </button>
+              <p className="text-xs text-slate-400 font-medium italic">Pending verification</p>
             </div>
           </div>
         </div>

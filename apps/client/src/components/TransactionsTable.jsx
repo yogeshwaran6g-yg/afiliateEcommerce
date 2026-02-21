@@ -84,7 +84,7 @@ export default function TransactionsTable() {
     return (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 flex items-center justify-between border-b border-slate-200">
-                <h3 className="font-bold text-lg text-slate-900">Recent Network Transactions</h3>
+                <h3 className="font-bold text-lg text-slate-900">Recent Transactions</h3>
                 <button
                     onClick={() => navigate("/wallet/history")}
                     className="text-primary font-semibold text-sm hover:underline"
@@ -119,7 +119,7 @@ export default function TransactionsTable() {
                             transactions.map((txn, i) => {
                                 const currency = formatCurrency(txn.amount, txn.entry_type);
                                 return (
-                                    <tr key={txn.id || i} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={txn.id || `txn-${i}`} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-10 h-10 rounded-full bg-linear-to-br ${getColorFromType(txn.transaction_type)} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
@@ -161,7 +161,7 @@ export default function TransactionsTable() {
                         ) : (
                             <tr>
                                 <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
-                                    No recent transactions found
+                                    No Recent Transactions found
                                 </td>
                             </tr>
                         )}
