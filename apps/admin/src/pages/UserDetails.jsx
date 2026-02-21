@@ -7,14 +7,7 @@ import UserDetailsContent from "../components/user-details/UserDetailsContent";
 export default function UserDetails() {
     const { userId } = useParams();
     const navigate = useNavigate();
-<<<<<<< HEAD
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('WALLET');
-=======
-    const [activeTab, setActiveTab] = useState('ACTIVATION');
->>>>>>> origin/feature/admin-check
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ name: '', email: '' });
 
