@@ -376,6 +376,46 @@ const adminController = {
         }
     },
 
+    getOrders: async function (req, res) {
+        try {
+            const { page = 1, limit = 50, status, orderType, search } = req.query;
+            const offset = (page - 1) * limit;
+
+            const { orders, total } = await orderService.getAllOrders({ status, orderType, search }, parseInt(limit), parseInt(offset));
+
+            return res.json({
+                success: true,
+                data: {
+                    orders,
+                    pagination: {
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        total,
+                        totalPages: Math.ceil(total / limit)
+                    }
+                }
+            });
+        } catch (e) {
+            log(`Error in getOrders: ${e.message}`, "error");
+            return rtnRes(res, 500, e.message || "internal error");
+        }
+    },
+
+    getOrderDetails: async function (req, res) {
+        try {
+            const { id } = req.params;
+            if (!id) return rtnRes(res, 400, "order id is required");
+
+            const order = await orderService.getOrderByIdAdmin(id);
+            if (!order) return rtnRes(res, 404, "Order not found");
+
+            return rtnRes(res, 200, "Order details fetched successfully", order);
+        } catch (e) {
+            log(`Error in getOrderDetails: ${e.message}`, "error");
+            return rtnRes(res, 500, e.message || "internal error");
+        }
+    },
+
     deleteUserNotification: async function (req, res) {
         try {
             const { id } = req.params;

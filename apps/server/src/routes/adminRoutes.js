@@ -55,6 +55,10 @@ router.get('/transaction-metrics', adminController.getTransactionMetrics);
 router.get('/tickets', adminController.getTickets);
 router.post('/tickets/update-status', adminController.updateTicketStatus);
 
+// Orders management
+router.get('/orders', adminController.getOrders);
+router.get('/orders/:id', adminController.getOrderDetails);
+
 // User Notifications management
 router.get('/user-notifications', adminController.getUserNotifications);
 router.post('/user-notifications', adminController.sendUserNotification);

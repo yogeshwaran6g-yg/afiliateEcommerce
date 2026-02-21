@@ -98,8 +98,8 @@ export default function Withdrawals() {
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-8 rounded-4xl border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{stat.label}</p>
-                            <h4 className={`text-4xl font-black ${stat.color}`}>{stat.count}</h4>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{stat.label}</p>
+                            <h4 className={`text-4xl font-bold ${stat.color}`}>{stat.count}</h4>
                         </div>
                         <div className={`w-14 h-14 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
                             <span className="material-symbols-outlined text-2xl font-bold">
@@ -112,7 +112,7 @@ export default function Withdrawals() {
 
             {/* Tab & Search Control Bar */}
             <div className="space-y-6">
-                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-4 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 font-display">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-4 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40">
                     {/* Segmented Tabs */}
                     <div className="bg-slate-50 p-1.5 rounded-[2.2rem] flex items-center overflow-x-auto no-scrollbar min-w-0">
                         {[
@@ -124,7 +124,7 @@ export default function Withdrawals() {
                             <button
                                 key={tab.value}
                                 onClick={() => setActiveFilter(tab.value)}
-                                className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab.value
+                                className={`flex items-center gap-3 px-6 py-3 rounded-[1.8rem] text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab.value
                                     ? 'bg-white text-primary shadow-lg shadow-primary/10'
                                     : 'text-slate-400 hover:text-slate-600'
                                     }`}
@@ -142,7 +142,7 @@ export default function Withdrawals() {
                         <input
                             type="text"
                             placeholder="Find by distributor or phone..."
-                            className="w-full bg-slate-50 border border-transparent rounded-[2rem] pl-14 pr-6 py-4 text-xs font-bold text-[#172b4d] focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-slate-300"
+                            className="w-full bg-slate-50 border border-transparent rounded-[2rem] pl-14 pr-6 py-4 text-xs font-bold text-slate-800 focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-slate-300"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -169,17 +169,17 @@ export default function Withdrawals() {
                                     <div key={i} className="p-4 md:p-6 space-y-4 hover:bg-slate-50/30 transition-colors">
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex items-center gap-3 min-w-0">
-                                                <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-[10px] shrink-0 shadow-md">
+                                                <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-md">
                                                     {request.user_name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h4 className="text-xs font-black text-[#172b4d] tracking-tight truncate">{request.user_name}</h4>
+                                                    <h4 className="text-xs font-bold text-slate-800 tracking-tight truncate">{request.user_name}</h4>
                                                     <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{request.user_phone}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-sm font-black text-red-600 leading-none">₹{Number(request.amount).toLocaleString()}</div>
-                                                <span className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest mt-1 ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                <div className="text-sm font-bold text-red-600 leading-none">₹{Number(request.amount).toLocaleString()}</div>
+                                                <span className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest mt-1 ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                                                     request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
                                                     }`}>
                                                     {request.status.replace("_", " ")}
@@ -190,7 +190,7 @@ export default function Withdrawals() {
                                         <div className="bg-slate-50/50 rounded-2xl p-3 space-y-2 border border-slate-100/50">
                                             <div className="flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-[14px] text-slate-400">account_balance</span>
-                                                <p className="text-[10px] font-bold text-[#172b4d] uppercase truncate">{bank?.bank_name || 'N/A'}</p>
+                                                <p className="text-[10px] font-bold text-slate-800 uppercase truncate">{bank?.bank_name || 'N/A'}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-[14px] text-slate-400">tag</span>
@@ -207,13 +207,13 @@ export default function Withdrawals() {
                                                     <>
                                                         <button
                                                             onClick={() => handleOpenActionModal(request, "APPROVE")}
-                                                            className="px-3 py-2 bg-slate-900 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all shadow-md shadow-slate-900/10 uppercase"
+                                                            className="px-3 py-2 bg-slate-900 text-white text-[9px] font-bold rounded-lg active:scale-95 transition-all shadow-md shadow-slate-900/10 uppercase"
                                                         >
                                                             DISBURSE
                                                         </button>
                                                         <button
                                                             onClick={() => handleOpenActionModal(request, "REJECT")}
-                                                            className="px-3 py-2 bg-red-50 text-red-600 text-[9px] font-black rounded-lg active:scale-95 transition-all uppercase"
+                                                            className="px-3 py-2 bg-red-50 text-red-600 text-[9px] font-bold rounded-lg active:scale-95 transition-all uppercase"
                                                         >
                                                             VOID
                                                         </button>
@@ -223,7 +223,7 @@ export default function Withdrawals() {
                                                         <span className="material-symbols-outlined text-sm font-bold">
                                                             {request.status === 'APPROVED' ? 'verified_user' : 'cancel'}
                                                         </span>
-                                                        <span className="text-[8px] font-black uppercase tracking-widest font-display">
+                                                        <span className="text-[8px] font-bold uppercase tracking-widest">
                                                             {request.status === 'APPROVED' ? 'SETTLED' : 'VOIDED'}
                                                         </span>
                                                     </div>
@@ -240,12 +240,12 @@ export default function Withdrawals() {
                             <table className="w-full text-left min-w-[1100px]">
                                 <thead className="bg-slate-50/50">
                                     <tr>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">DISTRIBUTOR</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">PAYOUT MAGNITUDE</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">BANK PARAMETERS</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">REQUESTED ON</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTION</th>
+                                        <th className="px-10 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">DISTRIBUTOR</th>
+                                        <th className="px-10 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">PAYOUT MAGNITUDE</th>
+                                        <th className="px-10 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">BANK PARAMETERS</th>
+                                        <th className="px-10 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">REQUESTED ON</th>
+                                        <th className="px-10 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">STATUS</th>
+                                        <th className="px-10 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
@@ -255,23 +255,23 @@ export default function Withdrawals() {
                                             <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
                                                 <td className="px-10 py-6">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                                        <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
                                                             {request.user_name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <h4 className="text-sm font-black text-[#172b4d] tracking-tight truncate">{request.user_name}</h4>
+                                                            <h4 className="text-sm font-bold text-slate-800 tracking-tight truncate">{request.user_name}</h4>
                                                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">{request.user_phone}</p>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-10 py-6">
-                                                    <div className="text-lg font-black text-red-600">₹{Number(request.amount).toLocaleString()}</div>
+                                                    <div className="text-lg font-bold text-red-600">₹{Number(request.amount).toLocaleString()}</div>
                                                 </td>
                                                 <td className="px-10 py-6">
                                                     <div className="min-w-0 space-y-1">
                                                         <div className="flex items-center gap-2">
                                                             <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">account_balance</span>
-                                                            <p className="text-[11px] font-bold text-[#172b4d] truncate uppercase tracking-wider">{bank?.bank_name || 'N/A'}</p>
+                                                            <p className="text-[11px] font-bold text-slate-800 truncate uppercase tracking-wider">{bank?.bank_name || 'N/A'}</p>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <span className="material-symbols-outlined text-[14px] text-slate-400 leading-none">tag</span>
@@ -289,7 +289,7 @@ export default function Withdrawals() {
                                                     </span>
                                                 </td>
                                                 <td className="px-10 py-6">
-                                                    <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                    <span className={`px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest ${request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                                                         request.status === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
                                                         }`}>
                                                         {request.status.replace("_", " ")}
@@ -301,13 +301,13 @@ export default function Withdrawals() {
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={() => handleOpenActionModal(request, "APPROVE")}
-                                                                    className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
+                                                                    className="px-4 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
                                                                 >
                                                                     DISBURSE
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleOpenActionModal(request, "REJECT")}
-                                                                    className="px-4 py-2 bg-red-50 text-red-600 text-[10px] font-black rounded-xl hover:bg-red-100 transition-all active:scale-95"
+                                                                    className="px-4 py-2 bg-red-50 text-red-600 text-[10px] font-bold rounded-xl hover:bg-red-100 transition-all active:scale-95"
                                                                 >
                                                                     VOID
                                                                 </button>
@@ -341,7 +341,7 @@ export default function Withdrawals() {
                         <div className="p-8 md:p-12 space-y-8">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className={`text-3xl font-black tracking-tight ${actionType === 'APPROVE' ? 'text-green-600' : 'text-red-600'}`}>
+                                    <h3 className={`text-3xl font-bold tracking-tight ${actionType === 'APPROVE' ? 'text-green-600' : 'text-red-600'}`}>
                                         {actionType === 'APPROVE' ? 'Confirm Disbursement' : 'Void Outflow'}
                                     </h3>
                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ref ID: WD-{selectedWithdrawal.id}</p>
@@ -353,8 +353,8 @@ export default function Withdrawals() {
 
                             <div className="bg-slate-50 rounded-3xl p-6 space-y-4 border border-slate-100">
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Net Outflow</label>
-                                    <p className="text-2xl font-black text-[#172b4d]">₹{Number(selectedWithdrawal.amount).toLocaleString()}</p>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net Outflow</label>
+                                    <p className="text-2xl font-bold text-slate-800">₹{Number(selectedWithdrawal.amount).toLocaleString()}</p>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recipient</label>
@@ -383,7 +383,7 @@ export default function Withdrawals() {
                                 <button
                                     onClick={handleAction}
                                     disabled={actionLoading}
-                                    className={`flex-2 px-8 py-4 text-white text-sm font-black rounded-2xl transition-all shadow-xl active:scale-95 disabled:opacity-50 ${actionType === 'APPROVE' ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20' : 'bg-red-600 hover:bg-red-700 shadow-red-600/20'
+                                    className={`flex-2 px-8 py-4 text-white text-sm font-bold rounded-2xl transition-all shadow-xl active:scale-95 disabled:opacity-50 ${actionType === 'APPROVE' ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20' : 'bg-red-600 hover:bg-red-700 shadow-red-600/20'
                                         }`}
                                 >
                                     {actionLoading ? 'Executing...' : (actionType === 'APPROVE' ? 'AUTHORIZE PAYOUT' : 'VOID REQUEST')}
