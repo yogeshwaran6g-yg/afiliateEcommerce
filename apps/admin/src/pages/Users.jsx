@@ -9,6 +9,7 @@ export default function Users() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Modal states
     const [viewUser, setViewUser] = useState(null);
@@ -137,8 +138,12 @@ export default function Users() {
 
 
     const filteredUsers = users.filter(user => {
-        if (statusFilter === 'ALL') return true;
-        return user.status === statusFilter;
+        const matchesStatus = statusFilter === 'ALL' || user.status === statusFilter;
+        const matchesSearch = !searchQuery || 
+            user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesStatus && matchesSearch;
     });
 
     return (
@@ -195,6 +200,8 @@ export default function Users() {
                         <input
                             type="text"
                             placeholder="Search by name, ID or email..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 py-3 text-xs font-semibold text-slate-800 focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-slate-300"
                         />
                     </div>
@@ -237,6 +244,13 @@ export default function Users() {
                                             <p className="text-[11px] font-bold text-slate-600">{user.joined}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => navigate(`/genealogy/${user.dbId}`)}
+                                                className="flex items-center gap-2 px-4 py-2 bg-white text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-100 shadow-sm transition-all active:scale-95"
+                                            >
+                                                <span className="material-symbols-outlined text-sm font-bold">hub</span>
+                                                Network
+                                            </button>
                                             <button
                                                 onClick={() => navigate(`/users/${user.dbId}`)}
                                                 className="flex items-center gap-2 px-4 py-2 bg-white text-primary text-[10px] font-black uppercase tracking-widest rounded-xl border border-primary/10 shadow-sm transition-all active:scale-95"
@@ -284,6 +298,13 @@ export default function Users() {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right">
+                                                <button
+                                                    onClick={() => navigate(`/genealogy/${user.dbId}`)}
+                                                    className="p-2.5 text-slate-400 hover:text-emerald-500 hover:bg-slate-50 rounded-xl transition-all"
+                                                    title="View Network"
+                                                >
+                                                    <span className="material-symbols-outlined text-xl">hub</span>
+                                                </button>
                                                 <button
                                                     onClick={() => navigate(`/users/${user.dbId}`)}
                                                     className="p-2.5 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all"

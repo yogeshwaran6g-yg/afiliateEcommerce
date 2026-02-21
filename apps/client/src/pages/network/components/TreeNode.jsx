@@ -125,7 +125,7 @@ const TreeNode = ({
             </div>
             <div className="bg-primary/5 p-0.5 md:p-1 rounded-md md:rounded-lg border border-primary/10 text-center group-hover/card:bg-primary/10 transition-colors">
               <p className="text-[5px] md:text-[8px] text-primary/60 font-black uppercase tracking-wide leading-tight">
-                Earn
+                Comm
               </p>
               <p className="text-[10px] md:text-sm font-black text-primary leading-tight">
                 ₹{node.earnings.toLocaleString()}

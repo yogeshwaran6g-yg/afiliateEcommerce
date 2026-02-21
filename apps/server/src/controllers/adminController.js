@@ -3,6 +3,7 @@ import withdrawalService from '#services/withdrawalService.js';
 import rechargeService from '#services/rechargeService.js';
 import userNotificationService from '#services/userNotificationService.js';
 import * as orderService from '#services/orderService.js';
+import * as referralService from '#services/referralService.js';
 import { queryRunner } from '#config/db.js';
 import { rtnRes, log } from '#utils/helper.js';
 
@@ -373,6 +374,37 @@ const adminController = {
             return rtnRes(res, result.code, result.msg, result.data);
         } catch (e) {
             log(`Error in deleteUserNotification: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    getUserReferralOverview: async function (req, res) {
+        try {
+            const { userId } = req.params;
+            if (!userId) return rtnRes(res, 400, "userId is required");
+
+            const result = await referralService.getReferralOverview(userId);
+            return rtnRes(res, 200, "Referral overview fetched successfully", result.data);
+        } catch (e) {
+            log(`Error in getUserReferralOverview: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    getTeamMembersByLevel: async function (req, res) {
+        try {
+            const { userId, level } = req.params;
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+
+            if (!userId || !level) {
+                return rtnRes(res, 400, "userId and level are required");
+            }
+
+            const result = await referralService.getTeamMembersByLevel(userId, Number(level), page, limit);
+            return rtnRes(res, 200, "Team members fetched successfully", result.data);
+        } catch (e) {
+            log(`Error in getTeamMembersByLevel: ${e.message}`, "error");
             return rtnRes(res, 500, "internal error");
         }
     }

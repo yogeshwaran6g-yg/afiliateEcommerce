@@ -1,56 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import userApiService from "../services/userApiService";
+import { useUserDetails, useUpdateUserMutation } from "../hooks/useUserService";
 import UserProfileSidebar from "../components/user-details/UserProfileSidebar";
 import UserDetailsContent from "../components/user-details/UserDetailsContent";
 
 export default function UserDetails() {
     const { userId } = useParams();
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('ACTIVATION');
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ name: '', email: '' });
-    const [saving, setSaving] = useState(false);
-    const [isBlocking, setIsBlocking] = useState(false);
+
+    const { data: user, isLoading: loading, error } = useUserDetails(userId);
+    const updateUserMutation = useUpdateUserMutation();
 
     useEffect(() => {
         if (userId) {
             window.scrollTo(0, 0);
-            fetchUserDetails();
         }
     }, [userId]);
 
-    const fetchUserDetails = async () => {
-        try {
-            setLoading(true);
-            const data = await userApiService.getUserDetails(userId);
-            setUser(data);
+    useEffect(() => {
+        if (user) {
             setEditData({
-                name: data.name,
-                email: data.email
+                name: user.name,
+                email: user.email
             });
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load user details");
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [user]);
 
     const handleSave = async () => {
         try {
-            setSaving(true);
-            await userApiService.updateUser(userId, editData);
-            setUser(prev => ({ ...prev, ...editData }));
+            await updateUserMutation.mutateAsync({ userId, userData: editData });
             setIsEditing(false);
-            // Optional: Show success toast
         } catch (err) {
             alert(err.message || "Failed to update profile");
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -59,14 +43,10 @@ export default function UserDetails() {
             const action = user.is_blocked ? 'unblock' : 'block';
             if (!window.confirm(`Are you sure you want to ${action} this user?`)) return;
 
-            setIsBlocking(true);
             const updatedStatus = !user.is_blocked;
-            await userApiService.updateUser(userId, { is_blocked: updatedStatus });
-            setUser(prev => ({ ...prev, is_blocked: updatedStatus }));
+            await updateUserMutation.mutateAsync({ userId, userData: { is_blocked: updatedStatus } });
         } catch (err) {
             alert(err.message || "Failed to update block status");
-        } finally {
-            setIsBlocking(false);
         }
     };
 
@@ -89,7 +69,7 @@ export default function UserDetails() {
                     </div>
                     <div className="space-y-3">
                         <h3 className="text-2xl font-bold text-slate-800 tracking-tight">User Not Found</h3>
-                        <p className="font-medium text-slate-500 text-base leading-relaxed px-6">{error || "The requested user profile does not exist or could not be loaded."}</p>
+                        <p className="font-medium text-slate-500 text-base leading-relaxed px-6">{error?.message || "The requested user profile does not exist or could not be loaded."}</p>
                     </div>
                     <button
                         onClick={() => navigate('/users')}
@@ -131,10 +111,10 @@ export default function UserDetails() {
                         editData={editData}
                         setEditData={setEditData}
                         handleSave={handleSave}
-                        saving={saving}
+                        saving={updateUserMutation.isPending}
                         setIsEditing={setIsEditing}
                         handleBlockToggle={handleBlockToggle}
-                        isBlocking={isBlocking}
+                        isBlocking={updateUserMutation.isPending}
                         setActiveTab={setActiveTab}
                         navigate={navigate}
                     />

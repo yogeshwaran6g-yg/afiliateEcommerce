@@ -45,6 +45,7 @@ function App() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings/commission" element={<CommissionStructure />} />
             <Route path="/genealogy" element={<Genealogy />} />
+            <Route path="/genealogy/:userId" element={<Genealogy />} />
             <Route path="/payouts" element={<Payouts />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/products" element={<Products />} />

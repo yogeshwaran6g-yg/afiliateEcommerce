@@ -64,3 +64,25 @@ export const useUpdateKYCStatusMutation = () => {
         },
     });
 };
+
+/**
+ * Hook to fetch user referral overview (network summary).
+ */
+export const useUserReferralOverview = (userId) => {
+    return useQuery({
+        queryKey: ["userReferralOverview", userId],
+        queryFn: () => userApiService.getUserReferralOverview(userId),
+        enabled: !!userId,
+    });
+};
+
+/**
+ * Hook to fetch team members for a specific level.
+ */
+export const useTeamMembers = (userId, level, page = 1, limit = 10) => {
+    return useQuery({
+        queryKey: ["teamMembers", userId, level, page, limit],
+        queryFn: () => userApiService.getTeamMembers(userId, level, page, limit),
+        enabled: !!userId && !!level,
+    });
+};

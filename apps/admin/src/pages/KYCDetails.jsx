@@ -1,48 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import userApiService from "../services/userApiService";
+import { useUserDetails, useUpdateKYCStatusMutation } from "../hooks/useUserService";
 
 export default function KYCDetails() {
     const { userId } = useParams();
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        fetchUserDetails();
-    }, [userId]);
-
-    const fetchUserDetails = async () => {
-        try {
-            setLoading(true);
-            const data = await userApiService.getUserDetails(userId);
-            setUser(data);
-        } catch (error) {
-            console.error("Failed to fetch user details:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: user, isLoading: loading, error } = useUserDetails(userId);
+    const updateKYCStatusMutation = useUpdateKYCStatusMutation();
 
     const handleKYCAction = async (type, status) => {
         try {
-            setProcessing(true);
-            await userApiService.updateKYCStatus(userId, type, status);
-            await fetchUserDetails(); // Refresh data
+            await updateKYCStatusMutation.mutateAsync({ userId, type, status });
         } catch (error) {
             alert(error.message || "Failed to update KYC status");
-        } finally {
-            setProcessing(false);
         }
     };
 
     const handleApproveAll = async () => {
         try {
             if (!window.confirm("Approve all submitted documentation for this user?")) return;
-            setProcessing(true);
 
-            // Sequential approvals to avoid concurrency issues if any, or use Promise.all
             const sections = [
                 { id: 'identity', val: user.id_document_url },
                 { id: 'address', val: user.address_document_url },
@@ -51,15 +29,11 @@ export default function KYCDetails() {
 
             for (const section of sections) {
                 if (section.val) {
-                    await userApiService.updateKYCStatus(userId, section.id, 'VERIFIED');
+                    await updateKYCStatusMutation.mutateAsync({ userId, type: section.id, status: 'VERIFIED' });
                 }
             }
-
-            await fetchUserDetails();
         } catch (error) {
             alert(error.message || "Failed to approve all documents");
-        } finally {
-            setProcessing(false);
         }
     };
 
@@ -70,7 +44,13 @@ export default function KYCDetails() {
         </div>
     );
 
-    if (!user) return <div>User not found</div>;
+    if (error || !user) return (
+        <div className="p-10 text-center space-y-4">
+            <h3 className="text-xl font-bold text-slate-800">User not found</h3>
+            <p className="text-slate-500">{error?.message || "Could not retrieve user details."}</p>
+            <button onClick={() => navigate(-1)} className="px-6 py-2 bg-slate-800 text-white rounded-xl">Go Back</button>
+        </div>
+    );
 
     const sections = [
         {
@@ -106,6 +86,8 @@ export default function KYCDetails() {
         }
     ];
 
+    const processing = updateKYCStatusMutation.isPending;
+
     return (
         <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -140,7 +122,7 @@ export default function KYCDetails() {
                     <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
                         <div className="relative z-10 space-y-6 text-center">
                             <div className="w-20 h-20 rounded-2xl bg-slate-50 mx-auto flex items-center justify-center text-2xl font-bold border border-slate-100 text-slate-700">
-                                {user.name.substring(0, 2).toUpperCase()}
+                                {user.name?.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-slate-800 tracking-tight">{user.name}</h3>

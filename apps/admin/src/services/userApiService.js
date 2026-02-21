@@ -49,6 +49,26 @@ const userApiService = {
             console.error('Error in userApiService.updateKYCStatus:', error);
             throw error;
         }
+    },
+
+    getUserReferralOverview: async (userId) => {
+        try {
+            const data = await api.get(`/admin/users/${userId}/referral-overview`);
+            return data.data;
+        } catch (error) {
+            console.error('Error in userApiService.getUserReferralOverview:', error);
+            throw error;
+        }
+    },
+
+    getTeamMembers: async (userId, level, page = 1, limit = 10) => {
+        try {
+            const data = await api.get(`/admin/users/${userId}/team/${level}`, { page, limit });
+            return data.data;
+        } catch (error) {
+            console.error('Error in userApiService.getTeamMembers:', error);
+            throw error;
+        }
     }
 };
 
