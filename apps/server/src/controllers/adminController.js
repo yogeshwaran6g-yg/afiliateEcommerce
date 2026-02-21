@@ -3,7 +3,7 @@ import withdrawalService from '#services/withdrawalService.js';
 import rechargeService from '#services/rechargeService.js';
 import userNotificationService from '#services/userNotificationService.js';
 import * as orderService from '#services/orderService.js';
-import { queryRunner } from '#config/db.js';
+import { queryRunner, transactionRunner } from '#config/db.js';
 import { rtnRes, log } from '#utils/helper.js';
 
 const adminController = {
