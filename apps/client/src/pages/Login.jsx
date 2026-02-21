@@ -21,6 +21,7 @@ const Login = () => {
         try {
             const response = await loginMutation.mutateAsync({ phone, password });
             if (response.success) {
+                sessionStorage.setItem("just_logged_in", "true");
                 toast.success("Login successful! Welcome back.");
                 navigate("/dashboard");
             }
@@ -132,17 +133,17 @@ const Login = () => {
                     </div>
                 </form>
                 <div className="mt-6 text-center">
-                  <p className="text-sm text-slate-500 font-medium">
-                    Dont have an account? {" "}
-                    <Link
-                      to="/signup"
-                      className="font-bold text-primary hover:text-primary/80 transition-colors"
-                    >
-                      Sign Up
-                    </Link>
-                  </p>
+                    <p className="text-sm text-slate-500 font-medium">
+                        Dont have an account? {" "}
+                        <Link
+                            to="/signup"
+                            className="font-bold text-primary hover:text-primary/80 transition-colors"
+                        >
+                            Sign Up
+                        </Link>
+                    </p>
                 </div>
-                
+
             </div>
         </div>
     );

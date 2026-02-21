@@ -61,4 +61,11 @@ router.post('/user-notifications/broadcast', adminController.broadcastUserNotifi
 router.put('/user-notifications/mark-as-read/:id', adminController.markUserNotificationAsRead);
 router.delete('/user-notifications/:id', adminController.deleteUserNotification);
 
+// Popup Banners management
+import popupBannerController from '../controllers/popupBannerController.js';
+router.get('/popup-banners', popupBannerController.getAll);
+router.post('/popup-banners', upload.single('logo'), popupBannerController.create);
+router.put('/popup-banners/:id', upload.single('logo'), popupBannerController.update);
+router.delete('/popup-banners/:id', popupBannerController.delete);
+
 export default router;
