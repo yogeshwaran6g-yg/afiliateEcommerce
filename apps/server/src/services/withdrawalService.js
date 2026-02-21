@@ -118,7 +118,7 @@ export const approveWithdrawal = async (requestId, adminComment = null) => {
       [requestId],
     );
 
-    return { success: true };
+    return { success: true, request };
   });
 };
 
@@ -159,7 +159,7 @@ export const rejectWithdrawal = async (requestId, adminComment = null) => {
       [requestId],
     );
 
-    return { success: true };
+    return { success: true, request };
   });
 };
 

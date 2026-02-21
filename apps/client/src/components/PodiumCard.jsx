@@ -1,6 +1,6 @@
 import React from "react";
 
-const PodiumCard = ({ rank, name, pv, change, rankTitle, imageUrl, isChampion }) => {
+const PodiumCard = ({ rank, name, change, rankTitle, imageUrl, isChampion }) => {
   const rankColors = {
     1: "border-gold",
     2: "border-silver",
@@ -38,9 +38,6 @@ const PodiumCard = ({ rank, name, pv, change, rankTitle, imageUrl, isChampion })
       <h3 className={`text-slate-900 dark:text-white font-black tracking-tight ${isChampion ? "text-2xl" : "text-lg"}`}>
         {name}
       </h3>
-      <p className={`text-primary font-black ${isChampion ? "text-3xl" : "text-xl"}`}>
-        {pv} PV
-      </p>
       <p className="text-success text-sm font-semibold flex items-center justify-center gap-1 mt-1">
         <span className="material-symbols-outlined text-sm">trending_up</span>
         {change}

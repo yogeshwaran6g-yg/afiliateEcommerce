@@ -47,19 +47,27 @@ export const tickets = [
 
 export const faqs = [
     {
-        q: "How do I track my order?",
-        a: "Go to your Orders page and click on 'Track Shipment' next to the relevant order. You'll receive real-time updates.",
+        q: "How do I activate my account?",
+        a: "To activate your account and start earning commissions, you need to purchase an activation product from the store. Once the payment is verified, your account will be activated.",
     },
     {
-        q: "What is the return policy?",
-        a: "We offer a 30-day return policy for unopened items. Digital products and starter kits are non-refundable once activated.",
+        q: "How do I earn commissions?",
+        a: "After activating your account, you can refer others using your referral link. You will earn commissions on successful orders placed by your referrals.",
     },
     {
-        q: "How do PV earnings work?",
-        a: "Personal Volume (PV) is earned on every purchase. Your total PV determines your rank and commission eligibility for each cycle.",
+        q: "When is commission distributed?",
+        a: "Commissions are distributed automatically after an order's payment is successfully processed and verified.",
     },
     {
-        q: "Locked out of my account?",
-        a: "Use the 'Forgot Password' link on the login page. An OTP will be sent to your registered email or mobile number.",
+        q: "How can I withdraw my earnings?",
+        a: "You can request a withdrawal from the Wallet section. Ensure your bank details are updated in your profile. Withdrawals are processed after admin approval.",
+    },
+    {
+        q: "What happens to my locked balance?",
+        a: "Balance may be temporarily locked during pending withdrawals or verification periods. Once approved, it will be moved to your available balance.",
+    },
+    {
+        q: "How do I contact support?",
+        a: "You can create a support ticket from the Support page (Tickets tab) for any issues related to orders, payments, or your account.",
     },
 ];

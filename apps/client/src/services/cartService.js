@@ -15,7 +15,6 @@ const cartService = {
                     id: item.product_id, // Map product_id to id for local consistency
                     price: parseFloat(item.sale_price) || 0, // Map sale_price to price
                     image: item.images && item.images.length > 0 ? item.images[0] : "", // Use first image
-                    pv: parseInt(item.pv) || 0, // Map pv
                 }));
             }
             return [];

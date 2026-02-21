@@ -4,15 +4,18 @@ import { log } from '#utils/helper.js';
 
 export const getOrCreateActiveCart = async (userId, connection) => {
     if (!userId) {
-        return {
-            code: 400,
-            success: false,
-            message: "Internal Error"
-        }
+        return null;
     }
     const db = connection || pool;
 
-    // Check for existing active cart
+    // 1. Double check if user exists (to avoid FK constraint error if user was just deleted)
+    const [userRows] = await db.query('SELECT id FROM users WHERE id = ?', [userId]);
+    if (userRows.length === 0) {
+        log(`Attempted to get/create cart for non-existent user ${userId}`, "warn");
+        return null;
+    }
+
+    // 2. Check for existing active cart
     const [carts] = await db.query(
         'SELECT id, status FROM carts WHERE user_id = ? ORDER BY created_at DESC LIMIT 1',
         [userId]
@@ -22,14 +25,22 @@ export const getOrCreateActiveCart = async (userId, connection) => {
         return carts[0];
     }
 
-    // If no cart or latest is processed, create a new active cart
-    log(`Creating new active cart for user ${userId}`, "info");
-    const [result] = await db.query(
-        'INSERT INTO carts (user_id, status) VALUES (?, ?)',
-        [userId, 'active']
-    );
-
-    return { id: result.insertId, status: 'active' };
+    // 3. Create a new active cart
+    try {
+        log(`Creating new active cart for user ${userId}`, "info");
+        const [result] = await db.query(
+            'INSERT INTO carts (user_id, status) VALUES (?, ?)',
+            [userId, 'active']
+        );
+        return { id: result.insertId, status: 'active' };
+    } catch (error) {
+        // Handle race condition if user deleted between check and insert
+        if (error.code === 'ER_NO_REFERENCED_ROW_2' || error.errno === 1452) {
+            log(`Race condition: user ${userId} deleted during cart creation`, "warn");
+            return null;
+        }
+        throw error;
+    }
 };
 
 
@@ -39,6 +50,9 @@ export const addToCart = async (userId, productId, quantity = 1) => {
         await connection.beginTransaction();
 
         const activeCart = await getOrCreateActiveCart(userId, connection);
+        if (!activeCart) {
+            throw new Error('User not found or account inactive');
+        }
         const cartId = activeCart.id;
 
         // Check if item already exists in the cart
@@ -82,15 +96,24 @@ export const getCart = async (userId) => {
             return {
                 code: 400,
                 success: false,
-                message: "Internal Error"
+                message: "User ID required"
             }
         }
         const activeCart = await getOrCreateActiveCart(userId);
+        
+        if (!activeCart) {
+            return {
+                code: 404,
+                success: false,
+                message: "User not found or account inactive"
+            };
+        }
+
         const cartId = activeCart.id;
 
         const [items] = await pool.query(
             `SELECT ci.id as cart_item_id, ci.product_id, ci.quantity, 
-                    p.name, p.slug, p.sale_price, p.images, p.stock, p.pv
+                    p.name, p.slug, p.sale_price, p.images, p.stock
              FROM cart_items ci
              JOIN products p ON ci.product_id = p.id
              WHERE ci.cart_id = ?`,
@@ -106,11 +129,11 @@ export const getCart = async (userId) => {
             }))
         };
     } catch (error) {
-        console.log(error);
+        log(`Error in getCart: ${error.message}`, "error");
         return {
-            code: 400,
+            code: 500,
             success: false,
-            message: "Internal Error"
+            message: "Internal Server Error"
         }
     }
 };

@@ -22,15 +22,36 @@ const authController = {
             const existingUser = await findUserByPhone(phone);
 
             if (existingUser) {
-                if (!existingUser.is_phone_verified) {
-                    // Resend OTP for unverified user
-                    const otpRes = await authService.sendOtp(existingUser.id, existingUser.phone, 'signup');
+                // Check if user is "partial" (no password set yet)
+                if (!existingUser.password) {
+                    if (existingUser.is_phone_verified) {
+                        // User verified phone but didn't finish registration.
+                        // Allow them to request a new OTP to resume session.
+                        log(`Verified partial user found during signup for phone: ${phone}. Resending OTP to allow resumption.`, "info");
+                    } else {
+                        // User started but didn't even verify phone. Delete to allow fresh start.
+                        log(`Unverified partial user found during signup for phone: ${phone}. Deleting to allow fresh signup.`, "info");
+                        await deleteIncompleteUser(existingUser.id);
+                        // Continue to create new user normally if we deleted, 
+                        // but actually we can just send OTP for the existing one if we don't delete.
+                        // Let's stick to deleting unverified ones for a "clean" start.
+                    }
+                } else if (!existingUser.is_phone_verified) {
+                    // Resend OTP for unverified fully-registered (unlikely but safe)
+                    log(`Unverified full user found during signup for phone: ${phone}. Resending OTP.`, "info");
+                } else {
+                    return rtnRes(res, 400, "User already exists and is verified. Please login.");
+                }
+
+                // If we reach here and existingUser still exists (not deleted), reuse it
+                const userToUse = await findUserByPhone(phone); // Refresh state
+                if (userToUse) {
+                    const otpRes = await authService.sendOtp(userToUse.id, userToUse.phone, 'signup');
                     if (otpRes.code !== 200) {
                         return rtnRes(res, otpRes.code, otpRes.message);
                     }
-                    return rtnRes(res, 201, "OTP resent for verification.", { userId: existingUser.id });
+                    return rtnRes(res, 201, "OTP sent for verification.", { userId: userToUse.id });
                 }
-                return rtnRes(res, 400, "User already exists and is verified. Please login.");
             }
 
             let referredBy = null;
@@ -70,10 +91,10 @@ const authController = {
     completeRegistration: async function (req, res) {
         try {
             const userId = req.user.id;
-            const { name, email, password, selectedProductId, paymentMethod, paymentType, transactionReference } = req.body;
+            const { name, email, password, selectedProductId, paymentMethod, paymentType, transactionReference, shippingAddress } = req.body;
             const proofFile = req.file;
 
-            if (!name || !password || !selectedProductId || !paymentMethod) {
+            if (!name || !password || !selectedProductId || !paymentMethod || !shippingAddress) {
                 return rtnRes(res, 400, "Missing required fields");
             }
 
@@ -106,7 +127,7 @@ const authController = {
                 userId,
                 items: [{ productId: selectedProductId, quantity: 1, price: product.sale_price }],
                 totalAmount: product.sale_price,
-                shippingAddress: { type: 'REGISTRATION', address: 'Not provided yet' },
+                shippingAddress,
                 paymentMethod,
                 paymentType,
                 transactionReference,

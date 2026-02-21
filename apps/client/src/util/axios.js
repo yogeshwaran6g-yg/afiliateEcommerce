@@ -61,52 +61,7 @@ http.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
 
-    // Unauthorized → force logout
-    if (status === 401) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("user");
-
-      toast.error("Session expired. Please log in again.", {
-        toastId: "auth-401",
-        autoClose: 4000,
-        onClose: () => {
-          if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
-          }
-        },
-      });
-
-    }
-    else if (status === 403) {
-      toast.error("You don't have permission to perform this action.", {
-        toastId: "auth-403",
-      });
-    }
-    else if (status === 404) {
-      toast.warn("Resource not found.", {
-        toastId: "not-found",
-      });
-    }
-    else if (status === 409) {
-      toast.error("Resource already exists.", {
-        toastId: "conflict",
-      });
-    }
-    else if (status === 422) {
-      toast.error("Invalid data.", {
-        toastId: "validation",
-      });
-    }
-    else if (status === 500) {
-      toast.error("Internal server error.", {
-        toastId: "server-error",
-      });
-    }
-    else if (status === 503) {
-      toast.error("Service unavailable.", {
-        toastId: "service-unavailable",
-      });
-    }
+ 
 
     // Normalize error
     const message =

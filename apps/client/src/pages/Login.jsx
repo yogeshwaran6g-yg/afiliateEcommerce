@@ -26,7 +26,14 @@ const Login = () => {
             }
         } catch (err) {
             console.error("Login failed:", err);
-            toast.error(err?.message || "Login failed. Please check your credentials.");
+            if (err.status === 403 && err.message.includes("Registration incomplete")) {
+                toast.info("It seems your registration is incomplete. Redirecting you to verify your phone.");
+                setTimeout(() => {
+                    navigate("/signup");
+                }, 3000);
+            } else {
+                toast.error(err?.message || "Login failed. Please check your credentials.");
+            }
         }
     };
 

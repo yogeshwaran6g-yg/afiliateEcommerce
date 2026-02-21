@@ -46,7 +46,16 @@ const adminController = {
             const { requestId, adminComment } = req.body;
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
-            await withdrawalService.approveWithdrawal(requestId, adminComment);
+            const result = await withdrawalService.approveWithdrawal(requestId, adminComment);
+            
+            // Send Notification
+            await userNotificationService.create({
+                user_id: result.request.user_id,
+                type: 'WITHDRAWAL_APPROVED',
+                title: 'Withdrawal Request Approved',
+                description: `Your withdrawal request of ₹${result.request.amount} has been approved. The amount will be credited to your account shortly.`
+            });
+
             return rtnRes(res, 200, "Withdrawal approved successfully");
         } catch (e) {
             log(`Error in approveWithdrawal: ${e.message}`, "error");
@@ -59,7 +68,16 @@ const adminController = {
             const { requestId, adminComment } = req.body;
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
-            await withdrawalService.rejectWithdrawal(requestId, adminComment);
+            const result = await withdrawalService.rejectWithdrawal(requestId, adminComment);
+            
+            // Send Notification
+            await userNotificationService.create({
+                user_id: result.request.user_id,
+                type: 'WITHDRAWAL_REJECTED',
+                title: 'Withdrawal Request Rejected',
+                description: `Your withdrawal request of ₹${result.request.amount} was rejected. Reason: ${adminComment || "Rejected by admin"}. The balance has been returned to your wallet.`
+            });
+
             return rtnRes(res, 200, "Withdrawal rejected and balance rolled back");
         } catch (e) {
             log(`Error in rejectWithdrawal: ${e.message}`, "error");
@@ -72,7 +90,16 @@ const adminController = {
             const { requestId, adminComment } = req.body;
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
-            await rechargeService.approveRecharge(requestId, adminComment);
+            const result = await rechargeService.approveRecharge(requestId, adminComment);
+            
+            // Send Notification
+            await userNotificationService.create({
+                user_id: result.request.user_id,
+                type: 'RECHARGE_APPROVED',
+                title: 'Recharge Request Approved',
+                description: `Your recharge request of ₹${result.request.amount} has been approved. The amount has been added to your wallet balance.`
+            });
+
             return rtnRes(res, 200, "Recharge approved and wallet updated");
         } catch (e) {
             log(`Error in approveRecharge: ${e.message}`, "error");
@@ -85,7 +112,16 @@ const adminController = {
             const { requestId, adminComment } = req.body;
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
-            await rechargeService.rejectRecharge(requestId, adminComment);
+            const result = await rechargeService.rejectRecharge(requestId, adminComment);
+            
+            // Send Notification
+            await userNotificationService.create({
+                user_id: result.request.user_id,
+                type: 'RECHARGE_REJECTED',
+                title: 'Recharge Request Rejected',
+                description: `Your recharge request of ₹${result.request.amount} was rejected. Reason: ${adminComment || "Rejected by admin"}.`
+            });
+
             return rtnRes(res, 200, "Recharge rejected");
         } catch (e) {
             log(`Error in rejectRecharge: ${e.message}`, "error");

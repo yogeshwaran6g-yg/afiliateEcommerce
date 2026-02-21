@@ -43,7 +43,7 @@ export default function Products() {
                 <div className="max-w-xl">
                     <h1 className="text-2xl md:text-3.5xl font-bold text-slate-900 tracking-tight">Products & Shop</h1>
                     <p className="text-sm md:text-base text-slate-500 mt-2 leading-relaxed">
-                        Empowering your business with high-quality inventory and great PV points.
+                        Empowering your business with high-quality inventory.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto self-end lg:self-auto justify-end">
@@ -64,11 +64,11 @@ export default function Products() {
                     </div>
 
                     {/* Category Dropdown */}
-                    <CategoryFilter
+                    {/* <CategoryFilter
                         categories={categories}
                         onCategoryChange={setSelectedCategory}
                         activeCategory={selectedCategory}
-                    />
+                    /> */}
 
                     {/* Sort Dropdown */}
                     <SortFilter 

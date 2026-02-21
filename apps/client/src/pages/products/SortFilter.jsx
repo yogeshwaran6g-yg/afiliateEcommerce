@@ -4,7 +4,6 @@ const sortOptions = [
     { value: "newest", label: "Newest Arrivals", icon: "schedule" },
     { value: "price-low", label: "Price: Low to High", icon: "vertical_align_bottom" },
     { value: "price-high", label: "Price: High to Low", icon: "vertical_align_top" },
-    { value: "pv", label: "Highest PV", icon: "trending_up" },
 ];
 
 export default function SortFilter({ activeSort, onSortChange }) {

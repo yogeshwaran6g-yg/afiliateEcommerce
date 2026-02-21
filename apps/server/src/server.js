@@ -38,6 +38,25 @@ app.get('/', (req, res) => {
   rtnRes(res, 200, 'Server is running!');
 });
 
-app.listen(port || 4000, () => {
+const server = app.listen(port || 4000, () => {
   log(`Server running on http://localhost:${port}`, "success");
 });
+
+// Graceful Shutdown
+const shutdown = async (signal) => {
+  log(`\nReceived ${signal}. Shutting down gracefully...`, "info");
+  
+  server.close(() => {
+    log('HTTP server closed.', "info");
+    process.exit(0);
+  });
+
+  // Force close after 10s
+  setTimeout(() => {
+    log('Could not close connections in time, forcefully shutting down', "error");
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

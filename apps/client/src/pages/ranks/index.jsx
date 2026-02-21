@@ -9,8 +9,6 @@ import { rewards } from "./data";
 export default function Ranks() {
     const [activeTab, setActiveTab] = useState("All Rewards");
 
-    const currentPV = 12450;
-    const targetPV = 15000;
     const directLegs = 5;
     const targetLegs = 6;
     const progressPercent = 82;
@@ -27,8 +25,6 @@ export default function Ranks() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <RankProgress
                     progressPercent={progressPercent}
-                    currentPV={currentPV}
-                    targetPV={targetPV}
                     directLegs={directLegs}
                     targetLegs={targetLegs}
                 />

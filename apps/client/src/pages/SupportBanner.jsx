@@ -8,7 +8,7 @@ export default function SupportBanner() {
       </div>
       <div className="flex-1">
         <h6 className="font-bold text-white text-base">Need assistance with an order?</h6>
-        <p className="text-sm text-slate-400">Our 24/7 support team can help with logistics or PV discrepancies.</p>
+        <p className="text-sm text-slate-400">Our 24/7 support team can help with logistics or order queries.</p>
       </div>
       <button className="w-full md:w-auto px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
         Get Help

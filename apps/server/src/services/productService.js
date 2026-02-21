@@ -26,8 +26,8 @@ const productService = {
                 INSERT INTO products (
                     name, slug, short_desc, long_desc, category_id, 
                     original_price, sale_price, stock, stock_status, 
-                    low_stock_alert, images, pv, is_active
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    low_stock_alert, images, is_active
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
             const params = [
                 name || null,
@@ -41,7 +41,6 @@ const productService = {
                 stock_status || 'IN_STOCK',
                 low_stock_alert || 5,
                 JSON.stringify(images || []),
-                pv || 0,
                 is_active === undefined ? 1 : is_active
             ];
 
@@ -111,9 +110,6 @@ const productService = {
                 case 'price-high':
                     sql += ` ORDER BY p.sale_price DESC`;
                     break;
-                case 'pv':
-                    sql += ` ORDER BY p.pv DESC`;
-                    break;
                 case 'newest':
                 default:
                     sql += ` ORDER BY p.created_at DESC`;
@@ -160,7 +156,7 @@ const productService = {
             const ALLOWED_COLUMNS = [
                 'name', 'slug', 'short_desc', 'long_desc', 'category_id',
                 'original_price', 'sale_price', 'stock', 'stock_status',
-                'low_stock_alert', 'images', 'is_active', 'pv'
+                'low_stock_alert', 'images', 'is_active'
             ];
 
             for (const [key, value] of Object.entries(productData)) {

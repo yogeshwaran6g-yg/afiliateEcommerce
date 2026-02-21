@@ -2,8 +2,6 @@ import React from "react";
 
 const RankProgress = ({
     progressPercent,
-    currentPV,
-    targetPV,
     directLegs,
     targetLegs,
 }) => {
@@ -55,18 +53,7 @@ const RankProgress = ({
                     </div>
 
                     {/* Metrics */}
-                    <div className="grid grid-cols-2 gap-4 max-w-md mx-auto md:mx-0">
-                        <div className="bg-slate-50 rounded-xl p-3 md:p-4 border border-slate-100">
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-1">
-                                Current PV
-                            </div>
-                            <div className="text-lg md:text-2xl font-black text-slate-900">
-                                {currentPV.toLocaleString()}{" "}
-                                <span className="text-[10px] md:text-xs text-slate-400 font-bold">
-                                    / {targetPV / 1000}k
-                                </span>
-                            </div>
-                        </div>
+                    <div className="grid grid-cols-1 gap-4 max-w-md mx-auto md:mx-0">
                         <div className="bg-slate-50 rounded-xl p-3 md:p-4 border border-slate-100">
                             <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-1">
                                 Direct Legs

@@ -36,36 +36,6 @@ const Otp = () => {
     const loading = verifyOtpMutation.isPending || resendOtpMutation.isPending;
     const error = verifyOtpMutation.error?.message || resendOtpMutation.error?.message || authError;
 
-    // Function to handle account deletion on abandonment
-    const handleAbandonment = async (isManual = false) => {
-        if (isSubmitting || cleanupTriggered.current || !userId) return;
-
-        cleanupTriggered.current = true;
-
-        try {
-            if (isManual) {
-                await cancelRegistration(userId).catch(e => console.error('Cleanup service failed:', e));
-            } else {
-                const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-                fetch(`${apiBaseUrl}/api/v1/auth/cancel-signup`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ userId }),
-                    keepalive: true
-                });
-            }
-            // Clear session storage related to this signup
-            sessionStorage.removeItem("pendingUserId");
-            sessionStorage.removeItem("pendingPhone");
-            sessionStorage.removeItem("pendingPurpose");
-            sessionStorage.removeItem("otpExpiry");
-        } catch (err) {
-            console.error('Cleanup failed:', err);
-        }
-    };
-
     useEffect(() => {
         if (!userId) {
             navigate("/signup");
@@ -78,21 +48,6 @@ const Otp = () => {
             const expiry = Date.now() + 100 * 1000;
             sessionStorage.setItem("otpExpiry", expiry.toString());
         }
-
-        // Add event listener for tab close / window refresh
-        const handleBeforeUnload = (e) => {
-            handleAbandonment(false);
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            // Handle internal navigation away (unmount)
-            if (!isSubmitting) {
-                handleAbandonment(true);
-            }
-        };
     }, []);
 
     useEffect(() => {

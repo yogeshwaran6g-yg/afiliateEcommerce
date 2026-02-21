@@ -130,6 +130,9 @@ add rate limiter
 
 
 
+initial :
+    shipping address missing in complete registration
+
 
 ❌ Don’t activate user directly from activation table
 ❌ Don’t distribute commission on manual PENDING

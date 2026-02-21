@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "node src/scripts/nodemon.js",
     "db:setup": "node src/scripts/setup-db.js",
     "test:wallet": "node src/scripts/verify-wallet.js"
   },

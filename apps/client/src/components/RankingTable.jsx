@@ -31,7 +31,6 @@ const RankingTable = ({ rankings }) => {
               <th className="px-6 py-4">Rank</th>
               <th className="px-6 py-4">Distributor</th>
               <th className="px-6 py-4">Region</th>
-              <th className="px-6 py-4 text-right">Total PV</th>
               <th className="px-6 py-4 text-right">Team Growth</th>
               <th className="px-6 py-4 text-center">Trend</th>
             </tr>
@@ -60,9 +59,6 @@ const RankingTable = ({ rankings }) => {
                 </td>
                 <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                   {row.region}
-                </td>
-                <td className="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-white">
-                  {row.pv} PV
                 </td>
                 <td className="px-6 py-4 text-right">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${row.growth.startsWith("+") ? "bg-success/10 text-success" : "bg-amber-100 text-amber-600"}`}>

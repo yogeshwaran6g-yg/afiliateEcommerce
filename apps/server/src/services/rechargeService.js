@@ -56,21 +56,32 @@ export const approveRecharge = async (requestId, adminComment = null) => {
       [adminComment || "Approved by admin", requestId],
     );
 
-    return { success: true };
+    return { success: true, request };
   });
 };
 
 export const rejectRecharge = async (requestId, adminComment = null) => {
-  try {
-    await queryRunner(
+  return await transactionRunner(async (conn) => {
+    // 1. Get request details
+    const [rows] = await conn.execute(
+      "SELECT * FROM recharge_requests WHERE id = ? FOR UPDATE",
+      [requestId],
+    );
+    if (!rows || rows.length === 0)
+      throw new Error("Recharge request not found");
+    const request = rows[0];
+
+    if (request.status !== "REVIEW_PENDING")
+      throw new Error(`Request is already ${request.status}`);
+
+    // 2. Update request status
+    await conn.execute(
       'UPDATE recharge_requests SET status = "REJECTED", admin_comment = ? WHERE id = ?',
       [adminComment || "Rejected by admin", requestId],
     );
-    return { success: true };
-  } catch (error) {
-    log(`Error rejecting recharge: ${error.message}`, "error");
-    throw error;
-  }
+
+    return { success: true, request };
+  });
 };
 
 export const getRechargeRequests = async (filters = {}) => {

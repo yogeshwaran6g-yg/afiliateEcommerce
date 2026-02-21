@@ -60,6 +60,7 @@ const adminService = {
                        w.balance, w.locked_balance,
                        o.payment_method as activation_payment_method,
                        o.payment_status as activation_payment_status,
+                       o.shipping_address as activation_shipping_address,
                        op.payment_type as activation_payment_type,
                        op.proof_url as activation_proof_url,
                        op.status as activation_verification_status,

@@ -3,7 +3,7 @@ import { log } from '#utils/helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '#config/env.js';
-import { findUserByPhone, findUserById } from '#services/userService.js';
+import { findUserByPhone, findUserById, deleteIncompleteUser } from '#services/userService.js';
 
 const generateToken = (user) => {
     if (!env.JWT_SECRET) {
@@ -32,10 +32,13 @@ export const login = async (phone, password) => {
         }
 
         if (!user.password) {
-            return {
-                code: 401,
-                message: "Password not set for this account. Please use OTP to reset password if supported."
-            };
+            if (user.is_phone_verified) {
+                return { code: 403, message: "Registration incomplete. Please use the signup flow to verify your phone and complete registration." };
+            }
+            if ((user.account_activation_status === "NOT_STARTED" || user.account_activation_status === "PENDING_PAYMENT")) {
+                await deleteIncompleteUser(user.id);
+            }
+            return { code: 404, message: "User not found" };
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -304,6 +307,10 @@ export const forgotPassword = async (phone) => {
         const user = await findUserByPhone(phone);
         if (!user) {
             return { code: 404, message: "User not found with this phone number" };
+        }
+
+        if (!user.password) {
+            return { code: 400, message: "Registration is incomplete for this phone number. Please complete signup first." };
         }
 
         const otpRes = await sendOtp(user.id, user.phone, 'forgot');

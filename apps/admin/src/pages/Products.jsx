@@ -10,7 +10,6 @@ const ProductDrawer = ({ isOpen, onClose, product, onSuccess }) => {
         long_desc: "",
         original_price: "",
         sale_price: "",
-        pv: "",
         stock: "0",
         low_stock_alert: "10",
         is_active: 1
@@ -29,7 +28,6 @@ const ProductDrawer = ({ isOpen, onClose, product, onSuccess }) => {
                 long_desc: product.long_desc || "",
                 original_price: product.original_price || "",
                 sale_price: product.sale_price || "",
-                pv: product.pv || "",
                 stock: product.stock || "0",
                 low_stock_alert: product.low_stock_alert || "10",
                 is_active: product.is_active ?? 1
@@ -55,7 +53,6 @@ const ProductDrawer = ({ isOpen, onClose, product, onSuccess }) => {
                 long_desc: "",
                 original_price: "",
                 sale_price: "",
-                pv: "",
                 stock: "0",
                 low_stock_alert: "10",
                 is_active: 1
@@ -116,7 +113,7 @@ const ProductDrawer = ({ isOpen, onClose, product, onSuccess }) => {
                 <div className="sticky top-0 bg-white z-10 px-10 py-8 border-b border-slate-50 flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-black text-[#172b4d]">{product ? "Edit Product" : "Add New Product"}</h2>
-                        <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest leading-none">Define your product and MLM point value parameters</p>
+                        <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest leading-none">Define your product parameters</p>
                     </div>
                     <button
                         type="button"
@@ -232,8 +229,8 @@ const ProductDrawer = ({ isOpen, onClose, product, onSuccess }) => {
 
                     {/* Pricing */}
                     <div className="space-y-6">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">PRICING & COMMISSION (PV)</label>
-                        <div className="bg-slate-50 rounded-3xl p-8 grid grid-cols-3 gap-6 border border-slate-100">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">PRICING</label>
+                        <div className="bg-slate-50 rounded-3xl p-8 grid grid-cols-2 gap-6 border border-slate-100">
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 ml-1">RETAIL PRICE <span className="text-red-500">*</span></label>
                                 <div className="relative">
@@ -262,21 +259,6 @@ const ProductDrawer = ({ isOpen, onClose, product, onSuccess }) => {
                                         required
                                         className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-4 py-3 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5"
                                     />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 ml-1">PV MAPPING <span className="text-red-500">*</span></label>
-                                <div className="relative group">
-                                    <input
-                                        type="number"
-                                        name="pv"
-                                        value={formData.pv}
-                                        onChange={handleInputChange}
-                                        placeholder="0"
-                                        required
-                                        className="w-full bg-blue-50 border border-primary/20 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-4 focus:ring-primary/5 pr-10"
-                                    />
-                                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary font-bold text-lg opacity-40 group-hover:opacity-100 transition-opacity">deployed_code</span>
                                 </div>
                             </div>
                         </div>
@@ -569,10 +551,6 @@ export default function Products() {
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price & Reward</p>
                                         <div className="flex flex-col">
                                             <span className="text-base font-black text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</span>
-                                            <span className="text-xs text-primary font-black flex items-center gap-1">
-                                                <span className="material-symbols-outlined text-[14px]">deployed_code</span>
-                                                {prod.pv} PV
-                                            </span>
                                         </div>
                                     </div>
                                     <div className="space-y-1 text-right">
@@ -613,7 +591,7 @@ export default function Products() {
                         <thead className="bg-slate-50/70 border-b border-slate-50">
                             <tr>
                                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRODUCT DETAILS</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRICING & PV</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRICING</th>
                                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">INVENTORY</th>
                                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
                                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
@@ -640,10 +618,6 @@ export default function Products() {
                                         <td className="px-8 py-6">
                                             <div className="space-y-1">
                                                 <p className="text-sm font-black text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</p>
-                                                <div className="flex items-center gap-1.5 text-primary text-[10px] font-black uppercase tracking-widest">
-                                                    <span className="material-symbols-outlined text-sm font-black">deployed_code</span>
-                                                    <span>{prod.pv} PV</span>
-                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">

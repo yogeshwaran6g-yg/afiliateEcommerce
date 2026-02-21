@@ -33,7 +33,6 @@ CREATE TABLE `products` (
     `low_stock_alert` INT DEFAULT 5,
     `images` JSON NULL,
     `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
-    `pv` INT NOT NULL DEFAULT 0,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT `uk_products_slug` UNIQUE (`slug`),

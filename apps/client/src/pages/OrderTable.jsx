@@ -93,33 +93,62 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
                             </div>
 
                             {/* Tracking Section */}
-                            <div className="lg:col-span-2">
-                              <div className="flex items-center gap-2 text-slate-900 font-bold mb-4">
-                                <span className="material-symbols-outlined text-primary">local_shipping</span>
-                                Tracking Timeline
+                            <div className="lg:col-span-2 space-y-8">
+                              {/* Shipping Address Section */}
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-slate-900 font-bold mb-4">
+                                  <span className="material-symbols-outlined text-primary">local_shipping</span>
+                                  Shipping Address
+                                </div>
+                                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                                  {details.shipping_address ? (() => {
+                                    try {
+                                      const addr = typeof details.shipping_address === 'string' 
+                                        ? JSON.parse(details.shipping_address) 
+                                        : details.shipping_address;
+                                      return (
+                                        <div className="space-y-1">
+                                          <p className="text-sm font-bold text-slate-900">{addr.address}</p>
+                                          <p className="text-sm text-slate-700">{addr.city}, {addr.state} - {addr.pincode}</p>
+                                        </div>
+                                      );
+                                    } catch (e) {
+                                      return <p className="text-sm text-slate-600">{details.shipping_address}</p>;
+                                    }
+                                  })() : (
+                                    <p className="text-sm text-slate-500 italic">No shipping address recorded for this order.</p>
+                                  )}
+                                </div>
                               </div>
-                              <div className="space-y-0 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 ml-2">
-                                {details.tracking && details.tracking.map((step, i) => (
-                                  <div key={i} className="flex gap-4 relative">
-                                    <div className="z-10 bg-slate-50 py-1">
-                                      <div
-                                        className={`w-3.5 h-3.5 rounded-full border-2 border-white bg-primary`}
-                                      />
-                                    </div>
-                                    <div className="flex-1 pb-6">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <h4 className="font-bold text-slate-900 text-sm">{step.title}</h4>
+
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-slate-900 font-bold mb-4">
+                                  <span className="material-symbols-outlined text-primary">history</span>
+                                  Tracking Timeline
+                                </div>
+                                <div className="space-y-0 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 ml-2">
+                                  {details.tracking && details.tracking.map((step, i) => (
+                                    <div key={i} className="flex gap-4 relative">
+                                      <div className="z-10 bg-slate-50 py-1">
+                                        <div
+                                          className={`w-3.5 h-3.5 rounded-full border-2 border-white bg-primary`}
+                                        />
                                       </div>
-                                      <p className="text-[10px] text-slate-400 mb-1">{new Date(step.status_time).toLocaleString()}</p>
-                                      {step.description && (
-                                        <p className="text-xs text-slate-600 line-clamp-2">{step.description}</p>
-                                      )}
+                                      <div className="flex-1 pb-6">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <h4 className="font-bold text-slate-900 text-sm">{step.title}</h4>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 mb-1">{new Date(step.status_time).toLocaleString()}</p>
+                                        {step.description && (
+                                          <p className="text-xs text-slate-600 line-clamp-2">{step.description}</p>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
-                                {(!details.tracking || details.tracking.length === 0) && (
-                                  <p className="text-sm text-slate-500 italic pl-6">No tracking updates yet.</p>
-                                )}
+                                  ))}
+                                  {(!details.tracking || details.tracking.length === 0) && (
+                                    <p className="text-sm text-slate-500 italic pl-6">No tracking updates yet.</p>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>

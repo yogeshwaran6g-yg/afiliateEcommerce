@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 import PersonalInfoSection from './registration/components/PersonalInfoSection';
 import ProductSelectionSection from './registration/components/ProductSelectionSection';
+import ShippingAddressSection from './registration/components/ShippingAddressSection';
 import PaymentSection from './registration/components/PaymentSection';
 import ProofUploadSection from './registration/components/ProofUploadSection';
 
@@ -18,6 +19,10 @@ export default function CompleteRegistration() {
         countryCode: '+91',
         password: '',
         confirmPassword: '',
+        address: '',
+        city: '',
+        state: '',
+        pincode: '',
         selectedProduct: null,
         paymentType: '',
         proof: null
@@ -29,40 +34,6 @@ export default function CompleteRegistration() {
     const [productsLoading, setProductsLoading] = useState(true);
     const [error, setError] = useState('');
     const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const cleanupTriggered = useRef(false);
-
-    // Function to handle account deletion on abandonment
-    const handleAbandonment = async (isManual = false) => {
-        if (isSubmitting || cleanupTriggered.current) return;
-
-        const user = getCurrentUser();
-        const token = localStorage.getItem('accessToken');
-
-        if (!user || !token) return;
-
-        cleanupTriggered.current = true;
-
-        try {
-            // If it's a manual call (internal navigation), use the service (axios)
-            // If it's a beforeunload call, use fetch keepalive to ensure it works on tab close
-            if (isManual) {
-                await cancelRegistration().catch(e => console.error('Cleanup service failed:', e));
-            } else {
-                const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-                fetch(`${apiBaseUrl}/api/v1/auth/cancel-registration`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    keepalive: true
-                });
-            }
-            logout(); // Clear local storage
-        } catch (err) {
-            console.error('Cleanup failed:', err);
-        }
-    };
 
     useEffect(() => {
         const user = getCurrentUser();
@@ -71,13 +42,6 @@ export default function CompleteRegistration() {
             navigate('/signup');
             return;
         }
-
-        // Add event listener for tab close / window refresh
-        const handleBeforeUnload = (e) => {
-            handleAbandonment(false);
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
 
         // Fetch real products
         const fetchProducts = async () => {
@@ -97,15 +61,7 @@ export default function CompleteRegistration() {
         };
 
         fetchProducts();
-
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            // Handle internal navigation away (unmount)
-            if (!isSubmitting) {
-                handleAbandonment(true);
-            }
-        };
-    }, [navigate, isSubmitting]);
+    }, [navigate]);
 
     const validateField = (name, value) => {
         let error = "";
@@ -133,6 +89,22 @@ export default function CompleteRegistration() {
             case "confirmPassword":
                 if (value !== formData.password) {
                     error = "Passwords do not match";
+                }
+                break;
+            case "address":
+                if (!value.trim()) error = "Street address is required";
+                break;
+            case "city":
+                if (!value.trim()) error = "City is required";
+                break;
+            case "state":
+                if (!value.trim()) error = "State is required";
+                break;
+            case "pincode":
+                if (!value.trim()) {
+                    error = "Pincode is required";
+                } else if (!/^\d{6}$/.test(value)) {
+                    error = "Pincode must be 6 digits";
                 }
                 break;
             default:
@@ -204,7 +176,7 @@ export default function CompleteRegistration() {
         const newErrors = {};
 
         // Personal Info
-        ['firstName', 'lastName', 'email', 'password', 'confirmPassword'].forEach(field => {
+        ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'address', 'city', 'state', 'pincode'].forEach(field => {
             const err = validateField(field, formData[field]);
             if (err) newErrors[field] = err;
         });
@@ -243,6 +215,12 @@ export default function CompleteRegistration() {
                 name: `${formData.firstName} ${formData.lastName}`,
                 email: formData.email,
                 password: formData.password,
+                shippingAddress: {
+                    address: formData.address,
+                    city: formData.city,
+                    state: formData.state,
+                    pincode: formData.pincode
+                },
                 selectedProductId: formData.selectedProduct.id,
                 paymentMethod: 'MANUAL', // New users always pay manually
                 paymentType: formData.paymentType,
@@ -306,6 +284,14 @@ export default function CompleteRegistration() {
                             handleProductChange={handleProductChange}
                             errors={errors}
                             loading={productsLoading}
+                        />
+
+                        <div className="border-t border-slate-100"></div>
+
+                        <ShippingAddressSection
+                            formData={formData}
+                            handleInputChange={handleInputChange}
+                            errors={errors}
                         />
 
                         <div className="border-t border-slate-100"></div>
