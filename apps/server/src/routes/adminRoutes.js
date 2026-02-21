@@ -53,10 +53,15 @@ router.put('/notifications/:id', upload.single('image'), notificationController.
 router.delete('/notifications/:id', notificationController.deleteNotification);
 // Wallet transactions
 router.get('/wallet-transactions', adminController.getWalletTransactions);
+router.get('/transaction-metrics', adminController.getTransactionMetrics);
 
 // Support Tickets
 router.get('/tickets', adminController.getTickets);
 router.post('/tickets/update-status', adminController.updateTicketStatus);
+
+// Orders management
+router.get('/orders', adminController.getOrders);
+router.get('/orders/:id', adminController.getOrderDetails);
 
 // User Notifications management
 router.get('/user-notifications', adminController.getUserNotifications);

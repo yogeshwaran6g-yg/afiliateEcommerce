@@ -13,6 +13,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
             items: [
                 { icon: "dashboard", label: "Dashboard", path: "/" },
                 { icon: "inventory_2", label: "Products", path: "/products" },
+                { icon: "shopping_cart", label: "Orders", path: "/orders" },
                 { icon: "campaign", label: "Announcements", path: "/announcements" },
                 { icon: "person_search", label: "User Management", path: "/users" },
                 { icon: "confirmation_number", label: "Tickets", path: "/tickets" },

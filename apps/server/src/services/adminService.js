@@ -181,18 +181,25 @@ const adminService = {
                     u.name as user_name,
                     u.phone as user_phone,
                     u.email as user_email,
+                    u.role as user_role,
                     w.balance as current_balance,
                     rr.proof_image,
                     rr.payment_method,
                     rr.payment_reference,
                     wr.bank_details,
                     wr.platform_fee,
-                    wr.net_amount
+                    wr.net_amount,
+                    du.name as downline_name,
+                    du.role as downline_role,
+                    (SELECT COUNT(*) FROM referral_tree WHERE upline_id = u.id AND level = 1) as user_direct_referrals,
+                    (SELECT COUNT(*) FROM referral_tree WHERE upline_id = du.id AND level = 1) as downline_direct_referrals
                 FROM wallet_transactions wt
                 JOIN wallets w ON wt.wallet_id = w.id
                 JOIN users u ON w.user_id = u.id
                 LEFT JOIN recharge_requests rr ON wt.reference_table = 'recharge_requests' AND wt.reference_id = rr.id
                 LEFT JOIN withdrawal_requests wr ON wt.reference_table = 'withdrawal_requests' AND wt.reference_id = wr.id
+                LEFT JOIN referral_commission_distribution rcd ON wt.reference_table = 'referral_commission_distribution' AND wt.reference_id = rcd.id
+                LEFT JOIN users du ON rcd.downline_id = du.id
                 ${whereClause}
                 ORDER BY wt.created_at DESC
                 LIMIT ? OFFSET ?
@@ -201,10 +208,22 @@ const adminService = {
             const transactions = await queryRunner(query, [...queryParams, parseInt(limit), parseInt(offset)]);
 
             return {
-                transactions: transactions.map(t => ({
-                    ...t,
-                    bank_details: t.bank_details ? (typeof t.bank_details === 'string' ? JSON.parse(t.bank_details) : t.bank_details) : null
-                })),
+                transactions: transactions.map(t => {
+                    // Logic to calculate ranks similar to getAllUsers
+                    const getRank = (directReferrals) => {
+                        if (directReferrals >= 10) return "Diamond";
+                        if (directReferrals >= 5) return "Platinum";
+                        if (directReferrals >= 2) return "Gold";
+                        return "Silver";
+                    };
+
+                    return {
+                        ...t,
+                        user_rank: getRank(t.user_direct_referrals || 0),
+                        downline_rank: t.downline_name ? getRank(t.downline_direct_referrals || 0) : null,
+                        bank_details: t.bank_details ? (typeof t.bank_details === 'string' ? JSON.parse(t.bank_details) : t.bank_details) : null
+                    };
+                }),
                 total,
                 totalPages: Math.ceil(total / limit)
             };
@@ -348,6 +367,38 @@ const adminService = {
             return stats;
         } catch (error) {
             log(`Error in getDashboardStats Service: ${error.message}`, "error");
+        }},
+    getTransactionMetrics: async () => {
+        try {
+            // Gross Volume (24h) - total credits in last 24h
+            const [grossVolume] = await queryRunner(`
+                SELECT COALESCE(SUM(amount), 0) as total FROM wallet_transactions 
+                WHERE entry_type = 'CREDIT' AND created_at >= NOW() - INTERVAL 1 DAY AND status = 'SUCCESS'
+            `);
+
+            // Admin Fees - total platform fees from withdrawals
+            const [adminFees] = await queryRunner(`
+                SELECT COALESCE(SUM(platform_fee), 0) as total FROM withdrawal_requests WHERE status = 'APPROVED'
+            `);
+
+            // Network Payouts - total amount disbursed in approved withdrawals
+            const [networkPayouts] = await queryRunner(`
+                SELECT COALESCE(SUM(net_amount), 0) as total FROM withdrawal_requests WHERE status = 'APPROVED'
+            `);
+
+            // Active Float - total balance across all user wallets
+            const [activeFloat] = await queryRunner(`
+                SELECT COALESCE(SUM(balance), 0) as total FROM wallets
+            `);
+
+            return {
+                grossVolume: grossVolume.total,
+                adminFees: adminFees.total,
+                networkPayouts: networkPayouts.total,
+                activeFloat: activeFloat.total
+            };
+        } catch (error) {
+            log(`Error in getTransactionMetrics Service: ${error.message}`, "error");
             throw error;
         }
     }

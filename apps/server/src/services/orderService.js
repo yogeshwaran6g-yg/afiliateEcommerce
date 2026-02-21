@@ -237,3 +237,81 @@ export const getOrderById = async (orderId, userId) => {
     return { ...order, items, tracking };
 };
 
+/**
+ * Fetches all orders (admin view) with pagination and basic filters.
+ */
+export const getAllOrders = async (filters = {}, limit = 50, offset = 0) => {
+    let query = `
+        SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+    `;
+    const params = [];
+    const conditions = [];
+
+    if (filters.status) {
+        conditions.push("o.status = ?");
+        params.push(filters.status);
+    }
+    if (filters.orderType) {
+        conditions.push("o.order_type = ?");
+        params.push(filters.orderType);
+    }
+    if (filters.search) {
+        conditions.push("(o.order_number LIKE ? OR u.name LIKE ? OR u.phone LIKE ?)");
+        const searchPattern = `%${filters.search}%`;
+        params.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
+    query += " ORDER BY o.created_at DESC LIMIT ? OFFSET ?";
+    params.push(parseInt(limit), parseInt(offset));
+
+    const [orders] = await pool.query(query, params);
+
+    // Count total for pagination
+    let countQuery = "SELECT COUNT(*) as total FROM orders o JOIN users u ON o.user_id = u.id";
+    if (conditions.length > 0) {
+        countQuery += " WHERE " + conditions.join(" AND ");
+    }
+    const [countResult] = await pool.query(countQuery, params.slice(0, -2));
+    const total = countResult[0]?.total || 0;
+
+    return { orders, total };
+};
+
+/**
+ * Fetches a single order by ID with items and tracking (admin view - no userId check).
+ */
+export const getOrderByIdAdmin = async (orderId) => {
+    const [orders] = await pool.execute(
+        `SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone,
+                op.payment_type, op.transaction_reference, op.proof_url, op.status as verification_status, op.admin_comment 
+         FROM orders o
+         JOIN users u ON o.user_id = u.id
+         LEFT JOIN order_payments op ON o.id = op.order_id
+         WHERE o.id = ?`,
+        [orderId]
+    );
+
+    if (orders.length === 0) return null;
+    const order = orders[0];
+
+    const [items] = await pool.execute(
+        `SELECT oi.*, p.name as product_name, p.images 
+         FROM order_items oi 
+         JOIN products p ON oi.product_id = p.id 
+         WHERE oi.order_id = ?`,
+        [orderId]
+    );
+
+    const [tracking] = await pool.execute(
+        `SELECT * FROM order_tracking WHERE order_id = ? ORDER BY status_time DESC`,
+        [orderId]
+    );
+
+    return { ...order, items, tracking };
+};

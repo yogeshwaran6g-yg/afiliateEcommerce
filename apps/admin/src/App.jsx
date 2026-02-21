@@ -15,6 +15,8 @@ import KYCVerification from "./pages/KYCVerification";
 import KYCDetails from "./pages/KYCDetails";
 import Login from "./pages/Login";
 import Tickets from "./pages/Tickets";
+import Orders from "./pages/Orders";
+import OrderDetails from "./pages/OrderDetails";
 import WalletTransactions from "./pages/WalletTransactions";
 import UserNotifications from "./pages/UserNotifications";
 import Notifications from "./pages/Notifications";
@@ -64,6 +66,8 @@ function App() {
 
             <Route path="/kyc" element={<KYCVerification />} />
             <Route path="/kyc/:userId" element={<KYCDetails />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/:id" element={<OrderDetails />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/user-notifications/send/:userId" element={<UserNotifications />} />
