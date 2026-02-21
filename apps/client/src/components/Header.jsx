@@ -6,9 +6,12 @@ import { useLogoutMutation } from "../hooks/useAuthService";
 import { toast } from "react-toastify";
 import { useUnreadCount } from "../hooks/useUserNotification";
 
+import { useWallet } from "../hooks/useWallet";
+
 export default function Header({ toggleSidebar }) {
   const { user, isLoading } = useContext(ProfileContext);
   const { totalItemsCount } = useCart();
+  const { data: wallet } = useWallet();
   const logoutMutation = useLogoutMutation();
   const navigate = useNavigate();
 
@@ -83,9 +86,10 @@ export default function Header({ toggleSidebar }) {
               <span className="material-symbols-outlined text-[20px] font-variation-fill">account_balance_wallet</span>
             </div>
             <div className="text-base md:text-xl font-bold text-primary">
-              ₹4,250.00
+              ₹{(wallet?.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
+
 
           <div className="flex items-center gap-2">
             {/* Cart Icon */}
