@@ -387,11 +387,12 @@ const adminController = {
 
     getUserNotifications: async function (req, res) {
         try {
+            console.log("[DEBUG] Controller received query:", req.query);
             const result = await userNotificationService.get(req.query);
             return rtnRes(res, result.code, result.msg, result.data);
         } catch (e) {
             log(`Error in getUserNotifications: ${e.message}`, "error");
-            return rtnRes(res, 500, "internal error");
+            return rtnRes(res, 500, e.message);
         }
     },
 
@@ -432,6 +433,18 @@ const adminController = {
             return rtnRes(res, result.code, result.msg, result.data);
         } catch (e) {
             log(`Error in deleteUserNotification: ${e.message}`, "error");
+            return rtnRes(res, 500, "internal error");
+        }
+    },
+
+    markUserNotificationAsRead: async function (req, res) {
+        try {
+            const { id } = req.params;
+            // Call service without user_id to mark it as read globally/as admin
+            const result = await userNotificationService.markAsRead(id);
+            return rtnRes(res, result.code, result.msg, result.data);
+        } catch (e) {
+            log(`Error in markUserNotificationAsRead: ${e.message}`, "error");
             return rtnRes(res, 500, "internal error");
         }
     }

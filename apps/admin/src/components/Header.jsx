@@ -1,7 +1,27 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useUserNotification } from "../hooks/useUserNotification";
+import { toast } from "react-toastify";
 
 export default function Header({ title = "Analytics Overview", onMenuClick }) {
+    // Use unread_only to get the count for the bell
+    const { data } = useUserNotification({ unread_only: true, limit: 100 });
+    // Calculate count from items to be safer than total
+    // If we have items but no total, use items length. 
+    // If we have no items but server says total=5, we trust items (0) because it means 5 are likely not reachable or already read.
+    const unreadCount = data?.items?.filter(n => !n.is_read).length || 0;
+    const [hasToastShown, setHasToastShown] = useState(false);
+
+    // Show toast on refresh if there are unread notifications
+    useEffect(() => {
+        if (unreadCount > 0 && !hasToastShown) {
+            toast.info(`You have ${unreadCount} unread system alerts`, {
+                toastId: "unread-alerts-summary"
+            });
+            setHasToastShown(true);
+        }
+    }, [unreadCount, hasToastShown]);
+
     return (
         <header className="h-16 md:h-20 flex items-center justify-between px-3 md:px-8 bg-white border-b border-slate-100 sticky top-0 z-20">
             <div className="flex items-center gap-2 md:gap-4 min-w-0">
@@ -38,7 +58,11 @@ export default function Header({ title = "Analytics Overview", onMenuClick }) {
                 <div className="flex items-center gap-0.5 md:gap-2">
                     <Link to="/notifications" className="relative p-2 md:p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all group">
                         <span className="material-symbols-outlined text-[22px] md:text-2xl">notifications</span>
-                        <span className="absolute top-2 md:top-2.5 right-2 md:right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white ring-2 ring-red-500/20"></span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white px-1 shadow-sm">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
                     </Link>
                     <button className="hidden sm:flex p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all">
                         <span className="material-symbols-outlined">help</span>

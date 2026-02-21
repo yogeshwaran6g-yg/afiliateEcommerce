@@ -58,6 +58,7 @@ router.post('/tickets/update-status', adminController.updateTicketStatus);
 router.get('/user-notifications', adminController.getUserNotifications);
 router.post('/user-notifications', adminController.sendUserNotification);
 router.post('/user-notifications/broadcast', adminController.broadcastUserNotification);
+router.put('/user-notifications/mark-as-read/:id', adminController.markUserNotificationAsRead);
 router.delete('/user-notifications/:id', adminController.deleteUserNotification);
 
 export default router;
