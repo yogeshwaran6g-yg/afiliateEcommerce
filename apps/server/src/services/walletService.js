@@ -86,7 +86,7 @@ export const getWalletTransactions = async (
 ) => {
   try {
     const wallet = await getWalletByUserId(userId);
-    
+
     // Base query conditions
     let conditions = "WHERE wallet_id = ?";
     let params = [wallet.id];
@@ -126,6 +126,60 @@ export const getWalletTransactions = async (
     };
   } catch (error) {
     log(`Error fetching wallet transactions: ${error.message}`, "error");
+    throw error;
+  }
+};
+
+export const getNetworkTransactions = async (
+  userId,
+  limit = 20,
+  offset = 0,
+) => {
+  try {
+    const wallet = await getWalletByUserId(userId);
+
+    // Query to join wallet_transactions with commission distribution, users (downline), and orders
+    const query = `
+      SELECT 
+        wt.id,
+        wt.amount,
+        wt.status,
+        wt.created_at,
+        rcd.level,
+        rcd.percent,
+        downline.name as downline_name,
+        o.order_number
+      FROM wallet_transactions wt
+      JOIN referral_commission_distribution rcd ON wt.reference_table = 'referral_commission_distribution' AND wt.reference_id = rcd.id
+      JOIN users downline ON rcd.downline_id = downline.id
+      JOIN orders o ON rcd.order_id = o.id
+      WHERE wt.wallet_id = ? AND wt.transaction_type = 'REFERRAL_COMMISSION'
+      ORDER BY wt.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM wallet_transactions wt
+      WHERE wt.wallet_id = ? AND wt.transaction_type = 'REFERRAL_COMMISSION'
+    `;
+
+    const [countResult] = await queryRunner(countQuery, [wallet.id]);
+    const total = countResult.total;
+
+    const rows = await queryRunner(query, [wallet.id, parseInt(limit), parseInt(offset)]);
+
+    return {
+      transactions: rows,
+      pagination: {
+        total,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: parseInt(offset) + rows.length < total
+      }
+    };
+  } catch (error) {
+    log(`Error fetching network transactions: ${error.message}`, "error");
     throw error;
   }
 };
@@ -318,6 +372,7 @@ export default {
   getWalletByUserId,
   getWalletStats,
   getWalletTransactions,
+  getNetworkTransactions,
   updateWalletBalance,
   holdBalance,
   releaseHeldBalance,

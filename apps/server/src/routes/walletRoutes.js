@@ -13,6 +13,7 @@ router.use(passport.authenticate("jwt", { session: false }));
 
 router.get("/", walletController.getWallet);
 router.get("/transactions", walletController.getTransactions);
+router.get("/network-transactions", walletController.getNetworkTransactions);
 
 // Withdraw request
 router.post("/withdraw", withdrawalController.createRequest);
