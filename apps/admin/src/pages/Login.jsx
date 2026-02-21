@@ -21,14 +21,14 @@ const Login = () => {
         setError("");
 
         try {
-            // Demo fallback for specific credentials if API fails or for immediate use
-            if (mobileNumber === "9000000000" && password === "admin123") {
-                await login(mobileNumber, password);
-                navigate(from, { replace: true });
+            const user = await login(mobileNumber, password);
+            
+            if (user.role !== 'ADMIN') {
+                await logout();
+                setError("Access denied. Admin privileges required.");
                 return;
             }
 
-            await login(mobileNumber, password);
             navigate(from, { replace: true });
         } catch (err) {
             setError(err.message || "Invalid credentials. Please try again.");

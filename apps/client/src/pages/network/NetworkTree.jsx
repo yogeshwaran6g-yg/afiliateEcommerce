@@ -170,7 +170,7 @@ const NetworkTree = () => {
             <span className="text-xs font-bold text-slate-700">{treeData?.activeMembers || "0"}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Earnings:</span>
+            <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Commission:</span>
             <span className="text-xs font-bold text-slate-700">₹{treeData?.earnings?.toLocaleString() || "0"}</span>
           </div>
         </div>

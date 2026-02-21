@@ -50,7 +50,7 @@ const NetworkStats = ({ totalNetwork = 0, directRefs = 0, earnings = 0 }) => {
       />
       <StatCard
         icon={DollarSign}
-        label="Estimated Earnings"
+        label="Estimated Commission"
         value={`₹${earnings.toLocaleString()}`}
         trend={null}
         colorClass="bg-purple-500"

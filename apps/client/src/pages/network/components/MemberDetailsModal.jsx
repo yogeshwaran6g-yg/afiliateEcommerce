@@ -87,7 +87,7 @@ const MemberDetailsModal = ({ member, isOpen, onClose, onViewTree }) => {
             </div>
             <div className="bg-gradient-to-br from-slate-50 to-white rounded-3xl p-5 border border-slate-100 shadow-sm transition-all hover:shadow-md hover:border-emerald-100 group col-span-2">
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 group-hover:text-emerald-500 transition-colors">
-                Total Contribution
+                Total Commission
               </p>
               <p className="text-2xl font-black text-slate-900 leading-none">
                 ₹{member.earnings?.toLocaleString() || 0}
@@ -152,7 +152,7 @@ const MemberDetailsModal = ({ member, isOpen, onClose, onViewTree }) => {
               Network Explorer
             </h4>
             <p className="text-xs text-slate-500 leading-relaxed font-medium capitalize">
-              Explore {member.name.toLowerCase()}'s downline network to see their performance and contribution in real-time. Use the button below to switch your view to their position.
+              Explore {member.name.toLowerCase()}'s downline network to see their performance and commission in real-time. Use the button below to switch your view to their position.
             </p>
           </div>
         </div>

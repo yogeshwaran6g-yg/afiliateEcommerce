@@ -60,4 +60,8 @@ router.post('/user-notifications', adminController.sendUserNotification);
 router.post('/user-notifications/broadcast', adminController.broadcastUserNotification);
 router.delete('/user-notifications/:id', adminController.deleteUserNotification);
 
+// Referral management
+router.get('/users/:userId/referral-overview', adminController.getUserReferralOverview);
+router.get('/users/:userId/team/:level', adminController.getTeamMembersByLevel);
+
 export default router;

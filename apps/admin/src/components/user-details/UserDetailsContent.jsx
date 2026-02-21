@@ -264,6 +264,14 @@ const UserDetailsContent = ({
                             </div>
                         )}
                     </div>
+
+                    <button
+                        onClick={() => navigate(`/genealogy/${userId}`)}
+                        className="w-full mt-2 py-4 bg-slate-800 text-white rounded-2xl font-bold text-sm hover:bg-slate-700 transition-all flex items-center justify-center gap-2 group shadow-lg shadow-slate-200"
+                    >
+                        <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">hub</span>
+                        View Full Network Explorer
+                    </button>
                 </div>
             )}
 
