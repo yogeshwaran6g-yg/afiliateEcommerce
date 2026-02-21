@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import Tickets from "./pages/Tickets";
 import WalletTransactions from "./pages/WalletTransactions";
 import UserNotifications from "./pages/UserNotifications";
+import Categories from "./pages/Categories";
 
 import Layout from "./components/Layout";
 
@@ -48,6 +49,7 @@ function App() {
             <Route path="/payouts" element={<Payouts />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/recharges" element={<Recharges />} />
             <Route path="/withdrawals" element={<Withdrawals />} />

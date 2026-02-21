@@ -80,10 +80,10 @@ export default function CommissionStructure() {
                     <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
                         <span>Admin</span>
                         <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>
-                        <span className="text-primary font-bold">Finance</span>
+                        <span className="text-primary font-bold">Settings</span>
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Commission Management</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Design your multi-tier revenue distribution engine. Changes impact network rewards instantly.</p>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Commission Settings</h2>
+                    <p className="text-sm text-slate-500 font-medium max-w-2xl leading-relaxed">Set how much money users earn from referrals and their network.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -95,117 +95,35 @@ export default function CommissionStructure() {
                         {saving ? (
                             <>
                                 <span className="animate-spin h-4 w-4 border-2 border-white/20 border-b-white rounded-full"></span>
-                                <span>Deploying...</span>
+                                <span>Saving...</span>
                             </>
                         ) : (
                             <>
-                                <span className="material-symbols-outlined text-lg">cloud_upload</span>
-                                <span>Deploy Changes</span>
+                                <span className="material-symbols-outlined text-lg">save</span>
+                                <span>Save Changes</span>
                             </>
                         )}
                     </button>
                 </div>
             </div>
 
-            <div className="flex flex-col xl:flex-row gap-12">
-                {/* Levels List */}
-                <div className="flex-1 space-y-4">
-                    <div className="p-1">
-                        <div className="flex items-center justify-between mb-8">
-                            <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Network Nodes</h5>
-                            <span className="text-[9px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest">6 Active Tiers</span>
-                        </div>
-                        <div className="space-y-5">
-                            {levelsData.map(level => (
-                                <CommissionLevel
-                                    key={level.level}
-                                    {...level}
-                                    active={level.is_active}
-                                    value={level.percent}
-                                    onToggle={() => updateLevelProperty(level.level, 'is_active', !level.is_active)}
-                                    onChange={(val) => updateLevelProperty(level.level, 'percent', val)}
-                                />
-                            ))}
-                        </div>
+            <div className="max-w-5xl mx-auto">
+                <div className="p-1">
+                    <div className="flex items-center justify-between mb-8">
+                        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commission Levels</h5>
+                        <span className="text-[9px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest">{levels.filter(l => l.is_active).length} Active Tiers</span>
                     </div>
-                </div>
-
-                {/* Simulation Sidebar */}
-                <div className="w-full xl:w-[400px] space-y-6">
-                    <div className="bg-white p-8 md:p-10 rounded-[3rem] border border-slate-100 shadow-[0_32px_64px_rgba(0,0,0,0.02)] space-y-10">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                    <span className="material-symbols-outlined text-2xl font-bold">insights</span>
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none">Simulation</h3>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Real-time Payouts</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">BASE SALES VOLUME</label>
-                            <div className="relative group">
-                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-black text-xl">$</span>
-                                <input
-                                    type="number"
-                                    value={baseVolume}
-                                    onChange={(e) => setBaseVolume(parseFloat(e.target.value) || 0)}
-                                    className="w-full pl-12 pr-6 py-6 bg-slate-50 border border-slate-100 rounded-3xl text-3xl font-black text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-6 pt-6 border-t border-slate-50">
-                            <div className="flex justify-between items-end">
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Network Payout ({totalPayoutPercent.toFixed(2)}%)</p>
-                                    <div className="text-3xl font-black text-primary tracking-tight">${totalPayoutAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between items-end">
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Net Revenue</p>
-                                    <div className="text-3xl font-black text-slate-900 tracking-tight">${companyNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center text-[11px] font-bold">
-                                <span className="text-slate-400 uppercase tracking-widest">Sustainability Bar</span>
-                                <span className={totalPayoutPercent > 80 ? 'text-red-500' : 'text-green-600'}>
-                                    {(100 - totalPayoutPercent).toFixed(1)}% margin
-                                </span>
-                            </div>
-                            <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5">
-                                <div
-                                    className={`h-full rounded-full transition-all duration-1000 shadow-sm ${totalPayoutPercent > 80 ? 'bg-red-500' : 'bg-primary'}`}
-                                    style={{ width: `${Math.min(totalPayoutPercent, 100)}%` }}
-                                ></div>
-                            </div>
-                        </div>
-
-                        <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 flex gap-4">
-                            <span className="material-symbols-outlined text-blue-600 font-bold">verified</span>
-                            <div className="space-y-1">
-                                <p className="text-xs text-blue-900 font-black">Fee Calculation Notice</p>
-                                <p className="text-[11px] text-blue-800/70 font-bold leading-relaxed">
-                                    Operational fees (4.5%) are already deducted from the Platform Net Revenue. Distribution is stable.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Final Notice */}
-                    <div className="px-10 py-6 border-l-2 border-amber-200 bg-amber-50/30">
-                        <p className="text-[10px] text-amber-900/60 font-bold leading-relaxed uppercase tracking-wider">
-                            Changes require re-calibration of <br />
-                            affiliate point values (PV).
-                        </p>
+                    <div className="grid grid-cols-1 gap-5">
+                        {levelsData.map(level => (
+                            <CommissionLevel
+                                key={level.level}
+                                {...level}
+                                active={level.is_active}
+                                value={level.percent}
+                                onToggle={() => updateLevelProperty(level.level, 'is_active', !level.is_active)}
+                                onChange={(val) => updateLevelProperty(level.level, 'percent', val)}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>

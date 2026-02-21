@@ -1,12 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import userApiService from '../../services/userApiService';
 
 const UserDetailsContent = ({
     user,
     activeTab,
     setActiveTab,
     userId,
-    navigate
+    navigate,
+    refreshUser
 }) => {
+    const [isEditingWallet, setIsEditingWallet] = useState(false);
+    const [walletData, setWalletData] = useState({
+        balance: user.balance,
+        locked_balance: user.locked_balance
+    });
+    const [saving, setSaving] = useState(false);
+
+    // Sync local state when user prop updates
+    useEffect(() => {
+        setWalletData({
+            balance: user.balance,
+            locked_balance: user.locked_balance
+        });
+    }, [user.balance, user.locked_balance]);
+
+    const handleSaveWallet = async () => {
+        try {
+            setSaving(true);
+            await userApiService.updateUser(userId, {
+                balance: parseFloat(walletData.balance),
+                locked_balance: parseFloat(walletData.locked_balance)
+            });
+            setIsEditingWallet(false);
+            if (refreshUser) refreshUser();
+        } catch (error) {
+            alert(error.message || "Failed to update wallet");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
         <div className="lg:col-span-7 xl:col-span-8 space-y-4 animate-in slide-in-from-right-8 duration-700">
 
@@ -14,10 +47,17 @@ const UserDetailsContent = ({
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-2">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-bold text-slate-800 tracking-tight">User Overview</h2>
-                    <p className="text-sm text-slate-500 font-medium">Detailed breakdown of user status and performance.</p>
+                    <p className="text-sm text-slate-500 font-medium">Basic info and wallet details for this user.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate(`/user-notifications/send/${user.id || user.dbId}`)}
+                        className="bg-slate-900 text-white rounded-xl px-4 py-3 shadow-sm flex items-center gap-2 hover:bg-slate-800 transition-colors group"
+                    >
+                        <span className="material-symbols-outlined text-sm font-bold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">send</span>
+                        <span className="text-xs font-bold uppercase tracking-wider">Send Message</span>
+                    </button>
                     {!!user.referred_by && (
                         <button
                             onClick={() => navigate(`/users/${user.referred_by}`)}
@@ -43,7 +83,6 @@ const UserDetailsContent = ({
             {/* Simple Tab Control */}
             <div className="bg-slate-100/50 p-1.5 rounded-2xl border border-slate-100 inline-flex flex-wrap items-center gap-1">
                 {[
-                    { id: 'ACTIVATION', label: 'Activation', icon: 'bolt' },
                     { id: 'KYC', label: 'KYC', icon: 'verified_user' },
                     { id: 'WALLET', label: 'Wallet', icon: 'account_balance_wallet' },
                     { id: 'REFERRALS', label: 'Referrals', icon: 'hub' }
@@ -74,14 +113,36 @@ const UserDetailsContent = ({
                                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/5">
                                         <span className="material-symbols-outlined text-xl text-primary font-bold">payments</span>
                                     </div>
-                                    <span className="px-3 py-1 bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-wider">Main Wallet</span>
+                                    <div className="flex items-center gap-2">
+                                        {!isEditingWallet && (
+                                            <button
+                                                onClick={() => setIsEditingWallet(true)}
+                                                className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">edit</span>
+                                            </button>
+                                        )}
+                                        <span className="px-3 py-1 bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-wider">Main Wallet</span>
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Available Balance</p>
-                                    <h3 className="text-3xl font-bold tracking-tight">
-                                        <span className="text-primary mr-2 font-medium">₹</span>
-                                        {Number(user.balance || 0).toLocaleString()}
-                                    </h3>
+                                    {isEditingWallet ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-primary text-2xl font-medium">₹</span>
+                                            <input
+                                                type="number"
+                                                value={walletData.balance}
+                                                onChange={(e) => setWalletData({ ...walletData, balance: e.target.value })}
+                                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-2xl font-bold text-white w-full focus:outline-none focus:ring-2 focus:ring-primary/40 ring-offset-slate-900 ring-offset-2"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <h3 className="text-3xl font-bold tracking-tight">
+                                            <span className="text-primary mr-2 font-medium">₹</span>
+                                            {Number(user.balance || 0).toLocaleString()}
+                                        </h3>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -97,14 +158,50 @@ const UserDetailsContent = ({
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Locked Amount</p>
-                                    <h3 className="text-3xl font-bold text-slate-800 tracking-tight">
-                                        <span className="text-slate-300 mr-2 font-medium">₹</span>
-                                        {Number(user.locked_balance || 0).toLocaleString()}
-                                    </h3>
+                                    {isEditingWallet ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-slate-300 text-2xl font-medium">₹</span>
+                                            <input
+                                                type="number"
+                                                value={walletData.locked_balance}
+                                                onChange={(e) => setWalletData({ ...walletData, locked_balance: e.target.value })}
+                                                className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-2xl font-bold text-slate-800 w-full focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <h3 className="text-3xl font-bold text-slate-800 tracking-tight">
+                                            <span className="text-slate-300 mr-2 font-medium">₹</span>
+                                            {Number(user.locked_balance || 0).toLocaleString()}
+                                        </h3>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {isEditingWallet && (
+                        <div className="flex gap-3 animate-in slide-in-from-top-2 duration-300">
+                            <button
+                                onClick={handleSaveWallet}
+                                disabled={saving}
+                                className="flex-1 py-4 bg-primary text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50"
+                            >
+                                {saving ? 'Updating Wallet...' : 'Save Balance Changes'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setIsEditingWallet(false);
+                                    setWalletData({
+                                        balance: user.balance,
+                                        locked_balance: user.locked_balance
+                                    });
+                                }}
+                                className="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all active:scale-[0.98]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
 
                     <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -147,7 +244,7 @@ const UserDetailsContent = ({
                             </div>
                         </div>
 
-                        {user.referred_by_referral_id ? (
+                        {user.referred_by_referral_id && (
                             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
@@ -163,19 +260,6 @@ const UserDetailsContent = ({
                                     >
                                         <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                     </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center text-slate-500">
-                                        <span className="material-symbols-outlined text-sm font-bold">stars</span>
-                                    </div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Level</p>
-                                </div>
-                                <div>
-                                    <h5 className="text-lg font-bold text-slate-700">Premium Member</h5>
-                                    <p className="text-[10px] text-slate-400 font-medium uppercase mt-1">Direct Enrollment</p>
                                 </div>
                             </div>
                         )}
@@ -248,79 +332,7 @@ const UserDetailsContent = ({
                 </div>
             )}
 
-            {/* TAB CONTENT: ACTIVATION */}
-            {activeTab === 'ACTIVATION' && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
-                    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-8">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center text-primary border border-primary/10">
-                                    <span className="material-symbols-outlined text-2xl">bolt</span>
-                                </div>
-                                <div>
-                                    <h4 className="text-xl font-bold text-slate-800 tracking-tight">Activation Details</h4>
-                                    <p className="text-slate-500 font-medium text-[11px]">Payment and enrollment status.</p>
-                                </div>
-                            </div>
-
-                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${user.activation_payment_status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-100' :
-                                user.activation_payment_status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                    user.activation_payment_status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-100' :
-                                        'bg-slate-50 text-slate-400 border-slate-100'
-                                }`}>
-                                {user.activation_payment_status || 'Empty'}
-                            </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                            <div className="space-y-8">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Product</p>
-                                        <p className="text-xs font-semibold text-slate-700">{user.activated_product_name || 'Not Available'}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Method</p>
-                                        <p className="text-xs font-semibold text-slate-700 uppercase">{user.activation_payment_type || 'None'}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Date</p>
-                                        <p className="text-xs font-semibold text-slate-700">{user.activation_submitted_at ? new Date(user.activation_submitted_at).toLocaleDateString() : 'N/A'}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Reference</p>
-                                        <p className="text-xs font-medium text-slate-500 truncate">{user.referral_id}</p>
-                                    </div>
-                                </div>
-
-                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    <p className="text-[10px] text-slate-500 font-medium leading-relaxed italic">
-                                        " {user.activation_admin_comment || 'No admin notes available'} "
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment Proof</p>
-                                {user.activation_proof_url ? (
-                                    <div className="relative aspect-video bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden cursor-zoom-in"
-                                        onClick={() => window.open(`http://localhost:4000${user.activation_proof_url}`, '_blank')}>
-                                        <img
-                                            src={`http://localhost:4000${user.activation_proof_url}`}
-                                            alt="Proof"
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="aspect-video bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-300">
-                                        <p className="text-xs font-bold uppercase opacity-50">No evidence provided</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Other tabs remain here */}
 
 
 

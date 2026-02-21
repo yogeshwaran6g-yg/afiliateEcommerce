@@ -47,7 +47,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await withdrawalService.approveWithdrawal(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -69,7 +69,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await withdrawalService.rejectWithdrawal(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -91,7 +91,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await rechargeService.approveRecharge(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -113,7 +113,7 @@ const adminController = {
             if (!requestId) return rtnRes(res, 400, "requestId is required");
 
             const result = await rechargeService.rejectRecharge(requestId, adminComment);
-            
+
             // Send Notification
             await userNotificationService.create({
                 user_id: result.request.user_id,
@@ -183,26 +183,43 @@ const adminController = {
     updateUser: async function (req, res) {
         try {
             const { userId } = req.params;
-            const { name, email, phone, is_blocked, account_activation_status } = req.body;
+            const { name, email, phone, is_blocked, account_activation_status, balance, locked_balance } = req.body;
 
             if (!userId) return rtnRes(res, 400, "userId is required");
 
-            await queryRunner(`
-                UPDATE users SET 
-                    name = COALESCE(?, name),
-                    email = COALESCE(?, email),
-                    phone = COALESCE(?, phone),
-                    is_blocked = COALESCE(?, is_blocked),
-                    account_activation_status = COALESCE(?, account_activation_status)
-                WHERE id = ?
-            `, [
-                name === undefined ? null : name,
-                email === undefined ? null : email,
-                phone === undefined ? null : phone,
-                is_blocked === undefined ? null : is_blocked,
-                account_activation_status === undefined ? null : account_activation_status,
-                userId
-            ]);
+            await transactionRunner(async (connection) => {
+                // Update users table
+                await connection.execute(`
+                    UPDATE users SET 
+                        name = COALESCE(?, name),
+                        email = COALESCE(?, email),
+                        phone = COALESCE(?, phone),
+                        is_blocked = COALESCE(?, is_blocked),
+                        account_activation_status = COALESCE(?, account_activation_status)
+                    WHERE id = ?
+                `, [
+                    name === undefined ? null : name,
+                    email === undefined ? null : email,
+                    phone === undefined ? null : phone,
+                    is_blocked === undefined ? null : is_blocked,
+                    account_activation_status === undefined ? null : account_activation_status,
+                    userId
+                ]);
+
+                // Update wallets table if balance or locked_balance is provided
+                if (balance !== undefined || locked_balance !== undefined) {
+                    await connection.execute(`
+                        UPDATE wallets SET 
+                            balance = COALESCE(?, balance),
+                            locked_balance = COALESCE(?, locked_balance)
+                        WHERE user_id = ?
+                    `, [
+                        balance === undefined ? null : balance,
+                        locked_balance === undefined ? null : locked_balance,
+                        userId
+                    ]);
+                }
+            });
 
             return rtnRes(res, 200, "User updated successfully");
         } catch (e) {
@@ -291,7 +308,7 @@ const adminController = {
         }
 
     },
-      updateKYCStatus: async function (req, res) {
+    updateKYCStatus: async function (req, res) {
         try {
             const { userId } = req.params;
             const { type, status } = req.body;

@@ -10,7 +10,7 @@ export default function UserDetails() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('ACTIVATION');
+    const [activeTab, setActiveTab] = useState('WALLET');
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ name: '', email: '' });
     const [saving, setSaving] = useState(false);
@@ -145,6 +145,7 @@ export default function UserDetails() {
                         setActiveTab={setActiveTab}
                         userId={userId}
                         navigate={navigate}
+                        refreshUser={fetchUserDetails}
                     />
                 </div>
 
