@@ -49,32 +49,73 @@ export const getWalletStats = async (userId) => {
     // Get wallet data
     const wallet = await getWalletByUserId(userId);
 
-    // Calculate total commissions from referral commission transactions
-    const commissionRows = await queryRunner(
-      `SELECT COALESCE(SUM(amount), 0) as total_commissions 
+    // Calculate total, monthly, and today's commissions
+    const statsRows = await queryRunner(
+      `SELECT 
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' THEN amount ELSE 0 END), 0) as total_income,
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE()) THEN amount ELSE 0 END), 0) as month_income,
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND DATE(created_at) = CURRENT_DATE() THEN amount ELSE 0 END), 0) as today_income
        FROM wallet_transactions 
-       WHERE wallet_id = ? 
-       AND transaction_type = 'REFERRAL_COMMISSION' 
-       AND status = 'SUCCESS'`,
+       WHERE wallet_id = ?`,
       [wallet.id],
     );
 
-    const totalCommissions = parseFloat(
-      commissionRows[0]?.total_commissions || 0,
+    // Calculate Team Stats
+    const teamStatsRows = await queryRunner(
+      `SELECT 
+        COUNT(*) as total_members,
+        SUM(CASE WHEN MONTH(u.created_at) = MONTH(CURRENT_DATE()) AND YEAR(u.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as month_joined,
+        SUM(CASE WHEN DATE(u.created_at) = CURRENT_DATE() THEN 1 ELSE 0 END) as today_joined
+       FROM referral_tree rt
+       JOIN users u ON rt.downline_id = u.id
+       WHERE rt.upline_id = ?`,
+      [userId],
     );
+
+    // Calculate Team Purchase Stats
+    const teamPurchaseRows = await queryRunner(
+      `SELECT 
+        COALESCE(SUM(o.total_amount), 0) as total_purchase,
+        COALESCE(SUM(CASE WHEN MONTH(o.created_at) = MONTH(CURRENT_DATE()) AND YEAR(o.created_at) = YEAR(CURRENT_DATE()) THEN o.total_amount ELSE 0 END), 0) as month_purchase,
+        COALESCE(SUM(CASE WHEN DATE(o.created_at) = CURRENT_DATE() THEN o.total_amount ELSE 0 END), 0) as today_purchase
+       FROM referral_tree rt
+       JOIN orders o ON rt.downline_id = o.user_id
+       WHERE rt.upline_id = ? AND o.payment_status = 'PAID'`,
+      [userId],
+    );
+
+    const stats = statsRows[0];
+    const teamStats = teamStatsRows[0];
+    const teamPurchase = teamPurchaseRows[0];
 
     // Return wallet data with calculated stats
     return {
       ...wallet,
+      balance: parseFloat(wallet.balance),
+      locked_balance: parseFloat(wallet.locked_balance),
       withdrawable: parseFloat(wallet.balance),
       on_hold: parseFloat(wallet.locked_balance),
-      commissions: totalCommissions,
+      total_income: parseFloat(stats.total_income || 0),
+      month_income: parseFloat(stats.month_income || 0),
+      today_income: parseFloat(stats.today_income || 0),
+      commissions: parseFloat(stats.total_income || 0), // Alias for backward compatibility
+
+      // Team Stats
+      total_team_members: parseInt(teamStats.total_members || 0),
+      month_joined: parseInt(teamStats.month_joined || 0),
+      today_joined: parseInt(teamStats.today_joined || 0),
+
+      // Team Purchase Stats
+      total_team_purchase: parseFloat(teamPurchase.total_purchase || 0),
+      month_purchase: parseFloat(teamPurchase.month_purchase || 0),
+      today_purchase: parseFloat(teamPurchase.today_purchase || 0),
     };
   } catch (error) {
     log(`Error fetching wallet stats: ${error.message}`, "error");
     throw error;
   }
 };
+
 
 export const getWalletTransactions = async (
   userId,
@@ -86,7 +127,7 @@ export const getWalletTransactions = async (
 ) => {
   try {
     const wallet = await getWalletByUserId(userId);
-    
+
     // Base query conditions
     let conditions = "WHERE wallet_id = ?";
     let params = [wallet.id];
@@ -126,6 +167,60 @@ export const getWalletTransactions = async (
     };
   } catch (error) {
     log(`Error fetching wallet transactions: ${error.message}`, "error");
+    throw error;
+  }
+};
+
+export const getNetworkTransactions = async (
+  userId,
+  limit = 20,
+  offset = 0,
+) => {
+  try {
+    const wallet = await getWalletByUserId(userId);
+
+    // Query to join wallet_transactions with commission distribution, users (downline), and orders
+    const query = `
+      SELECT 
+        wt.id,
+        wt.amount,
+        wt.status,
+        wt.created_at,
+        rcd.level,
+        rcd.percent,
+        downline.name as downline_name,
+        o.order_number
+      FROM wallet_transactions wt
+      JOIN referral_commission_distribution rcd ON wt.reference_table = 'referral_commission_distribution' AND wt.reference_id = rcd.id
+      JOIN users downline ON rcd.downline_id = downline.id
+      JOIN orders o ON rcd.order_id = o.id
+      WHERE wt.wallet_id = ? AND wt.transaction_type = 'REFERRAL_COMMISSION'
+      ORDER BY wt.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM wallet_transactions wt
+      WHERE wt.wallet_id = ? AND wt.transaction_type = 'REFERRAL_COMMISSION'
+    `;
+
+    const [countResult] = await queryRunner(countQuery, [wallet.id]);
+    const total = countResult.total;
+
+    const rows = await queryRunner(query, [wallet.id, parseInt(limit), parseInt(offset)]);
+
+    return {
+      transactions: rows,
+      pagination: {
+        total,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: parseInt(offset) + rows.length < total
+      }
+    };
+  } catch (error) {
+    log(`Error fetching network transactions: ${error.message}`, "error");
     throw error;
   }
 };
@@ -318,6 +413,7 @@ export default {
   getWalletByUserId,
   getWalletStats,
   getWalletTransactions,
+  getNetworkTransactions,
   updateWalletBalance,
   holdBalance,
   releaseHeldBalance,

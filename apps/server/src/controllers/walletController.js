@@ -36,6 +36,27 @@ const walletController = {
       return rtnRes(res, 500, "Internal server error.");
     }
   },
+
+  getNetworkTransactions: async function (req, res) {
+    try {
+      const userId = req.user.id;
+      const { limit = 20, offset = 0 } = req.query;
+      const result = await walletService.getNetworkTransactions(
+        userId,
+        limit,
+        offset,
+      );
+      return rtnRes(
+        res,
+        200,
+        "Network transactions fetched successfully.",
+        result,
+      );
+    } catch (e) {
+      log(`getNetworkTransactions error: ${e.message}`, "error");
+      return rtnRes(res, 500, "Internal server error.");
+    }
+  },
 };
 
 export default walletController;
