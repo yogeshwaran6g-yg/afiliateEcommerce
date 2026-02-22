@@ -166,7 +166,7 @@ export const seedSamples = async (connection, adminId, adminWalletId) => {
   }
 
   // 6. Seed Tickets and Notifications
-  log("Seeding tickets and notifications...", "info");
+  log("Seeding tickets and user notifications...", "info");
   for (let i = 0; i < 5; i++) {
     const userId = userIds[i % userIds.length];
     await connection.execute(
@@ -177,6 +177,78 @@ export const seedSamples = async (connection, adminId, adminWalletId) => {
       `INSERT INTO user_notifications (user_id, title, type, description) VALUES (?, ?, ?, ?)`,
       [userId, `Welcome Notification ${i}`, 'ACCOUNT', 'Welcome to the platform!']
     );
+  }
+
+  // 7. Seed Popup Banners
+  log("Seeding popup banners...", "info");
+  const banners = [
+    { title: "Welcome Sale", short: "Get 20% off on your first order!", long: "Enjoy our welcome sale with 20% off on all electronics and fashion items. Valid for a limited time." },
+    { title: "Refer & Earn", short: "Earn commissions by referring friends!", long: "Join our referral program and earn up to 6 levels of commission on every purchase made by your referrals." }
+  ];
+  for (const banner of banners) {
+    await connection.execute(
+      "INSERT INTO popup_banners (title, short_description, long_description, is_active) VALUES (?, ?, ?, true)",
+      [banner.title, banner.short, banner.long]
+    );
+  }
+
+  // 8. Seed Global Notifications (Advertisements)
+  log("Seeding global notifications...", "info");
+  for (let i = 1; i <= 3; i++) {
+    await connection.execute(
+      `INSERT INTO notifications (heading, short_description, long_description, advertisement_end_time) VALUES (?, ?, ?, ?)`,
+      [
+        `Summer Deal ${i}`,
+        `Exclusive summer deals just for you!`,
+        `Check out our summer collection and enjoy huge discounts on sports and outdoor gear.`,
+        new Date(Date.now() + 86400000 * 30).toISOString().slice(0, 19).replace('T', ' ')
+      ]
+    );
+  }
+
+  // 9. Seed Carts and Cart Items
+  log("Seeding user carts...", "info");
+  for (let i = 0; i < 10; i++) {
+    const userId = userIds[i % userIds.length];
+    const [cartResult] = await connection.execute(
+      "INSERT INTO carts (user_id, status) VALUES (?, 'active')",
+      [userId]
+    );
+    const cartId = cartResult.insertId;
+
+    // Add 1-3 random products to cart
+    const numItems = Math.floor(Math.random() * 3) + 1;
+    for (let j = 0; j < numItems; j++) {
+      const product = products[Math.floor(Math.random() * products.length)];
+      await connection.execute(
+        "INSERT IGNORE INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)",
+        [cartId, product.id, Math.floor(Math.random() * 2) + 1]
+      );
+    }
+  }
+
+  // 10. Seed Order Tracking for existing orders
+  log("Seeding order tracking...", "info");
+  const [allOrders] = await connection.execute("SELECT id, status FROM orders");
+  for (const order of allOrders) {
+    await connection.execute(
+      "INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)",
+      [order.id, "Order Placed", "Your order has been successfully placed and is being processed."]
+    );
+    
+    if (order.status !== 'PROCESSING' && order.status !== 'CANCELLED') {
+      await connection.execute(
+        "INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)",
+        [order.id, "Order Shipped", "Your order has been handed over to the courier."]
+      );
+    }
+    
+    if (order.status === 'DELIVERED') {
+      await connection.execute(
+        "INSERT INTO order_tracking (order_id, title, description) VALUES (?, ?, ?)",
+        [order.id, "Order Delivered", "Your order has been delivered successfully."]
+      );
+    }
   }
 
   log("Sample data seeding completed successfully!", "success");

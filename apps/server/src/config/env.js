@@ -24,7 +24,7 @@ export const env = {
   WHATSUP_OTP_TOKEN: process.env.WHATSUP_OTP_TOKEN,
   ENABLE_WHATSAPP_OTP: process.env.ENABLE_WHATSAPP_OTP === "true",
 
-  OTP_RESEND_COOLDOWN: Number(process.env.OTP_RESEND_COOLDOWN) || 100
-
+  OTP_RESEND_COOLDOWN: Number(process.env.OTP_RESEND_COOLDOWN) || 100,
+  OTP_EXPIRE_TIME: Number(process.env.OTP_EXPIRE_TIME) || 5
 };
 

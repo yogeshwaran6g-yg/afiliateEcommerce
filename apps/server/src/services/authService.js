@@ -127,7 +127,7 @@ export const sendOtp = async (userId, phone, purpose = 'login') => {
         // Hash OTP before storing
         const salt = await bcrypt.genSalt(10);
         const otpHash = await bcrypt.hash(otp, salt);
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        const expiresAt = new Date(Date.now() + env.OTP_EXPIRE_TIME * 60 * 1000); // 5 minutes
 
         await connection.query(
             `INSERT INTO otp (user_id, otp_hash, purpose, expires_at) 

@@ -30,10 +30,10 @@ export const seedReferrals = async (connection, adminId) => {
     return userId;
   };
 
-  // 1. Create 10 Direct Referrals (Level 1)
-  log("Creating 10 direct referrals for admin...", "info");
+  // 1. Create 15 Direct Referrals (Level 1)
+  log("Creating 15 direct referrals for admin...", "info");
   const directReferralIds = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 15; i++) {
     const userId = await createReferralUser(
       `User ${i}`,
       `91000000${i.toString().padStart(2, '0')}`,
@@ -42,17 +42,24 @@ export const seedReferrals = async (connection, adminId) => {
     directReferralIds.push(userId);
   }
 
-  // 2. Create a 6-level chain starting from User 1
-  log("Creating a deep referral chain starting from User 1...", "info");
-  let lastReferrerId = directReferralIds[0];
-  for (let i = 11; i <= 15; i++) {
-    const userId = await createReferralUser(
-      `User ${i}`,
-      `92000000${i}`,
-      lastReferrerId
-    );
-    lastReferrerId = userId;
+  // 2. Create complex branches
+  log("Creating complex referral branches...", "info");
+  
+  // Branch 1: User 1 -> 5 levels deep
+  let lastId1 = directReferralIds[0];
+  for (let i = 16; i <= 20; i++) {
+    lastId1 = await createReferralUser(`User ${i}`, `92000000${i}`, lastId1);
   }
+
+  // Branch 2: User 2 -> 3 levels deep
+  let lastId2 = directReferralIds[1];
+  for (let i = 21; i <= 23; i++) {
+    lastId2 = await createReferralUser(`User ${i}`, `92000000${i}`, lastId2);
+  }
+
+  // Branch 3: User 3 -> 2 direct referrals
+  await createReferralUser(`User 24`, `9200000024`, directReferralIds[2]);
+  await createReferralUser(`User 25`, `9200000025`, directReferralIds[2]);
 
   log("Referral seeding completed.", "success");
 };

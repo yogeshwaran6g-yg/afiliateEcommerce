@@ -69,11 +69,12 @@ export default function PersonalInfoSection({ formData, handleInputChange, error
                         name="countryCode" 
                         value={formData.countryCode}
                         onChange={handleInputChange} 
-                        className="w-full px-4 py-3.5 bg-gradient-to-br from-slate-50 to-slate-50/50 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all hover:border-slate-300 shadow-sm"
+                        disabled
+                        className="w-full px-4 py-3.5 bg-slate-100 border-2 border-slate-200 rounded-xl focus:outline-none cursor-not-allowed opacity-75 shadow-sm"
                     >
-                        <option value="+91">🇮🇳 +91 (India)</option>
-                        <option value="+1">🇺🇸 +1 (USA)</option>
-                        <option value="+44">🇬🇧 +44 (UK)</option>
+                        <option value={91}>🇮🇳 +91 (India)</option>
+                        <option value={1}>🇺🇸 +1 (USA)</option>
+                        <option value={44}>🇬🇧 +44 (UK)</option>
                     </select>
                 </div>
                 <div className="space-y-2">

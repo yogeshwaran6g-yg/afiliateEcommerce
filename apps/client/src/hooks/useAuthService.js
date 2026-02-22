@@ -138,6 +138,24 @@ export const useUpdatePasswordMutation = () => {
 };
 
 /**
+ * Hook for completing user registration.
+ * 
+ * @returns {import('@tanstack/react-query').UseMutationResult}
+ */
+export const useCompleteRegistrationMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (registrationData) => authService.completeRegistration(registrationData),
+        onSuccess: (data) => {
+            if (data.success && data.data?.user) {
+                queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
+                queryClient.invalidateQueries({ queryKey: ["profile"] });
+            }
+        },
+    });
+};
+
+/**
  * Hook for logging out.
  * Clears local storage and all query cache.
  * 
