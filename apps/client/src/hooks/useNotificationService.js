@@ -8,12 +8,7 @@ export const useNotifications = (filters = {}) => {
         queryKey: [...NOTIFICATION_QUERY_KEY, filters],
         queryFn: async () => {
             const response = await getNotifications(filters);
-            // Handle various response shapes consistently
-            if (!response) return [];
-            if (response.success && Array.isArray(response.data)) return response.data;
-            if (Array.isArray(response.data?.items)) return response.data.items;
-            if (Array.isArray(response)) return response;
-            return [];
+            return response.data || response;
         },
         staleTime: 1000 * 60 * 2, // 2 minutes
     });

@@ -27,12 +27,12 @@ http.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Handle FormData and standard objects
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
-    } else {
+    } else if (config.data && typeof config.data === "object") {
       config.headers["Content-Type"] = "application/json";
     }
-
 
     return config;
   },
@@ -60,22 +60,35 @@ http.interceptors.response.use(
   },
   (error) => {
     const status = error?.response?.status;
-
- 
+    const data = error?.response?.data;
 
     // Normalize error
     const message =
-      error?.response?.data?.message ||
+      data?.message ||
       error?.message ||
       "Something went wrong";
 
-    return Promise.reject({
+    const normalizedError = {
       status,
       message,
+      data: data?.data || null,
       raw: error,
-    });
+    };
+
+    // Log error for debugging
+    console.error(`[API Error] ${error.config?.url}:`, message);
+
+    return Promise.reject(normalizedError);
   }
 );
+
+/**
+ * Standard error handler for services
+ */
+export const handleServiceError = (error, context) => {
+  console.error(`${context} Error:`, error.message || error);
+  throw error;
+};
 
 
 

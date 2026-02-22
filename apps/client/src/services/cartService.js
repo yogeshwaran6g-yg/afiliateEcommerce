@@ -1,4 +1,4 @@
-import { api } from "../util/axios";
+import { api, handleServiceError } from "../util/axios";
 import constants from "../config/constants";
 
 const { cart: cartEndpoints } = constants.endpoints;
@@ -19,8 +19,7 @@ const cartService = {
             }
             return [];
         } catch (error) {
-            console.error("Get Cart Error:", error);
-            return [];
+            handleServiceError(error, "Get Cart");
         }
     },
 
@@ -37,22 +36,20 @@ const cartService = {
             }
             throw new Error(response.message || "Failed to add to cart");
         } catch (error) {
-            console.error("Add to Cart Error:", error);
-            throw error;
+            handleServiceError(error, "Add to Cart");
         }
     },
 
     // Remove item from cart on backend
     async removeFromCart(productId) {
         try {
-            const response = await api.delete(`${cartEndpoints.remove}/${productId}`);
+            const response = await api.delete(cartEndpoints.remove(productId));
             if (response.success) {
                 return await this.getCart();
             }
             throw new Error(response.message || "Failed to remove from cart");
         } catch (error) {
-            console.error("Remove from Cart Error:", error);
-            throw error;
+            handleServiceError(error, "Remove from Cart");
         }
     },
 
@@ -67,8 +64,7 @@ const cartService = {
             }
             return items;
         } catch (error) {
-            console.error("Update Quantity Error:", error);
-            throw error;
+            handleServiceError(error, "Update Quantity");
         }
     },
 
@@ -84,8 +80,7 @@ const cartService = {
             }
             throw new Error(response.message || "Failed to update quantity");
         } catch (error) {
-            console.error("Set Quantity Error:", error);
-            throw error;
+            handleServiceError(error, "Set Quantity");
         }
     },
 
@@ -98,8 +93,7 @@ const cartService = {
             }
             throw new Error(response.message || "Failed to clear cart");
         } catch (error) {
-            console.error("Clear Cart Error:", error);
-            return [];
+            handleServiceError(error, "Clear Cart");
         }
     }
 };

@@ -18,19 +18,20 @@ export const useUser = () => {
     return useQuery({
         queryKey: USER_QUERY_KEY,
         queryFn: async () => {
-            try {
-                const response = await profileService.getProfile();
-                // Backend returns { success, data: { user, ... } }
-                return response.data?.user || response.data;
-            } catch (error) {
-                // Fallback to local storage if API fails or we are offline
-                const localUser = authService.getCurrentUser();
-                if (localUser) return localUser;
-                throw error;
-            }
+            const response = await profileService.getProfile();
+            // Backend returns { success, data: { user, ... } }
+            return response.data?.user || response.data;
         },
         enabled: authService.isAuthenticated(),
         staleTime: 1000 * 60 * 5, // 5 minutes
+        retry: (failureCount, error) => {
+            // Don't retry on 401/403
+            if (error.status === 401 || error.status === 403) return false;
+            return failureCount < 3;
+        },
+        onError: (error) => {
+            console.error("Profile Fetch Error:", error.message);
+        }
     });
 };
 
@@ -46,7 +47,7 @@ export const useLoginMutation = () => {
         mutationFn: ({ phone, password }) =>
             authService.login(phone, password),
         onSuccess: (data) => {
-            if (data.success && data.data?.user) {
+            if (data?.success && data.data?.user) {
                 // Update local cache immediately
                 queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
                 queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -66,7 +67,7 @@ export const useSignupMutation = () => {
         mutationFn: (userDetails) => authService.signup(userDetails),
         onSuccess: (data) => {
             // If signup logs the user in immediately (returns token/user)
-            if (data.success && data.data?.token) {
+            if (data?.success && data.data?.token) {
                 queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
                 queryClient.invalidateQueries({ queryKey: ["profile"] });
             }
@@ -85,9 +86,10 @@ export const useVerifyOtpMutation = () => {
     return useMutation({
         mutationFn: ({ userId, otp, purpose }) => authService.verifyOtp(userId, otp, purpose),
         onSuccess: (data) => {
-            if (data.success && data.data?.user) {
+            if (data?.success && data.data?.user) {
                 // Sync user data to cache if verification results in a login
                 queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
+                queryClient.invalidateQueries({ queryKey: ["profile"] });
             }
         },
     });
@@ -147,7 +149,7 @@ export const useCompleteRegistrationMutation = () => {
     return useMutation({
         mutationFn: (registrationData) => authService.completeRegistration(registrationData),
         onSuccess: (data) => {
-            if (data.success && data.data?.user) {
+            if (data?.success && data.data?.user) {
                 queryClient.setQueryData(USER_QUERY_KEY, data.data.user);
                 queryClient.invalidateQueries({ queryKey: ["profile"] });
             }
@@ -170,8 +172,6 @@ export const useLogoutMutation = () => {
         onSuccess: () => {
             // Clear all queries and reset state
             queryClient.clear();
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("user");
         },
     });
 };

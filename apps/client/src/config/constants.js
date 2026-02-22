@@ -21,6 +21,7 @@ export const constants = {
     },
     products: {
       base: "/api/v1/products",
+      detail: (id) => `/api/v1/products/${id}`,
     },
     profile: {
       base: "/api/v1/profile",
@@ -34,7 +35,7 @@ export const constants = {
       base: "/api/v1/cart",
       add: "/api/v1/cart/add",
       update: "/api/v1/cart/update",
-      remove: "/api/v1/cart/remove",
+      remove: (productId) => `/api/v1/cart/remove/${productId}`,
     },
     notifications: {
       base: "/api/v1/notifications",
@@ -61,6 +62,8 @@ export const constants = {
     orders: {
       base: "/api/v1/orders",
       myOrders: "/api/v1/orders/my-orders",
+      detail: (id) => `/api/v1/orders/${id}`,
+      uploadProof: "/api/v1/orders/upload",
     },
     referral: {
       base: "/api/v1/referral",

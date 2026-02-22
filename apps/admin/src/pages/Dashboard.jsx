@@ -1,33 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import MetricCard from "../components/MetricCard";
-import statsApiService from "../services/statsApiService";
+import { useDashboardStats } from "../hooks/useStatsService";
 import { toast } from "react-toastify";
 
 export default function Dashboard() {
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchStats();
-    }, []);
+    const { data: stats, isLoading, isError, refetch } = useDashboardStats();
 
     const fetchStats = async () => {
         try {
-            setLoading(true);
-            const statsData = await statsApiService.getDashboardStats();
-            setStats(statsData);
+            await refetch();
         } catch (error) {
-            console.error("Error fetching dashboard stats:", error);
-            toast.error("Failed to load dashboard statistics");
-        } finally {
-            setLoading(false);
+            console.error("Error refreshing dashboard stats:", error);
+            toast.error("Failed to refresh dashboard statistics");
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <p className="text-red-500 font-bold">Failed to load dashboard statistics</p>
+                <button
+                    onClick={() => refetch()}
+                    className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors"
+                >
+                    Try Again
+                </button>
             </div>
         );
     }

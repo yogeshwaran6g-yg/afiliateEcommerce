@@ -1,4 +1,4 @@
-import { api } from "../util/axios";
+import { api, handleServiceError } from "../util/axios";
 import constants from "../config/constants";
 
 const { profile: profileEndpoints, auth: authEndpoints } = constants.endpoints;
@@ -17,8 +17,7 @@ class ProfileService {
             const response = await api.get(authEndpoints.profile);
             return response;
         } catch (error) {
-            console.error("Get Profile Error:", error);
-            throw error;
+            handleServiceError(error, "Get Profile");
         }
     }
 
@@ -40,26 +39,18 @@ class ProfileService {
 
             return response;
         } catch (error) {
-            console.error("Update Profile Error:", error);
-            throw error;
+            handleServiceError(error, "Update Profile");
         }
     }
 
     /**
      * Updates the current user's personal details (Name, Phone, DOB, Profile Image).
-    /**
-     * Updates the current user's personal details (Name, Phone, DOB, Profile Image).
      * @param {Object} personalData - { name, phone, profile: { dob, profile_image } }
+     * @param {File} file - Optional profile image file
      * @returns {Promise<Object>} The updated response data.
      */
     async updatePersonal(personalData, file) {
         try {
-            const token = localStorage.getItem("accessToken");
-            const config = {};
-            if (token) {
-                config.headers = { Authorization: `Bearer ${token}` };
-            }
-
             let data;
             if (file) {
                 data = new FormData();
@@ -70,19 +61,14 @@ class ProfileService {
                 if (personalData.profile) {
                     data.append('profile', JSON.stringify(personalData.profile));
                 }
-                config.headers = {
-                    ...config.headers,
-                    'Content-Type': 'multipart/form-data'
-                };
             } else {
                 data = personalData;
             }
 
-            const response = await api.put(profileEndpoints.personal, data, config);
+            const response = await api.put(profileEndpoints.personal, data);
             return response;
         } catch (error) {
-            console.error("Update Personal Details Error:", error);
-            throw error;
+            handleServiceError(error, "Update Personal Details");
         }
     }
 
@@ -96,13 +82,10 @@ class ProfileService {
             formData.append('idNumber', idNumber);
             if (file) formData.append('file', file);
 
-            const response = await api.put(profileEndpoints.identity, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const response = await api.put(profileEndpoints.identity, formData);
             return response;
         } catch (error) {
-            console.error("Update Identity Error:", error);
-            throw error;
+            handleServiceError(error, "Update Identity");
         }
     }
 
@@ -115,13 +98,10 @@ class ProfileService {
             formData.append('addressData', JSON.stringify(addressData));
             if (file) formData.append('file', file);
 
-            const response = await api.put(profileEndpoints.address, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const response = await api.put(profileEndpoints.address, formData);
             return response;
         } catch (error) {
-            console.error("Update Address Error:", error);
-            throw error;
+            handleServiceError(error, "Update Address");
         }
     }
 
@@ -134,13 +114,10 @@ class ProfileService {
             formData.append('bankData', JSON.stringify(bankData));
             if (file) formData.append('file', file);
 
-            const response = await api.put(profileEndpoints.bank, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const response = await api.put(profileEndpoints.bank, formData);
             return response;
         } catch (error) {
-            console.error("Update Bank Error:", error);
-            throw error;
+            handleServiceError(error, "Update Bank");
         }
     }
 }

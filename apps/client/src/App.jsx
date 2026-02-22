@@ -34,24 +34,40 @@ import ResetPassword from "./pages/ResetPassword";
 import PrivacyTerms from "./pages/PrivacyTerms";
 
 
+import { useState, useEffect } from "react";
+
 function App() {
+  const [toastPosition, setToastPosition] = useState(
+    window.innerWidth < 640 ? "bottom-center" : "top-center"
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setToastPosition(window.innerWidth < 640 ? "bottom-center" : "top-center");
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <AuthProvider>
       <ProfileProvider>
         <ProductProvider>
           <CartProvider>
             <ToastContainer
-              position="top-right"
-              autoClose={5000}
+              position={toastPosition}
+              autoClose={3500}
               hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick={true}
+              newestOnTop
+              closeOnClick
               rtl={false}
               pauseOnFocusLoss
               draggable
               pauseOnHover
               theme="dark"
               transition={Bounce}
+              limit={4}
             />
             <BrowserRouter>
               <Routes>

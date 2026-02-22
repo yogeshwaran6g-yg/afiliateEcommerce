@@ -1,23 +1,29 @@
-import { api as axiosInstance } from "../util/axios";
+import { api, handleServiceError } from "../util/axios";
 import constants from "../config/constants";
 
 /**
  * Creates a new support ticket.
  * @param {FormData} formData - The ticket data including attachments.
  */
-const createTicket = async (formData) => {
-    return await axiosInstance.post(constants.endpoints.tickets.base, formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
+export const createTicket = async (formData) => {
+    try {
+        const response = await api.post(constants.endpoints.tickets.base, formData);
+        return response;
+    } catch (error) {
+        handleServiceError(error, "Create Ticket");
+    }
 };
 
 /**
  * Fetches user's tickets.
  */
-const getMyTickets = async () => {
-    return await axiosInstance.get(constants.endpoints.tickets.myTickets);
+export const getMyTickets = async () => {
+    try {
+        const response = await api.get(constants.endpoints.tickets.myTickets);
+        return response;
+    } catch (error) {
+        handleServiceError(error, "Get My Tickets");
+    }
 };
 
 const ticketService = {

@@ -86,7 +86,7 @@ export default function TransactionsTable() {
             <div className="p-6 flex items-center justify-between border-b border-slate-200">
                 <h3 className="font-bold text-lg text-slate-900">Recent Transactions</h3>
                 <button
-                    onClick={() => navigate("/wallet/history")}
+                    onClick={() => navigate("/wallet")}
                     className="text-primary font-semibold text-sm hover:underline"
                 >
                     View All

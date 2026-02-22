@@ -1,15 +1,7 @@
-import { api } from "../util/axios";
+import { api, handleServiceError } from "../util/axios";
 import constants from "../config/constants";
 
 const { auth: authEndpoints } = constants.endpoints;
-
-
-const handleApiError = (error, context) => {
-    // Error normalization is already handled by axios interceptor
-    console.error(`${context} Error:`, error.message || error);
-    throw error;
-};
-
 
 export const login = async (phone, password) => {
     try {
@@ -23,22 +15,18 @@ export const login = async (phone, password) => {
 
         return response;
     } catch (error) {
-        handleApiError(error, "Login");
+        handleServiceError(error, "Login");
     }
 };
-
-
-
 
 export const signup = async (userDetails) => {
     try {
         const response = await api.post(authEndpoints.signup, userDetails);
         return response;
     } catch (error) {
-        handleApiError(error, "Signup");
+        handleServiceError(error, "Signup");
     }
 };
-
 
 export const verifyOtp = async (userId, otp, purpose = 'signup') => {
     try {
@@ -51,37 +39,34 @@ export const verifyOtp = async (userId, otp, purpose = 'signup') => {
 
         return response;
     } catch (error) {
-        handleApiError(error, "OTP Verification");
+        handleServiceError(error, "OTP Verification");
     }
 };
-
 
 export const resendOtp = async (userId, phone, purpose) => {
     try {
         const response = await api.post(authEndpoints.resendOtp, { userId, phone, purpose });
         return response;
     } catch (error) {
-        handleApiError(error, "Resend OTP");
+        handleServiceError(error, "Resend OTP");
     }
 };
-
 
 export const forgotPassword = async (phone) => {
     try {
         const response = await api.post(authEndpoints.forgotPassword, { phone });
         return response;
     } catch (error) {
-        handleApiError(error, "Forgot Password");
+        handleServiceError(error, "Forgot Password");
     }
 };
-
 
 export const resetPassword = async (userId, otp, newPassword) => {
     try {
         const response = await api.post(authEndpoints.resetPassword, { userId, otp, newPassword });
         return response;
     } catch (error) {
-        handleApiError(error, "Reset Password");
+        handleServiceError(error, "Reset Password");
     }
 };
 
@@ -90,7 +75,7 @@ export const updatePassword = async (oldPassword, newPassword) => {
         const response = await api.put(authEndpoints.updatePassword, { oldPassword, newPassword });
         return response;
     } catch (error) {
-        handleApiError(error, "Update Password");
+        handleServiceError(error, "Update Password");
     }
 };
 
@@ -99,11 +84,9 @@ export const logout = () => {
     localStorage.removeItem("user");
 };
 
-
 export const isAuthenticated = () => {
     return !!localStorage.getItem("accessToken");
 };
-
 
 export const getCurrentUser = () => {
     const user = localStorage.getItem("user");
@@ -119,27 +102,21 @@ export const completeRegistration = async (registrationData) => {
             }
         });
 
-        // Debug log to verify FormData contents before sending
-        // console.log("Sending registration FormData:");
-        // for (let pair of formData.entries()) {
-        //     console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
-        // }
-
-        const response = await api.post(authEndpoints.completeRegistration || '/auth/complete-registration', formData);
+        const response = await api.post(authEndpoints.completeRegistration, formData);
         return response;
     } catch (error) {
-        handleApiError(error, "Complete Registration");
+        handleServiceError(error, "Complete Registration");
     }
 };
 
 export const cancelRegistration = async (userId = null) => {
     try {
-        const endpoint = userId ? (authEndpoints.cancelSignup || '/api/v1/auth/cancel-signup') : (authEndpoints.cancelRegistration || '/api/v1/auth/cancel-registration');
+        const endpoint = userId ? authEndpoints.cancelSignup : authEndpoints.cancelRegistration;
         const data = userId ? { userId } : {};
         const response = await api.post(endpoint, data);
-        return response.data;
+        return response;
     } catch (error) {
-        throw error.response?.data || { message: 'Failed to cancel registration' };
+        handleServiceError(error, "Cancel Registration");
     }
 };
 

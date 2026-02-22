@@ -9,7 +9,10 @@ export const PROFILE_QUERY_KEY = ["profile"];
 export const useProfileQuery = (enabled = true) => {
     return useQuery({
         queryKey: PROFILE_QUERY_KEY,
-        queryFn: () => profileService.getProfile(),
+        queryFn: async () => {
+            const response = await profileService.getProfile();
+            return response.data;
+        },
         enabled: enabled,
         retry: false,
         staleTime: 1000 * 60 * 5, // 5 minutes
