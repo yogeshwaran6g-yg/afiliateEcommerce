@@ -2,7 +2,7 @@ import { queryRunner } from "#src/config/db.js";
 import { srvRes } from "#src/utils/helper.js";
 
 const categoryService = {
-    get: async function(filters = {}) {
+    get: async function (filters = {}) {
         try {
             let sql = `SELECT * FROM category WHERE 1=1`;
             const params = [];
@@ -34,12 +34,12 @@ const categoryService = {
         }
     },
 
-    create: async function(categoryData) {
+    create: async function (categoryData) {
         try {
             const { name, image, parent_id } = categoryData;
             const sql = `INSERT INTO category (name, image, parent_id) VALUES (?, ?, ?)`;
             const params = [name, image || null, parent_id || null];
-            
+
             const result = await queryRunner(sql, params);
             if (result && result.affectedRows > 0) {
                 return srvRes(201, "Category created successfully", { id: result.insertId, ...categoryData });
@@ -50,11 +50,11 @@ const categoryService = {
         }
     },
 
-    update: async function(id, categoryData) {
+    update: async function (id, categoryData) {
         try {
             const fields = [];
             const params = [];
-            
+
             for (const [key, value] of Object.entries(categoryData)) {
                 fields.push(`${key} = ?`);
                 params.push(value);
@@ -75,8 +75,22 @@ const categoryService = {
         }
     },
 
-    delete: async function(id) {
+    delete: async function (id) {
         try {
+            // Check if any products are using this category
+            const productCheckSql = `SELECT COUNT(*) as count FROM products WHERE category_id = ?`;
+            const productResult = await queryRunner(productCheckSql, [id]);
+            if (productResult && productResult[0].count > 0) {
+                return srvRes(400, "Cannot delete category: It has associated products. Please reassign or delete the products first.");
+            }
+
+            // Check if any sub-categories exist for this category
+            const subCategoryCheckSql = `SELECT COUNT(*) as count FROM category WHERE parent_id = ?`;
+            const subCategoryResult = await queryRunner(subCategoryCheckSql, [id]);
+            if (subCategoryResult && subCategoryResult[0].count > 0) {
+                return srvRes(400, "Cannot delete category: It has sub-categories. Please delete or reassign them first.");
+            }
+
             const sql = `DELETE FROM category WHERE id = ?`;
             const result = await queryRunner(sql, [id]);
             if (result && result.affectedRows > 0) {
