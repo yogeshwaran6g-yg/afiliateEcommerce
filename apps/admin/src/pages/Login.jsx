@@ -10,11 +10,13 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const { login } = useAuth();
+    const { login, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const from = location.state?.from?.pathname || "/";
+    // Check query params for 'from' or use state
+    const queryParams = new URLSearchParams(location.search);
+    const from = queryParams.get("from") || location.state?.from?.pathname || "/";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,7 +27,7 @@ const Login = () => {
             const user = await login(mobileNumber, password);
             
             if (user.role !== 'ADMIN') {
-                await logout();
+                logout(); // Use the logout from useAuth
                 setError("Access denied. Admin privileges required.");
                 return;
             }
@@ -125,11 +127,7 @@ const Login = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-1.5">
-                                <div className="flex items-center justify-between ml-1">
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Password</label>
-                                    <a href="#" className="text-[11px] font-bold text-primary uppercase tracking-wider hover:underline">Forgot?</a>
-                                </div>
+                            <div className="space-y-1.5">                                
                                 <div className="relative group">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-lg">
                                         lock

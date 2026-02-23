@@ -396,46 +396,6 @@ const adminController = {
         }
     },
 
-    getUserNotifications: async function (req, res) {
-        try {
-            console.log("[DEBUG] Controller received query:", req.query);
-            const result = await userNotificationService.get(req.query);
-            return rtnRes(res, result.code, result.msg, result.data);
-        } catch (e) {
-            log(`Error in getUserNotifications: ${e.message}`, "error");
-            return rtnRes(res, 500, e.message);
-        }
-    },
-
-    sendUserNotification: async function (req, res) {
-        try {
-            const { user_id, type, title, description } = req.body;
-            if (!user_id || !type || !title) {
-                return rtnRes(res, 400, "Missing required fields: user_id, type, title");
-            }
-
-            const result = await userNotificationService.create({ user_id, type, title, description });
-            return rtnRes(res, result.code, result.msg, result.data);
-        } catch (e) {
-            log(`Error in sendUserNotification: ${e.message}`, "error");
-            return rtnRes(res, 500, "internal error");
-        }
-    },
-
-    broadcastUserNotification: async function (req, res) {
-        try {
-            const { type, title, description } = req.body;
-            if (!type || !title) {
-                return rtnRes(res, 400, "Missing required fields: type, title");
-            }
-
-            const result = await userNotificationService.broadcast({ type, title, description });
-            return rtnRes(res, result.code, result.msg, result.data);
-        } catch (e) {
-            log(`Error in broadcastUserNotification: ${e.message}`, "error");
-            return rtnRes(res, 500, "internal error");
-        }
-    },
 
     getOrders: async function (req, res) {
         try {
@@ -477,16 +437,6 @@ const adminController = {
         }
     },
 
-    deleteUserNotification: async function (req, res) {
-        try {
-            const { id } = req.params;
-            const result = await userNotificationService.deleteNotification(id);
-            return rtnRes(res, result.code, result.msg, result.data);
-        } catch (e) {
-            log(`Error in deleteUserNotification: ${e.message}`, "error");
-            return rtnRes(res, 500, "internal error");
-        }
-    },
 
     getUserReferralOverview: async function (req, res) {
         try {
@@ -497,17 +447,6 @@ const adminController = {
             return rtnRes(res, 200, "Referral overview fetched successfully", result.data);
         } catch (e) {
             log(`Error in getUserReferralOverview: ${e.message}`, "error");
-        }
-    },
-    markUserNotificationAsRead: async function (req, res) {
-        try {
-            const { id } = req.params;
-            // Call service without user_id to mark it as read globally/as admin
-            const result = await userNotificationService.markAsRead(id);
-            return rtnRes(res, result.code, result.msg, result.data);
-        } catch (e) {
-            log(`Error in markUserNotificationAsRead: ${e.message}`, "error");
-            return rtnRes(res, 500, "internal error");
         }
     },
 

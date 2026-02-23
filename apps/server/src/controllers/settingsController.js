@@ -22,7 +22,7 @@ export const getWithdrawalSettings = async (req, res) => {
 
 export const getShippingSettings = async (req, res) => {
   try {
-    const shipping_cost = await settingsService.getSetting("shipping_cost", "12.00");
+    const shipping_cost = await settingsService.getSetting("shipping_cost", "50.00");
 
     return rtnRes(res, 200, "Shipping settings fetched successfully", {
       shipping_cost: parseFloat(shipping_cost)

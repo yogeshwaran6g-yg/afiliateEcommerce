@@ -12,7 +12,7 @@ export default function UserDetails() {
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ name: '', email: '' });
 
-    const { data: user, isLoading: loading, error } = useUserDetails(userId);
+    const { data: user, isLoading: loading, error, refetch } = useUserDetails(userId);
     const updateUserMutation = useUpdateUserMutation();
 
     useEffect(() => {
@@ -45,13 +45,10 @@ export default function UserDetails() {
             if (!window.confirm(`Are you sure you want to ${action} this user?`)) return;
 
             const updatedStatus = !user.is_blocked;
-            await userApiService.updateUser(userId, { is_blocked: updatedStatus });
-            setUser(prev => ({ ...prev, is_blocked: updatedStatus }));
+            await updateUserMutation.mutateAsync({ userId, userData: { is_blocked: updatedStatus } });
             toast.success(`User ${updatedStatus ? 'blocked' : 'unblocked'} successfully`);
         } catch (err) {
             toast.error(err.message || "Failed to update block status");
-        } finally {
-            setIsBlocking(false);
         }
     };
 
@@ -130,7 +127,7 @@ export default function UserDetails() {
                         setActiveTab={setActiveTab}
                         userId={userId}
                         navigate={navigate}
-                        refreshUser={fetchUserDetails}
+                        refreshUser={refetch}
                     />
                 </div>
 

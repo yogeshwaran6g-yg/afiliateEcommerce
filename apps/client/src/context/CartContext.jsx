@@ -11,7 +11,6 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [shipping, setShipping] = useState(50.00);
-    const [taxRate, setTaxRate] = useState(0.08);
 
     // Load cart and settings when authentication status changes
     useEffect(() => {
@@ -111,8 +110,7 @@ export const CartProvider = ({ children }) => {
         cartItems.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity || 0)), 0),
         [cartItems]);
 
-    const tax = useMemo(() => subtotal * taxRate, [subtotal]);
-    const total = useMemo(() => subtotal + shipping + tax, [subtotal, tax, shipping]);
+    const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
 
 
     const totalItemsCount = useMemo(() =>
@@ -128,14 +126,12 @@ export const CartProvider = ({ children }) => {
         setQuantity,
         clearCart,
         subtotal,
-        tax,
         total,
         totalItemsCount,
-        shipping,
-        taxRate
+        shipping
     }), [
         cartItems, isLoading, addToCart, removeFromCart, updateQuantity,
-        setQuantity, clearCart, subtotal, tax, total, totalItemsCount, shipping
+        setQuantity, clearCart, subtotal, total, totalItemsCount, shipping
     ]);
 
     return (

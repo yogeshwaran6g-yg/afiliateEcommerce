@@ -121,7 +121,7 @@ const authController = {
                 return rtnRes(res, 404, "Product not found");
             }
 
-            const proofUrl = proofFile ? `/uploads/${proofFile.filename}` : null;
+            const proofUrl = proofFile ? `/uploads/payments/${proofFile.filename}` : null;
 
             const result = await orderService.createOrder({
                 userId,

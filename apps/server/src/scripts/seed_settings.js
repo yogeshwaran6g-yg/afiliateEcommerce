@@ -13,6 +13,11 @@ export const seedSettings = async (connection) => {
       key: "maximum_amount_per_withdraw",
       value: "50000.0",
       description: "Maximum amount allowed for a single withdrawal request"
+    },
+    {
+      key: "shipping_cost",
+      value: "50.0",
+      description: "Default shipping cost for product orders"
     }
   ];
 

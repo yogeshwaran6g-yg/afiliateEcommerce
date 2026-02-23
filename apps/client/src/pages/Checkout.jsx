@@ -3,33 +3,60 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import walletService from "../services/walletService";
 import orderService from "../services/orderService";
+import profileService from "../services/profileService";
 import { toast } from "react-toastify";
 
 export default function Checkout() {
     const navigate = useNavigate();
     const { cartItems, subtotal, total, shipping, isLoading: cartLoading, clearCart } = useCart();
 
-    const [selectedAddress, setSelectedAddress] = useState("main");
+    const [selectedAddress, setSelectedAddress] = useState("profile");
     const [paymentMethod, setPaymentMethod] = useState("wallet"); // 'wallet' or 'direct'
     const [paymentType, setPaymentType] = useState("UPI"); // 'UPI' or 'BANK'
     const [walletStats, setWalletStats] = useState(null);
+    const [profile, setProfile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [proofFile, setProofFile] = useState(null);
     const [proofPreview, setProofPreview] = useState(null);
     const [transactionReference, setTransactionReference] = useState("");
+    const [saveToProfile, setSaveToProfile] = useState(false);
+
+    // Form state for custom address
+    const [customAddress, setCustomAddress] = useState({
+        address_line1: "",
+        address_line2: "",
+        city: "",
+        state: "",
+        pincode: "",
+        country: "India"
+    });
 
     useEffect(() => {
-        const fetchWallet = async () => {
+        const fetchData = async () => {
             try {
-                const response = await walletService.getWallet();
-                if (response.success) {
-                    setWalletStats(response.data);
+                const [walletRes, profileRes] = await Promise.all([
+                    walletService.getWallet(),
+                    profileService.getProfile()
+                ]);
+
+                if (walletRes.success) {
+                    setWalletStats(walletRes.data);
+                }
+
+                if (profileRes.success) {
+                    setProfile(profileRes.data);
+                    // If user has an address, select "profile" as default
+                    if (profileRes.data.addresses && profileRes.data.addresses.length > 0) {
+                        setSelectedAddress("profile");
+                    } else {
+                        setSelectedAddress("custom");
+                    }
                 }
             } catch (error) {
-                console.error("Error fetching wallet:", error);
+                console.error("Error fetching checkout data:", error);
             }
         };
-        fetchWallet();
+        fetchData();
     }, []);
 
     const handleFileChange = (e) => {
@@ -44,10 +71,52 @@ export default function Checkout() {
         }
     };
 
+    const handleCustomAddressChange = (e) => {
+        const { name, value } = e.target;
+        setCustomAddress(prev => ({ ...prev, [name]: value }));
+    };
+
     const handleSubmit = async () => {
         if (cartItems.length === 0) {
             toast.error("Your cart is empty");
             return;
+        }
+
+        let shippingAddressData = null;
+
+        if (selectedAddress === "profile") {
+            const defaultAddress = profile?.addresses?.find(a => a.is_default) || profile?.addresses?.[0];
+            if (!defaultAddress) {
+                toast.error("No saved address found. Please enter a new address.");
+                setSelectedAddress("custom");
+                return;
+            }
+            shippingAddressData = {
+                type: "SAVED",
+                address: `${defaultAddress.address_line1}${defaultAddress.address_line2 ? ', ' + defaultAddress.address_line2 : ''}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}, ${defaultAddress.country}`,
+                raw: defaultAddress
+            };
+        } else {
+            // Validate custom address
+            if (!customAddress.address_line1 || !customAddress.city || !customAddress.state || !customAddress.pincode) {
+                toast.error("Please fill in all address fields");
+                return;
+            }
+            shippingAddressData = {
+                type: "CUSTOM",
+                address: `${customAddress.address_line1}${customAddress.address_line2 ? ', ' + customAddress.address_line2 : ''}, ${customAddress.city}, ${customAddress.state}, ${customAddress.pincode}, ${customAddress.country}`,
+                raw: customAddress
+            };
+
+            // Save to profile if checked
+            if (saveToProfile) {
+                try {
+                    await profileService.updateAddress(customAddress);
+                } catch (err) {
+                    console.error("Failed to save address to profile", err);
+                    // Continue with order anyway
+                }
+            }
         }
 
         if (paymentMethod === 'wallet') {
@@ -64,12 +133,20 @@ export default function Checkout() {
 
         try {
             setIsSubmitting(true);
+            
+            // Check activation status for PRODUCT_PURCHASE orders before uploading proof
+            if (paymentMethod === 'direct' && (!profile?.is_active || profile?.account_activation_status !== 'ACTIVATED')) {
+                toast.error("Your account is not activated. Please complete activation first.");
+                setIsSubmitting(false);
+                return;
+            }
+
             let proofUrl = null;
 
             if (paymentMethod === 'direct' && proofFile) {
                 const uploadRes = await orderService.uploadProof(proofFile);
                 if (uploadRes.success) {
-                    proofUrl = uploadRes.proofUrl;
+                    proofUrl = uploadRes.data.proofUrl;
                 } else {
                     throw new Error("Failed to upload payment proof");
                 }
@@ -83,10 +160,7 @@ export default function Checkout() {
                 })),
                 totalAmount: total,
                 shippingCost: shipping,
-                shippingAddress: {
-                    type: selectedAddress,
-                    address: selectedAddress === "main" ? "123 Business Parkway, Suite 100, Manhattan, New York, 10001" : "456 Enterprise Drive, Austin, Texas, 73301"
-                },
+                shippingAddress: shippingAddressData,
                 paymentMethod: paymentMethod === 'wallet' ? 'WALLET' : 'MANUAL',
                 paymentType: paymentMethod === 'direct' ? paymentType : null,
                 transactionReference: paymentMethod === 'direct' ? transactionReference : null,
@@ -164,46 +238,134 @@ export default function Checkout() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button
-                                onClick={() => setSelectedAddress("main")}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${selectedAddress === "main"
-                                    ? "border-primary bg-primary/5"
-                                    : "border-slate-200 hover:border-slate-300"
-                                    }`}
-                            >
-                                <div className="flex items-start justify-between mb-2">
-                                    <span className="material-symbols-outlined text-slate-400">home</span>
-                                    {selectedAddress === "main" && (
-                                        <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-white text-sm">check</span>
-                                        </div>
-                                    )}
-                                </div>
-                                <h3 className="font-bold text-slate-900 mb-1 text-sm md:text-base">Main Residence</h3>
-                                <p className="text-xs md:text-sm text-slate-500">123 Business Parkway, Suite 100</p>
-                                <p className="text-xs md:text-sm text-slate-500">Manhattan, New York, 10001</p>
-                            </button>
+                            {profile?.addresses?.map((addr, idx) => (
+                                <button
+                                    key={addr.id}
+                                    onClick={() => setSelectedAddress("profile")}
+                                    className={`p-4 rounded-xl border-2 text-left transition-all ${selectedAddress === "profile"
+                                        ? "border-primary bg-primary/5"
+                                        : "border-slate-200 hover:border-slate-300"
+                                        }`}
+                                >
+                                    <div className="flex items-start justify-between mb-2">
+                                        <span className="material-symbols-outlined text-slate-400">home</span>
+                                        {selectedAddress === "profile" && (
+                                            <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-white text-sm">check</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <h3 className="font-bold text-slate-900 mb-1 text-sm md:text-base">Saved Address</h3>
+                                    <p className="text-xs md:text-sm text-slate-500">{addr.address_line1}</p>
+                                    <p className="text-xs md:text-sm text-slate-500">{addr.city}, {addr.state}, {addr.pincode}</p>
+                                </button>
+                            ))}
 
                             <button
-                                onClick={() => setSelectedAddress("regional")}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${selectedAddress === "regional"
+                                onClick={() => setSelectedAddress("custom")}
+                                className={`p-4 rounded-xl border-2 text-left transition-all ${selectedAddress === "custom"
                                     ? "border-primary bg-primary/5"
                                     : "border-slate-200 hover:border-slate-300"
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-2">
-                                    <span className="material-symbols-outlined text-slate-400">business</span>
-                                    {selectedAddress === "regional" && (
+                                    <span className="material-symbols-outlined text-slate-400">add_location</span>
+                                    {selectedAddress === "custom" && (
                                         <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                                             <span className="material-symbols-outlined text-white text-sm">check</span>
                                         </div>
                                     )}
                                 </div>
-                                <h3 className="font-bold text-slate-900 mb-1 text-sm md:text-base">Regional Office</h3>
-                                <p className="text-xs md:text-sm text-slate-500">456 Enterprise Drive</p>
-                                <p className="text-xs md:text-sm text-slate-500">Austin, Texas, 73301</p>
+                                <h3 className="font-bold text-slate-900 mb-1 text-sm md:text-base">Custom Address</h3>
+                                <p className="text-xs md:text-sm text-slate-500">Enter a new shipping address</p>
                             </button>
                         </div>
+
+                        {/* Custom Address Form */}
+                        {selectedAddress === "custom" && (
+                            <div className="mt-6 space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">Address Line 1</label>
+                                        <input
+                                            type="text"
+                                            name="address_line1"
+                                            value={customAddress.address_line1}
+                                            onChange={handleCustomAddressChange}
+                                            placeholder="Street address, P.O. box, company name"
+                                            className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">Address Line 2 (Optional)</label>
+                                        <input
+                                            type="text"
+                                            name="address_line2"
+                                            value={customAddress.address_line2}
+                                            onChange={handleCustomAddressChange}
+                                            placeholder="Apartment, suite, unit, building, floor, etc."
+                                            className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">City</label>
+                                        <input
+                                            type="text"
+                                            name="city"
+                                            value={customAddress.city}
+                                            onChange={handleCustomAddressChange}
+                                            placeholder="City"
+                                            className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">State / Province / Region</label>
+                                        <input
+                                            type="text"
+                                            name="state"
+                                            value={customAddress.state}
+                                            onChange={handleCustomAddressChange}
+                                            placeholder="State"
+                                            className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">Postal Code / ZIP</label>
+                                        <input
+                                            type="text"
+                                            name="pincode"
+                                            value={customAddress.pincode}
+                                            onChange={handleCustomAddressChange}
+                                            placeholder="Pincode"
+                                            className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-2">Country</label>
+                                        <input
+                                            type="text"
+                                            name="country"
+                                            value={customAddress.country}
+                                            onChange={handleCustomAddressChange}
+                                            placeholder="Country"
+                                            className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 pt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="save_to_profile"
+                                        checked={saveToProfile}
+                                        onChange={(e) => setSaveToProfile(e.target.checked)}
+                                        className="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary/20"
+                                    />
+                                    <label htmlFor="save_to_profile" className="text-sm text-slate-600 cursor-pointer">
+                                        Save this address to my profile
+                                    </label>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Payment Method */}

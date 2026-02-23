@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-20T08:14:30.158Z",
+  "timestamp": "2026-02-23T03:44:07.985Z",
   "summary": {
     "totalChecks": 26,
     "passed": 26,
@@ -12,7 +12,7 @@
       {
         "name": "Create Order",
         "pass": true,
-        "detail": "Order ID: 9, Number: ORD-1771575270093-812"
+        "detail": "Order ID: 11, Number: ORD-1771818247216-494"
       },
       {
         "name": "Payment Status = PENDING",
@@ -25,7 +25,7 @@
         "detail": "status=PROCESSING, payment_status=PENDING, payment_method=MANUAL"
       },
       {
-        "name": "DB: shipping_cost = 0",
+        "name": "DB: shipping_cost = 12",
         "pass": true,
         "detail": ""
       },
@@ -47,7 +47,7 @@
       {
         "name": "DB: Payment record exists",
         "pass": true,
-        "detail": "type=UPI, status=PENDING, ref=TEST-UPI-REF-1771575270056"
+        "detail": "type=UPI, status=PENDING, ref=TEST-UPI-REF-1771818246925"
       },
       {
         "name": "DB: Tracking entry exists",
@@ -82,7 +82,7 @@
       {
         "name": "Create Order",
         "pass": true,
-        "detail": "Order ID: 10, Number: ORD-1771575270119-923"
+        "detail": "Order ID: 12, Number: ORD-1771818247711-820"
       },
       {
         "name": "Payment Status = PAID",

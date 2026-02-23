@@ -31,7 +31,7 @@ export const createOrder = async (orderData) => {
         const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
         // 2. Create Order
-        log(`Creating ${orderType} order ${orderNumber} for user ${userId} via ${paymentMethod}`, "info");
+        log(`Creating ${orderType} order ${orderNumber} for user ${userId} via ${paymentMethod} to be created`, "info");
 
         let paymentStatus = 'PENDING';
         if (paymentMethod === 'WALLET') {
@@ -49,6 +49,7 @@ export const createOrder = async (orderData) => {
         );
 
         const orderId = orderResult.insertId;
+        log(`Order ${orderNumber} (ID: ${orderId}) record created in DB.`, "info");
 
         // 3. Insert Order Items
         if (items && items.length > 0) {
@@ -57,6 +58,7 @@ export const createOrder = async (orderData) => {
                 `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ?`,
                 [itemValues]
             );
+            log(`Order items inserted for orderId: ${orderId}`, "info");
         }
 
         // 4. Handle Payment Details
@@ -66,6 +68,7 @@ export const createOrder = async (orderData) => {
                  VALUES (?, ?, ?, ?, 'PENDING')`,
                 [orderId, paymentType, transactionReference, proofUrl]
             );
+            log(`Manual payment details inserted for orderId: ${orderId}`, "info");
 
             if (orderType === 'ACTIVATION') {
                 await connection.query(

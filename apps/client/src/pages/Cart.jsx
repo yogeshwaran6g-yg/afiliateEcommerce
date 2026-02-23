@@ -12,10 +12,8 @@ export default function Cart() {
         removeFromCart,
         subtotal,
         shipping,
-        tax,
         total,
         totalItemsCount,
-        taxRate
     } = useCart();
 
     if (isLoading) {
@@ -82,10 +80,8 @@ export default function Cart() {
                     <CartSummary
                         subtotal={subtotal}
                         shipping={shipping}
-                        tax={tax}
                         total={total}
                         totalItems={totalItemsCount}
-                        taxRate={taxRate}
                     />
                 </div>
             </div>

@@ -46,69 +46,139 @@ export const getWalletStats = async (userId) => {
       throw new Error("userId not found");
     }
 
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const last6MonthsStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    const last7DaysStart = new Date(todayStart);
+    last7DaysStart.setDate(last7DaysStart.getDate() - 6);
+
     // Get wallet data
     const wallet = await getWalletByUserId(userId);
 
-    // Calculate total, monthly, and today's commissions
+    // 1. Core Income Stats (Today, Month, Total)
     const statsRows = await queryRunner(
       `SELECT 
-        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' THEN amount ELSE 0 END), 0) as total_income,
-        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE()) THEN amount ELSE 0 END), 0) as month_income,
-        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND DATE(created_at) = CURRENT_DATE() THEN amount ELSE 0 END), 0) as today_income
-       FROM wallet_transactions 
-       WHERE wallet_id = ?`,
-      [wallet.id],
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' THEN amount ELSE 0 END), 0) AS total_income,
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? THEN amount ELSE 0 END), 0) AS month_income,
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? THEN amount ELSE 0 END), 0) AS today_income,
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? AND created_at < ? THEN amount ELSE 0 END), 0) AS yesterday_income
+      FROM wallet_transactions
+      WHERE wallet_id = ?`,
+      [monthStart, todayStart, yesterdayStart, todayStart, wallet.id],
     );
 
-    // Calculate Team Stats
+    // 2. Team Growth Stats
     const teamStatsRows = await queryRunner(
       `SELECT 
-        COUNT(*) as total_members,
-        SUM(CASE WHEN MONTH(u.created_at) = MONTH(CURRENT_DATE()) AND YEAR(u.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as month_joined,
-        SUM(CASE WHEN DATE(u.created_at) = CURRENT_DATE() THEN 1 ELSE 0 END) as today_joined
-       FROM referral_tree rt
-       JOIN users u ON rt.downline_id = u.id
-       WHERE rt.upline_id = ?`,
-      [userId],
+        COUNT(*) AS total_members,
+        SUM(CASE WHEN u.created_at >= ? THEN 1 ELSE 0 END) AS month_joined,
+        SUM(CASE WHEN u.created_at >= ? THEN 1 ELSE 0 END) AS today_joined,
+        SUM(CASE WHEN u.created_at >= ? AND u.created_at < ? THEN 1 ELSE 0 END) AS yesterday_joined
+      FROM referral_tree rt
+      JOIN users u ON rt.downline_id = u.id
+      WHERE rt.upline_id = ?`,
+      [monthStart, todayStart, yesterdayStart, todayStart, userId],
     );
 
-    // Calculate Team Purchase Stats
+    // 3. Team Purchase Stats
     const teamPurchaseRows = await queryRunner(
       `SELECT 
-        COALESCE(SUM(o.total_amount), 0) as total_purchase,
-        COALESCE(SUM(CASE WHEN MONTH(o.created_at) = MONTH(CURRENT_DATE()) AND YEAR(o.created_at) = YEAR(CURRENT_DATE()) THEN o.total_amount ELSE 0 END), 0) as month_purchase,
-        COALESCE(SUM(CASE WHEN DATE(o.created_at) = CURRENT_DATE() THEN o.total_amount ELSE 0 END), 0) as today_purchase
-       FROM referral_tree rt
-       JOIN orders o ON rt.downline_id = o.user_id
-       WHERE rt.upline_id = ? AND o.payment_status = 'PAID'`,
-      [userId],
+        COALESCE(SUM(o.total_amount), 0) AS total_purchase,
+        COALESCE(SUM(CASE WHEN o.created_at >= ? THEN o.total_amount ELSE 0 END), 0) AS month_purchase,
+        COALESCE(SUM(CASE WHEN o.created_at >= ? THEN o.total_amount ELSE 0 END), 0) AS today_purchase,
+        COALESCE(SUM(CASE WHEN o.created_at >= ? AND o.created_at < ? THEN o.total_amount ELSE 0 END), 0) AS yesterday_purchase
+      FROM referral_tree rt
+      JOIN orders o ON rt.downline_id = o.user_id
+      WHERE rt.upline_id = ? AND o.payment_status = 'PAID'`,
+      [monthStart, todayStart, yesterdayStart, todayStart, userId],
     );
 
-    const stats = statsRows[0];
-    const teamStats = teamStatsRows[0];
-    const teamPurchase = teamPurchaseRows[0];
+    // 4. Historical Data for Charts (Last 7 Days - Sparklines)
+    const dailyIncome = await queryRunner(
+      `SELECT DATE(created_at) as date, SUM(amount) as value 
+       FROM wallet_transactions 
+       WHERE wallet_id = ? AND transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ?
+       GROUP BY DATE(created_at) ORDER BY date ASC`,
+      [wallet.id, last7DaysStart]
+    );
 
-    // Return wallet data with calculated stats
+    const dailyJoins = await queryRunner(
+      `SELECT DATE(u.created_at) as date, COUNT(*) as value 
+       FROM referral_tree rt JOIN users u ON rt.downline_id = u.id
+       WHERE rt.upline_id = ? AND u.created_at >= ?
+       GROUP BY DATE(u.created_at) ORDER BY date ASC`,
+      [userId, last7DaysStart]
+    );
+
+    const dailyPurchases = await queryRunner(
+      `SELECT DATE(o.created_at) as date, SUM(o.total_amount) as value 
+       FROM referral_tree rt JOIN orders o ON rt.downline_id = o.user_id
+       WHERE rt.upline_id = ? AND o.payment_status = 'PAID' AND o.created_at >= ?
+       GROUP BY DATE(o.created_at) ORDER BY date ASC`,
+      [userId, last7DaysStart]
+    );
+
+    // 5. Historical Data for Main Charts (Last 6 Months)
+    const monthlyIncome = await queryRunner(
+      `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as value 
+       FROM wallet_transactions 
+       WHERE wallet_id = ? AND transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ?
+       GROUP BY month ORDER BY month ASC`,
+      [wallet.id, last6MonthsStart]
+    );
+
+    const monthlyJoins = await queryRunner(
+      `SELECT DATE_FORMAT(u.created_at, '%Y-%m') as month, COUNT(*) as value 
+       FROM referral_tree rt JOIN users u ON rt.downline_id = u.id
+       WHERE rt.upline_id = ? AND u.created_at >= ?
+       GROUP BY month ORDER BY month ASC`,
+      [userId, last6MonthsStart]
+    );
+
+    // Helper to calculate percentage change
+    const calculateChange = (today, yesterday) => {
+      if (!yesterday || yesterday === 0) return today > 0 ? "100" : "0";
+      return (((today - yesterday) / yesterday) * 100).toFixed(1);
+    };
+
+    const income = statsRows[0];
+    const team = teamStatsRows[0];
+    const purchase = teamPurchaseRows[0];
+
     return {
       ...wallet,
       balance: parseFloat(wallet.balance),
       locked_balance: parseFloat(wallet.locked_balance),
       withdrawable: parseFloat(wallet.balance),
       on_hold: parseFloat(wallet.locked_balance),
-      total_income: parseFloat(stats.total_income || 0),
-      month_income: parseFloat(stats.month_income || 0),
-      today_income: parseFloat(stats.today_income || 0),
-      commissions: parseFloat(stats.total_income || 0), // Alias for backward compatibility
+      total_income: parseFloat(income.total_income || 0),
+      month_income: parseFloat(income.month_income || 0),
+      today_income: parseFloat(income.today_income || 0),
+      commissions: parseFloat(income.total_income || 0), // Alias for backward compatibility
+      
+      income_change: calculateChange(parseFloat(income.today_income), parseFloat(income.yesterday_income)),
+      members_change: calculateChange(parseInt(team.today_joined), parseInt(team.yesterday_joined)),
+      purchase_change: calculateChange(parseFloat(purchase.today_purchase), parseFloat(purchase.yesterday_purchase)),
 
-      // Team Stats
-      total_team_members: parseInt(teamStats.total_members || 0),
-      month_joined: parseInt(teamStats.month_joined || 0),
-      today_joined: parseInt(teamStats.today_joined || 0),
+      total_team_members: parseInt(team.total_members || 0),
+      month_joined: parseInt(team.month_joined || 0),
+      today_joined: parseInt(team.today_joined || 0),
 
-      // Team Purchase Stats
-      total_team_purchase: parseFloat(teamPurchase.total_purchase || 0),
-      month_purchase: parseFloat(teamPurchase.month_purchase || 0),
-      today_purchase: parseFloat(teamPurchase.today_purchase || 0),
+      total_team_purchase: parseFloat(purchase.total_purchase || 0),
+      month_purchase: parseFloat(purchase.month_purchase || 0),
+      today_purchase: parseFloat(purchase.today_purchase || 0),
+
+      charts: {
+        dailyIncome,
+        dailyJoins,
+        dailyPurchases,
+        monthlyIncome,
+        monthlyJoins
+      }
     };
   } catch (error) {
     log(`Error fetching wallet stats: ${error.message}`, "error");

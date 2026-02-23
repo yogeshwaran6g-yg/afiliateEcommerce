@@ -102,13 +102,13 @@ export const updateAddress = async (userId, { addressData, addressDocumentUrl = 
 
         if (existingAddresses.length > 0) {
             await connection.execute(
-                'UPDATE addresses SET address_line1 = ?, city = ?, state = ?, pincode = ?, country = ? WHERE id = ?',
-                [addressData.address_line1, addressData.city, addressData.state, addressData.pincode, addressData.country, existingAddresses[0].id]
+                'UPDATE addresses SET address_line1 = ?, address_line2 = ?, city = ?, state = ?, pincode = ?, country = ? WHERE id = ?',
+                [addressData.address_line1, addressData.address_line2 || null, addressData.city, addressData.state, addressData.pincode, addressData.country, existingAddresses[0].id]
             );
         } else {
             await connection.execute(
-                'INSERT INTO addresses (user_id, address_line1, city, state, pincode, country, is_default) VALUES (?, ?, ?, ?, ?, ?, 1)',
-                [userId, addressData.address_line1, addressData.city, addressData.state, addressData.pincode, addressData.country]
+                'INSERT INTO addresses (user_id, address_line1, address_line2, city, state, pincode, country, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+                [userId, addressData.address_line1, addressData.address_line2 || null, addressData.city, addressData.state, addressData.pincode, addressData.country]
             );
         }
 

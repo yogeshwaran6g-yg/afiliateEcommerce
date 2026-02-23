@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken';
 
 const BASE_URL = 'http://localhost:4000/api/v1';
 const JWT_SECRET = 'hereTheJwtKeyYG!@$%^&*seceret';
-const DB_CONFIG = { host: 'localhost', user: 'root', password: '', database: 'notification', port: 3306 };
+const DB_CONFIG = { host: 'localhost', user: 'root', password: '', database: 'afiliateecommerce', port: 3306 };
 
 // ─── Helpers ───────────────────────────────────────────────────────
 const results = { manual: { steps: [], passed: false }, wallet: { steps: [], passed: false } };

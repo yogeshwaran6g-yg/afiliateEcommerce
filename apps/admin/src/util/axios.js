@@ -57,8 +57,11 @@ http.interceptors.response.use(
             toast.error("Session expired. Please log in again.", {
                 toastId: "admin-auth-401",
                 onClose: () => {
-                    if (window.location.pathname !== "/admin/login") {
-                        window.location.href = "/admin/login";
+                    const currentPath = window.location.pathname;
+                    if (currentPath !== "/admin/login") {
+                        // We use navigate or direct href depends on where this is used,
+                        // but since interceptor is outside React, window.location is safer here.
+                        window.location.href = `/admin/login?from=${encodeURIComponent(currentPath)}`;
                     }
                 },
             });

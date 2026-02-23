@@ -2,17 +2,18 @@ import express from 'express';
 import orderController from '#controllers/orderController.js';
 import { protect, checkActivated } from '#middlewares/authenticatorMiddleware.js';
 import paymentUpload from '#middlewares/paymentUploadMiddleware.js';
+import { rtnRes } from '#utils/helper.js';
 
 const router = express.Router();
 
 router.use(protect);
 
-router.post('/upload', checkActivated, paymentUpload.single('proof'), (req, res) => {
+router.post('/upload', paymentUpload.single('proof'), (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        return rtnRes(res, 400, "No file uploaded");
     }
     const proofUrl = `/uploads/payments/${req.file.filename}`;
-    res.status(200).json({ proofUrl });
+    return rtnRes(res, 200, "File uploaded successfully", { proofUrl });
 });
 
 router.post('/', orderController.createOrder);

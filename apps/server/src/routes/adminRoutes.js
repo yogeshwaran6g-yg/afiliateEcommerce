@@ -1,13 +1,14 @@
 import express from 'express';
 import adminController from '../controllers/adminController.js';
+import userNotificationController from '../controllers/userNotificationController.js';
 import { protect, authorize } from '../middlewares/authenticatorMiddleware.js';
 import popupBannerController from '../controllers/popupBannerController.js';
 
 const router = express.Router();
 
 // Admin prefix routes
-// router.use(protect);
-// router.use(authorize('ADMIN'));
+router.use(protect);
+router.use(authorize('ADMIN'));
 
 router.post('/approve-payment', adminController.approvePayment);
 router.post('/reject-payment', adminController.rejectPayment);
@@ -64,11 +65,12 @@ router.get('/orders', adminController.getOrders);
 router.get('/orders/:id', adminController.getOrderDetails);
 
 // User Notifications management
-router.get('/user-notifications', adminController.getUserNotifications);
-router.post('/user-notifications', adminController.sendUserNotification);
-router.post('/user-notifications/broadcast', adminController.broadcastUserNotification);
-router.put('/user-notifications/mark-as-read/:id', adminController.markUserNotificationAsRead);
-router.delete('/user-notifications/:id', adminController.deleteUserNotification);
+router.get('/user-notifications', userNotificationController.getUserNotifications);
+router.post('/user-notifications', userNotificationController.sendNotification);
+router.post('/user-notifications/broadcast', userNotificationController.broadcastNotification);
+router.put('/user-notifications/mark-as-read/:id', userNotificationController.markAsRead);
+router.put('/user-notifications/mark-all-as-read', userNotificationController.markAllAsRead);
+router.delete('/user-notifications/:id', userNotificationController.deleteNotification);
 
 // Referral management
 router.get('/users/:userId/referral-overview', adminController.getUserReferralOverview);

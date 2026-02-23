@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function CartSummary({ subtotal, shipping, tax, total, totalItems, taxRate }) {
+export default function CartSummary({ subtotal, shipping, total, totalItems }) {
     return (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sticky top-8 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900 mb-6">Order Summary</h2>
@@ -15,10 +15,6 @@ export default function CartSummary({ subtotal, shipping, tax, total, totalItems
                 <div className="flex justify-between text-sm">
                     <span className="text-slate-600 font-medium">Estimated Shipping</span>
                     <span className="font-bold text-slate-900">₹{shipping.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 font-medium">Tax ({taxRate * 100}%)</span>
-                    <span className="font-bold text-slate-900">₹{tax.toFixed(2)}</span>
                 </div>
             </div>
 

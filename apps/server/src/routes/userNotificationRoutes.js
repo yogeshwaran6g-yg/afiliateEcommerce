@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.use(protect);
 
-router.get('/', userNotificationController.getNotifications);
+router.get('/', userNotificationController.getUserNotifications);
 router.get('/unread-count', userNotificationController.getUnreadCount);
 
 

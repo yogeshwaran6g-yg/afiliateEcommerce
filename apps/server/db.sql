@@ -69,7 +69,8 @@ CREATE TABLE `users` (
     `referred_by` BIGINT UNSIGNED NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+    CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+    INDEX `idx_users_created` (`created_at`)
 ) ENGINE = InnoDB;
 
 -- Activation Payments table removed in favor of unified order flow
@@ -118,6 +119,11 @@ CREATE TABLE orders (
     PRIMARY KEY (id),
     KEY idx_orders_user_id (user_id),
     KEY idx_orders_status (status),
+    KEY idx_orders_stats (
+        user_id,
+        payment_status,
+        created_at
+    ),
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
@@ -192,6 +198,7 @@ CREATE TABLE `referral_tree` (
     KEY `idx_downline_level` (`downline_id`, `level`),
     KEY `idx_referral_upline_level` (`upline_id`, `level`),
     KEY `idx_downline` (`downline_id`),
+    KEY `idx_referral_upline` (`upline_id`),
     CONSTRAINT `fk_referral_upline` FOREIGN KEY (`upline_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_referral_downline` FOREIGN KEY (`downline_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
     CONSTRAINT `chk_referral_level` CHECK (`level` BETWEEN 1 AND 6)
@@ -395,6 +402,12 @@ CREATE TABLE `wallet_transactions` (
         `reference_id`
     ),
     INDEX `idx_reversal_of` (`reversal_of`),
+    INDEX `idx_wallet_stats` (
+        `wallet_id`,
+        `transaction_type`,
+        `status`,
+        `created_at`
+    ),
     CONSTRAINT `fk_transaction_wallet` FOREIGN KEY (`wallet_id`) REFERENCES `wallets` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_reversal` FOREIGN KEY (`reversal_of`) REFERENCES `wallet_transactions` (`id`) ON DELETE SET NULL
 ) ENGINE = InnoDB;

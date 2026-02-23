@@ -108,8 +108,12 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
                                         : details.shipping_address;
                                       return (
                                         <div className="space-y-1">
-                                          <p className="text-sm font-bold text-slate-900">{addr.address}</p>
-                                          <p className="text-sm text-slate-700">{addr.city}, {addr.state} - {addr.pincode}</p>
+                                          <p className="text-sm font-bold text-slate-900">{addr.address || addr.address_line1}</p>
+                                          {(addr.city || addr.state || addr.pincode) && (
+                                            <p className="text-sm text-slate-700">
+                                              {[addr.city, addr.state].filter(Boolean).join(", ")} {addr.pincode ? `- ${addr.pincode}` : ""}
+                                            </p>
+                                          )}
                                         </div>
                                       );
                                     } catch (e) {
