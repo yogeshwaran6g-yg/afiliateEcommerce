@@ -6,16 +6,19 @@ import {
   rollbackHeldBalance,
 } from "./walletService.js";
 import { getSettings } from "./settingsService.js";
+import userNotificationService from "./userNotificationService.js";
 
 export const createWithdrawalRequest = async (userId, amount) => {
   return await transactionRunner(async (conn) => {
     // 0. Check user activation status
     const [userRows] = await conn.execute(
-      'SELECT account_activation_status FROM users WHERE id = ?',
+      "SELECT name, account_activation_status FROM users WHERE id = ?",
       [userId]
     );
-    if (userRows[0]?.account_activation_status !== 'ACTIVATED') {
-      throw new Error("Your account must be activated to request a withdrawal.");
+    if (userRows[0]?.account_activation_status !== "ACTIVATED") {
+      throw new Error(
+        "Your account must be activated to request a withdrawal."
+      );
     }
 
     // 1. Check pending requests
@@ -24,12 +27,14 @@ export const createWithdrawalRequest = async (userId, amount) => {
       [userId]
     );
     if (pendingCount[0].count >= 2) {
-      throw new Error("You already have 2 pending withdrawal requests. Please wait for them to be processed.");
+      throw new Error(
+        "You already have 2 pending withdrawal requests. Please wait for them to be processed."
+      );
     }
 
     // 2. Fetch bank details from profile
     const [profileRows] = await conn.execute(
-      'SELECT bank_account_name, bank_name, bank_account_number, bank_ifsc FROM profiles WHERE user_id = ?',
+      "SELECT bank_account_name, bank_name, bank_account_number, bank_ifsc FROM profiles WHERE user_id = ?",
       [userId]
     );
 
@@ -38,21 +43,33 @@ export const createWithdrawalRequest = async (userId, amount) => {
     }
 
     const profile = profileRows[0];
-    if (!profile.bank_account_number || !profile.bank_ifsc || !profile.bank_account_name || !profile.bank_name) {
-      throw new Error("Bank details are incomplete. Please update your bank details in your profile first.");
+    if (
+      !profile.bank_account_number ||
+      !profile.bank_ifsc ||
+      !profile.bank_account_name ||
+      !profile.bank_name
+    ) {
+      throw new Error(
+        "Bank details are incomplete. Please update your bank details in your profile first."
+      );
     }
 
     const bankDetailsToStore = {
       account_name: profile.bank_account_name,
       bank_name: profile.bank_name,
       account_number: profile.bank_account_number,
-      ifsc_code: profile.bank_ifsc
+      ifsc_code: profile.bank_ifsc,
     };
 
     // 3. Fetch withdrawal settings
-    const settings = await getSettings(["withdraw_commission", "maximum_amount_per_withdraw"]);
+    const settings = await getSettings([
+      "withdraw_commission",
+      "maximum_amount_per_withdraw",
+    ]);
     const commissionPercent = parseFloat(settings.withdraw_commission || 5.0);
-    const maxAmount = parseFloat(settings.maximum_amount_per_withdraw || 50000.0);
+    const maxAmount = parseFloat(
+      settings.maximum_amount_per_withdraw || 50000.0
+    );
 
     // 4. Validate amount
     if (amount > maxAmount) {
@@ -66,7 +83,13 @@ export const createWithdrawalRequest = async (userId, amount) => {
     // 6. Create withdrawal request record
     const [reqResult] = await conn.execute(
       'INSERT INTO withdrawal_requests (user_id, amount, platform_fee, net_amount, bank_details, status) VALUES (?, ?, ?, ?, ?, "REVIEW_PENDING")',
-      [userId, amount, platformFee, netAmount, JSON.stringify(bankDetailsToStore)],
+      [
+        userId,
+        amount,
+        platformFee,
+        netAmount,
+        JSON.stringify(bankDetailsToStore),
+      ]
     );
     const requestId = reqResult.insertId;
 
@@ -78,8 +101,14 @@ export const createWithdrawalRequest = async (userId, amount) => {
       "withdrawal_requests",
       requestId,
       "Withdrawal request pending review",
-      conn,
+      conn
     );
+
+    await userNotificationService.notifyAdmins({
+      type: "WALLET",
+      title: "New Withdrawal Request",
+      description: `User ${userRows[0].name} has requested a withdrawal of ₹${amount}.`,
+    });
 
     return {
       requestId: requestId,
@@ -95,7 +124,7 @@ export const approveWithdrawal = async (requestId, adminComment = null) => {
     // 1. Get request details
     const [rows] = await conn.execute(
       "SELECT * FROM withdrawal_requests WHERE id = ? FOR UPDATE",
-      [requestId],
+      [requestId]
     );
     if (!rows || rows.length === 0)
       throw new Error("Withdrawal request not found");
@@ -107,7 +136,7 @@ export const approveWithdrawal = async (requestId, adminComment = null) => {
     // 2. Get wallet for user
     const [walletRows] = await conn.execute(
       "SELECT id FROM wallets WHERE user_id = ?",
-      [request.user_id],
+      [request.user_id]
     );
     if (!walletRows || walletRows.length === 0)
       throw new Error("Wallet not found");
@@ -118,13 +147,13 @@ export const approveWithdrawal = async (requestId, adminComment = null) => {
     // 4. Update request status
     await conn.execute(
       'UPDATE withdrawal_requests SET status = "APPROVED", admin_comment = ? WHERE id = ?',
-      [adminComment || "Approved by admin", requestId],
+      [adminComment || "Approved by admin", requestId]
     );
 
     // 5. Update transaction status
     await conn.execute(
       'UPDATE wallet_transactions SET status = "SUCCESS" WHERE reference_table = "withdrawal_requests" AND reference_id = ?',
-      [requestId],
+      [requestId]
     );
 
     return { success: true, request };
@@ -136,7 +165,7 @@ export const rejectWithdrawal = async (requestId, adminComment = null) => {
     // 1. Get request details
     const [rows] = await conn.execute(
       "SELECT * FROM withdrawal_requests WHERE id = ? FOR UPDATE",
-      [requestId],
+      [requestId]
     );
     if (!rows || rows.length === 0)
       throw new Error("Withdrawal request not found");
@@ -148,7 +177,7 @@ export const rejectWithdrawal = async (requestId, adminComment = null) => {
     // 2. Get wallet for user
     const [walletRows] = await conn.execute(
       "SELECT id FROM wallets WHERE user_id = ?",
-      [request.user_id],
+      [request.user_id]
     );
     if (!walletRows || walletRows.length === 0)
       throw new Error("Wallet not found");
@@ -159,13 +188,13 @@ export const rejectWithdrawal = async (requestId, adminComment = null) => {
     // 4. Update request status
     await conn.execute(
       'UPDATE withdrawal_requests SET status = "REJECTED", admin_comment = ? WHERE id = ?',
-      [adminComment || "Rejected by admin", requestId],
+      [adminComment || "Rejected by admin", requestId]
     );
 
     // 5. Update transaction status
     await conn.execute(
       'UPDATE wallet_transactions SET status = "FAILED" WHERE reference_table = "withdrawal_requests" AND reference_id = ?',
-      [requestId],
+      [requestId]
     );
 
     return { success: true, request };

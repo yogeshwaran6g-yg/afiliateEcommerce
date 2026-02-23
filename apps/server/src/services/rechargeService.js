@@ -7,14 +7,26 @@ export const createRechargeRequest = async (
   amount,
   paymentMethod,
   paymentReference,
-  proofImage,
+  proofImage
 ) => {
   try {
     const result = await queryRunner(
       `INSERT INTO recharge_requests (user_id, amount, payment_method, payment_reference, proof_image, status) 
              VALUES (?, ?, ?, ?, ?, 'REVIEW_PENDING')`,
-      [userId, amount, paymentMethod, paymentReference, proofImage],
+      [userId, amount, paymentMethod, paymentReference, proofImage]
     );
+
+    const [userRows] = await queryRunner(
+      `SELECT name FROM users WHERE id = ?`,
+      [userId]
+    );
+    const userName = userRows[0]?.name || "Unknown User";
+    await userNotificationService.notifyAdmins({
+      type: "PAYMENT",
+      title: "New Recharge Request",
+      description: `User ${userName} has requested a wallet recharge of ₹${amount}.`,
+    });
+
     return { requestId: result.insertId };
   } catch (error) {
     log(`Error creating recharge request: ${error.message}`, "error");
@@ -27,7 +39,7 @@ export const approveRecharge = async (requestId, adminComment = null) => {
     // 1. Get request details
     const [rows] = await conn.execute(
       "SELECT * FROM recharge_requests WHERE id = ? FOR UPDATE",
-      [requestId],
+      [requestId]
     );
     if (!rows || rows.length === 0)
       throw new Error("Recharge request not found");
@@ -47,13 +59,13 @@ export const approveRecharge = async (requestId, adminComment = null) => {
       "Wallet recharge approved",
       "SUCCESS",
       null,
-      conn,
+      conn
     );
 
     // 3. Update request status
     await conn.execute(
       'UPDATE recharge_requests SET status = "APPROVED", admin_comment = ? WHERE id = ?',
-      [adminComment || "Approved by admin", requestId],
+      [adminComment || "Approved by admin", requestId]
     );
 
     return { success: true, request };
@@ -65,7 +77,7 @@ export const rejectRecharge = async (requestId, adminComment = null) => {
     // 1. Get request details
     const [rows] = await conn.execute(
       "SELECT * FROM recharge_requests WHERE id = ? FOR UPDATE",
-      [requestId],
+      [requestId]
     );
     if (!rows || rows.length === 0)
       throw new Error("Recharge request not found");
@@ -77,7 +89,7 @@ export const rejectRecharge = async (requestId, adminComment = null) => {
     // 2. Update request status
     await conn.execute(
       'UPDATE recharge_requests SET status = "REJECTED", admin_comment = ? WHERE id = ?',
-      [adminComment || "Rejected by admin", requestId],
+      [adminComment || "Rejected by admin", requestId]
     );
 
     return { success: true, request };

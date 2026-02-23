@@ -2,233 +2,290 @@ import { queryRunner } from "#src/config/db.js";
 import { srvRes } from "#src/utils/helper.js";
 
 const userNotificationService = {
+  create: async function ({ user_id, type, title, description }) {
+    try {
+      if (!user_id || !type || !title) {
+        return srvRes(400, "Missing required fields: user_id, type, title");
+      }
 
-    create: async function ({ user_id, type, title, description }) {
-        try {
-            if (!user_id || !type || !title) {
-                return srvRes(400, "Missing required fields: user_id, type, title");
-            }
-
-            const sql = `
+      const sql = `
                 INSERT INTO user_notifications 
                 (user_id, title, type, description)
                 VALUES (?, ?, ?, ?)
             `;
-            const params = [user_id, title, type, description || null];
+      const params = [user_id, title, type, description || null];
 
-            const result = await queryRunner(sql, params);
-            if (result?.affectedRows > 0) {
-                return srvRes(201, "Notification created", { id: result.insertId });
-            }
-            return srvRes(500, "Failed to create notification");
-        } catch (e) {
-            console.error("create user notification error:", e);
-            throw e;
-        }
-    },
+      const result = await queryRunner(sql, params);
+      if (result?.affectedRows > 0) {
+        return srvRes(201, "Notification created", { id: result.insertId });
+      }
+      return srvRes(500, "Failed to create notification");
+    } catch (e) {
+      console.error("create user notification error:", e);
+      throw e;
+    }
+  },
 
-    broadcast: async function ({ type, title, description }) {
-        try {
-            if (!type || !title) {
-                return srvRes(400, "Missing required fields: type, title");
-            }
+  broadcast: async function ({ type, title, description }) {
+    try {
+      if (!type || !title) {
+        return srvRes(400, "Missing required fields: type, title");
+      }
 
-            // Get all active users
-            const users = await queryRunner(`SELECT id FROM users WHERE is_active = 1`);
+      // Get all active users
+      const users = await queryRunner(
+        `SELECT id FROM users WHERE is_active = 1`
+      );
 
-            if (!users || users.length === 0) {
-                return srvRes(200, "No active users to broadcast to");
-            }
+      if (!users || users.length === 0) {
+        return srvRes(200, "No active users to broadcast to");
+      }
 
-            const values = users.map(u => [u.id, title, type, description || null]);
-            const sql = `
+      const values = users.map((u) => [u.id, title, type, description || null]);
+      const sql = `
                 INSERT INTO user_notifications 
                 (user_id, title, type, description)
                 VALUES ?
             `;
 
-            const result = await queryRunner(sql, [values]);
+      const result = await queryRunner(sql, [values]);
 
-            return srvRes(201, `Broadcasted notification to ${result?.affectedRows || 0} users`);
-        } catch (e) {
-            console.error("broadcast notification error:", e);
-            throw e;
-        }
-    },
+      return srvRes(
+        201,
+        `Broadcasted notification to ${result?.affectedRows || 0} users`
+      );
+    } catch (e) {
+      console.error("broadcast notification error:", e);
+      throw e;
+    }
+  },
 
-    get: async function ({ user_id = null, unread_only = false, page = 1, limit = 20, type = null }) {
-        try {
-            // Log raw input for unread_only to diagnose serialization issues
-            const isUnreadOnly =
-                unread_only === true ||
-                unread_only === "true" ||
-                unread_only === 1 ||
-                unread_only === "1" ||
-                unread_only === "unread";
+  notifyAdmins: async function ({ type, title, description }) {
+    try {
+      if (!type || !title) {
+        throw new Error("Missing required fields: type, title");
+      }
 
-            console.log(`[DEBUG] getNotifications: unread_only="${unread_only}" (typeof: ${typeof unread_only}) -> parsed as: ${isUnreadOnly}`);
+      const admins = await queryRunner(
+        `SELECT id FROM users WHERE role = 'ADMIN' AND is_blocked = 0`
+      );
 
-            let sql = `
+      if (!admins || admins.length === 0) {
+        console.log("[INFO] No admins found to notify");
+        return srvRes(200, "No admins found to notify");
+      }
+
+      const values = admins.map((admin) => [
+        admin.id,
+        title,
+        type,
+        description || null,
+      ]);
+      const sql = `
+                INSERT INTO user_notifications 
+                (user_id, title, type, description)
+                VALUES ?
+            `;
+      const result = await queryRunner(sql, [values]);
+
+      return srvRes(201, `Notified ${result?.affectedRows || 0} admins`);
+    } catch (e) {
+      console.error("notifyAdmins error:", e);
+      throw e;
+    }
+  },
+
+  get: async function ({
+    user_id = null,
+    unread_only = false,
+    page = 1,
+    limit = 20,
+    type = null,
+  }) {
+    try {
+      // Log raw input for unread_only to diagnose serialization issues
+      const isUnreadOnly =
+        unread_only === true ||
+        unread_only === "true" ||
+        unread_only === 1 ||
+        unread_only === "1" ||
+        unread_only === "unread";
+
+      console.log(
+        `[DEBUG] getNotifications: unread_only="${unread_only}" (typeof: ${typeof unread_only}) -> parsed as: ${isUnreadOnly}`
+      );
+
+      let sql = `
                 SELECT un.*, u.name as user_name, u.email as user_email, u.phone as user_phone
                 FROM user_notifications un
                 LEFT JOIN users u ON un.user_id = u.id
                 WHERE 1=1
             `;
-            const params = [];
+      const params = [];
 
-            if (user_id) {
-                sql += ` AND un.user_id = ?`;
-                params.push(user_id);
-            }
-            if (isUnreadOnly) {
-                sql += ` AND un.is_read = 0`;
-            }
-            if (type) {
-                sql += ` AND un.type = ?`;
-                params.push(type);
-            }
+      if (user_id) {
+        sql += ` AND un.user_id = ?`;
+        params.push(user_id);
+      }
+      if (isUnreadOnly) {
+        sql += ` AND un.is_read = 0`;
+      }
+      if (type) {
+        sql += ` AND un.type = ?`;
+        params.push(type);
+      }
 
-            const safeLimit = Math.max(1, parseInt(limit) || 50);
-            const safeOffset = Math.max(0, (Math.max(1, parseInt(page) || 1) - 1) * safeLimit);
-            sql += ` ORDER BY un.created_at DESC LIMIT ${safeLimit} OFFSET ${safeOffset}`;
+      const safeLimit = Math.max(1, parseInt(limit) || 50);
+      const safeOffset = Math.max(
+        0,
+        (Math.max(1, parseInt(page) || 1) - 1) * safeLimit
+      );
+      sql += ` ORDER BY un.created_at DESC LIMIT ${safeLimit} OFFSET ${safeOffset}`;
 
-            console.log(`[DEBUG] Final SQL: ${sql}`);
-            const notifications = await queryRunner(sql, params);
+      console.log(`[DEBUG] Final SQL: ${sql}`);
+      const notifications = await queryRunner(sql, params);
 
-            // Total count for pagination
-            let countSql = `SELECT COUNT(*) as total FROM user_notifications un WHERE 1=1`;
-            const countParams = [];
-            if (user_id) {
-                countSql += ` AND un.user_id = ?`;
-                countParams.push(user_id);
-            }
-            if (isUnreadOnly) {
-                countSql += ` AND un.is_read = 0`;
-            }
-            if (type) {
-                countSql += ` AND un.type = ?`;
-                countParams.push(type);
-            }
-            const countResult = await queryRunner(countSql, countParams);
-            const total = countResult ? countResult[0].total : 0;
+      // Total count for pagination
+      let countSql = `SELECT COUNT(*) as total FROM user_notifications un WHERE 1=1`;
+      const countParams = [];
+      if (user_id) {
+        countSql += ` AND un.user_id = ?`;
+        countParams.push(user_id);
+      }
+      if (isUnreadOnly) {
+        countSql += ` AND un.is_read = 0`;
+      }
+      if (type) {
+        countSql += ` AND un.type = ?`;
+        countParams.push(type);
+      }
+      const countResult = await queryRunner(countSql, countParams);
+      const total = countResult ? countResult[0].total : 0;
 
-            console.log(`[DEBUG] Fetch result: ${notifications.length} items, Total in DB: ${total}, isUnreadOnly: ${isUnreadOnly}`);
+      console.log(
+        `[DEBUG] Fetch result: ${notifications.length} items, Total in DB: ${total}, isUnreadOnly: ${isUnreadOnly}`
+      );
 
-            return srvRes(200, "Notifications fetched", {
-                items: notifications,
-                debug: { isUnreadOnly, raw_unread_only: unread_only, user_id, type },
-                pagination: {
-                    total: Number(total),
-                    page: Number(page),
-                    limit: Number(limit),
-                    pages: total > 0 ? Math.ceil(total / limit) : 0
-                }
-            });
-        } catch (e) {
-            console.error("get user notifications error:", e);
-            throw e;
-        }
-    },
+      return srvRes(200, "Notifications fetched", {
+        items: notifications,
+        debug: { isUnreadOnly, raw_unread_only: unread_only, user_id, type },
+        pagination: {
+          total: Number(total),
+          page: Number(page),
+          limit: Number(limit),
+          pages: total > 0 ? Math.ceil(total / limit) : 0,
+        },
+      });
+    } catch (e) {
+      console.error("get user notifications error:", e);
+      throw e;
+    }
+  },
 
-    getById: async function (id) {
-        try {
-            const sql = `
+  getById: async function (id) {
+    try {
+      const sql = `
                 SELECT un.*, u.name as user_name, u.email as user_email, u.phone as user_phone
                 FROM user_notifications un
                 LEFT JOIN users u ON un.user_id = u.id
                 WHERE un.id = ?
             `;
-            const [notification] = await queryRunner(sql, [id]);
-            if (notification) {
-                return srvRes(200, "Notification found", notification);
-            }
-            return srvRes(404, "Notification not found");
-        } catch (e) {
-            console.error("getById user notification error:", e);
-            throw e;
-        }
-    },
+      const [notification] = await queryRunner(sql, [id]);
+      if (notification) {
+        return srvRes(200, "Notification found", notification);
+      }
+      return srvRes(404, "Notification not found");
+    } catch (e) {
+      console.error("getById user notification error:", e);
+      throw e;
+    }
+  },
 
-    getUnreadCount: async function (user_id) {
-        try {
-            if (!user_id) return srvRes(400, "user_id is required");
+  getUnreadCount: async function (user_id) {
+    try {
+      if (!user_id) return srvRes(400, "user_id is required");
 
-            const sql = `
+      const sql = `
                 SELECT COUNT(*) as count 
                 FROM user_notifications 
                 WHERE user_id = ? AND is_read = 0
             `;
-            const [{ count }] = await queryRunner(sql, [user_id]);
+      const [{ count }] = await queryRunner(sql, [user_id]);
 
-            return srvRes(200, "Unread count fetched", { unread_count: Number(count) });
-        } catch (e) {
-            console.error("getUnreadCount error:", e);
-            throw e;
-        }
-    },
-
-    markAsRead: async function (id, user_id = null) {
-        try {
-            let sql = `UPDATE user_notifications SET is_read = 1 WHERE id = ?`;
-            const params = [id];
-
-            if (user_id) {
-                sql += ` AND user_id = ?`;
-                params.push(user_id);
-            }
-
-            const result = await queryRunner(sql, params);
-
-            if (result?.affectedRows > 0) {
-                return srvRes(200, "Notification marked as read");
-            }
-            return srvRes(404, "Notification not found or not owned by user");
-        } catch (e) {
-            console.error("markAsRead error:", e);
-            throw e;
-        }
-    },
-
-    markAllAsRead: async function (user_id = null) {
-        try {
-            let sql = `UPDATE user_notifications SET is_read = 1 WHERE is_read = 0`;
-            const params = [];
-
-            if (user_id) {
-                sql += ` AND user_id = ?`;
-                params.push(user_id);
-            }
-
-            const result = await queryRunner(sql, params);
-
-            return srvRes(200, `Marked ${result?.affectedRows || 0} notifications as read`);
-        } catch (e) {
-            console.error("markAllAsRead error:", e);
-            throw e;
-        }
-    },
-
-    deleteNotification: async function (id, user_id = null) {
-        try {
-            let sql = `DELETE FROM user_notifications WHERE id = ?`;
-            const params = [id];
-
-            if (user_id) {
-                sql += ` AND user_id = ?`;
-                params.push(user_id);
-            }
-
-            const result = await queryRunner(sql, params);
-
-            if (result?.affectedRows > 0) {
-                return srvRes(200, "Notification deleted successfully");
-            }
-            return srvRes(404, "Notification not found");
-        } catch (e) {
-            console.error("deleteNotification error:", e);
-            throw e;
-        }
+      return srvRes(200, "Unread count fetched", {
+        unread_count: Number(count),
+      });
+    } catch (e) {
+      console.error("getUnreadCount error:", e);
+      throw e;
     }
+  },
+
+  markAsRead: async function (id, user_id = null) {
+    try {
+      let sql = `UPDATE user_notifications SET is_read = 1 WHERE id = ?`;
+      const params = [id];
+
+      if (user_id) {
+        sql += ` AND user_id = ?`;
+        params.push(user_id);
+      }
+
+      const result = await queryRunner(sql, params);
+
+      if (result?.affectedRows > 0) {
+        return srvRes(200, "Notification marked as read");
+      }
+      return srvRes(404, "Notification not found or not owned by user");
+    } catch (e) {
+      console.error("markAsRead error:", e);
+      throw e;
+    }
+  },
+
+  markAllAsRead: async function (user_id = null) {
+    try {
+      let sql = `UPDATE user_notifications SET is_read = 1 WHERE is_read = 0`;
+      const params = [];
+
+      if (user_id) {
+        sql += ` AND user_id = ?`;
+        params.push(user_id);
+      }
+
+      const result = await queryRunner(sql, params);
+
+      return srvRes(
+        200,
+        `Marked ${result?.affectedRows || 0} notifications as read`
+      );
+    } catch (e) {
+      console.error("markAllAsRead error:", e);
+      throw e;
+    }
+  },
+
+  deleteNotification: async function (id, user_id = null) {
+    try {
+      let sql = `DELETE FROM user_notifications WHERE id = ?`;
+      const params = [id];
+
+      if (user_id) {
+        sql += ` AND user_id = ?`;
+        params.push(user_id);
+      }
+
+      const result = await queryRunner(sql, params);
+
+      if (result?.affectedRows > 0) {
+        return srvRes(200, "Notification deleted successfully");
+      }
+      return srvRes(404, "Notification not found");
+    } catch (e) {
+      console.error("deleteNotification error:", e);
+      throw e;
+    }
+  },
 };
 
 export default userNotificationService;
