@@ -4,7 +4,7 @@ import rechargeService from '#services/rechargeService.js';
 import userNotificationService from '#services/userNotificationService.js';
 import * as orderService from '#services/orderService.js';
 import * as referralService from '#services/referralService.js';
-import { queryRunner } from '#config/db.js';
+import { queryRunner, transactionRunner } from '#config/db.js';
 import { rtnRes, log } from '#utils/helper.js';
 
 const adminController = {
@@ -464,8 +464,9 @@ const adminController = {
             return rtnRes(res, 200, "Team members fetched successfully", result.data);
         } catch (e) {
             log(`Error in getTeamMembersByLevel: ${e.message}`, "error");
-        }},
-        
+        }
+    },
+
     getDashboardStats: async function (req, res) {
         try {
             const stats = await adminService.getDashboardStats();
