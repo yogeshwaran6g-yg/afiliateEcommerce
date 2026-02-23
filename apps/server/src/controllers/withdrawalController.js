@@ -13,6 +13,9 @@ const withdrawalController = {
             return rtnRes(res, 201, "Withdrawal request created successfully", result);
         } catch (error) {
             log(`Error in createWithdrawalRequest: ${error.message}`, "error");
+            if (error.message.includes("must be activated")) {
+                return rtnRes(res, 403, error.message);
+            }
             return rtnRes(res, error.message === "Insufficient wallet balance" ? 400 : 500, error.message);
         }
     },

@@ -9,6 +9,15 @@ import { getSettings } from "./settingsService.js";
 
 export const createWithdrawalRequest = async (userId, amount) => {
   return await transactionRunner(async (conn) => {
+    // 0. Check user activation status
+    const [userRows] = await conn.execute(
+      'SELECT account_activation_status FROM users WHERE id = ?',
+      [userId]
+    );
+    if (userRows[0]?.account_activation_status !== 'ACTIVATED') {
+      throw new Error("Your account must be activated to request a withdrawal.");
+    }
+
     // 1. Check pending requests
     const [pendingCount] = await conn.execute(
       'SELECT COUNT(*) as count FROM withdrawal_requests WHERE user_id = ? AND status = "REVIEW_PENDING"',

@@ -135,7 +135,7 @@ export default function Checkout() {
             setIsSubmitting(true);
             
             // Check activation status for PRODUCT_PURCHASE orders before uploading proof
-            if (paymentMethod === 'direct' && (!profile?.is_active || profile?.account_activation_status !== 'ACTIVATED')) {
+            if (paymentMethod === 'direct' && (!profile?.user?.is_active || profile?.user?.account_activation_status !== 'ACTIVATED')) {
                 toast.error("Your account is not activated. Please complete activation first.");
                 setIsSubmitting(false);
                 return;

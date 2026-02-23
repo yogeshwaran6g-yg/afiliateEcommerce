@@ -7,12 +7,11 @@ import {
 
 export const ORDER_QUERY_KEY = ["orders"];
 
-export const useGetMyOrders = () => {
+export const useGetMyOrders = (params = {}) => {
     return useQuery({
-        queryKey: ORDER_QUERY_KEY,
+        queryKey: [ORDER_QUERY_KEY, params],
         queryFn: async () => {
-            const response = await getMyOrders();
-            return response.data;
+            return await getMyOrders(params);
         },
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
@@ -22,8 +21,7 @@ export const useGetOrderById = (id) => {
     return useQuery({
         queryKey: [...ORDER_QUERY_KEY, id],
         queryFn: async () => {
-            const response = await getOrderById(id);
-            return response.data;
+            return await getOrderById(id);
         },
         enabled: !!id,
     });

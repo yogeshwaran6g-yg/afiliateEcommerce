@@ -7,19 +7,26 @@ export default function Orders() {
   const [activeTab, setActiveTab] = useState("All Orders");
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 3;
   const dateInputRef = useRef(null);
 
-  const { data: ordersResponse, isLoading: loading } = useGetMyOrders();
-  const orders = ordersResponse?.data || [];
+  const { data: ordersResponse, isLoading: loading } = useGetMyOrders({
+    page,
+    limit,
+    status: activeTab,
+    date: selectedDate
+  });
+  
+  const rawOrders = ordersResponse?.data?.orders;
+  const orders = Array.isArray(rawOrders) ? rawOrders : [];
+  const total = ordersResponse?.data?.total || 0;
+  const counts = ordersResponse?.data?.counts || {};
 
   // We'll use a local state to trigger detail fetching for specific orders
-  // Alternatively, we could have a component inside OrderTable for each row
-  // that uses useGetOrderById(id).
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const { data: detailResponse } = useGetOrderById(selectedOrderId);
 
-  // Cache for order details to avoid redundant loads, though Query handles this
-  // We'll pass the whole detailResponse to OrderTable
   const orderDetails =
     selectedOrderId && detailResponse?.data
       ? { [selectedOrderId]: detailResponse.data }
@@ -36,68 +43,17 @@ export default function Orders() {
     setSelectedOrderId(orderId);
   };
 
+  // No longer needed as filtering is done on backend
   const getFilteredOrders = () => {
-    let filtered = orders;
-
-    // Apply Tab Filter
-    if (activeTab !== "All Orders") {
-      filtered = filtered.filter(
-        (order) =>
-          order.status?.toUpperCase() ===
-          activeTab.toUpperCase().replace(" ", "_"),
-      );
-    }
-
-    // Apply Date Filter (Specific Date)
-    if (selectedDate) {
-      filtered = filtered.filter((order) => {
-        // created_at usually looks like "2024-03-21T..." or "2024-03-21 ..."
-        // We compare the YYYY-MM-DD part
-        const orderDateStr = new Date(order.created_at)
-          .toISOString()
-          .split("T")[0];
-        return orderDateStr === selectedDate;
-      });
-    }
-
-    return filtered;
+    return orders;
   };
-
-  // Calculate counts for tabs
-  const getTabCounts = () => {
-    const counts = {
-      "All Orders": orders.length,
-      Processing: 0,
-      Shipped: 0,
-      Delivered: 0,
-      Cancelled: 0,
-    };
-
-    orders.forEach((order) => {
-      const status =
-        order.status?.charAt(0).toUpperCase() +
-        order.status?.slice(1).toLowerCase();
-      // Map API status to Tab names if needed
-      // API: PROCESSING, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
-      // Tabs: Processing, Shipped, Delivered, Cancelled
-      // We might need to map OUT_FOR_DELIVERY to Shipped or Delivered or add a tab.
-      // For now let's map roughly.
-
-      if (counts.hasOwnProperty(status)) {
-        counts[status]++;
-      }
-    });
-    return counts;
-  };
-
-  const tabCounts = getTabCounts();
 
   const tabs = [
-    { name: "All Orders", count: tabCounts["All Orders"] },
-    { name: "Processing", count: tabCounts["Processing"] },
-    { name: "Shipped", count: tabCounts["Shipped"] },
-    { name: "Delivered", count: tabCounts["Delivered"] },
-    { name: "Cancelled", count: tabCounts["Cancelled"] },
+    { name: "All Orders", count: counts["All Orders"] || 0 },
+    { name: "Processing", count: counts["PROCESSING"] || 0 },
+    { name: "Shipped", count: counts["SHIPPED"] || counts["OUT_FOR_DELIVERY"] || 0 },
+    { name: "Delivered", count: counts["DELIVERED"] || 0 },
+    { name: "Cancelled", count: counts["CANCELLED"] || 0 },
   ];
 
   return (
@@ -118,7 +74,7 @@ export default function Orders() {
               ref={dateInputRef}
               type="date"
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(e) => { setSelectedDate(e.target.value); setPage(1); }}
               className="absolute opacity-0 pointer-events-none w-0 h-0"
             />
             <button
@@ -178,15 +134,23 @@ export default function Orders() {
             key={tab.name}
             onClick={() => setActiveTab(tab.name)}
             className={`px-4 md:px-6 py-3 text-xs md:text-sm font-semibold whitespace-nowrap transition-colors relative ${
-              activeTab === tab.name
+            activeTab === tab.name
                 ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            {tab.name}
-            <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
-              {tab.count}
-            </span>
+            <div 
+              onClick={() => {
+                setActiveTab(tab.name);
+                setPage(1); // Reset to first page on tab change
+              }}
+              className="flex items-center"
+            >
+              {tab.name}
+              <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
+                {tab.count}
+              </span>
+            </div>
           </button>
         ))}
       </div>
@@ -199,6 +163,12 @@ export default function Orders() {
           expandedOrder={expandedOrder}
           setExpandedOrder={handleExpandOrder}
           orderDetails={orderDetails}
+          pagination={{
+            currentPage: page,
+            totalItems: total,
+            pageSize: limit,
+            onPageChange: (newPage) => setPage(newPage)
+          }}
         />
       )}
 

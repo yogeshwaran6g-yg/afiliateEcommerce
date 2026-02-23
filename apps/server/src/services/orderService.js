@@ -35,6 +35,17 @@ export const createOrder = async (orderData) => {
 
         let paymentStatus = 'PENDING';
         if (paymentMethod === 'WALLET') {
+            // Check if user is activated for non-activation orders
+            if (orderType !== 'ACTIVATION') {
+                const [userRows] = await connection.execute(
+                    'SELECT account_activation_status FROM users WHERE id = ?',
+                    [userId]
+                );
+                if (userRows[0]?.account_activation_status !== 'ACTIVATED') {
+                    throw new Error("Your account must be activated to use wallet for product purchases.");
+                }
+            }
+
             const wallet = await walletService.getWalletByUserId(userId, connection);
             if (parseFloat(wallet.balance) < totalAmount) {
                 throw new Error("Insufficient wallet balance");
@@ -191,19 +202,77 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
 };
 
 /**
- * Fetches all orders for a specific user.
+ * Fetches orders for a specific user with pagination and filtering.
  * @param {number} userId - The ID of the user.
- * @returns {Promise<Array>} - List of orders.
+ * @param {object} options - Pagination and filter options.
+ * @returns {Promise<object>} - List of orders and metadata.
  */
-export const getOrdersByUserId = async (userId) => {
-    const [rows] = await pool.execute(
-        `SELECT id, order_number, total_amount, shipping_cost, status, order_type, payment_status, payment_method, created_at 
-         FROM orders 
-         WHERE user_id = ? 
-         ORDER BY created_at DESC`,
+export const getOrdersByUserId = async (userId, options = {}) => {
+    const { page = 1, limit = 10, status, date } = options;
+    const offset = (page - 1) * limit;
+
+    let query = `
+        SELECT id, order_number, total_amount, shipping_cost, status, order_type, payment_status, payment_method, created_at 
+        FROM orders 
+        WHERE user_id = ?
+    `;
+    const params = [userId];
+
+    if (status && status !== 'All Orders') {
+        query += " AND status = ?";
+        params.push(status.toUpperCase().replace(" ", "_"));
+    }
+
+    if (date) {
+        query += " AND DATE(created_at) = ?";
+        params.push(date);
+    }
+
+    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    params.push(parseInt(limit), parseInt(offset));
+
+    const [rows] = await pool.execute(query, params);
+
+    // Get total count for pagination
+    let countQuery = "SELECT COUNT(*) as total FROM orders WHERE user_id = ?";
+    const countParams = [userId];
+
+    if (status && status !== 'All Orders') {
+        countQuery += " AND status = ?";
+        countParams.push(status.toUpperCase().replace(" ", "_"));
+    }
+
+    if (date) {
+        countQuery += " AND DATE(created_at) = ?";
+        countParams.push(date);
+    }
+
+    const [countResult] = await pool.execute(countQuery, countParams);
+    const total = countResult[0]?.total || 0;
+
+    // Get status counts for tabs
+    const [statusCounts] = await pool.execute(
+        `SELECT status, COUNT(*) as count FROM orders WHERE user_id = ? GROUP BY status`,
         [userId]
     );
-    return rows;
+
+    const counts = {
+        "All Orders": 0,
+        "PROCESSING": 0,
+        "SHIPPED": 0,
+        "DELIVERED": 0,
+        "CANCELLED": 0,
+        "OUT_FOR_DELIVERY": 0
+    };
+
+    let allTotal = 0;
+    statusCounts.forEach(row => {
+        counts[row.status] = row.count;
+        allTotal += row.count;
+    });
+    counts["All Orders"] = allTotal;
+
+    return { orders: rows, total, counts };
 };
 
 /**

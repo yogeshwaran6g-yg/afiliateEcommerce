@@ -12,9 +12,9 @@ export const createOrder = async (orderData) => {
     }
 };
 
-export const getMyOrders = async () => {
+export const getMyOrders = async (params = {}) => {
     try {
-        const response = await api.get(orderEndpoints.myOrders);
+        const response = await api.get(orderEndpoints.myOrders, params);
         return response;
     } catch (error) {
         handleServiceError(error, "Get My Orders");

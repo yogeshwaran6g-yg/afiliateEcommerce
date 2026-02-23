@@ -42,18 +42,27 @@ const createOrder = async (req, res) => {
         return rtnRes(res, 201, "Order created successfully", order);
     } catch (error) {
         log(`Order creation error: ${error.message}`, "error");
+        if (error.message.includes("must be activated") || error.message.includes("not activated")) {
+            return rtnRes(res, 403, error.message);
+        }
         if (error.message === "Insufficient wallet balance") {
             return rtnRes(res, 400, error.message);
         }
-        return rtnRes(res, 500, "Internal Server Error");
+        return rtnRes(res, 500, error.message || "Internal Server Error");
     }
 };
 
 const getMyOrders = async (req, res) => {
     try {
         const userId = req.user.id;
-        const orders = await orderService.getOrdersByUserId(userId);
-        return rtnRes(res, 200, "Orders fetched successfully", orders);
+        const { page, limit, status, date } = req.query;
+        const result = await orderService.getOrdersByUserId(userId, {
+            page: parseInt(page) || 1,
+            limit: parseInt(limit) || 10,
+            status,
+            date
+        });
+        return rtnRes(res, 200, "Orders fetched successfully", result);
     } catch (error) {
         log(`Error in getMyOrders: ${error.message}`, "error");
         return rtnRes(res, 500, "Internal Server Error");
