@@ -32,18 +32,7 @@ function Wallet() {
     ? Math.ceil(pagination.total / pagination.limit)
     : 1;
 
-  if (isWalletLoading || isTransactionsLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 font-display">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 font-semibold animate-pulse">
-            Loading Wallet...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // No longer using full-page spinner, passing isLoading to child components instead
 
   if (walletError) {
     return (
@@ -78,7 +67,7 @@ function Wallet() {
       <main className="flex-1 flex flex-col min-w-0">
         <div className="flex-1 px-4 md:px-8 py-6 md:py-10 max-w-7xl mx-auto w-full">
           <WalletHeader onWithdrawClick={() => setIsWithdrawModalOpen(true)} />
-          <WalletStats wallet={walletData} transactions={transactions} />
+          <WalletStats wallet={walletData} transactions={transactions} isLoading={isWalletLoading || isTransactionsLoading} />
 
           <div className="w-full">
             <TransactionHistory
@@ -88,6 +77,7 @@ function Wallet() {
               onPageChange={setPage}
               filters={filters}
               onFilterChange={setFilters}
+              isLoading={isTransactionsLoading}
             />
           </div>
         </div>

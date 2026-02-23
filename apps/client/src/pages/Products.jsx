@@ -4,6 +4,7 @@ import SortFilter from "./products/SortFilter";
 import ProductCard from "./products/ProductCard";
 import { useProducts } from "../hooks/useProducts";
 import { useGetProducts } from "../hooks/useProductService";
+import Skeleton from "../components/ui/Skeleton";
 
 export default function Products() {
     const [viewMode, setViewMode] = useState("grid");
@@ -71,7 +72,7 @@ export default function Products() {
                     /> */}
 
                     {/* Sort Dropdown */}
-                    <SortFilter 
+                    <SortFilter
                         activeSort={sortBy}
                         onSortChange={setSortBy}
                     />
@@ -81,8 +82,23 @@ export default function Products() {
             {/* Products Grid */}
             <div className="w-full pt-4">
                 {isProductsLoading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <div className={`grid gap-6 ${viewMode === 'grid'
+                        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                        : "grid-cols-1"
+                        }`}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                            <div key={i} className="bg-white rounded-2xl border border-slate-200 overflow-hidden p-4 space-y-4">
+                                <Skeleton variant="rectangular" width="100%" height="200px" className="rounded-xl" />
+                                <div className="space-y-2">
+                                    <Skeleton width="60%" height="20px" />
+                                    <Skeleton width="40%" height="16px" />
+                                    <div className="flex justify-between items-center pt-2">
+                                        <Skeleton width="80px" height="24px" />
+                                        <Skeleton width="40px" height="40px" variant="circular" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : isProductsError ? (
                     <div className="text-center py-12">

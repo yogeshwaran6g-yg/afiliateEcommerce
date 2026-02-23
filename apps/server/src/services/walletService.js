@@ -50,8 +50,11 @@ export const getWalletStats = async (userId) => {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterdayStart = new Date(todayStart);
     yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-    
+
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthSameDay = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
     const last6MonthsStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
     const last7DaysStart = new Date(todayStart);
     last7DaysStart.setDate(last7DaysStart.getDate() - 6);
@@ -64,11 +67,12 @@ export const getWalletStats = async (userId) => {
       `SELECT 
         COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' THEN amount ELSE 0 END), 0) AS total_income,
         COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? THEN amount ELSE 0 END), 0) AS month_income,
+        COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? AND created_at <= ? THEN amount ELSE 0 END), 0) AS last_month_income,
         COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? THEN amount ELSE 0 END), 0) AS today_income,
         COALESCE(SUM(CASE WHEN transaction_type = 'REFERRAL_COMMISSION' AND status = 'SUCCESS' AND created_at >= ? AND created_at < ? THEN amount ELSE 0 END), 0) AS yesterday_income
       FROM wallet_transactions
       WHERE wallet_id = ?`,
-      [monthStart, todayStart, yesterdayStart, todayStart, wallet.id],
+      [monthStart, lastMonthStart, lastMonthSameDay, todayStart, yesterdayStart, todayStart, wallet.id],
     );
 
     // 2. Team Growth Stats
@@ -76,12 +80,13 @@ export const getWalletStats = async (userId) => {
       `SELECT 
         COUNT(*) AS total_members,
         SUM(CASE WHEN u.created_at >= ? THEN 1 ELSE 0 END) AS month_joined,
+        SUM(CASE WHEN u.created_at >= ? AND u.created_at <= ? THEN 1 ELSE 0 END) AS last_month_joined,
         SUM(CASE WHEN u.created_at >= ? THEN 1 ELSE 0 END) AS today_joined,
         SUM(CASE WHEN u.created_at >= ? AND u.created_at < ? THEN 1 ELSE 0 END) AS yesterday_joined
       FROM referral_tree rt
       JOIN users u ON rt.downline_id = u.id
       WHERE rt.upline_id = ?`,
-      [monthStart, todayStart, yesterdayStart, todayStart, userId],
+      [monthStart, lastMonthStart, lastMonthSameDay, todayStart, yesterdayStart, todayStart, userId],
     );
 
     // 3. Team Purchase Stats
@@ -89,12 +94,13 @@ export const getWalletStats = async (userId) => {
       `SELECT 
         COALESCE(SUM(o.total_amount), 0) AS total_purchase,
         COALESCE(SUM(CASE WHEN o.created_at >= ? THEN o.total_amount ELSE 0 END), 0) AS month_purchase,
+        COALESCE(SUM(CASE WHEN o.created_at >= ? AND o.created_at <= ? THEN o.total_amount ELSE 0 END), 0) AS last_month_purchase,
         COALESCE(SUM(CASE WHEN o.created_at >= ? THEN o.total_amount ELSE 0 END), 0) AS today_purchase,
         COALESCE(SUM(CASE WHEN o.created_at >= ? AND o.created_at < ? THEN o.total_amount ELSE 0 END), 0) AS yesterday_purchase
       FROM referral_tree rt
       JOIN orders o ON rt.downline_id = o.user_id
       WHERE rt.upline_id = ? AND o.payment_status = 'PAID'`,
-      [monthStart, todayStart, yesterdayStart, todayStart, userId],
+      [monthStart, lastMonthStart, lastMonthSameDay, todayStart, yesterdayStart, todayStart, userId],
     );
 
     // 4. Historical Data for Charts (Last 7 Days - Sparklines)
@@ -159,7 +165,17 @@ export const getWalletStats = async (userId) => {
       month_income: parseFloat(income.month_income || 0),
       today_income: parseFloat(income.today_income || 0),
       commissions: parseFloat(income.total_income || 0), // Alias for backward compatibility
-      
+
+      income_change_today: calculateChange(parseFloat(income.today_income), parseFloat(income.yesterday_income)),
+      income_change_month: calculateChange(parseFloat(income.month_income), parseFloat(income.last_month_income)),
+
+      members_change_today: calculateChange(parseInt(team.today_joined), parseInt(team.yesterday_joined)),
+      members_change_month: calculateChange(parseInt(team.month_joined), parseInt(team.last_month_joined)),
+
+      purchase_change_today: calculateChange(parseFloat(purchase.today_purchase), parseFloat(purchase.yesterday_purchase)),
+      purchase_change_month: calculateChange(parseFloat(purchase.month_purchase), parseFloat(purchase.last_month_purchase)),
+
+      // Backward compatibility (keeping the generic ones which will now represent today's growth)
       income_change: calculateChange(parseFloat(income.today_income), parseFloat(income.yesterday_income)),
       members_change: calculateChange(parseInt(team.today_joined), parseInt(team.yesterday_joined)),
       purchase_change: calculateChange(parseFloat(purchase.today_purchase), parseFloat(purchase.yesterday_purchase)),

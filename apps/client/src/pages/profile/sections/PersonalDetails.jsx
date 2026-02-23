@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Skeleton from "../../../components/ui/Skeleton";
 
 export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, isLoading }) {
     const [editMode, setEditMode] = useState(false);
@@ -56,23 +57,27 @@ export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, 
             <div className="flex flex-col items-center text-center">
                 {/* Profile Card Style from Image */}
                 <div className="w-full max-w-sm mb-6">
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-4 w-full">
                         {/* Avatar */}
                         <div className="relative">
-                            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.08)] bg-slate-100 flex items-center justify-center">
-                                {displayImage ? (
-                                    <img
-                                        src={displayImage}
-                                        alt="Profile"
-                                        className="w-full h-full object-cover"
-                                        onError={() => setImgError(true)}
-                                    />
-                                ) : (
-                                    <div className="flex flex-col items-center text-primary/40">
-                                        <span className="material-symbols-outlined text-5xl">person</span>
-                                    </div>
-                                )}
-                            </div>
+                            {isLoading ? (
+                                <Skeleton variant="circular" width="112px" height="112px" className="rounded-full border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.08)]" />
+                            ) : (
+                                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.08)] bg-slate-100 flex items-center justify-center">
+                                    {displayImage ? (
+                                        <img
+                                            src={displayImage}
+                                            alt="Profile"
+                                            className="w-full h-full object-cover"
+                                            onError={() => setImgError(true)}
+                                        />
+                                    ) : (
+                                        <div className="flex flex-col items-center text-primary/40">
+                                            <span className="material-symbols-outlined text-5xl">person</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             {editMode && (
                                 <div className="absolute -bottom-2 -right-2 flex flex-col gap-2">
                                     <label className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 shadow-lg transition-all border-2 border-white">
@@ -94,19 +99,31 @@ export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, 
                         </div>
 
                         {/* Info */}
-                        <div className="space-y-2">
-                            <h4 className="text-2xl font-bold text-slate-900 tracking-tight">{data.name || "Setup Name"}</h4>
+                        <div className="space-y-2 w-full flex flex-col items-center">
+                            {isLoading ? (
+                                <>
+                                    <Skeleton width="180px" height="32px" className="mb-4" />
+                                    <div className="space-y-2 w-full flex flex-col items-center">
+                                        <Skeleton width="220px" height="18px" />
+                                        <Skeleton width="160px" height="18px" />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h4 className="text-2xl font-bold text-slate-900 tracking-tight">{data.name || "Setup Name"}</h4>
 
-                            <div className="flex flex-col gap-1.5 mt-4">
-                                <div className="flex items-center justify-center gap-2 text-slate-500 font-medium text-sm">
-                                    <span className="material-symbols-outlined text-lg opacity-60">mail</span>
-                                    <span>{data.email || "No email provided"}</span>
-                                </div>
-                                <div className="flex items-center justify-center gap-2 text-slate-500 font-medium text-sm">
-                                    <span className="material-symbols-outlined text-lg opacity-60">call</span>
-                                    <span>{data.phone || "No phone added"}</span>
-                                </div>
-                            </div>
+                                    <div className="flex flex-col gap-1.5 mt-4">
+                                        <div className="flex items-center justify-center gap-2 text-slate-500 font-medium text-sm">
+                                            <span className="material-symbols-outlined text-lg opacity-60">mail</span>
+                                            <span>{data.email || "No email provided"}</span>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2 text-slate-500 font-medium text-sm">
+                                            <span className="material-symbols-outlined text-lg opacity-60">call</span>
+                                            <span>{data.phone || "No phone added"}</span>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

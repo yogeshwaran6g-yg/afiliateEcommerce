@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTransactions } from "../hooks/useWallet";
+import Skeleton from "./ui/Skeleton";
 
 const getInitials = (name = "N/A") => {
     return name
@@ -61,11 +62,20 @@ export default function TransactionsTable() {
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-pulse">
-                <div className="p-6 h-16 border-b border-slate-200 bg-slate-50"></div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-6 h-16 border-b border-slate-200 bg-slate-50 flex items-center">
+                    <Skeleton width="150px" height="24px" />
+                </div>
                 <div className="p-6 space-y-4">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-12 bg-slate-50 rounded-lg"></div>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex items-center gap-4">
+                            <Skeleton variant="circular" width="40px" height="40px" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton width="40%" height="16px" />
+                                <Skeleton width="30%" height="12px" />
+                            </div>
+                            <Skeleton width="60px" height="20px" />
+                        </div>
                     ))}
                 </div>
             </div>

@@ -4,12 +4,13 @@ import { useUser } from "../../hooks/useAuthService";
 import ReferralLinkCard from "./ReferralLinkCard";
 import QRCodeCard from "./QRCodeCard";
 import ReferralTable from "./ReferralTable";
+import Skeleton from "../../components/ui/Skeleton";
 
 const DirectReferrals = () => {
   const { data: user } = useUser();
   const [page, setPage] = React.useState(1);
   const limit = 9;
-  
+
   const { data, isLoading, error, refetch } = useDirectReferrals(page, limit);
 
   const referralId = user?.referral_id || "LOADING...";
@@ -19,18 +20,7 @@ const DirectReferrals = () => {
     navigator.clipboard.writeText(referralLink);
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 font-medium">
-            Loading direct referrals...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Full page loading handled by skeletons inside the layout
 
   if (error) {
     return (
@@ -69,7 +59,7 @@ const DirectReferrals = () => {
 
   const referrals = data?.referrals || [];
   const pagination = data?.pagination || { page: 1, limit: 10, total: 0, totalPages: 1 };
-  
+
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -82,18 +72,36 @@ const DirectReferrals = () => {
             Manage and monitor your personal network growth.
           </p>
         </div>
-        
+
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ReferralLinkCard
-          referralLink={referralLink}
-          copyToClipboard={copyToClipboard}          
-        />
-        <QRCodeCard referralLink={referralLink} />
+        {isLoading ? (
+          <>
+            <div className="lg:col-span-2 bg-white rounded-[2rem] border border-slate-200 p-8">
+              <Skeleton width="40%" height="20px" className="mb-4" />
+              <div className="flex gap-4">
+                <Skeleton width="100%" height="48px" className="rounded-xl" />
+                <Skeleton width="48px" height="48px" className="rounded-xl" />
+              </div>
+            </div>
+            <div className="bg-white rounded-[2rem] border border-slate-200 p-8 flex flex-col items-center">
+              <Skeleton width="120px" height="120px" className="rounded-xl mb-4" />
+              <Skeleton width="60%" height="16px" />
+            </div>
+          </>
+        ) : (
+          <>
+            <ReferralLinkCard
+              referralLink={referralLink}
+              copyToClipboard={copyToClipboard}
+            />
+            <QRCodeCard referralLink={referralLink} />
+          </>
+        )}
       </div>
 
-      <ReferralTable referrals={referrals} pagination={pagination} onPageChange={setPage} />
+      <ReferralTable referrals={referrals} pagination={pagination} onPageChange={setPage} isLoading={isLoading} />
     </div>
   );
 };

@@ -11,8 +11,8 @@ export default function WalletHeader({ onWithdrawClick }) {
                 </p>
             </div>
             <div className="flex gap-3">
-                <Link 
-                    to="/wallet/add-funds" 
+                <Link
+                    to="/wallet/add-funds"
                     className="flex items-center gap-2 px-6 py-2 bg-[#10b981] text-white rounded-lg text-sm font-bold hover:bg-[#0da371] shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                 >
                     <span className="material-symbols-outlined text-lg">add_circle</span>

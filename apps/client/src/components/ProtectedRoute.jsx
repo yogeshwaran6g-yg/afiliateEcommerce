@@ -8,8 +8,14 @@ const ProtectedRoute = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+            <div className="min-h-screen bg-slate-50 p-8 space-y-8 animate-pulse">
+                <div className="h-16 bg-white rounded-2xl border border-slate-200"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="h-40 bg-white rounded-2xl border border-slate-200"></div>
+                    <div className="h-40 bg-white rounded-2xl border border-slate-200"></div>
+                    <div className="h-40 bg-white rounded-2xl border border-slate-200"></div>
+                </div>
+                <div className="h-96 bg-white rounded-2xl border border-slate-200"></div>
             </div>
         );
     }

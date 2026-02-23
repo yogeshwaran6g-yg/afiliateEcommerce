@@ -46,11 +46,10 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
         ) : (
           <button
             onClick={() => onPageChange(p)}
-            className={`h-8 w-8 rounded-lg font-bold text-xs md:text-sm transition-colors ${
-              currentPage === p
-                ? "bg-primary text-white"
-                : "border border-slate-300 text-slate-600 hover:bg-white"
-            }`}
+            className={`h-8 w-8 rounded-lg font-bold text-xs md:text-sm transition-colors ${currentPage === p
+              ? "bg-primary text-white"
+              : "border border-slate-300 text-slate-600 hover:bg-white"
+              }`}
           >
             {p}
           </button>
@@ -144,8 +143,8 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
                                 <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                                   {details.shipping_address ? (() => {
                                     try {
-                                      const addr = typeof details.shipping_address === 'string' 
-                                        ? JSON.parse(details.shipping_address) 
+                                      const addr = typeof details.shipping_address === 'string'
+                                        ? JSON.parse(details.shipping_address)
                                         : details.shipping_address;
                                       return (
                                         <div className="space-y-1">
@@ -171,12 +170,16 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
                                   <span className="material-symbols-outlined text-primary">history</span>
                                   Tracking Timeline
                                 </div>
-                                <div className="space-y-0 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 ml-2">
+                                <div className="space-y-0 ml-2">
                                   {details.tracking && details.tracking.map((step, i) => (
                                     <div key={i} className="flex gap-4 relative">
-                                      <div className="z-10 bg-slate-50 py-1">
+                                      {/* Connector Line */}
+                                      {i !== details.tracking.length - 1 && (
+                                        <div className="absolute left-[7px] top-6 bottom-0 w-0.5 bg-primary/20" />
+                                      )}
+                                      <div className="z-10 py-1">
                                         <div
-                                          className={`w-3.5 h-3.5 rounded-full border-2 border-white bg-primary`}
+                                          className="w-3.5 h-3.5 rounded-full border-2 border-white bg-primary shadow-sm"
                                         />
                                       </div>
                                       <div className="flex-1 pb-6">
@@ -227,13 +230,12 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
             <button
               onClick={() => onPageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className={`p-1.5 border border-slate-300 rounded-lg transition-colors ${
-                currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-white"
-              }`}
+              className={`p-1.5 border border-slate-300 rounded-lg transition-colors ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-white"
+                }`}
             >
               <span className="material-symbols-outlined text-slate-600 text-lg">chevron_left</span>
             </button>
-            
+
             <div className="flex items-center gap-1">
               {renderPageNumbers()}
             </div>
@@ -241,9 +243,8 @@ export default function OrderTable({ orders, expandedOrder, setExpandedOrder, or
             <button
               onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className={`p-1.5 border border-slate-300 rounded-lg transition-colors ${
-                currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-white"
-              }`}
+              className={`p-1.5 border border-slate-300 rounded-lg transition-colors ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-white"
+                }`}
             >
               <span className="material-symbols-outlined text-slate-600 text-lg">chevron_right</span>
             </button>
