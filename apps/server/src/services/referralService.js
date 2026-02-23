@@ -261,7 +261,7 @@ export const getDirectReferrals = async (uplineId, page = 1, limit = 10) => {
       JOIN users u ON u.id = rt.downline_id
       WHERE rt.upline_id = ? AND rt.level = 1
       ORDER BY u.created_at DESC
-      LIMIT ? OFFSET ?;
+      LIMIT ${l} OFFSET ${offset};
     `;
 
     const statsSql = `
@@ -273,7 +273,7 @@ export const getDirectReferrals = async (uplineId, page = 1, limit = 10) => {
     `;
 
     const [directReferrals, [stats]] = await Promise.all([
-      queryRunner(referralsSql, [uplineId, uplineId, Number(limit), Number(offset)]),
+      queryRunner(referralsSql, [uplineId, uplineId]),
       queryRunner(statsSql, [uplineId]),
     ]);
 
@@ -306,6 +306,7 @@ export const getDirectReferrals = async (uplineId, page = 1, limit = 10) => {
     throw error;
   }
 };
+
 export const getTeamMembersByLevel = async (uplineId, level, page = 1, limit = 10) => {
   try {
     const p = Math.max(1, Number(page));
@@ -356,10 +357,10 @@ export const getTeamMembersByLevel = async (uplineId, level, page = 1, limit = 1
         ON referrer.id = direct_referrer_tree.upline_id
       WHERE rt.upline_id = ? AND rt.level = ?
       ORDER BY u.created_at DESC
-      LIMIT ? OFFSET ?;
+      LIMIT ${l} OFFSET ${offset};
     `;
 
-    const members = await queryRunner(sql, [uplineId, uplineId, level, Number(limit), Number(offset)]);
+    const members = await queryRunner(sql, [uplineId, uplineId, level]);
 
     return {
       success: true,

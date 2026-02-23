@@ -44,7 +44,7 @@ export const queryRunner = async (sql, params = []) => {
     const [rows, fields] = await connection.execute(sql, params);
     return rows;
   } catch (error) {
-    log(`Query Error: ${error.message}`, "error", { sql });
+    log(`Query Error: ${error.message}`, "error", { sql, params });
     throw error;
   } finally {
     if (connection) connection.release();
