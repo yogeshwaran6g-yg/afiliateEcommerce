@@ -36,6 +36,9 @@ const rechargeController = {
     getRequests: async (req, res) => {
         try {
             const filters = {};
+            if (req.user.role !== 'ADMIN') {
+                filters.userId = req.user.id;
+            }
             if (req.query.status) filters.status = req.query.status;
 
             const requests = await rechargeService.getRechargeRequests(filters);

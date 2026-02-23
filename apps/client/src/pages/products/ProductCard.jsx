@@ -71,11 +71,7 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
                         <div className="text-lg md:text-xl font-bold text-slate-900">
                             ₹{parseFloat(product.sale_price).toFixed(2)}
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1 text-[10px] md:text-xs">
-                                <span className="font-bold text-orange-600">{product.commission || 0}% COMM</span>
-                            </div>
-                        </div>
+
                     </div>
 
                     {/* Add to Cart Button */}

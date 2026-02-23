@@ -94,6 +94,11 @@ export const getRechargeRequests = async (filters = {}) => {
     params.push(filters.status);
   }
 
+  if (filters.userId) {
+    query += " AND rr.user_id = ?";
+    params.push(filters.userId);
+  }
+
   query += " ORDER BY rr.created_at DESC";
 
   const rows = await queryRunner(query, params);
