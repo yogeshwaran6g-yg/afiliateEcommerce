@@ -3,6 +3,7 @@ import React, { useState } from "react";
 export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, isLoading }) {
     const [editMode, setEditMode] = useState(false);
     const [imageFile, setImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [imgError, setImgError] = useState(false);
 
     const handleImageChange = (e) => {
@@ -10,12 +11,18 @@ export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, 
         if (file) {
             setImageFile(file);
             setImgError(false);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
     const handleRemoveImage = () => {
         onChange({ target: { name: 'profile_image', value: null } });
         setImageFile(null);
+        setPreviewUrl(null);
         setImgError(false);
     };
 
@@ -24,9 +31,12 @@ export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, 
         await onUpdate(imageFile);
         setEditMode(false);
         setImageFile(null);
+        setPreviewUrl(null);
     };
 
     const showForm = editMode;
+
+    const displayImage = previewUrl || (data.profile_image && !imgError ? (data.profile_image.startsWith('http') ? data.profile_image : `${import.meta.env.VITE_API_URL}${data.profile_image}`) : null);
 
     return (
         <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
@@ -50,9 +60,9 @@ export default function PersonalDetails({ data, onChange, onUpdate, isUpdating, 
                         {/* Avatar */}
                         <div className="relative">
                             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.08)] bg-slate-100 flex items-center justify-center">
-                                {data.profile_image && !imgError ? (
+                                {displayImage ? (
                                     <img
-                                        src={data.profile_image.startsWith('http') ? data.profile_image : `${import.meta.env.VITE_API_URL}${data.profile_image}`}
+                                        src={displayImage}
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                         onError={() => setImgError(true)}
