@@ -11,6 +11,8 @@ export default function Users() {
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Modal states
     const [viewUser, setViewUser] = useState(null);
@@ -111,6 +113,25 @@ export default function Users() {
         }
     };
 
+    const filteredUsers = users.filter(user => {
+        const matchesStatus = statusFilter === 'ALL' || user.status === statusFilter;
+        const matchesSearch = !searchQuery ||
+            user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesStatus && matchesSearch;
+    });
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+
+    // Reset to first page when searching or filtering
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, statusFilter]);
+
     if (loading) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
@@ -139,16 +160,6 @@ export default function Users() {
             </div>
         );
     }
-
-
-    const filteredUsers = users.filter(user => {
-        const matchesStatus = statusFilter === 'ALL' || user.status === statusFilter;
-        const matchesSearch = !searchQuery || 
-            user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()));
-        return matchesStatus && matchesSearch;
-    });
 
     return (
         <div className="p-4 md:p-8 lg:p-12 space-y-12 bg-slate-50/30 min-h-screen font-display">
@@ -225,7 +236,7 @@ export default function Users() {
                     <>
                         {/* Mobile Card View */}
                         <div className="block lg:hidden p-4 space-y-4">
-                            {filteredUsers.map((user, i) => (
+                            {paginatedUsers.map((user, i) => (
                                 <div key={i} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 space-y-4">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex items-center gap-4 min-w-0">
@@ -280,7 +291,7 @@ export default function Users() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {filteredUsers.map((user, i) => (
+                                    {paginatedUsers.map((user, i) => (
                                         <tr key={i} className={`hover:bg-slate-50/50 transition-colors group`}>
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
@@ -322,6 +333,66 @@ export default function Users() {
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined font-bold">chevron_left</span>
+                                    </button>
+
+                                    <div className="flex items-center gap-1">
+                                        {[...Array(totalPages)].map((_, i) => {
+                                            const pageNum = i + 1;
+                                            if (
+                                                totalPages <= 7 ||
+                                                pageNum === 1 ||
+                                                pageNum === totalPages ||
+                                                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                            ) {
+                                                return (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => setCurrentPage(pageNum)}
+                                                        className={`w-10 h-10 flex items-center justify-center rounded-xl text-[11px] font-black transition-all ${currentPage === pageNum
+                                                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
+                                                            }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            } else if (
+                                                (pageNum === currentPage - 2 && pageNum > 1) ||
+                                                (pageNum === currentPage + 2 && pageNum < totalPages)
+                                            ) {
+                                                return <span key={pageNum} className="px-1 text-slate-400">...</span>;
+                                            }
+                                            return null;
+                                        })}
+                                    </div>
+
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined font-bold">chevron_right</span>
+                                    </button>
+                                </div>
+
+                                <div className="hidden sm:block">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        Page {currentPage} of {totalPages}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

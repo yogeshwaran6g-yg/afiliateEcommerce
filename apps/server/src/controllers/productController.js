@@ -2,10 +2,10 @@ import productService from "#src/services/productService.js";
 import { rtnRes } from "#src/utils/helper.js";
 
 const productController = {
-    createProduct: async function(req, res) {
+    createProduct: async function (req, res) {
         try {
             const { name, slug, short_desc, long_desc, category_id, original_price, sale_price } = req.body;
-            
+
             // 1. Check required fields
             if (!name || !slug || !short_desc || !long_desc || !category_id || original_price === undefined || sale_price === undefined) {
                 return rtnRes(res, 400, "Missing required fields");
@@ -31,7 +31,7 @@ const productController = {
         }
     },
 
-    getProducts: async function(req, res) {
+    getProducts: async function (req, res) {
         try {
             const result = await productService.get(req.query);
             return rtnRes(res, result.code, result.msg, result.data);
@@ -41,7 +41,7 @@ const productController = {
         }
     },
 
-    getProductById: async function(req, res) {
+    getProductById: async function (req, res) {
         try {
             const id = req.params.id || req.query.id;
             if (!id || isNaN(parseInt(id))) return rtnRes(res, 400, "Valid Product ID is required");
@@ -54,7 +54,7 @@ const productController = {
         }
     },
 
-    updateProduct: async function(req, res) {
+    updateProduct: async function (req, res) {
         try {
             const id = req.params.id;
             if (!id || isNaN(parseInt(id))) return rtnRes(res, 400, "Valid Product ID is required");
@@ -65,7 +65,7 @@ const productController = {
             if (original_price !== undefined || sale_price !== undefined) {
                 const currentProduct = await productService.get({ id });
                 if (!currentProduct.success) return rtnRes(res, 404, "Product not found");
-                
+
                 const orig = original_price !== undefined ? parseFloat(original_price) : parseFloat(currentProduct.data[0].original_price);
                 const sale = sale_price !== undefined ? parseFloat(sale_price) : parseFloat(currentProduct.data[0].sale_price);
 
@@ -88,7 +88,7 @@ const productController = {
         }
     },
 
-    deleteProduct: async function(req, res) {
+    deleteProduct: async function (req, res) {
         try {
             const id = req.params.id;
             if (!id || isNaN(parseInt(id))) return rtnRes(res, 400, "Valid Product ID is required");
@@ -101,7 +101,7 @@ const productController = {
         }
     },
 
-    toggleProductStatus: async function(req, res) {
+    toggleProductStatus: async function (req, res) {
         try {
             const id = req.params.id;
             if (!id || isNaN(parseInt(id))) return rtnRes(res, 400, "Valid Product ID is required");

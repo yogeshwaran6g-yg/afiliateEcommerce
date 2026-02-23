@@ -467,6 +467,48 @@ const adminController = {
         }
     },
 
+    addOrderTracking: async function (req, res) {
+        try {
+            const { id } = req.params;
+            const { title, description } = req.body;
+
+            if (!id || !title) {
+                return rtnRes(res, 400, "order id and title are required");
+            }
+
+            const tracking = await orderService.addOrderTracking(id, title, description);
+            return rtnRes(res, 200, "Tracking update added successfully", tracking);
+        } catch (e) {
+            log(`Error in addOrderTracking: ${e.message}`, "error");
+            return rtnRes(res, 500, e.message || "internal error");
+        }
+    },
+
+    getOrderPayments: async function (req, res) {
+        try {
+            const { page = 1, limit = 50, status, search } = req.query;
+            const offset = (page - 1) * limit;
+
+            const { payments, total } = await orderService.getAllOrderPayments({ status, search }, parseInt(limit), parseInt(offset));
+
+            return res.json({
+                success: true,
+                data: {
+                    payments,
+                    pagination: {
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        total,
+                        totalPages: Math.ceil(total / limit)
+                    }
+                }
+            });
+        } catch (e) {
+            log(`Error in getOrderPayments: ${e.message}`, "error");
+            return rtnRes(res, 500, e.message || "internal error");
+        }
+    },
+
     getDashboardStats: async function (req, res) {
         try {
             const stats = await adminService.getDashboardStats();

@@ -135,57 +135,81 @@ export default function Orders() {
                         </div>
                     ) : (
                         <table className="w-full text-left min-w-[1000px]">
-                            <thead className="bg-slate-50/70 border-b border-slate-50">
+                            <thead className="bg-slate-50/70 border-b border-slate-100">
                                 <tr>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">ORDER DETAILS</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">CUSTOMER</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">AMOUNT</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">TYPE</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                                    <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Order Details</th>
+                                    <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Customer</th>
+                                    <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Amount</th>
+                                    <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Type</th>
+                                    <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Status</th>
+                                    <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {orders.map((order, i) => (
-                                    <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-8 py-6">
-                                            <div>
-                                                <h4 className="text-sm font-black text-[#172b4d]">{order.order_number}</h4>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 leading-none">Placed on {new Date(order.created_at).toLocaleDateString()}</p>
+                                            <div className="space-y-1">
+                                                <h4 className="text-sm font-bold text-slate-800 tracking-tight group-hover:text-primary transition-colors">#{order.order_number}</h4>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span className="material-symbols-outlined text-[12px]">calendar_today</span>
+                                                    {new Date(order.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                </p>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-primary border border-slate-200">
+                                                <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-xs font-black text-primary shadow-sm group-hover:bg-white transition-colors">
                                                     {order.user_name?.charAt(0)}
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-[#172b4d] leading-none">{order.user_name}</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold mt-1">{order.user_phone}</p>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-sm font-bold text-slate-800 leading-none">{order.user_name}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold">{order.user_phone}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <p className="text-sm font-black text-[#172b4d]">₹{Number(order.total_amount).toLocaleString()}</p>
-                                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{order.payment_method}</p>
+                                            <div className="space-y-0.5">
+                                                <p className="text-sm font-black text-slate-800">₹{Number(order.total_amount).toLocaleString()}</p>
+                                                <p className="text-[10px] text-primary/70 font-black uppercase tracking-widest">{order.payment_method}</p>
+                                            </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-[#172b4d] text-[9px] font-black tracking-widest border border-slate-200 uppercase">
+                                            <span className="px-2.5 py-1.5 rounded-xl bg-slate-50 text-slate-600 text-[10px] font-black tracking-widest border border-slate-100 uppercase inline-block">
                                                 {order.order_type?.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(order.status)}`}>
+                                            <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-sm ${getStatusColor(order.status)}`}>
                                                 {order.status}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6 text-right">
-                                            <button
-                                                onClick={() => navigate(`/orders/${order.id}`)}
-                                                className="p-2 text-slate-400 hover:text-primary transition-all hover:scale-110"
-                                            >
-                                                <span className="material-symbols-outlined font-bold text-[20px]">visibility</span>
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => navigate(`/orders/${order.id}`)}
+                                                    className="p-2 text-slate-400 hover:text-primary transition-all hover:scale-110 hover:bg-primary/5 rounded-xl"
+                                                    title="View Details"
+                                                >
+                                                    <span className="material-symbols-outlined font-bold text-[20px]">visibility</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate(`/order-tracking?orderNumber=${order.order_number}`)}
+                                                    className="p-2 text-slate-400 hover:text-indigo-500 transition-all hover:scale-110 hover:bg-indigo-50 rounded-xl"
+                                                    title="Track Order"
+                                                >
+                                                    <span className="material-symbols-outlined font-bold text-[20px]">local_shipping</span>
+                                                </button>
+                                                {order.payment_method === 'MANUAL' && (
+                                                    <button
+                                                        onClick={() => navigate(`/order-payment?orderNumber=${order.order_number}`)}
+                                                        className="p-2 text-slate-400 hover:text-emerald-500 transition-all hover:scale-110 hover:bg-emerald-50 rounded-xl"
+                                                        title="View Payment Proof"
+                                                    >
+                                                        <span className="material-symbols-outlined font-bold text-[20px]">payments</span>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

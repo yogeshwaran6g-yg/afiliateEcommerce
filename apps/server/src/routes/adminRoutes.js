@@ -63,6 +63,8 @@ router.post('/tickets/update-status', adminController.updateTicketStatus);
 // Orders management
 router.get('/orders', adminController.getOrders);
 router.get('/orders/:id', adminController.getOrderDetails);
+router.post('/orders/:id/tracking', adminController.addOrderTracking);
+router.get('/order-payments', adminController.getOrderPayments);
 
 // User Notifications management
 router.get('/user-notifications', userNotificationController.getUserNotifications);
