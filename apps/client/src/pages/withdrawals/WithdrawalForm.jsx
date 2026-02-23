@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useWithdrawMutation } from "../../hooks/useWallet";
 import { toast } from "react-toastify";
+import Skeleton from "../../components/ui/Skeleton";
 
 const WithdrawalForm = ({
     withdrawAmount,
@@ -75,32 +76,41 @@ const WithdrawalForm = ({
                     <label className="block text-sm font-semibold text-slate-900 mb-2">
                         Amount to Withdraw
                     </label>
-                    <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">
-                            ₹
-                        </span>
-                        <input
-                            type="number"
-                            value={withdrawAmount}
-                            onChange={(e) =>
-                                setWithdrawAmount(parseFloat(e.target.value) || 0)
-                            }
-                            className={`w-full pl-8 pr-16 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 ${
-                                withdrawAmount > maxWithdrawAmount ? 'border-red-500 bg-red-50' : 'border-slate-300'
-                            }`}
-                            placeholder="0.00"
-                        />
-                        <button
-                            type="button"
-                            onClick={setMaxAmount}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded hover:bg-primary/20"
-                        >
-                            MAX
-                        </button>
-                    </div>
+                    {isFetching ? (
+                        <Skeleton width="100%" height="48px" className="rounded-lg" />
+                    ) : (
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">
+                                ₹
+                            </span>
+                            <input
+                                type="number"
+                                value={withdrawAmount}
+                                onChange={(e) =>
+                                    setWithdrawAmount(parseFloat(e.target.value) || 0)
+                                }
+                                className={`w-full pl-8 pr-16 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 ${withdrawAmount > maxWithdrawAmount ? 'border-red-500 bg-red-50' : 'border-slate-300'
+                                    }`}
+                                placeholder="0.00"
+                            />
+                            <button
+                                type="button"
+                                onClick={setMaxAmount}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded hover:bg-primary/20"
+                            >
+                                MAX
+                            </button>
+                        </div>
+                    )}
                     <div className="flex justify-between text-xs text-slate-500 mt-1">
-                        <span>Min: ₹50.00</span>
-                        <span>Max per req: ₹{maxWithdrawAmount.toLocaleString()}</span>
+                        {isFetching ? (
+                            <Skeleton width="100%" height="12px" />
+                        ) : (
+                            <>
+                                <span>Min: ₹50.00</span>
+                                <span>Max per req: ₹{maxWithdrawAmount.toLocaleString()}</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -108,9 +118,13 @@ const WithdrawalForm = ({
                     <label className="block text-sm font-semibold text-slate-900 mb-2">
                         Payment Method
                     </label>
-                    <select className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <option>Bank Transfer (Linked)</option>
-                    </select>
+                    {isFetching ? (
+                        <Skeleton width="100%" height="48px" className="rounded-lg" />
+                    ) : (
+                        <select className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <option>Bank Transfer (Linked)</option>
+                        </select>
+                    )}
                 </div>
             </div>
 
@@ -124,35 +138,49 @@ const WithdrawalForm = ({
                     </h4>
                 </div>
                 <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-slate-600">Platform Fee ({commissionPercent}%)</span>
-                        <span className="font-semibold text-primary">
-                            ₹{platformFee.toFixed(2)}
-                        </span>
-                    </div>
-                    <div className="flex justify-between pt-2 border-t border-blue-100">
-                        <span className="font-semibold text-slate-900">
-                            Final Settlement:
-                        </span>
-                        <span className="font-bold text-slate-900">
-                            ₹{finalSettlement.toFixed(2)}
-                        </span>
-                    </div>
+                    {isFetching ? (
+                        <div className="space-y-4">
+                            <div className="flex justify-between">
+                                <Skeleton width="100px" height="16px" />
+                                <Skeleton width="60px" height="16px" />
+                            </div>
+                            <div className="flex justify-between pt-2 border-t border-blue-100">
+                                <Skeleton width="120px" height="18px" />
+                                <Skeleton width="80px" height="18px" />
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex justify-between">
+                                <span className="text-slate-600">Platform Fee ({commissionPercent}%)</span>
+                                <span className="font-semibold text-primary">
+                                    ₹{platformFee.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between pt-2 border-t border-blue-100">
+                                <span className="font-semibold text-slate-900">
+                                    Final Settlement:
+                                </span>
+                                <span className="font-bold text-slate-900">
+                                    ₹{finalSettlement.toFixed(2)}
+                                </span>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
             {pendingCount > 0 && (
-                <div className={`p-4 rounded-xl mb-6 text-sm flex items-start gap-3 ${
-                    pendingCount >= 2 ? 'bg-orange-50 text-orange-800' : 'bg-blue-50 text-blue-800'
-                }`}>
+                <div className={`p-4 rounded-xl mb-6 text-sm flex items-start gap-3 ${pendingCount >= 2 ? 'bg-orange-50 text-orange-800' : 'bg-blue-50 text-blue-800'
+                    }`}>
                     <span className="material-symbols-outlined text-lg">
                         {pendingCount >= 2 ? 'warning' : 'pending'}
                     </span>
                     <div>
                         <p className="font-bold">Pending Requests: {pendingCount}/2</p>
                         <p className="text-xs opacity-80">
-                            {pendingCount >= 2 
-                                ? "You cannot submit more requests until your current ones are processed." 
+                            {pendingCount >= 2
+                                ? "You cannot submit more requests until your current ones are processed."
                                 : "Your funds are held safely until approved by the admin."}
                         </p>
                     </div>
@@ -163,8 +191,8 @@ const WithdrawalForm = ({
                 type="submit"
                 disabled={isButtonDisabled}
                 className={`w-full font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 mb-3 ${isButtonDisabled
-                        ? "bg-slate-200 text-slate-500 cursor-not-allowed"
-                        : "bg-primary text-white hover:bg-primary/90"
+                    ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                    : "bg-primary text-white hover:bg-primary/90"
                     }`}
             >
                 <span className={`material-symbols-outlined ${(isFetching || isSubmitting) ? "animate-spin" : ""}`}>

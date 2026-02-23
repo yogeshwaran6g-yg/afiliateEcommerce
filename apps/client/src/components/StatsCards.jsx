@@ -1,5 +1,6 @@
 import React from 'react';
 import { useWallet } from "../hooks/useWallet";
+import Skeleton from './ui/Skeleton';
 
 const formatCurrencyParts = (amount) => {
   const formatted = new Intl.NumberFormat('en-IN', {
@@ -20,53 +21,6 @@ const StatSection = ({ title, children }) => (
   </div>
 );
 
-const MiniChart = ({ data, isPositive }) => {
-  // Always show a graph - use placeholder if data is missing or too short
-  const values = (data && data.length >= 2) 
-    ? data.map(d => parseFloat(d.value || 0))
-    : [10, 20, 15, 25, 22, 30, 28]; // Placeholder data
-    
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values);
-  const range = max - min || 1;
-  const width = 80;
-  const height = 30;
-  
-  const points = values.map((v, i) => {
-    const x = (i / (values.length - 1)) * width;
-    const y = height - ((v - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
-
-  // Colors: Green for up, Red for down
-  const strokeColor = isPositive ? "#10b981" : "#ef4444";
-  const fillColor = isPositive ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)";
-
-  return (
-    <div className="absolute bottom-4 right-6 opacity-60 group-hover:opacity-100 transition-opacity">
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-        <defs>
-          <linearGradient id={`grad-${isPositive}`} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{ stopColor: strokeColor, stopOpacity: 0.2 }} />
-            <stop offset="100%" style={{ stopColor: strokeColor, stopOpacity: 0 }} />
-          </linearGradient>
-        </defs>
-        <path
-          d={`M ${points} L ${width},${height} L 0,${height} Z`}
-          fill={`url(#grad-${isPositive})`}
-        />
-        <polyline
-          fill="none"
-          stroke={strokeColor}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          points={points}
-        />
-      </svg>
-    </div>
-  );
-};
 
 const StatCard = ({
   label,
@@ -82,12 +36,11 @@ const StatCard = ({
   pillTextClass = "text-teal-800",
   footerText,
   footerIcon = "autorenew",
-  footerTextColorClass = "text-teal-700",
-  chartData
+  footerTextColorClass = "text-teal-700"
 }) => {
   const isPositive = parseFloat(percentage) >= 0;
   const currentIcon = icon === "show_chart" ? (isPositive ? "trending_up" : "trending_down") : icon;
-  
+
   // Dynamic pill classes based on trend
   const trendPillBg = isPositive ? "bg-emerald-100/70" : "bg-red-100/70";
   const trendPillText = isPositive ? "text-emerald-800" : "text-red-800";
@@ -95,10 +48,12 @@ const StatCard = ({
   return (
     <div className={`bg-gradient-to-br ${gradientClasses} rounded-2xl p-6 border ${borderClass} shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden`}>
       <div className="flex items-start justify-between">
-        <div className="z-10">
+        <div className="z-10 flex-1">
           <div className="text-sm text-slate-600 font-semibold tracking-wide uppercase">{label}</div>
           <div className="text-4xl font-extrabold text-slate-900 mt-2">
-            {isLoading ? "..." : (
+            {isLoading ? (
+              <Skeleton width="120px" height="32px" />
+            ) : (
               <>
                 {prefix}{valueWhole}
                 {valueDecimal !== undefined && <span className="text-xl font-bold opacity-60">.{valueDecimal}</span>}
@@ -108,15 +63,26 @@ const StatCard = ({
         </div>
         {percentage !== undefined && (
           <div className={`flex items-center gap-1.5 px-3 py-1.5 ${trendPillBg} ${trendPillText} font-bold text-sm rounded-full z-10 border border-white/20 shadow-sm`}>
-            <span className="material-symbols-outlined text-base font-bold">{currentIcon}</span>
-            {isPositive ? "+" : ""}{percentage}%
+            {isLoading ? (
+              <Skeleton width="40px" height="16px" className="my-0.5" />
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-base font-bold">{currentIcon}</span>
+                {isPositive ? "+" : ""}{percentage}%
+              </>
+            )}
           </div>
         )}
       </div>
-      <MiniChart data={chartData} isPositive={isPositive} />
       {footerText && (
         <div className={`mt-4 text-xs ${footerTextColorClass} font-medium flex items-center gap-1.5 opacity-80 group-hover:opacity-100`}>
-          <span className="material-symbols-outlined text-base">{footerIcon}</span>{footerText}
+          {isLoading ? (
+            <Skeleton width="100px" height="12px" />
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-base">{footerIcon}</span>{footerText}
+            </>
+          )}
         </div>
       )}
     </div>
@@ -144,29 +110,26 @@ export default function StatsCards() {
           valueWhole={totalWhole}
           valueDecimal={totalDecimal}
           isLoading={isLoading}
-          percentage={wallet?.income_change}
-          chartData={wallet?.charts?.dailyIncome}
+          percentage={wallet?.income_change_month}
         />
         <StatCard
           label="This Month Income"
           valueWhole={monthWhole}
           valueDecimal={monthDecimal}
           isLoading={isLoading}
-          percentage={wallet?.income_change} // Default for showing color
+          percentage={wallet?.income_change_month}
           gradientClasses="from-emerald-50 to-teal-50/40"
           borderClass="border-emerald-100"
-          chartData={wallet?.charts?.dailyIncome}
         />
         <StatCard
           label="Today Income"
           valueWhole={todayWhole}
           valueDecimal={todayDecimal}
           isLoading={isLoading}
-          percentage={wallet?.income_change}
+          percentage={wallet?.income_change_today}
           footerText="Updated live"
           gradientClasses="from-cyan-50 to-blue-50/40"
           borderClass="border-cyan-100"
-          chartData={wallet?.charts?.dailyIncome}
         />
       </StatSection>
 
@@ -177,36 +140,33 @@ export default function StatsCards() {
           valueWhole={formatNumber(wallet?.total_team_members)}
           isLoading={isLoading}
           prefix=""
-          percentage={wallet?.members_change}
+          percentage={wallet?.members_change_month}
           gradientClasses="from-indigo-50 to-blue-50/40"
           borderClass="border-indigo-100"
           pillBgClass="bg-indigo-100/70"
           pillTextClass="text-indigo-800"
-          chartData={wallet?.charts?.dailyJoins}
         />
         <StatCard
           label="This Month Joined"
           valueWhole={formatNumber(wallet?.month_joined)}
           isLoading={isLoading}
           prefix="+"
-          percentage={wallet?.members_change}
+          percentage={wallet?.members_change_month}
           gradientClasses="from-indigo-50 to-blue-50/40"
           borderClass="border-indigo-100"
-          chartData={wallet?.charts?.dailyJoins}
         />
         <StatCard
           label="Today Joined"
           valueWhole={formatNumber(wallet?.today_joined)}
           isLoading={isLoading}
           prefix="+"
-          percentage={wallet?.members_change}
+          percentage={wallet?.members_change_today}
           gradientClasses="from-indigo-50 to-blue-50/40"
           borderClass="border-indigo-100"
           pillBgClass="bg-indigo-100/70"
           pillTextClass="text-indigo-800"
           footerText="Updated live • growing fast"
           footerTextColorClass="text-indigo-700"
-          chartData={wallet?.charts?.dailyJoins}
         />
       </StatSection>
 
@@ -216,78 +176,110 @@ export default function StatsCards() {
           valueWhole={teamTotalWhole}
           valueDecimal={teamTotalDecimal}
           isLoading={isLoading}
-          percentage={wallet?.purchase_change}
+          percentage={wallet?.purchase_change_month}
           gradientClasses="from-purple-50 to-fuchsia-50/40"
           borderClass="border-purple-100"
           pillBgClass="bg-purple-100/70"
           pillTextClass="text-purple-800"
-          chartData={wallet?.charts?.dailyPurchases}
         />
         <StatCard
           label="This Month Purchase"
           valueWhole={teamMonthWhole}
           valueDecimal={teamMonthDecimal}
           isLoading={isLoading}
-          percentage={wallet?.purchase_change}
+          percentage={wallet?.purchase_change_month}
           gradientClasses="from-purple-50 to-fuchsia-50/40"
           borderClass="border-purple-100"
-          chartData={wallet?.charts?.dailyPurchases}
         />
         <StatCard
           label="Today Purchase"
           valueWhole={teamTodayWhole}
           valueDecimal={teamTodayDecimal}
           isLoading={isLoading}
-          percentage={wallet?.purchase_change}
+          percentage={wallet?.purchase_change_today}
           gradientClasses="from-purple-50 to-fuchsia-50/40"
           borderClass="border-purple-100"
           pillBgClass="bg-purple-100/70"
           pillTextClass="text-purple-800"
           footerText="Updated live"
           footerTextColorClass="text-purple-700"
-          chartData={wallet?.charts?.dailyPurchases}
         />
       </StatSection>
 
       <div className="space-y-7">
         <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Wallet & Balances</h2>
 
-        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-          <div className="grid md:grid-cols-2 gap-8 items-center relative z-10">
-            <div className="space-y-2 relative">
-              <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm uppercase tracking-wider">
-                <span className="material-symbols-outlined text-emerald-600">account_balance_wallet</span>
-                Available Balance
+        <div className="bg-gradient-to-br from-white to-slate-50/50 rounded-[1.5rem] p-6 md:p-7 border border-slate-200 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-500 relative overflow-hidden group">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-0 items-center relative z-10">
+            {/* Available Balance */}
+            <div className="space-y-3 relative">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100/50">
+                  <span className="material-symbols-outlined text-emerald-600 text-lg font-semibold">account_balance_wallet</span>
+                </div>
+                <div className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.15em]">
+                  Available Balance
+                </div>
               </div>
-              <div className="text-5xl font-black text-slate-900">
-                {isLoading ? "..." : <>₹{balanceWhole}<span className="text-2xl font-bold opacity-50">.{balanceDecimal}</span></>}
+
+              <div className="space-y-1">
+                <div className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight flex items-baseline">
+                  {isLoading ? (
+                    <Skeleton width="180px" height="42px" className="my-1" />
+                  ) : (
+                    <>
+                      <span className="text-2xl md:text-3xl font-extrabold mr-1 opacity-90">₹</span>
+                      {balanceWhole}
+                      <span className="text-xl md:text-2xl font-bold text-slate-400 ml-0.5">.{balanceDecimal}</span>
+                    </>
+                  )}
+                </div>
               </div>
-              <button className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors flex items-center gap-2 w-fit shadow-lg shadow-emerald-200">
-                <span className="material-symbols-outlined text-sm">arrow_downward</span>
-                Withdraw
-              </button>
-              <MiniChart data={wallet?.charts?.dailyIncome} isPositive={true} />
+
+              <div className="pt-1">
+                <button className="px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-2 w-fit shadow-lg shadow-emerald-200/60 ring-2 ring-emerald-50">
+                  <span className="material-symbols-outlined text-base">arrow_downward</span>
+                  Withdraw
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-2 md:border-l md:pl-8 border-slate-100 relative">
-              <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm uppercase tracking-wider">
-                <span className="material-symbols-outlined text-amber-500">lock</span>
-                Locked Balance
+            {/* Locked Balance */}
+            <div className="md:border-l border-slate-200/60 md:pl-10 space-y-3 relative">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center border border-amber-100/50">
+                  <span className="material-symbols-outlined text-amber-500 text-lg font-semibold">lock</span>
+                </div>
+                <div className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.15em]">
+                  Locked Balance
+                </div>
               </div>
-              <div className="text-4xl font-black text-slate-900/80">
-                {isLoading ? "..." : <>₹{lockedWhole}<span className="text-xl font-bold opacity-40">.{lockedDecimal}</span></>}
+
+              <div className="space-y-1">
+                <div className="text-3xl md:text-4xl font-black text-slate-800/90 tracking-tight flex items-baseline">
+                  {isLoading ? (
+                    <Skeleton width="140px" height="36px" className="my-1" />
+                  ) : (
+                    <>
+                      <span className="text-xl md:text-2xl font-extrabold mr-1 opacity-70">₹</span>
+                      {lockedWhole}
+                      <span className="text-lg md:text-xl font-bold text-slate-300 ml-0.5">.{lockedDecimal}</span>
+                    </>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-slate-400 font-medium text-[10px] bg-slate-100/50 w-fit px-1.5 py-0.5 rounded border border-slate-200/50">
+                  <span className="material-symbols-outlined text-[12px]">info</span>
+                  <span className="italic">Pending verification</span>
+                </div>
               </div>
-              <p className="text-xs text-slate-400 font-medium italic">Pending verification</p>
-              <MiniChart data={wallet?.charts?.dailyIncome} isPositive={true} />
             </div>
           </div>
-          
-          {/* Subtle background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50 z-0"></div>
+
+          {/* Background Decorative Elements - Scaled down */}
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-slate-100 to-white rounded-full opacity-40 blur-3xl z-0 group-hover:scale-110 transition-transform duration-700"></div>
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-gradient-to-tr from-emerald-50/30 to-white rounded-full opacity-40 blur-3xl z-0"></div>
         </div>
       </div>
-
     </div>
   );
 }
-

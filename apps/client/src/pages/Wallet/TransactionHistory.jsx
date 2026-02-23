@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Skeleton from "../../components/ui/Skeleton";
 
 export default function TransactionHistory({
   transactions = [],
@@ -7,6 +8,7 @@ export default function TransactionHistory({
   currentPage,
   onPageChange,
   totalPages,
+  isLoading,
 }) {
   const [localSearch, setLocalSearch] = useState(filters.searchTerm);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
@@ -202,7 +204,30 @@ export default function TransactionHistory({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-            {transactions.length > 0 ? (
+            {isLoading ? (
+              [1, 2, 3, 4, 5].map((i) => (
+                <tr key={i}>
+                  <td className="px-6 py-4">
+                    <Skeleton width="80px" height="16px" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <Skeleton width="150px" height="18px" />
+                      <Skeleton width="100px" height="12px" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton width="70px" height="24px" className="rounded" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton width="60px" height="18px" />
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <Skeleton width="80px" height="20px" className="ml-auto" />
+                  </td>
+                </tr>
+              ))
+            ) : transactions.length > 0 ? (
               transactions.map((transaction, index) => (
                 <tr
                   key={transaction.id || index}
@@ -287,11 +312,10 @@ export default function TransactionHistory({
                 key={i}
                 onClick={() => typeof page === "number" && onPageChange(page)}
                 disabled={page === "..."}
-                className={`px-3 py-1 text-xs font-bold rounded ${
-                  page === currentPage
+                className={`px-3 py-1 text-xs font-bold rounded ${page === currentPage
                     ? "bg-primary text-white"
                     : "border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
-                }`}
+                  }`}
               >
                 {page}
               </button>

@@ -1,13 +1,33 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Skeleton from "../../components/ui/Skeleton";
 
 const BankDetailsCard = ({ profile, isLoading, status }) => {
     if (isLoading) {
         return (
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 animate-pulse">
-                <div className="h-6 bg-slate-200 rounded w-1/2 mb-6"></div>
-                <div className="h-32 bg-slate-100 rounded-xl mb-4"></div>
-                <div className="h-10 bg-slate-200 rounded-lg"></div>
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <Skeleton width="180px" height="24px" />
+                    <Skeleton width="80px" height="20px" className="rounded-full" />
+                </div>
+                <div className="border-2 border-slate-100 bg-slate-50/30 rounded-xl p-6 mb-4 space-y-4">
+                    <div className="space-y-2">
+                        <Skeleton width="120px" height="18px" />
+                        <Skeleton width="200px" height="28px" />
+                        <Skeleton width="150px" height="20px" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                        <div className="space-y-2">
+                            <Skeleton width="60px" height="12px" />
+                            <Skeleton width="100px" height="16px" />
+                        </div>
+                        <div className="space-y-2">
+                            <Skeleton width="80px" height="12px" />
+                            <Skeleton width="120px" height="16px" />
+                        </div>
+                    </div>
+                </div>
+                <Skeleton width="100%" height="44px" className="rounded-lg" />
             </div>
         );
     }
@@ -114,10 +134,10 @@ const BankDetailsCard = ({ profile, isLoading, status }) => {
                             {isPending ? 'Verification in Progress' : isRejected ? 'Verification Rejected' : 'Action Required'}
                         </p>
                         <p className="opacity-80">
-                            {isPending 
-                                ? 'Our team is reviewing your bank details. Withdrawals will be enabled once verified.' 
-                                : isRejected 
-                                    ? 'Your bank verification was rejected. Please update your details with a valid proof.' 
+                            {isPending
+                                ? 'Our team is reviewing your bank details. Withdrawals will be enabled once verified.'
+                                : isRejected
+                                    ? 'Your bank verification was rejected. Please update your details with a valid proof.'
                                     : 'Please complete your bank KYC in the profile section to unlock withdrawals.'}
                         </p>
                         {(isRejected || !isPending) && (

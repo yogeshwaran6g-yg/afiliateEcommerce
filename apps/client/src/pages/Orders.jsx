@@ -1,7 +1,8 @@
-import React, {useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import OrderTable from "./OrderTable";
 import SupportBanner from "./SupportBanner";
 import { useGetMyOrders, useGetOrderById } from "../hooks/useOrderService";
+import Skeleton from "../components/ui/Skeleton";
 
 export default function Orders() {
   const [activeTab, setActiveTab] = useState("All Orders");
@@ -17,7 +18,7 @@ export default function Orders() {
     status: activeTab,
     date: selectedDate
   });
-  
+
   const rawOrders = ordersResponse?.data?.orders;
   const orders = Array.isArray(rawOrders) ? rawOrders : [];
   const total = ordersResponse?.data?.total || 0;
@@ -90,11 +91,10 @@ export default function Orders() {
                   dateInputRef.current?.click();
                 }
               }}
-              className={`flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors w-full h-full ${
-                selectedDate
-                  ? "bg-primary/10 border-primary text-primary"
-                  : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
-              }`}
+              className={`flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors w-full h-full ${selectedDate
+                ? "bg-primary/10 border-primary text-primary"
+                : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                }`}
             >
               <span className="material-symbols-outlined text-base md:text-lg pointer-events-none">
                 {selectedDate ? "event_available" : "calendar_month"}
@@ -118,12 +118,6 @@ export default function Orders() {
               </button>
             )}
           </div>
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg text-xs md:text-sm font-semibold hover:bg-primary/90 transition-colors">
-            <span className="material-symbols-outlined text-base md:text-lg">
-              download
-            </span>
-            Export CSV
-          </button>
         </div>
       </div>
 
@@ -133,13 +127,12 @@ export default function Orders() {
           <button
             key={tab.name}
             onClick={() => setActiveTab(tab.name)}
-            className={`px-4 md:px-6 py-3 text-xs md:text-sm font-semibold whitespace-nowrap transition-colors relative ${
-            activeTab === tab.name
-                ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
-                : "text-slate-500 hover:text-slate-700"
-            }`}
+            className={`px-4 md:px-6 py-3 text-xs md:text-sm font-semibold whitespace-nowrap transition-colors relative ${activeTab === tab.name
+              ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+              : "text-slate-500 hover:text-slate-700"
+              }`}
           >
-            <div 
+            <div
               onClick={() => {
                 setActiveTab(tab.name);
                 setPage(1); // Reset to first page on tab change
@@ -156,7 +149,26 @@ export default function Orders() {
       </div>
 
       {loading ? (
-        <div className="text-center py-10">Loading orders...</div>
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="p-6 h-14 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <Skeleton width="100px" height="20px" />
+            <Skeleton width="150px" height="20px" />
+          </div>
+          <div className="divide-y divide-slate-100">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-6 flex items-center justify-between">
+                <div className="space-y-2">
+                  <Skeleton width="120px" height="18px" />
+                  <Skeleton width="80px" height="14px" />
+                </div>
+                <div className="flex gap-4 items-center">
+                  <Skeleton width="100px" height="20px" />
+                  <Skeleton width="80px" height="32px" className="rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
         <OrderTable
           orders={getFilteredOrders()}

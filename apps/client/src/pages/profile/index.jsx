@@ -65,13 +65,7 @@ export default function Profile() {
   };
 
 
-  if (isLoading && !user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // Full page spinner removed, components handle loading internally
 
   return (
     <div className="px-4 md:px-8 py-4 md:py-8 max-w-5xl mx-auto">

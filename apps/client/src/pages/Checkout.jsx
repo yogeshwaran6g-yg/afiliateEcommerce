@@ -5,6 +5,7 @@ import walletService from "../services/walletService";
 import orderService from "../services/orderService";
 import profileService from "../services/profileService";
 import { toast } from "react-toastify";
+import Skeleton from "../components/ui/Skeleton";
 
 export default function Checkout() {
     const navigate = useNavigate();
@@ -133,7 +134,7 @@ export default function Checkout() {
 
         try {
             setIsSubmitting(true);
-            
+
             // Check activation status for PRODUCT_PURCHASE orders before uploading proof
             if (paymentMethod === 'direct' && (!profile?.user?.is_active || profile?.user?.account_activation_status !== 'ACTIVATED')) {
                 toast.error("Your account is not activated. Please complete activation first.");
@@ -184,36 +185,96 @@ export default function Checkout() {
     const walletBalance = walletStats ? parseFloat(walletStats.balance) : 0;
     const canUseWallet = walletBalance >= total;
 
-    if (cartLoading) return <div className="flex items-center justify-center min-h-[400px]">Loading...</div>;
+    if (cartLoading) {
+        return (
+            <div className="p-4 md:p-8 space-y-8">
+                {/* Progress Steps Skeleton */}
+                <div className="bg-white border-b border-slate-200 py-6 md:py-8 -mx-4 md:-mx-8 -mt-4 md:-mt-8">
+                    <div className="max-w-3xl mx-auto px-4 md:px-8">
+                        <Skeleton width="100%" height="60px" />
+                    </div>
+                </div>
+
+                {/* Main Content Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left: Checkout Form */}
+                    <div className="lg:col-span-2 space-y-8">
+                        <div>
+                            <Skeleton width="250px" height="36px" className="mb-2" />
+                            <Skeleton width="80%" height="16px" />
+                        </div>
+
+                        {/* Shipping Address */}
+                        <div className="space-y-4">
+                            <Skeleton width="200px" height="24px" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Skeleton width="100%" height="120px" className="rounded-xl" />
+                                <Skeleton width="100%" height="120px" className="rounded-xl" />
+                            </div>
+                        </div>
+
+                        {/* Payment Method */}
+                        <div className="space-y-4">
+                            <Skeleton width="200px" height="24px" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <Skeleton width="100%" height="80px" className="rounded-xl" />
+                                <Skeleton width="100%" height="80px" className="rounded-xl" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Order Summary */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
+                            <Skeleton width="150px" height="24px" />
+                            <div className="space-y-4">
+                                <Skeleton width="100%" height="20px" />
+                                <Skeleton width="100%" height="20px" />
+                                <Skeleton width="100%" height="20px" />
+                                <div className="border-t border-slate-100 pt-4">
+                                    <Skeleton width="100%" height="32px" />
+                                </div>
+                            </div>
+                            <Skeleton width="100%" height="56px" className="rounded-xl" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 md:p-8 space-y-8">
             {/* Progress Steps */}
             <div className="bg-white border-b border-slate-200 py-6 md:py-8 -mx-4 md:-mx-8 -mt-4 md:-mt-8">
                 <div className="max-w-3xl mx-auto px-4 md:px-8">
-                    <div className="flex items-center justify-between relative">
-                        <div className="absolute top-5 left-0 right-0 h-1 bg-slate-200 -z-10"></div>
-                        <div className="absolute top-5 left-0 w-2/3 h-1 bg-primary -z-10"></div>
+                    <div className="relative">
+                        {/* Connecting Line Background - From center of first to center of last */}
+                        <div className="absolute top-4 md:top-5 left-[16.6%] right-[16.6%] h-0.5 bg-slate-200"></div>
+                        {/* Progress Line - From center of first to center of current */}
+                        <div className="absolute top-4 md:top-5 left-[16.6%] right-[16.6%] h-0.5 bg-primary transition-all duration-500"></div>
 
-                        <div className="flex flex-col items-center">
-                            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white mb-2">
-                                <span className="material-symbols-outlined text-base md:text-lg">check</span>
+                        <div className="grid grid-cols-3">
+                            <div className="flex flex-col items-center relative z-10">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white mb-2 shadow-sm ring-4 ring-white">
+                                    <span className="material-symbols-outlined text-base md:text-lg">check</span>
+                                </div>
+                                <span className="text-[10px] md:text-xs font-semibold text-primary uppercase">Cart</span>
                             </div>
-                            <span className="text-[10px] md:text-xs font-semibold text-slate-400 uppercase">Cart</span>
-                        </div>
 
-                        <div className="flex flex-col items-center">
-                            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white mb-2">
-                                <span className="material-symbols-outlined text-base md:text-lg">check</span>
+                            <div className="flex flex-col items-center relative z-10">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white mb-2 shadow-sm ring-4 ring-white">
+                                    <span className="material-symbols-outlined text-base md:text-lg">check</span>
+                                </div>
+                                <span className="text-[10px] md:text-xs font-semibold text-primary uppercase">Shipping</span>
                             </div>
-                            <span className="text-[10px] md:text-xs font-semibold text-slate-400 uppercase">Shipping</span>
-                        </div>
 
-                        <div className="flex flex-col items-center">
-                            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white mb-2">
-                                <span className="material-symbols-outlined text-base md:text-lg">credit_card</span>
+                            <div className="flex flex-col items-center relative z-10">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white mb-2 shadow-sm ring-4 ring-white">
+                                    <span className="material-symbols-outlined text-base md:text-lg">credit_card</span>
+                                </div>
+                                <span className="text-[10px] md:text-xs font-bold text-primary uppercase">Payment</span>
                             </div>
-                            <span className="text-[10px] md:text-xs font-bold text-primary uppercase">Payment</span>
                         </div>
                     </div>
                 </div>
@@ -551,7 +612,7 @@ export default function Checkout() {
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <Skeleton variant="circular" width="16px" height="16px" className="bg-white/40" />
                                     Processing...
                                 </span>
                             ) : (

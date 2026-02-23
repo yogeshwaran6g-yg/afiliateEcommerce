@@ -1,6 +1,7 @@
 import React from "react";
+import Skeleton from "../../components/ui/Skeleton";
 
-const ReferralTable = ({ referrals = [], pagination, onPageChange }) => {
+const ReferralTable = ({ referrals = [], pagination, onPageChange, isLoading }) => {
   return (
     <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
       <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
@@ -38,7 +39,39 @@ const ReferralTable = ({ referrals = [], pagination, onPageChange }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {referrals.length === 0 ? (
+            {isLoading ? (
+              [1, 2, 3].map((i) => (
+                <tr key={i}>
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-4">
+                      <Skeleton variant="circular" width="48px" height="48px" className="rounded-2xl" />
+                      <div className="space-y-2">
+                        <Skeleton width="100px" height="16px" />
+                        <Skeleton width="60px" height="10px" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 hidden sm:table-cell">
+                    <div className="space-y-2">
+                      <Skeleton width="140px" height="12px" />
+                      <Skeleton width="90px" height="10px" />
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 hidden md:table-cell">
+                    <Skeleton width="80px" height="12px" />
+                  </td>
+                  <td className="px-8 py-5">
+                    <Skeleton width="70px" height="24px" className="rounded-full" />
+                  </td>
+                  <td className="px-8 py-5">
+                    <div className="space-y-2">
+                      <Skeleton width="90px" height="16px" />
+                      <Skeleton width="80px" height="10px" />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : referrals.length === 0 ? (
               <tr>
                 <td colSpan="6" className="px-8 py-20 text-center">
                   <div className="flex flex-col items-center gap-2">
@@ -90,11 +123,10 @@ const ReferralTable = ({ referrals = [], pagination, onPageChange }) => {
                   </td>
                   <td className="px-8 py-5">
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                        r.status === "Active"
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${r.status === "Active"
                           ? "bg-green-100 text-green-700 border border-green-200"
                           : "bg-slate-100 text-slate-500 border border-slate-200"
-                      }`}
+                        }`}
                     >
                       {r.status}
                     </span>
@@ -106,40 +138,40 @@ const ReferralTable = ({ referrals = [], pagination, onPageChange }) => {
                     <div className="text-[10px] text-emerald-600 font-bold">
                       Network Revenue
                     </div>
-                  </td>                
+                  </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
-      
+
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (
         <div className="px-8 py-4 border-t border-slate-100 bg-slate-50/30 flex justify-between items-center">
-            <button
+          <button
             onClick={() => onPageChange(Math.max(1, pagination.page - 1))}
             disabled={pagination.page === 1}
             className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-            >
+          >
             <span className="material-symbols-outlined text-sm font-bold">arrow_back</span>
-            </button>
+          </button>
 
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-slate-500">Page</span>
             <div className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-700 shadow-sm min-w-[2rem] text-center">
-                {pagination.page}
+              {pagination.page}
             </div>
             <span className="text-xs font-bold text-slate-400">of {pagination.totalPages}</span>
-            </div>
+          </div>
 
-            <button
+          <button
             onClick={() => onPageChange(Math.min(pagination.totalPages, pagination.page + 1))}
             disabled={pagination.page === pagination.totalPages}
             className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-            >
+          >
             <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
-            </button>
+          </button>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import Skeleton from "../../components/ui/Skeleton";
 
 const WithdrawalHeader = ({ availableBalance, isLoading }) => {
     return (
@@ -13,7 +14,7 @@ const WithdrawalHeader = ({ availableBalance, isLoading }) => {
                     Withdrawals & Bank Details
                 </span>
             </div>
- 
+
             {/* Page Header */}
             <div className="flex items-start justify-between mb-8">
                 <div>
@@ -30,12 +31,12 @@ const WithdrawalHeader = ({ availableBalance, isLoading }) => {
                     </div>
                     <div className="text-4xl font-bold text-primary mb-3">
                         {isLoading ? (
-                             <div className="h-10 w-32 bg-slate-100 animate-pulse rounded ml-auto"></div>
+                            <Skeleton width="180px" height="40px" className="ml-auto" />
                         ) : (
                             `₹${parseFloat(availableBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                         )}
                     </div>
-                    
+
                 </div>
             </div>
         </>

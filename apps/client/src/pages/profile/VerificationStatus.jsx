@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import profileService from "../../services/profileService";
 import { ProfileContext } from "../../context/ProfileContext";
 import { toast } from "react-toastify";
+import Skeleton from "../../components/ui/Skeleton";
 
 export default function VerificationStatus({ section = "all" }) {
   const {
@@ -156,8 +157,59 @@ export default function VerificationStatus({ section = "all" }) {
     );
   };
 
-  if (contextLoading && !profile)
-    return <div className="p-10 text-center text-slate-400">Loading...</div>;
+  if (contextLoading && !profile) {
+    if (section === "summary") {
+      return (
+        <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+          <Skeleton width="40%" height="24px" className="mb-6" />
+          <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-4 mb-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Skeleton variant="circular" width="48px" height="48px" className="rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton width="120px" height="16px" />
+                <Skeleton width="60px" height="12px" />
+              </div>
+            </div>
+            <div className="space-y-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton variant="circular" width="24px" height="24px" />
+                    <div className="space-y-2">
+                      <Skeleton width="80px" height="14px" />
+                      <Skeleton width="60px" height="10px" />
+                    </div>
+                  </div>
+                  <Skeleton width="50px" height="14px" />
+                </div>
+              ))}
+            </div>
+            <Skeleton width="100%" height="6px" className="mt-8 rounded-full" />
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <Skeleton width="50%" height="28px" />
+        </div>
+        <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Skeleton width="40%" height="12px" />
+              <Skeleton width="80%" height="16px" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton width="40%" height="12px" />
+              <Skeleton width="80%" height="16px" />
+            </div>
+          </div>
+          <Skeleton width="100%" height="20px" />
+        </div>
+      </div>
+    );
+  }
 
   const renderSummarySection = () => (
     <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
