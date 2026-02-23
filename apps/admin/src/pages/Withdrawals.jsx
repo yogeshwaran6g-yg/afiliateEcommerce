@@ -357,13 +357,13 @@ export default function Withdrawals() {
                                     <p className="text-2xl font-bold text-slate-800">₹{Number(selectedWithdrawal.amount).toLocaleString()}</p>
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recipient</label>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recipient</label>
                                     <p className="text-sm font-bold text-[#172b4d]">{selectedWithdrawal.user_name}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reviewer's Log</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Reviewer's Log</label>
                                 <textarea
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all resize-none"
                                     rows={4}
@@ -376,7 +376,7 @@ export default function Withdrawals() {
                             <div className="pt-4 flex gap-4">
                                 <button
                                     onClick={() => setIsActionModalOpen(false)}
-                                    className="flex-1 px-8 py-4 bg-slate-100 text-slate-600 text-sm font-black rounded-2xl hover:bg-slate-200 transition-all active:scale-95"
+                                    className="flex-1 px-8 py-4 bg-slate-100 text-slate-600 text-sm font-bold rounded-2xl hover:bg-slate-200 transition-all active:scale-95"
                                 >
                                     Cancel
                                 </button>

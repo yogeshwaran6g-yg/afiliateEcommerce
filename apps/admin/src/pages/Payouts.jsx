@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Pagination from "../components/common/Pagination";
 
 const PayoutRow = ({ request, isSelected, onSelect }) => (
     <tr className={`hover:bg-slate-50/50 transition-colors ${isSelected ? 'bg-blue-50/30' : ''}`}>
@@ -16,13 +17,13 @@ const PayoutRow = ({ request, isSelected, onSelect }) => (
                     <img src={request.avatar} className="w-full h-full object-cover" alt="" />
                 </div>
                 <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-[#172b4d] truncate">{request.userName}</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">ID: {request.userId}</p>
+                    <h4 className="font-bold text-[#172b4d] truncate">{request.userName}</h4>
+                    <p className="text-slate-400 font-bold uppercase tracking-wider truncate">ID: {request.userId}</p>
                 </div>
             </div>
         </td>
         <td className="px-8 py-5">
-            <span className="text-sm font-black text-[#172b4d]">₹{request.amount}</span>
+            <span className="font-bold text-[#172b4d]">₹{request.amount}</span>
         </td>
         <td className="px-8 py-5">
             <div className="flex items-center gap-3">
@@ -30,16 +31,16 @@ const PayoutRow = ({ request, isSelected, onSelect }) => (
                     <span className="material-symbols-outlined text-lg">{request.methodIcon}</span>
                 </div>
                 <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#172b4d] truncate">{request.method}</p>
-                    <p className="text-[9px] text-slate-400 font-medium font-mono truncate">{request.methodDetail}</p>
+                    <p className="font-bold text-[#172b4d] truncate">{request.method}</p>
+                    <p className="text-slate-400 font-medium font-mono truncate">{request.methodDetail}</p>
                 </div>
             </div>
         </td>
-        <td className="px-8 py-5 text-sm text-slate-500 font-medium whitespace-nowrap">
+        <td className="px-8 py-5 text-slate-500 font-medium whitespace-nowrap">
             {request.date}
         </td>
         <td className="px-8 py-5">
-            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${request.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+            <span className={`px-3 py-1 rounded-full font-bold uppercase tracking-widest ${request.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
                 request.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
                 }`}>
                 {request.status}
@@ -88,17 +89,17 @@ export default function Payouts() {
         <div className="p-4 md:p-8 lg:p-12 space-y-10">
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
                         <span>Admin</span>
-                        <span className="material-symbols-outlined text-xs">chevron_right</span>
+                        <span className="material-symbols-outlined">chevron_right</span>
                         <span className="text-primary font-bold">Payouts</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Payouts</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Manage member withdrawal requests and monitor platform liquidity.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Payouts</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">Manage member withdrawal requests and monitor platform liquidity.</p>
                 </div>
 
-                <button className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none">
+                <button className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none">
                     <span className="material-symbols-outlined font-bold group-hover:rotate-12 transition-transform text-lg">account_balance_wallet</span>
                     <span>Batch Process All</span>
                 </button>
@@ -108,10 +109,10 @@ export default function Payouts() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
                     <div className="relative z-10 flex flex-col justify-center h-full">
-                        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Pending Amount</h5>
+                        <h5 className="font-bold text-slate-400 uppercase tracking-widest mb-2">Total Pending Amount</h5>
                         <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-4">
-                            <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">₹124,500.00</div>
-                            <div className="mb-0.5 w-fit flex items-center gap-1 text-green-600 font-bold text-[10px] bg-green-50 px-2 py-0.5 rounded-lg border border-green-100">
+                            <div className="text-4xl font-bold text-[#172b4d] tracking-tighter leading-tight">₹124,500.00</div>
+                            <div className="mb-0.5 w-fit flex items-center gap-1 text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-lg border border-green-100">
                                 <span className="material-symbols-outlined text-xs">trending_up</span>
                                 <span>+12.5%</span>
                             </div>
@@ -119,11 +120,11 @@ export default function Payouts() {
                         <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-6">
                             <div className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 bg-amber-500 rounded-full"></div>
-                                <p className="text-xs font-bold text-[#172b4d]">42 Requests Pending</p>
+                                <p className="font-bold text-[#172b4d]">42 Requests Pending</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-slate-400 text-lg">schedule</span>
-                                <p className="text-xs font-bold text-slate-400">Syncing...</p>
+                                <p className="font-bold text-slate-400">Syncing...</p>
                             </div>
                         </div>
                     </div>
@@ -134,15 +135,14 @@ export default function Payouts() {
 
                 <div className="bg-primary p-10 rounded-[2.5rem] shadow-2xl shadow-primary/30 relative overflow-hidden group">
                     <div className="relative z-10">
-                        <h5 className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-6">Settled Last 24h</h5>
-                        <div className="text-3xl font-black text-white mb-8 tracking-tight">₹45,210.32</div>
+                        <h5 className="font-bold text-white/50 uppercase tracking-widest mb-6">Settled Last 24h</h5>
+                        <div className="text-4xl font-bold text-white mb-8 tracking-tight">₹45,210.32</div>
 
                         <div className="space-y-3">
                             <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
                                 <div className="h-full bg-white w-3/4 rounded-full"></div>
                             </div>
-                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">75% Daily Target</p>
-
+                            <p className="font-bold text-white/70 uppercase tracking-widest">75% Daily Target</p>
                         </div>
                     </div>
                     <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
@@ -158,7 +158,7 @@ export default function Payouts() {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`px-4 md:px-6 py-2 rounded-[0.9rem] text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                                    className={`px-4 md:px-6 py-2 rounded-[0.9rem] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
                                     {tab}
@@ -168,12 +168,12 @@ export default function Payouts() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 hover:bg-slate-100 uppercase tracking-widest transition-all">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 uppercase tracking-widest transition-all">
                             <span className="material-symbols-outlined text-lg">filter_alt</span>
                             <span>Filters</span>
                         </button>
                         <div className="hidden md:block w-px h-8 bg-slate-100 mx-2"></div>
-                        <button className={`px-4 md:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedItems.length > 0 ? 'bg-[#172b4d] text-white shadow-xl shadow-slate-200' : 'bg-slate-100 text-slate-300'
+                        <button className={`px-4 md:px-6 py-2.5 rounded-xl font-bold uppercase tracking-widest transition-all ${selectedItems.length > 0 ? 'bg-[#172b4d] text-white shadow-xl shadow-slate-200' : 'bg-slate-100 text-slate-300'
                             }`}>
                             Process Batch ({selectedItems.length})
                         </button>
@@ -199,13 +199,13 @@ export default function Payouts() {
                                             </div>
                                         </div>
                                         <div className="min-w-0">
-                                            <h4 className="text-xs font-bold text-[#172b4d] tracking-tight truncate">{req.userName}</h4>
-                                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">ID: {req.userId}</p>
+                                            <h4 className="font-bold text-[#172b4d] tracking-tight truncate">{req.userName}</h4>
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest mt-0.5 leading-none">ID: {req.userId}</p>
                                         </div>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <div className="text-sm font-black text-[#172b4d] leading-none">₹{req.amount}</div>
-                                        <span className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest mt-1 ${req.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                                        <div className="font-bold text-[#172b4d] leading-none">₹{req.amount}</div>
+                                        <span className={`inline-block px-2 py-0.5 rounded-lg font-bold uppercase tracking-widest mt-1 ${req.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
                                             req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
                                             }`}>
                                             {req.status}
@@ -219,19 +219,19 @@ export default function Payouts() {
                                             <span className="material-symbols-outlined text-sm">{req.methodIcon}</span>
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-[10px] font-bold text-[#172b4d] truncate">{req.method}</p>
-                                            <p className="text-[8px] text-slate-400 font-medium font-mono truncate">{req.methodDetail}</p>
+                                            <p className="font-bold text-[#172b4d] truncate">{req.method}</p>
+                                            <p className="text-slate-400 font-medium font-mono truncate">{req.methodDetail}</p>
                                         </div>
                                     </div>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest shrink-0">{req.date}</p>
+                                    <p className="font-bold text-slate-400 uppercase tracking-widest shrink-0">{req.date}</p>
                                 </div>
 
                                 {req.status === 'PENDING' && (
                                     <div className="flex items-center gap-2 pt-1">
-                                        <button className="flex-1 py-2 bg-green-500 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all shadow-md shadow-green-500/10 uppercase">
+                                        <button className="flex-1 py-2 bg-green-500 text-white font-bold rounded-lg active:scale-95 transition-all shadow-md shadow-green-500/10 uppercase">
                                             APPROVE
                                         </button>
-                                        <button className="flex-1 py-2 bg-red-50 text-red-600 text-[9px] font-black rounded-lg active:scale-95 transition-all uppercase">
+                                        <button className="flex-1 py-2 bg-red-50 text-red-600 font-bold rounded-lg active:scale-95 transition-all uppercase">
                                             REJECT
                                         </button>
                                     </div>
@@ -253,12 +253,12 @@ export default function Payouts() {
                                             className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
                                         />
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">USER DETAILS</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">AMOUNT</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">METHOD</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">DATE</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">USER DETAILS</th>
+                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">AMOUNT</th>
+                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">METHOD</th>
+                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">DATE</th>
+                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">STATUS</th>
+                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -275,15 +275,14 @@ export default function Payouts() {
                     </div>
                 </div>
 
-                <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Showing 1 to 4 of 42 results</p>
-                    <div className="flex items-center gap-1.5 resize-none">
-                        <button className="px-3 py-2 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-all uppercase">Prev</button>
-                        <button className="w-8 h-8 rounded-xl text-[10px] font-bold flex items-center justify-center bg-primary text-white shadow-lg shadow-primary/20">1</button>
-                        <button className="w-8 h-8 rounded-xl text-[10px] font-bold flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-all">2</button>
-                        <button className="px-3 py-2 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-all uppercase">Next</button>
-                    </div>
-                </div>
+                <Pagination
+                    currentPage={1}
+                    totalPages={11}
+                    totalItems={42}
+                    limit={10}
+                    onPageChange={() => { }}
+                    onLimitChange={() => { }}
+                />
             </div>
 
             {/* Lower Info Area */}
@@ -293,8 +292,8 @@ export default function Payouts() {
                         <span className="material-symbols-outlined text-2xl font-bold">info</span>
                     </div>
                     <div>
-                        <h4 className="text-base font-black text-blue-900 mb-2">Liquidity Check Required</h4>
-                        <p className="text-xs text-blue-800 leading-relaxed font-medium">Pending withdrawals are currently 12% higher than the last 7-day average. Ensure bank reserves are adequately funded.</p>
+                        <h4 className="font-bold text-blue-900 mb-2">Liquidity Check Required</h4>
+                        <p className="text-blue-800 leading-relaxed font-medium">Pending withdrawals are currently 12% higher than the last 7-day average. Ensure bank reserves are adequately funded.</p>
                     </div>
                 </div>
 
@@ -304,11 +303,11 @@ export default function Payouts() {
                             <span className="material-symbols-outlined text-2xl font-bold">history</span>
                         </div>
                         <div>
-                            <h4 className="text-[11px] font-black text-[#172b4d] mb-1 uppercase tracking-widest">Audit Logs</h4>
-                            <p className="text-[10px] text-slate-400 font-bold leading-none">Last sync: 12:45 PM</p>
+                            <h4 className="font-bold text-[#172b4d] mb-1 uppercase tracking-widest">Audit Logs</h4>
+                            <p className="text-slate-400 font-bold leading-none">Last sync: 12:45 PM</p>
                         </div>
                     </div>
-                    <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">View</button>
+                    <button className="font-bold text-primary uppercase tracking-widest hover:underline">View</button>
                 </div>
             </div>
         </div>

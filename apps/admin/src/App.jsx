@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
-import Reports from "./pages/Reports";
+// import Reports from "./pages/Reports";
 import CommissionStructure from "./pages/CommissionStructure";
 import Genealogy from "./pages/Genealogy";
-import Payouts from "./pages/Payouts";
+// import Payouts from "./pages/Payouts";
 import Products from "./pages/Products";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
@@ -49,11 +49,11 @@ function App() {
             }
           >
             <Route path="/" element={<Dashboard />} />
-            <Route path="/reports" element={<Reports />} />
+            {/* <Route path="/reports" element={<Reports />} /> */}
             <Route path="/settings/commission" element={<CommissionStructure />} />
             <Route path="/genealogy" element={<Genealogy />} />
             <Route path="/genealogy/:userId" element={<Genealogy />} />
-            <Route path="/payouts" element={<Payouts />} />
+            {/* <Route path="/payouts" element={<Payouts />} /> */}
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/products" element={<Products />} />
             <Route path="/categories" element={<Categories />} />

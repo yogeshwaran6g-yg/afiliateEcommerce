@@ -150,14 +150,14 @@ export default function Dashboard() {
         <div className="p-4 md:p-8 lg:p-10 space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-[#172b4d] tracking-tight">Admin Dashboard</h1>
-                    <p className="text-slate-500 font-medium">Overview of your platform's performance</p>
+                    <h1 className="font-bold text-[#172b4d] tracking-tight">Admin Dashboard</h1>
+                    <p className="text-slate-500 font-medium leading-relaxed">Overview of your platform's performance</p>
                 </div>
                 <button
                     onClick={fetchStats}
                     className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm"
                 >
-                    <span className="material-symbols-outlined text-sm">refresh</span>
+                    <span className="material-symbols-outlined">refresh</span>
                     Refresh Data
                 </button>
             </div>
@@ -167,7 +167,7 @@ export default function Dashboard() {
                 {categories.map((category, catIndex) => (
                     <div key={catIndex} className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-xl font-bold text-[#172b4d]">{category.name}</h2>
+                            <h2 className="font-bold text-[#172b4d]">{category.name}</h2>
                             <div className="h-[1px] flex-grow bg-slate-200"></div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -13,16 +13,16 @@ export default function Genealogy() {
     const [pagination, setPagination] = useState({ page: 1, limit: 10 });
 
     const { data: allUsers = [], isLoading: isLoadingUsers } = useUsers();
-    
+
     // Derived state: selected user based on URL param
     const selectedUser = userId ? allUsers.find(u => u.dbId === parseInt(userId) || u.id === userId) : null;
 
     const { data: referralOverview, isLoading: isOverviewLoading } = useUserReferralOverview(selectedUser?.dbId);
-    
-    const { 
-        data: teamData, 
-        isLoading: isTeamLoading, 
-        error: teamError 
+
+    const {
+        data: teamData,
+        isLoading: isTeamLoading,
+        error: teamError
     } = useTeamMembers(selectedUser?.dbId, activeLevel, pagination.page, pagination.limit);
 
     const teamMembers = teamData?.members || [];
@@ -39,31 +39,31 @@ export default function Genealogy() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Network</h2>
-                    <p className="text-xs text-slate-500 font-medium tracking-wide">Explore and analyze team referral networks and performance.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Network</h2>
+                    <p className="text-slate-500 font-medium tracking-wide">Explore and analyze team referral networks and performance.</p>
                 </div>
 
-                <UserSearchBar 
-                    allUsers={allUsers} 
-                    isLoadingUsers={isLoadingUsers} 
-                    onUserSelect={handleUserSelect} 
+                <UserSearchBar
+                    allUsers={allUsers}
+                    isLoadingUsers={isLoadingUsers}
+                    onUserSelect={handleUserSelect}
                 />
             </div>
 
             {selectedUser ? (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <NetworkSummary 
-                        selectedUser={selectedUser} 
-                        referralOverview={referralOverview} 
+                    <NetworkSummary
+                        selectedUser={selectedUser}
+                        referralOverview={referralOverview}
                     />
 
                     {/* Team Explorer Table Section */}
                     <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-xl shadow-slate-200/30 overflow-hidden">
                         <div className="p-8 border-b border-slate-50 bg-slate-50/30">
-                            <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest">Level Explorer</h4>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-1">Explore your team depth and performance.</p>
+                            <h4 className="font-bold text-slate-800 uppercase tracking-widest">Level Explorer</h4>
+                            <p className="text-slate-400 font-bold uppercase tracking-tight mt-1">Explore your team depth and performance.</p>
                         </div>
-                        
+
                         <AdminLevelTabs
                             levels={referralOverview?.levels?.map(l => ({ level: l.level, count: l.referralCount })) || []}
                             activeLevel={activeLevel}
@@ -92,8 +92,8 @@ export default function Genealogy() {
                         </div>
                     </div>
                     <div className="text-center space-y-3 max-w-sm">
-                        <h3 className="text-xl font-black text-slate-800 tracking-tight">Select a Network Root</h3>
-                        <p className="text-xs text-slate-400 font-bold leading-relaxed uppercase tracking-widest">Use the search bar above to select a distributor and visualize their entire downline network performance.</p>
+                        <h3 className="font-bold text-slate-800 tracking-tight">Select a Network Root</h3>
+                        <p className="text-slate-400 font-bold leading-relaxed uppercase tracking-widest">Use the search bar above to select a distributor and visualize their entire downline network performance.</p>
                     </div>
                 </div>
             )}

@@ -37,7 +37,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
             title: "Finance",
             items: [
                 { icon: "settings_suggest", label: "Commission Config", path: "/settings/commission" },
-                { icon: "payments", label: "Commissions", path: "/payouts" },
+                // { icon: "payments", label: "Commissions", path: "/payouts" },
                 {
                     icon: "swap_horiz",
                     label: "Transactions",
@@ -48,7 +48,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
                         { label: "Withdrawals", path: "/withdrawals" },
                     ]
                 },
-                { icon: "analytics", label: "Reports", path: "/reports" },
+                // { icon: "analytics", label: "Reports", path: "/reports" },
             ]
         }
     ];

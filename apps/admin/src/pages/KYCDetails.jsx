@@ -40,7 +40,7 @@ export default function KYCDetails() {
     if (loading) return (
         <div className="p-20 flex flex-col items-center justify-center gap-4">
             <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
-            <p className="text-slate-400 font-medium text-sm animate-pulse">Loading verification details...</p>
+            <p className="text-slate-400 font-bold animate-pulse">Loading verification details...</p>
         </div>
     );
 
@@ -99,8 +99,8 @@ export default function KYCDetails() {
                         <span className="material-symbols-outlined text-lg">arrow_back</span>
                     </button>
                     <div className="min-w-0">
-                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight truncate">Verification Details</h2>
-                        <p className="text-slate-500 font-medium text-[10px] md:text-xs mt-0.5 truncate">User: {user.name} (ID: {user.id})</p>
+                        <h2 className="font-bold text-slate-800 tracking-tight truncate">Verification Details</h2>
+                        <p className="text-slate-500 font-bold mt-0.5 truncate">User: {user.name} (ID: {user.id})</p>
                     </div>
                 </div>
 
@@ -108,7 +108,7 @@ export default function KYCDetails() {
                     <button
                         onClick={handleApproveAll}
                         disabled={processing}
-                        className={`w-full md:w-auto px-6 py-3 bg-slate-800 text-white rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2 ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full md:w-auto px-6 py-3 bg-slate-800 text-white rounded-xl font-bold uppercase tracking-widest hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2 ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {processing && <span className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>}
                         Approve All Documents
@@ -125,17 +125,17 @@ export default function KYCDetails() {
                                 {user.name?.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-800 tracking-tight">{user.name}</h3>
-                                <p className="text-slate-500 text-xs font-medium mt-0.5">Verified Identity</p>
+                                <h3 className="font-bold text-slate-800 tracking-tight">{user.name}</h3>
+                                <p className="text-slate-500 font-bold mt-0.5">Verified Identity</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
                                 <div className="text-center">
-                                    <p className="text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Mobile</p>
+                                    <p className="text-slate-400 font-bold uppercase tracking-wider mb-1">Mobile</p>
                                     <p className="text-xs font-semibold text-slate-700">{user.phone}</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Birth Date</p>
+                                    <p className="text-slate-400 font-bold uppercase tracking-wider mb-1">Birth Date</p>
                                     <p className="text-xs font-semibold text-slate-700">{user.dob ? new Date(user.dob).toLocaleDateString() : 'UNKNOWN'}</p>
                                 </div>
                             </div>
@@ -143,18 +143,18 @@ export default function KYCDetails() {
                     </div>
 
                     <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <h4 className="font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                             System Checks
                         </h4>
                         <div className="space-y-2">
                             <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Phone Match</span>
-                                <span className="text-[10px] font-bold text-green-600 uppercase">Verified</span>
+                                <span className="font-bold text-slate-500 uppercase tracking-wide">Phone Match</span>
+                                <span className="font-bold text-green-600 uppercase">Verified</span>
                             </div>
                             <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Integrity</span>
-                                <span className="text-[10px] font-bold text-blue-600 uppercase">Synced</span>
+                                <span className="font-bold text-slate-500 uppercase tracking-wide">Integrity</span>
+                                <span className="font-bold text-blue-600 uppercase">Synced</span>
                             </div>
                         </div>
                     </div>
@@ -170,9 +170,9 @@ export default function KYCDetails() {
                                         <span className="material-symbols-outlined text-lg md:text-xl">{section.icon}</span>
                                     </div>
                                     <div className="min-w-0">
-                                        <h4 className="text-xs md:text-sm font-black text-[#172b4d] tracking-tight truncate">{section.title}</h4>
+                                        <h4 className="font-bold text-[#172b4d] tracking-tight truncate">{section.title}</h4>
                                         <div className="flex items-center gap-2 mt-0.5">
-                                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${section.status === 'VERIFIED' ? 'text-green-600' : 'text-slate-400'}`}>
+                                            <span className={`font-bold uppercase tracking-widest ${section.status === 'VERIFIED' ? 'text-green-600' : 'text-slate-400'}`}>
                                                 {section.status || 'Not Submitted'}
                                             </span>
                                         </div>
@@ -182,14 +182,14 @@ export default function KYCDetails() {
                                     <button
                                         disabled={processing || section.status === 'VERIFIED'}
                                         onClick={() => handleKYCAction(idx === 0 ? 'identity' : idx === 1 ? 'address' : 'bank', 'VERIFIED')}
-                                        className={`flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all ${processing || section.status === 'VERIFIED' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-green-700 transition-all ${processing || section.status === 'VERIFIED' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         Approve
                                     </button>
                                     <button
                                         disabled={processing || section.status === 'REJECTED'}
                                         onClick={() => handleKYCAction(idx === 0 ? 'identity' : idx === 1 ? 'address' : 'bank', 'REJECTED')}
-                                        className={`flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-50 transition-all ${processing || section.status === 'REJECTED' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-50 transition-all ${processing || section.status === 'REJECTED' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         Reject
                                     </button>
@@ -198,12 +198,12 @@ export default function KYCDetails() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-4">
-                                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-1 border-b border-slate-50">Details</h5>
+                                    <h5 className="font-bold text-slate-400 uppercase tracking-widest pb-1 border-b border-slate-50">Details</h5>
                                     <div className="space-y-4">
                                         {section.fields.map((field, fIdx) => (
                                             <div key={fIdx}>
-                                                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">{field.label}</p>
-                                                <p className="text-xs font-semibold text-slate-700 tracking-tight">{field.value || 'Not Provided'}</p>
+                                                <p className="font-bold text-slate-400 uppercase tracking-wide mb-0.5">{field.label}</p>
+                                                <p className="font-semibold text-slate-700 tracking-tight">{field.value || 'Not Provided'}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -217,7 +217,7 @@ export default function KYCDetails() {
                                             <div className="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                                                 <div className="bg-white px-3 py-2 rounded-xl shadow-lg flex items-center gap-2 translate-y-2 group-hover:translate-y-0 transition-transform">
                                                     <span className="material-symbols-outlined text-sm text-slate-800">visibility</span>
-                                                    <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider">View Full Size</span>
+                                                    <span className="font-bold text-slate-800 uppercase tracking-wider">View Full Size</span>
                                                 </div>
                                             </div>
                                         </div>

@@ -59,46 +59,65 @@ const productService = {
             let sql = `SELECT p.*, c.name as category_name FROM products p 
                        LEFT JOIN category c ON p.category_id = c.id 
                        WHERE 1=1`;
+            let countSql = `SELECT COUNT(*) as total FROM products p WHERE 1=1`;
             const params = [];
+            const countParams = [];
 
             if (filters.id) {
                 sql += ` AND p.id = ?`;
+                countSql += ` AND p.id = ?`;
                 params.push(filters.id);
+                countParams.push(filters.id);
             }
 
             if (filters.category_id) {
                 sql += ` AND p.category_id = ?`;
+                countSql += ` AND p.category_id = ?`;
                 params.push(filters.category_id);
+                countParams.push(filters.category_id);
             }
 
-            if (filters.name) {
-                sql += ` AND p.name LIKE ?`;
-                params.push(`%${filters.name}%`);
+            if (filters.search || filters.name) {
+                const searchTerm = filters.search || filters.name;
+                sql += ` AND (p.name LIKE ? OR p.slug LIKE ?)`;
+                countSql += ` AND (p.name LIKE ? OR p.slug LIKE ?)`;
+                params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+                countParams.push(`%${searchTerm}%`, `%${searchTerm}%`);
             }
 
             if (filters.slug) {
                 sql += ` AND p.slug = ?`;
+                countSql += ` AND p.slug = ?`;
                 params.push(filters.slug);
+                countParams.push(filters.slug);
             }
 
             if (filters.stock_status) {
                 sql += ` AND p.stock_status = ?`;
+                countSql += ` AND p.stock_status = ?`;
                 params.push(filters.stock_status);
+                countParams.push(filters.stock_status);
             }
 
             if (filters.min_price) {
                 sql += ` AND p.sale_price >= ?`;
+                countSql += ` AND p.sale_price >= ?`;
                 params.push(filters.min_price);
+                countParams.push(filters.min_price);
             }
 
             if (filters.max_price) {
                 sql += ` AND p.sale_price <= ?`;
+                countSql += ` AND p.sale_price <= ?`;
                 params.push(filters.max_price);
+                countParams.push(filters.max_price);
             }
 
             if (filters.is_active !== undefined) {
                 sql += ` AND p.is_active = ?`;
+                countSql += ` AND p.is_active = ?`;
                 params.push(filters.is_active);
+                countParams.push(filters.is_active);
             }
 
             // Implementation of sorting
@@ -116,11 +135,25 @@ const productService = {
                     break;
             }
 
-            const result = await queryRunner(sql, params);
-            if (result && result.length > 0) {
-                return srvRes(200, "Successfully fetched products", result);
-            }
-            return srvRes(404, "No products found");
+            // Pagination params
+            const page = parseInt(filters.page) || 1;
+            const limit = parseInt(filters.limit) || 50;
+            const offset = (page - 1) * limit;
+
+            sql += ` LIMIT ${limit} OFFSET ${offset}`;
+            // params.push(limit, offset); // No longer needed as placeholders
+
+            const [countResult] = await queryRunner(countSql, countParams);
+            const total = countResult?.total || 0;
+
+            const products = await queryRunner(sql, params);
+
+            return srvRes(200, "Successfully fetched products", {
+                products,
+                total,
+                totalPages: Math.ceil(total / limit),
+                currentPage: page
+            });
         } catch (e) {
             throw e;
         }

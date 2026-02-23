@@ -47,7 +47,8 @@ const productController = {
             if (!id || isNaN(parseInt(id))) return rtnRes(res, 400, "Valid Product ID is required");
 
             const result = await productService.get({ id });
-            return rtnRes(res, result.code, result.msg, result.data ? result.data[0] : null);
+            const product = result.data?.products?.[0] || null;
+            return rtnRes(res, result.code, result.msg, product);
         } catch (err) {
             console.log("err from getProductById ", err);
             return rtnRes(res, 500, "Internal Error");
@@ -63,11 +64,12 @@ const productController = {
 
             // Optional price validation
             if (original_price !== undefined || sale_price !== undefined) {
-                const currentProduct = await productService.get({ id });
-                if (!currentProduct.success) return rtnRes(res, 404, "Product not found");
+                const currentProductResult = await productService.get({ id });
+                if (!currentProductResult.success) return rtnRes(res, 404, "Product not found");
 
-                const orig = original_price !== undefined ? parseFloat(original_price) : parseFloat(currentProduct.data[0].original_price);
-                const sale = sale_price !== undefined ? parseFloat(sale_price) : parseFloat(currentProduct.data[0].sale_price);
+                const currentProduct = currentProductResult.data.products[0];
+                const orig = original_price !== undefined ? parseFloat(original_price) : parseFloat(currentProduct.original_price);
+                const sale = sale_price !== undefined ? parseFloat(sale_price) : parseFloat(currentProduct.sale_price);
 
                 if (isNaN(orig) || isNaN(sale) || sale > orig) {
                     return rtnRes(res, 400, "Invalid price values");

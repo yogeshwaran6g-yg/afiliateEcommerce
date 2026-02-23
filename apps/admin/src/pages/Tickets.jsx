@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import Pagination from "../components/common/Pagination";
 
 const STATUS_COLORS = {
     OPEN: 'bg-blue-100 text-blue-700',
@@ -17,13 +18,13 @@ const PRIORITY_COLORS = {
 const StatCard = ({ title, value, subtitle, bgColor, icon }) => (
     <div className={`${bgColor} p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden`}>
         <div className="relative z-10">
-            <h5 className={`text-[11px] font-black uppercase tracking-widest mb-2 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/50'}`}>
+            <h5 className={`font-bold uppercase tracking-widest mb-2 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/50'}`}>
                 {title}
             </h5>
-            <div className={`text-4xl font-black tracking-tight ${bgColor.includes('white') ? 'text-[#172b4d]' : 'text-white'}`}>
+            <div className={`text-4xl font-bold tracking-tight ${bgColor.includes('white') ? 'text-[#172b4d]' : 'text-white'}`}>
                 {value}
             </div>
-            <p className={`text-[10px] font-bold uppercase tracking-widest mt-3 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/70'}`}>
+            <p className={`font-bold uppercase tracking-widest mt-3 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/70'}`}>
                 {subtitle}
             </p>
         </div>
@@ -47,8 +48,8 @@ const TicketRow = ({ ticket, onUpdateStatus }) => {
                         </span>
                     </div>
                     <div>
-                        <h4 className="text-sm font-bold text-[#172b4d]">{ticket.user_name}</h4>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <h4 className="font-bold text-[#172b4d]">{ticket.user_name}</h4>
+                        <p className="text-slate-400 font-bold uppercase tracking-wider">
                             ID: {ticket.user_id} · {ticket.user_phone}
                         </p>
                     </div>
@@ -56,14 +57,14 @@ const TicketRow = ({ ticket, onUpdateStatus }) => {
             </td>
             <td className="px-8 py-5">
                 <div className="max-w-xs">
-                    <h4 className="text-sm font-bold text-[#172b4d]">{ticket.subject}</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    <h4 className="font-bold text-[#172b4d]">{ticket.subject}</h4>
+                    <p className="text-slate-400 font-bold uppercase tracking-wider">
                         {ticket.category}
                     </p>
                 </div>
             </td>
             <td className="px-8 py-5">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${PRIORITY_COLORS[ticket.priority]}`}>
+                <span className={`px-3 py-1 rounded-full font-bold uppercase tracking-widest ${PRIORITY_COLORS[ticket.priority]}`}>
                     {ticket.priority}
                 </span>
             </td>
@@ -71,7 +72,7 @@ const TicketRow = ({ ticket, onUpdateStatus }) => {
                 <select
                     value={ticket.status}
                     onChange={(e) => onUpdateStatus(ticket.id, e.target.value)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none cursor-pointer focus:ring-0 ${STATUS_COLORS[ticket.status]}`}
+                    className={`px-3 py-1 rounded-full font-bold uppercase tracking-widest border-none cursor-pointer focus:ring-0 ${STATUS_COLORS[ticket.status]}`}
                 >
                     <option value="OPEN">OPEN</option>
                     <option value="IN_REVIEW">IN REVIEW</option>
@@ -79,7 +80,7 @@ const TicketRow = ({ ticket, onUpdateStatus }) => {
                     <option value="CLOSED">CLOSED</option>
                 </select>
             </td>
-            <td className="px-8 py-5 text-sm text-slate-500 font-medium">
+            <td className="px-8 py-5 text-slate-500 font-medium">
                 {new Date(ticket.created_at).toLocaleDateString('en-IN', {
                     year: 'numeric',
                     month: 'short',
@@ -89,7 +90,7 @@ const TicketRow = ({ ticket, onUpdateStatus }) => {
                 })}
             </td>
             <td className="px-8 py-5">
-                <div className="text-xs text-slate-400 max-w-xs truncate" title={ticket.description}>
+                <div className="text-slate-400 max-w-xs truncate" title={ticket.description}>
                     {ticket.description}
                 </div>
             </td>
@@ -188,20 +189,20 @@ export default function Tickets() {
             {/* Header Controls */}
             <div className="flex items-center justify-between">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span>Home</span>
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <span className="material-symbols-outlined">chevron_right</span>
                         <span>Support</span>
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">Support Tickets</span>
+                        <span className="material-symbols-outlined">chevron_right</span>
+                        <span className="text-primary font-bold">Support Tickets</span>
                     </div>
-                    <h2 className="text-4xl font-black text-[#172b4d] tracking-tight">Support Management</h2>
-                    <p className="text-lg text-slate-500 font-medium">Monitor and respond to customer support requests.</p>
+                    <h2 className="font-bold text-[#172b4d] tracking-tight">Support Management</h2>
+                    <p className="text-slate-500 font-medium">Monitor and respond to customer support requests.</p>
                 </div>
 
                 <button
                     onClick={fetchTickets}
-                    className="flex items-center gap-2 px-6 py-3.5 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
+                    className="flex items-center gap-2 px-6 py-3.5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
                 >
                     <span className="material-symbols-outlined font-bold group-hover:rotate-180 transition-transform">refresh</span>
                     <span>Refresh Data</span>
@@ -234,10 +235,10 @@ export default function Tickets() {
             {/* Filters */}
             <div className="bg-white rounded-4xl border border-slate-100 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Filter Tickets</h3>
+                    <h3 className="font-bold text-slate-700 uppercase tracking-widest">Filter Tickets</h3>
                     <button
                         onClick={handleClearFilters}
-                        className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                        className="flex items-center gap-1.5 px-4 py-2 font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                     >
                         <span className="material-symbols-outlined text-base">filter_alt_off</span>
                         <span>Clear All</span>
@@ -252,7 +253,7 @@ export default function Tickets() {
                             placeholder="Search by subject, description, or user..."
                             value={filters.search}
                             onChange={(e) => handleFilterChange('search', e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-slate-400"
+                            className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-slate-400"
                         />
                     </div>
 
@@ -263,12 +264,12 @@ export default function Tickets() {
                             placeholder="User ID"
                             value={filters.userId}
                             onChange={(e) => handleFilterChange('userId', e.target.value)}
-                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
                         <select
                             value={filters.category}
                             onChange={(e) => handleFilterChange('category', e.target.value)}
-                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         >
                             <option value="">All Categories</option>
                             <option value="ORDER">Order</option>
@@ -280,7 +281,7 @@ export default function Tickets() {
                         <select
                             value={filters.priority}
                             onChange={(e) => handleFilterChange('priority', e.target.value)}
-                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         >
                             <option value="">All Priorities</option>
                             <option value="LOW">Low</option>
@@ -290,7 +291,7 @@ export default function Tickets() {
                         <select
                             value={filters.status}
                             onChange={(e) => handleFilterChange('status', e.target.value)}
-                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         >
                             <option value="">All Status</option>
                             <option value="OPEN">Open</option>
@@ -302,13 +303,13 @@ export default function Tickets() {
                             type="date"
                             value={filters.startDate}
                             onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
                         <input
                             type="date"
                             value={filters.endDate}
                             onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
                     </div>
                 </div>
@@ -320,12 +321,12 @@ export default function Tickets() {
                     <table className="w-full text-left">
                         <thead className="bg-slate-50/50">
                             <tr>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User Details</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ticket Info</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Created At</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
+                                <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">User Details</th>
+                                <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">Ticket Info</th>
+                                <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">Priority</th>
+                                <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">Created At</th>
+                                <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">Description</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -334,7 +335,7 @@ export default function Tickets() {
                                     <td colSpan="6" className="px-8 py-12 text-center">
                                         <div className="flex items-center justify-center gap-3">
                                             <span className="material-symbols-outlined animate-spin text-primary">autorenew</span>
-                                            <span className="text-sm font-bold text-slate-400">Loading tickets...</span>
+                                            <span className="font-bold text-slate-400">Loading tickets...</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -343,7 +344,7 @@ export default function Tickets() {
                                     <td colSpan="6" className="px-8 py-12 text-center">
                                         <div className="flex flex-col items-center gap-3">
                                             <span className="material-symbols-outlined text-6xl text-slate-200">confirmation_number</span>
-                                            <span className="text-sm font-bold text-slate-400">No tickets found</span>
+                                            <span className="font-bold text-slate-400">No tickets found</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -357,38 +358,14 @@ export default function Tickets() {
                 </div>
 
                 {/* Pagination */}
-                {pagination.totalPages > 0 && (
-                    <div className="p-8 border-t border-slate-50 flex items-center justify-between">
-                        <p className="text-xs font-bold text-slate-400">
-                            Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} tickets
-                        </p>
-                        <div className="flex items-center gap-1.5">
-                            <button
-                                onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-                                disabled={pagination.page === 1}
-                                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Previous
-                            </button>
-                            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => i + 1).map(p => (
-                                <button
-                                    key={p}
-                                    onClick={() => setPagination(prev => ({ ...prev, page: p }))}
-                                    className={`w-10 h-10 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${p === pagination.page ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:bg-slate-50'}`}
-                                >
-                                    {p}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(pagination.totalPages, prev.page + 1) }))}
-                                disabled={pagination.page === pagination.totalPages}
-                                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+                    totalItems={pagination.total}
+                    itemsPerPage={pagination.limit}
+                    label="tickets"
+                />
             </div>
         </div>
     );

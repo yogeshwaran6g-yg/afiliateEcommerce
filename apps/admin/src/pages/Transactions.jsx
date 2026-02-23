@@ -49,8 +49,8 @@ const TransactionRow = ({ tx }) => {
                         </span>
                     </div>
                     <div className="min-w-0">
-                        <p className="text-xs font-bold text-[#172b4d] truncate">TX-{tx.id.toString().padStart(6, '0')}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate">
+                        <p className="font-bold text-[#172b4d] truncate">TX-{tx.id.toString().padStart(6, '0')}</p>
+                        <p className="text-slate-400 font-bold uppercase tracking-widest truncate">
                             {tx.transaction_type.replace(/_/g, ' ')}
                         </p>
                     </div>
@@ -58,25 +58,25 @@ const TransactionRow = ({ tx }) => {
             </td>
             <td className="px-8 py-5">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 border border-primary/20">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold overflow-hidden shrink-0 border border-primary/20">
                         {entityInitials}
                     </div>
                     <div className="min-w-0">
-                        <p className="text-xs font-bold text-[#172b4d] truncate">{entityName}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate">{entityRole}</p>
+                        <p className="font-bold text-[#172b4d] truncate">{entityName}</p>
+                        <p className="text-slate-400 font-bold uppercase tracking-widest truncate">{entityRole}</p>
                     </div>
                 </div>
             </td>
-            <td className="px-8 py-5 text-sm text-slate-500 font-medium whitespace-nowrap">
+            <td className="px-8 py-5 text-slate-500 font-medium whitespace-nowrap">
                 {formatDate(tx.created_at)}
             </td>
             <td className="px-8 py-5">
-                <div className={`text-sm font-black ${tx.entry_type === 'CREDIT' ? 'text-green-600' : 'text-[#172b4d]'}`}>
+                <div className={`font-bold ${tx.entry_type === 'CREDIT' ? 'text-green-600' : 'text-[#172b4d]'}`}>
                     {tx.entry_type === 'CREDIT' ? '+' : '-'}₹{formatAmount(tx.amount)}
                 </div>
             </td>
             <td className="px-8 py-5">
-                <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.status === 'SUCCESS' ? 'bg-green-100 text-green-700' :
+                <span className={`px-2.5 py-1 rounded-full font-bold uppercase tracking-widest ${tx.status === 'SUCCESS' ? 'bg-green-100 text-green-700' :
                     tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
                     }`}>
                     {tx.status}
@@ -139,21 +139,21 @@ export default function Transactions() {
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span>Admin</span>
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <span className="material-symbols-outlined">chevron_right</span>
                         <span className="text-primary font-bold">Transactions</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Transactions</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Monitoring real-time financial movements.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Transactions</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">Monitoring real-time financial movements.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="px-6 py-4 bg-white border border-slate-200 text-slate-600 text-sm font-black rounded-2xl shadow-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+                    <button className="px-6 py-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl shadow-sm hover:bg-slate-50 transition-all flex items-center gap-2">
                         <span className="material-symbols-outlined font-bold text-lg">download</span>
                         <span>Export CSV</span>
                     </button>
-                    <button className="px-6 py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all leading-none">
+                    <button className="px-6 py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all leading-none">
                         Audit All
                     </button>
                 </div>
@@ -173,10 +173,10 @@ export default function Transactions() {
                             <span className="material-symbols-outlined font-bold">{stat.icon}</span>
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                            <p className="font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
                             <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-[#172b4d]">{stat.value}</span>
-                                <span className={`text-[10px] font-bold ${stat.trend.startsWith('+') ? 'text-green-600' : 'text-slate-400'}`}>{stat.trend}</span>
+                                <span className="text-xl font-bold text-[#172b4d]">{stat.value}</span>
+                                <span className={`font-bold ${stat.trend.startsWith('+') ? 'text-green-600' : 'text-slate-400'}`}>{stat.trend}</span>
                             </div>
                         </div>
                     </div>
@@ -192,7 +192,7 @@ export default function Transactions() {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveFilter(tab)}
-                                    className={`px-5 py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                                    className={`px-5 py-2 rounded-xl font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === tab ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
                                     {tab}
@@ -207,7 +207,7 @@ export default function Transactions() {
                             <input
                                 type="text"
                                 placeholder="Search ID..."
-                                className="w-full md:w-64 pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all placeholder:text-slate-300"
+                                className="w-full md:w-64 pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all placeholder:text-slate-300"
                             />
                         </div>
                         <button className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 transition-all active:scale-95">
@@ -224,7 +224,7 @@ export default function Transactions() {
                     ) : transactions.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-64 text-slate-400">
                             <span className="material-symbols-outlined text-4xl mb-2">database_off</span>
-                            <p className="text-sm font-bold">No transactions found</p>
+                            <p className="font-bold">No transactions found</p>
                         </div>
                     ) : (
                         <>
@@ -242,23 +242,23 @@ export default function Transactions() {
                                                     </span>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-[#172b4d] truncate">TX-{tx.id.toString().padStart(6, '0')}</p>
-                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{tx.transaction_type.replace(/_/g, ' ')}</p>
+                                                    <p className="font-bold text-[#172b4d] truncate">TX-{tx.id.toString().padStart(6, '0')}</p>
+                                                    <p className="text-slate-400 font-bold uppercase tracking-widest mt-0.5">{tx.transaction_type.replace(/_/g, ' ')}</p>
                                                 </div>
                                             </div>
-                                            <div className={`text-sm font-black text-right shrink-0 ${tx.entry_type === 'CREDIT' ? 'text-green-600' : 'text-[#172b4d]'}`}>
+                                            <div className={`font-bold text-right shrink-0 ${tx.entry_type === 'CREDIT' ? 'text-green-600' : 'text-[#172b4d]'}`}>
                                                 {tx.entry_type === 'CREDIT' ? '+' : '-'}₹{new Intl.NumberFormat('en-IN').format(tx.amount)}
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-2 min-w-0">
-                                                <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[8px] font-bold overflow-hidden shrink-0">
+                                                <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold overflow-hidden shrink-0">
                                                     {(tx.transaction_type === 'REFERRAL_COMMISSION' ? (tx.downline_name || "U") : (tx.user_name || "S")).charAt(0)}
                                                 </div>
-                                                <p className="text-[10px] font-bold text-slate-600 truncate">{tx.transaction_type === 'REFERRAL_COMMISSION' ? (tx.downline_name || "Unknown") : (tx.user_name || "System")}</p>
+                                                <p className="font-bold text-slate-600 truncate">{tx.transaction_type === 'REFERRAL_COMMISSION' ? (tx.downline_name || "Unknown") : (tx.user_name || "System")}</p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${tx.status === 'SUCCESS' ? 'bg-green-100 text-green-700' :
+                                            <span className={`px-2 py-0.5 rounded-lg font-bold uppercase tracking-widest ${tx.status === 'SUCCESS' ? 'bg-green-100 text-green-700' :
                                                 tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
                                                 }`}>
                                                 {tx.status}
@@ -266,8 +266,8 @@ export default function Transactions() {
                                         </div>
 
                                         <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                                            <p className="text-[9px] font-medium text-slate-400">{new Date(tx.created_at).toLocaleString()}</p>
-                                            <button className="flex items-center gap-1 text-[9px] font-black text-primary uppercase tracking-widest hover:underline">
+                                            <p className="font-medium text-slate-400">{new Date(tx.created_at).toLocaleString()}</p>
+                                            <button className="flex items-center gap-1 font-bold text-primary uppercase tracking-widest hover:underline">
                                                 Details
                                                 <span className="material-symbols-outlined text-xs font-bold">arrow_forward</span>
                                             </button>
@@ -281,12 +281,12 @@ export default function Transactions() {
                                 <table className="w-full text-left min-w-[900px]">
                                     <thead className="bg-slate-50/50">
                                         <tr>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">TRANSACTION</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">INITIATOR / ENTITY</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">TIMESTAMPS</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">AMOUNT</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">DETAILS</th>
+                                            <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">TRANSACTION</th>
+                                            <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">INITIATOR / ENTITY</th>
+                                            <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">TIMESTAMPS</th>
+                                            <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">AMOUNT</th>
+                                            <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">STATUS</th>
+                                            <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest text-right">DETAILS</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
@@ -301,8 +301,8 @@ export default function Transactions() {
                 </div>
 
                 <div className="p-6 md:p-8 flex items-center justify-between border-t border-slate-50">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Viewing real-time ledger</p>
-                    <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
+                    <p className="font-bold text-slate-400 uppercase tracking-widest">Viewing real-time ledger</p>
+                    <button className="font-bold text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
                         <span>Load Historical Data</span>
                         <span className="material-symbols-outlined text-sm">history</span>
                     </button>
@@ -318,12 +318,12 @@ export default function Transactions() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
                             <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] font-black tracking-[0.2em] opacity-60">LEDGER INTEGRITY VERIFIED</span>
+                            <span className="font-bold tracking-[0.2em] opacity-60">LEDGER INTEGRITY VERIFIED</span>
                         </div>
-                        <h4 className="text-xl md:text-2xl font-black tracking-tight">Real-time Financial Audit Trail</h4>
-                        <p className="text-white/50 text-xs md:text-sm font-medium max-w-xl">Every movement is logged with AES-256 encryption. The platform maintains a 1:1 asset ratio across all distributor wallets.</p>
+                        <h4 className="font-bold tracking-tight">Real-time Financial Audit Trail</h4>
+                        <p className="text-white/50 font-medium max-w-xl">Every movement is logged with AES-256 encryption. The platform maintains a 1:1 asset ratio across all distributor wallets.</p>
                     </div>
-                    <button className="px-8 py-4 bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap">
+                    <button className="px-8 py-4 bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl font-bold uppercase tracking-widest transition-all whitespace-nowrap">
                         Download Audit Report
                     </button>
                 </div>

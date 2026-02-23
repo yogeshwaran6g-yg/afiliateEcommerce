@@ -93,13 +93,13 @@ export default function OrderTracking() {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span className="hover:text-primary cursor-pointer transition-colors">Admin</span>
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <span className="material-symbols-outlined font-bold">chevron_right</span>
                         <span className="text-primary">Order Tracking</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Order Tracking</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Update and manage real-time tracking for customer orders.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Order Tracking</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">Update and manage real-time tracking for customer orders.</p>
                 </div>
             </div>
 
@@ -113,7 +113,7 @@ export default function OrderTracking() {
                             <input
                                 type="text"
                                 placeholder="Order # or User Name..."
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -127,18 +127,18 @@ export default function OrderTracking() {
                             <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
                                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Order Number</span>
-                                        <span className="text-xs font-bold text-slate-700">#{order.order_number}</span>
+                                        <span className="font-bold text-slate-400 uppercase tracking-widest">Order Number</span>
+                                        <span className="font-bold text-slate-700">#{order.order_number}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Status</span>
-                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${getStatusColor(order.status)}`}>
+                                        <span className="font-bold text-slate-400 uppercase tracking-widest">Current Status</span>
+                                        <span className={`px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border ${getStatusColor(order.status)}`}>
                                             {order.status}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Customer</span>
-                                        <span className="text-xs font-bold text-slate-700">{order.user_name}</span>
+                                        <span className="font-bold text-slate-400 uppercase tracking-widest">Customer</span>
+                                        <span className="font-bold text-slate-700">{order.user_name}</span>
                                     </div>
                                 </div>
                             </div>
@@ -156,13 +156,13 @@ export default function OrderTracking() {
                                 <form onSubmit={handleAddTracking} className="space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">Update Title</label>
+                                            <label className="font-bold text-slate-400 uppercase tracking-widest ml-1 text-left block">Update Title</label>
                                             <div className="relative group">
                                                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-primary transition-colors">label</span>
                                                 <select
                                                     value={title}
                                                     onChange={(e) => setTitle(e.target.value)}
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium appearance-none"
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium appearance-none"
                                                     required
                                                 >
                                                     <option value="">Select Status Update</option>
@@ -181,7 +181,7 @@ export default function OrderTracking() {
 
                                         {title === "Custom Update" && (
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">Custom Title</label>
+                                                <label className="font-bold text-slate-400 uppercase tracking-widest ml-1 text-left block">Custom Title</label>
                                                 <input
                                                     type="text"
                                                     placeholder="Enter title..."
@@ -194,11 +194,11 @@ export default function OrderTracking() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">Detailed Description</label>
+                                        <label className="font-bold text-slate-400 uppercase tracking-widest ml-1 text-left block">Detailed Description</label>
                                         <textarea
                                             placeholder="Provide more details about this status (e.g., AWB Number, Delivery Partner details...)"
                                             rows="4"
-                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium resize-none"
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium resize-none"
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                         />
@@ -242,17 +242,17 @@ export default function OrderTracking() {
                                                 <div className="flex-1 pt-1 pb-8 border-b border-slate-50 last:border-0">
                                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                                                         <h4 className={`font-bold ${i === 0 ? 'text-slate-800' : 'text-slate-500'}`}>{item.title}</h4>
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                        <span className="font-bold text-slate-400 uppercase tracking-widest">
                                                             {new Date(item.status_time).toLocaleString()}
                                                         </span>
                                                     </div>
-                                                    <p className="text-xs text-slate-500 leading-relaxed font-medium">{item.description}</p>
+                                                    <p className="font-bold text-slate-500 leading-relaxed">{item.description}</p>
                                                 </div>
                                             </div>
                                         )) : (
                                             <div className="text-center py-12">
                                                 <span className="material-symbols-outlined text-slate-200 text-5xl mb-4">history</span>
-                                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">No tracking history available</p>
+                                                <p className="text-slate-400 font-bold uppercase tracking-widest">No tracking history available</p>
                                             </div>
                                         )}
                                     </div>
@@ -265,7 +265,7 @@ export default function OrderTracking() {
                                 <span className="material-symbols-outlined text-slate-300 text-4xl">inventory_2</span>
                             </div>
                             <h4 className="text-lg font-bold text-slate-800 mb-2">No Order Selected</h4>
-                            <p className="text-xs text-slate-500 font-medium max-w-sm leading-relaxed">
+                            <p className="text-slate-500 font-medium max-w-sm leading-relaxed">
                                 Search for an order by its number or customer name to start updating its real-time tracking information.
                             </p>
                         </div>

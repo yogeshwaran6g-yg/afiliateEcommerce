@@ -64,12 +64,12 @@ export default function Notifications() {
         <div className="p-4 md:p-8 lg:p-12 space-y-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span>Admin Panel</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">All Notifications</span>
+                        <span className="text-primary font-bold">All Notifications</span>
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-[#172b4d] tracking-tighter">System Alerts</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-[#172b4d] tracking-tighter">System Alerts</h2>
                     <p className="text-sm md:text-xl text-slate-500 font-medium max-w-2xl">
                         Monitor all user notifications, security flags, and administrative tasks in real-time.
                     </p>
@@ -78,7 +78,7 @@ export default function Notifications() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleMarkAllRead}
-                        className="px-6 py-3 text-slate-600 text-sm font-black hover:bg-slate-50 rounded-2xl transition-all border border-slate-100"
+                        className="px-6 py-3 text-slate-600 text-sm font-bold hover:bg-slate-50 rounded-2xl transition-all border border-slate-100"
                     >
                         Mark All Read
                     </button>
@@ -89,13 +89,13 @@ export default function Notifications() {
             <div className="flex items-center gap-1 p-1 bg-white border border-slate-100 rounded-2xl w-fit shadow-sm">
                 <button
                     onClick={() => setFilter("all")}
-                    className={`px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === "all" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:bg-slate-50"}`}
+                    className={`px-8 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filter === "all" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:bg-slate-50"}`}
                 >
                     All Alerts
                 </button>
                 <button
                     onClick={() => setFilter("unread")}
-                    className={`px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === "unread" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:bg-slate-50"}`}
+                    className={`px-8 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filter === "unread" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:bg-slate-50"}`}
                 >
                     Unread
                 </button>
@@ -118,7 +118,7 @@ export default function Notifications() {
                                 <div className="flex-1 space-y-2">
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                                         <div className="flex items-center gap-3">
-                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-slate-200 text-slate-700`}>
+                                            <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md bg-slate-200 text-slate-700`}>
                                                 {notification.type}
                                             </span>
                                             {!notification.is_read && (

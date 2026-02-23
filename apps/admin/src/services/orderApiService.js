@@ -3,7 +3,7 @@ import { api } from "../util/axios";
 const orderApiService = {
     getOrders: async (filters = {}) => {
         try {
-            const data = await api.get("/admin/orders", { params: filters });
+            const data = await api.get("/admin/orders", filters);
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.getOrders:', error);
@@ -53,7 +53,7 @@ const orderApiService = {
 
     getOrderPayments: async (filters = {}) => {
         try {
-            const data = await api.get("/admin/order-payments", { params: filters });
+            const data = await api.get("/admin/order-payments", filters);
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.getOrderPayments:', error);

@@ -77,10 +77,10 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                 {/* Header */}
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
                     <div>
-                        <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
+                        <h3 className="font-bold text-slate-800 tracking-tight">
                             {announcement ? "Edit Announcement" : "Create Announcement"}
                         </h3>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                        <p className="text-slate-400 font-bold uppercase tracking-widest mt-1">
                             Provide details for the system notification
                         </p>
                     </div>
@@ -92,7 +92,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                 <div className="flex-1 overflow-y-auto p-8 space-y-10 no-scrollbar">
                     {/* Media Section */}
                     <div className="space-y-6">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest">
+                        <div className="flex items-center gap-2 font-bold text-primary uppercase tracking-widest">
                             <span className="material-symbols-outlined text-lg">image</span>
                             Media Asset
                         </div>
@@ -110,7 +110,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                             ) : (
                                 <button type="button" onClick={() => document.getElementById('image-upload').click()} className="flex flex-col items-center gap-4 text-slate-400 hover:text-primary transition-colors">
                                     <span className="material-symbols-outlined text-5xl">add_photo_alternate</span>
-                                    <span className="text-xs font-bold uppercase tracking-widest">Upload Cover Image</span>
+                                    <span className="font-bold uppercase tracking-widest">Upload Cover Image</span>
                                 </button>
                             )}
                             <input type="file" id="image-upload" className="hidden" accept="image/*" onChange={handleImageChange} />
@@ -119,7 +119,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
 
                     {/* Content Section */}
                     <div className="space-y-8">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest">
+                        <div className="flex items-center gap-2 font-bold text-primary uppercase tracking-widest">
                             <span className="material-symbols-outlined text-lg">edit_note</span>
                             Content Details
                         </div>
@@ -134,7 +134,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                                     onChange={handleInputChange}
                                     required
                                     placeholder="Enter announcement heading"
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all"
                                 />
                             </div>
 
@@ -147,7 +147,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                                     onChange={handleInputChange}
                                     required
                                     placeholder="Brief summary"
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all"
                                 />
                             </div>
 
@@ -160,7 +160,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                                     required
                                     rows={6}
                                     placeholder="Enter your message..."
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all resize-none"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary placeholder:text-slate-300 transition-all resize-none"
                                 />
                             </div>
 
@@ -172,9 +172,9 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
                                     value={formData.advertisement_end_time}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
                                 />
-                                <p className="text-[10px] text-slate-400 font-medium ml-1">Select when this notification should expire.</p>
+                                <p className="font-medium text-slate-400 ml-1">Select when this notification should expire.</p>
                             </div>
                         </div>
                     </div>
@@ -182,10 +182,10 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
 
                 {/* Footer */}
                 <div className="p-8 bg-white/80 backdrop-blur-md border-t border-slate-50 flex items-center justify-end gap-3 z-20">
-                    <button type="button" onClick={onClose} className="px-6 py-3 text-slate-600 text-sm font-bold hover:bg-slate-50 rounded-xl transition-all">
+                    <button type="button" onClick={onClose} className="px-6 py-3 text-slate-600 font-bold hover:bg-slate-50 rounded-xl transition-all">
                         Cancel
                     </button>
-                    <button type="submit" disabled={loading} className="px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/10 hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50">
+                    <button type="submit" disabled={loading} className="px-8 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/10 hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50">
                         {loading ? "Saving..." : (announcement ? "Save Changes" : "Submit")}
                     </button>
                 </div>
@@ -263,7 +263,7 @@ export default function Announcements() {
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-slate-500 font-semibold text-sm animate-pulse">Loading announcements...</p>
+                    <p className="text-slate-500 font-semibold animate-pulse">Loading announcements...</p>
                 </div>
             </div>
         );
@@ -274,18 +274,18 @@ export default function Announcements() {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span>Admin</span>
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <span className="material-symbols-outlined">chevron_right</span>
                         <span className="text-primary font-bold">Announcements</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Announcements</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Manage system-wide updates and notifications.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Announcements</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">Manage system-wide updates and notifications.</p>
                 </div>
 
                 <button
                     onClick={() => handleOpenDrawer()}
-                    className="flex items-center justify-center gap-3 px-6 py-4 bg-slate-900 text-white text-sm font-bold rounded-2xl shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all hover:scale-[1.02] active:scale-95 group"
+                    className="flex items-center justify-center gap-3 px-6 py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all hover:scale-[1.02] active:scale-95 group"
                 >
                     <span className="material-symbols-outlined font-bold group-hover:rotate-90 transition-transform">add</span>
                     New Announcement
@@ -297,7 +297,7 @@ export default function Announcements() {
                 {announcements.length === 0 ? (
                     <div className="flex flex-col items-center gap-4 text-slate-300">
                         <span className="material-symbols-outlined text-6xl">campaign</span>
-                        <p className="text-sm font-bold">No announcements found in the bulletin.</p>
+                        <p className="font-bold">No announcements found in the bulletin.</p>
                     </div>
                 ) : (
                     <>
@@ -319,19 +319,19 @@ export default function Announcements() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <h4 className="text-sm font-bold text-slate-800 tracking-tight truncate">{item.heading}</h4>
-                                                    <span className={`px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest shrink-0 ${isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <h4 className="font-bold text-slate-800 tracking-tight truncate">{item.heading}</h4>
+                                                    <span className={`px-2 py-0.5 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                                                         {isActive ? 'Active' : 'Expired'}
                                                     </span>
                                                 </div>
-                                                <p className="text-[10px] text-slate-500 font-medium line-clamp-2 mt-1">{item.short_description}</p>
+                                                <p className="text-slate-500 font-medium line-clamp-2 mt-1">{item.short_description}</p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                                             <div className="space-y-0.5">
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Expires On</p>
-                                                <p className="text-[10px] font-bold text-slate-600">
+                                                <p className="font-bold text-slate-400 uppercase tracking-widest leading-none">Expires On</p>
+                                                <p className="font-bold text-slate-600">
                                                     {new Date(item.advertisement_end_time).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </p>
                                             </div>
@@ -354,10 +354,10 @@ export default function Announcements() {
                             <table className="w-full text-left min-w-[800px]">
                                 <thead className="bg-slate-50/50 border-b border-slate-50">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Details</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Schedule</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                        <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Details</th>
+                                        <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Schedule</th>
+                                        <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                        <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
@@ -375,22 +375,22 @@ export default function Announcements() {
                                                         )}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <h4 className="text-sm font-bold text-slate-800 tracking-tight">{item.heading}</h4>
-                                                        <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">{item.short_description}</p>
+                                                        <h4 className="font-bold text-slate-800 tracking-tight">{item.heading}</h4>
+                                                        <p className="text-slate-500 font-medium truncate mt-0.5">{item.short_description}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="space-y-1">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">End Date</p>
-                                                    <p className="text-xs font-semibold text-slate-700">{new Date(item.advertisement_end_time).toLocaleDateString()} {new Date(item.advertisement_end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    <p className="font-bold text-slate-400 uppercase tracking-widest">End Date</p>
+                                                    <p className="font-semibold text-slate-700">{new Date(item.advertisement_end_time).toLocaleDateString()} {new Date(item.advertisement_end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
                                                 {new Date(item.advertisement_end_time) > new Date() ? (
-                                                    <span className="px-3 py-1.5 rounded-xl bg-green-50 text-green-700 text-[9px] font-bold uppercase tracking-widest border border-green-100">Active</span>
+                                                    <span className="px-3 py-1.5 rounded-xl bg-green-50 text-green-700 font-bold uppercase tracking-widest border border-green-100">Active</span>
                                                 ) : (
-                                                    <span className="px-3 py-1.5 rounded-xl bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest border border-slate-100">Expired</span>
+                                                    <span className="px-3 py-1.5 rounded-xl bg-slate-50 text-slate-400 font-bold uppercase tracking-widest border border-slate-100">Expired</span>
                                                 )}
                                             </td>
                                             <td className="px-8 py-6">

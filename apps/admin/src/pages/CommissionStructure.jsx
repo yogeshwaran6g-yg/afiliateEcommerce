@@ -10,8 +10,8 @@ const CommissionLevel = ({ level, label, description, value, active, onToggle, o
                 </span>
             </div>
             <div className="min-w-0 flex-1">
-                <h4 className="text-sm md:text-base font-black text-[#172b4d] truncate">{label || `Level ${level}`}</h4>
-                <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest truncate">{description || (level === 1 ? "Direct referral" : `Tier ${level} network`)}</p>
+                <h4 className="font-bold text-[#172b4d] truncate">{label || `Level ${level}`}</h4>
+                <p className="text-slate-400 font-bold uppercase tracking-widest truncate">{description || (level === 1 ? "Direct referral" : `Tier ${level} network`)}</p>
             </div>
         </div>
 
@@ -23,9 +23,9 @@ const CommissionLevel = ({ level, label, description, value, active, onToggle, o
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     disabled={!active}
-                    className="w-24 md:w-28 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-black text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary text-right pr-10 transition-all"
+                    className="w-24 md:w-28 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary text-right pr-10 transition-all"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">%</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">%</span>
             </div>
 
             <button
@@ -63,7 +63,7 @@ export default function CommissionStructure() {
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fetching configs...</p>
+                    <p className="font-bold text-slate-400 uppercase tracking-widest">Fetching configs...</p>
                 </div>
             </div>
         );
@@ -77,20 +77,20 @@ export default function CommissionStructure() {
             {/* Header & Title */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
                         <span>Admin</span>
-                        <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>
+                        <span className="material-symbols-outlined font-bold">chevron_right</span>
                         <span className="text-primary font-bold">Settings</span>
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Commission Settings</h2>
-                    <p className="text-sm text-slate-500 font-medium max-w-2xl leading-relaxed">Set how much money users earn from referrals and their network.</p>
+                    <h2 className="font-bold text-slate-900 tracking-tight">Commission Settings</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">Set how much money users earn from referrals and their network.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <button
                         onClick={saveConfigs}
                         disabled={saving}
-                        className="w-full md:w-auto px-10 py-4 bg-[#1e293b] text-white text-sm font-black rounded-2xl shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95 leading-none disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full md:w-auto px-10 py-4 bg-[#1e293b] text-white font-bold rounded-2xl shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95 leading-none disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {saving ? (
                             <>
@@ -110,8 +110,8 @@ export default function CommissionStructure() {
             <div className="max-w-5xl mx-auto">
                 <div className="p-1">
                     <div className="flex items-center justify-between mb-8">
-                        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commission Levels</h5>
-                        <span className="text-[9px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest">{levels.filter(l => l.is_active).length} Active Tiers</span>
+                        <h5 className="font-bold text-slate-400 uppercase tracking-widest">Commission Levels</h5>
+                        <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest">{levels.filter(l => l.is_active).length} Active Tiers</span>
                     </div>
                     <div className="grid grid-cols-1 gap-5">
                         {levelsData.map(level => (

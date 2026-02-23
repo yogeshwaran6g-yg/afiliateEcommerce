@@ -18,10 +18,10 @@ const TRANSACTION_ICONS = {
 const StatCard = ({ title, value, subtitle, bgColor, icon }) => (
     <div className={`${bgColor} p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden`}>
         <div className="relative z-10">
-            <h5 className={`text-[11px] font-black uppercase tracking-widest mb-2 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/50'}`}>
+            <h5 className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/50'}`}>
                 {title}
             </h5>
-            <div className={`text-4xl font-black tracking-tight ${bgColor.includes('white') ? 'text-[#172b4d]' : 'text-white'}`}>
+            <div className={`text-4xl font-bold tracking-tight ${bgColor.includes('white') ? 'text-[#172b4d]' : 'text-white'}`}>
                 {value}
             </div>
             <p className={`text-[10px] font-bold uppercase tracking-widest mt-3 ${bgColor.includes('white') ? 'text-slate-400' : 'text-white/70'}`}>
@@ -73,7 +73,7 @@ const TransactionRow = ({ transaction, onViewDetails }) => {
                 </div>
             </td>
             <td className="px-8 py-5">
-                <span className={`text-sm font-black ${colorClass}`}>
+                <span className={`text-sm font-bold ${colorClass}`}>
                     {isCredit ? '+' : '-'}₹{transaction.amount}
                 </span>
             </td>
@@ -87,7 +87,7 @@ const TransactionRow = ({ transaction, onViewDetails }) => {
                 <span className="text-sm font-medium text-slate-500">₹{transaction.current_balance}</span>
             </td>
             <td className="px-8 py-5">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${STATUS_COLORS[transaction.status] || STATUS_COLORS.REVERSED}`}>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${STATUS_COLORS[transaction.status] || STATUS_COLORS.REVERSED}`}>
                     {transaction.status}
                 </span>
             </td>
@@ -132,7 +132,7 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
                 <div className="p-8 md:p-12 space-y-8 max-h-[90vh] overflow-y-auto">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-3xl font-black tracking-tight text-[#172b4d]">
+                            <h3 className="text-3xl font-bold tracking-tight text-[#172b4d]">
                                 Transaction Details
                             </h3>
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
@@ -147,21 +147,21 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
                     <div className="space-y-6">
                         <div className="bg-slate-50 rounded-3xl p-6 grid grid-cols-2 gap-6 border border-slate-100">
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</label>
                                 <p className="text-sm font-bold text-[#172b4d]">{transaction.transaction_type.replace(/_/g, ' ')}</p>
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</label>
-                                <p className={`text-lg font-black ${colorClass}`}>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount</label>
+                                <p className={`text-lg font-bold ${colorClass}`}>
                                     {isCredit ? '+' : '-'}₹{transaction.amount}
                                 </p>
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</label>
                                 <p className="text-sm font-bold text-[#172b4d]">{transaction.status}</p>
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</label>
                                 <p className="text-sm font-bold text-[#172b4d]">
                                     {new Date(transaction.created_at).toLocaleDateString('en-IN', {
                                         day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -173,21 +173,21 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
                         {/* Conditional Details for Recharges */}
                         {transaction.transaction_type === 'RECHARGE_REQUEST' && (
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Recharge Information</h4>
+                                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Recharge Information</h4>
                                 <div className="bg-slate-50 rounded-3xl p-6 space-y-4 border border-slate-100">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</label>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Method</label>
                                             <p className="text-sm font-bold text-[#172b4d]">{transaction.payment_method || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</label>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reference</label>
                                             <p className="text-sm font-bold text-[#172b4d] font-mono">{transaction.payment_reference || 'N/A'}</p>
                                         </div>
                                     </div>
                                     {transaction.proof_image && (
                                         <div>
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Proof of Payment</label>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Proof of Payment</label>
                                             <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200">
                                                 <img
                                                     src={`${IMAGE_BASE_URL}${transaction.proof_image}`}
@@ -208,25 +208,25 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
                         {/* Conditional Details for Withdrawals */}
                         {transaction.transaction_type === 'WITHDRAWAL_REQUEST' && (
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Withdrawal Information</h4>
+                                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Withdrawal Information</h4>
                                 <div className="bg-slate-50 rounded-3xl p-6 space-y-4 border border-slate-100">
                                     <div className="grid grid-cols-3 gap-4 border-b border-slate-200 pb-4">
                                         <div>
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Amount</label>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Base Amount</label>
                                             <p className="text-sm font-bold text-[#172b4d]">₹{transaction.amount}</p>
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Fee</label>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Platform Fee</label>
                                             <p className="text-sm font-bold text-red-500">₹{transaction.platform_fee || '0'}</p>
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Net Payable</label>
-                                            <p className="text-sm font-black text-green-600">₹{transaction.net_amount || transaction.amount}</p>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net Payable</label>
+                                            <p className="text-sm font-bold text-green-600">₹{transaction.net_amount || transaction.amount}</p>
                                         </div>
                                     </div>
                                     {transaction.bank_details && (
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bank Details</label>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bank Details</label>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-sm text-slate-400">account_balance</span>
@@ -253,7 +253,7 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
 
                         {transaction.description && (
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Activity Log</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Activity Log</label>
                                 <div className="bg-slate-50 rounded-2xl p-4 text-xs font-medium text-slate-600 border border-slate-100">
                                     {transaction.description}
                                 </div>
@@ -264,7 +264,7 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
                     <div className="pt-4">
                         <button
                             onClick={onClose}
-                            className="w-full px-8 py-4 bg-slate-100 text-slate-600 text-sm font-black rounded-2xl hover:bg-slate-200 transition-all active:scale-95"
+                            className="w-full px-8 py-4 bg-slate-100 text-slate-600 text-sm font-bold rounded-2xl hover:bg-slate-200 transition-all active:scale-95"
                         >
                             CLOSE DETAILS
                         </button>
@@ -356,14 +356,14 @@ export default function WalletTransactions() {
             {/* Header Controls */}
             <div className="flex items-center justify-between">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span>Home</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
                         <span>Finance</span>
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        <span className="text-primary font-black">Wallet Transactions</span>
+                        <span className="text-primary font-bold">Wallet Transactions</span>
                     </div>
-                    <h2 className="text-4xl font-black text-[#172b4d] tracking-tight">Wallet Transaction History</h2>
+                    <h2 className="text-4xl font-bold text-[#172b4d] tracking-tight">Wallet Transaction History</h2>
                     <p className="text-lg text-slate-500 font-medium">Complete transaction ledger for all wallet activities.</p>
                 </div>
 
@@ -402,7 +402,7 @@ export default function WalletTransactions() {
             {/* Filters */}
             <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Filter Transactions</h3>
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest">Filter Transactions</h3>
                     <button
                         onClick={handleClearFilters}
                         className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
@@ -488,15 +488,15 @@ export default function WalletTransactions() {
                     <table className="w-full text-left">
                         <thead className="bg-slate-50/50">
                             <tr>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User Details</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction Type</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Balance</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Balance</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">View</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User Details</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transaction Type</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Balance</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Balance</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">View</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">

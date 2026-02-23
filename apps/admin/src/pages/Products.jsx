@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import productApiService from "../services/productApiService";
 import categoryApiService from "../services/categoryApiService";
 import { toast } from "react-toastify";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../components/common/Pagination";
 
 const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -142,8 +144,8 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
             <form onSubmit={handleSubmit} className="relative w-full max-w-2xl bg-white h-screen flex flex-col overflow-hidden animate-in slide-in-from-right duration-300 shadow-2xl">
                 <div className="shrink-0 bg-white/95 backdrop-blur-md z-10 px-8 py-6 border-b border-slate-50 flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-bold text-[#172b4d] tracking-tight">{product ? "Edit Product" : "Add New Product"}</h2>
-                        <p className="text-[10px] text-primary font-bold mt-0.5 uppercase tracking-widest leading-none">Define your product parameters</p>
+                        <h2 className="font-bold text-[#172b4d] tracking-tight">{product ? "Edit Product" : "Add New Product"}</h2>
+                        <p className="text-primary font-bold mt-0.5 uppercase tracking-widest leading-none">Define your product parameters</p>
                     </div>
                     <button
                         type="button"
@@ -413,7 +415,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-5 py-3 text-slate-500 text-[11px] font-black hover:bg-slate-50 rounded-xl transition-all flex items-center gap-2 uppercase tracking-widest"
+                        className="px-5 py-3 text-slate-500 text-[11px] font-bold hover:bg-slate-50 rounded-xl transition-all flex items-center gap-2 uppercase tracking-widest"
                     >
                         <span className="material-symbols-outlined text-lg">close</span>
                         <span>Discard</span>
@@ -421,7 +423,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="px-8 py-3.5 bg-[#172b4d] text-white text-[11px] font-black rounded-xl shadow-xl shadow-[#172b4d]/20 hover:bg-[#1a335a] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-3 uppercase tracking-[0.15em] disabled:opacity-50 disabled:grayscale"
+                        className="px-8 py-3.5 bg-[#172b4d] text-white text-[11px] font-bold rounded-xl shadow-xl shadow-[#172b4d]/20 hover:bg-[#1a335a] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-3 uppercase tracking-[0.15em] disabled:opacity-50 disabled:grayscale"
                     >
                         {loading ? (
                             <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
@@ -438,15 +440,28 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
 
 export default function Products() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const searchParam = searchParams.get("search");
+
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(searchParam || "");
+    const [limit, setLimit] = useState(10);
+    const [totalProducts, setTotalProducts] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+    useEffect(() => {
+        if (searchParam !== null) {
+            setSearchTerm(searchParam);
+        }
+    }, [searchParam]);
+
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
     const IMAGE_BASE_URL = 'http://localhost:4000/uploads/products/';
 
     const getProductImages = (prod) => {
@@ -482,6 +497,9 @@ export default function Products() {
 
     useEffect(() => {
         fetchProducts();
+    }, [currentPage, limit, debouncedSearchTerm]);
+
+    useEffect(() => {
         fetchCategories();
     }, []);
 
@@ -497,8 +515,14 @@ export default function Products() {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const data = await productApiService.getProducts();
-            setProducts(data);
+            const response = await productApiService.getProducts({
+                page: currentPage,
+                limit: limit,
+                search: debouncedSearchTerm
+            });
+            setProducts(response.products);
+            setTotalProducts(response.total);
+            setTotalPages(response.totalPages);
             setError(null);
         } catch (err) {
             setError(err.message || "Failed to load products");
@@ -529,43 +553,24 @@ export default function Products() {
         setDrawerOpen(true);
     };
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.category_name && p.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-
-    // Pagination logic
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
-
     // Reset to first page when searching
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [debouncedSearchTerm]);
 
-    if (loading) {
-        return (
-            <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
-                <div className="flex flex-col items-center gap-4">
-                    <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Loading Product Catalog...</p>
-                </div>
-            </div>
-        );
-    }
+    // Initial loading state only (when no data exists)
+    const isInitialLoading = loading && products.length === 0;
 
     if (error) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="bg-red-50 border border-red-100 p-8 rounded-4xl text-center max-w-md">
                     <span className="material-symbols-outlined text-red-500 text-5xl mb-4">error</span>
-                    <h3 className="text-xl font-black text-red-900 mb-2">Sync Failure</h3>
+                    <h3 className="text-xl font-bold text-red-900 mb-2">Sync Failure</h3>
                     <p className="text-red-700 font-medium mb-6">{error}</p>
                     <button
                         onClick={fetchProducts}
-                        className="px-6 py-3 bg-red-500 text-white text-sm font-black rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
+                        className="px-6 py-3 bg-red-500 text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
                     >
                         Retry Sync
                     </button>
@@ -578,27 +583,27 @@ export default function Products() {
         <div className="p-4 md:p-8 lg:p-12 space-y-10 relative">
             {/* Header Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
                         <span>Admin</span>
-                        <span className="material-symbols-outlined text-xs">chevron_right</span>
+                        <span className="material-symbols-outlined">chevron_right</span>
                         <span className="text-primary font-bold">Products</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Products</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Create and manage your enterprise product catalog.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Products</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">Create and manage your enterprise product catalog.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate("/categories")}
-                        className="flex items-center justify-center gap-2 px-6 py-4 bg-white border border-slate-200 text-slate-700 text-sm font-black rounded-2xl shadow-sm hover:bg-slate-50 transition-all active:scale-95 group leading-none"
+                        className="flex items-center justify-center gap-2 px-6 py-4 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-2xl shadow-sm hover:bg-slate-50 transition-all active:scale-95 group leading-none"
                     >
                         <span className="material-symbols-outlined font-bold text-primary">category</span>
                         <span>Categories</span>
                     </button>
                     <button
                         onClick={handleOpenDrawer}
-                        className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none"
+                        className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none"
                     >
                         <span className="material-symbols-outlined font-bold group-hover:rotate-90 transition-transform">add</span>
                         <span>Add New Product</span>
@@ -609,15 +614,15 @@ export default function Products() {
             {/* Stats Card */}
             <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center justify-between group overflow-hidden relative">
                 <div className="relative z-10 flex flex-col justify-center">
-                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Total Active Products</h5>
+                    <h5 className="font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Total Active Products</h5>
                     <div className="flex items-center gap-4">
-                        <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">{products.length}</div>
-                        <div className="flex items-center gap-1 text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded-lg border border-green-100 h-fit mt-1">
-                            <span className="material-symbols-outlined text-xs font-black">trending_up</span>
+                        <div className="text-4xl font-bold text-[#172b4d] tracking-tighter leading-tight">{totalProducts}</div>
+                        <div className="flex items-center gap-1 text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-lg border border-green-100 h-fit mt-1">
+                            <span className="material-symbols-outlined font-bold">trending_up</span>
                             <span>Live</span>
                         </div>
                     </div>
-                    <p className="text-[11px] text-slate-400 font-bold mt-3 leading-none tracking-wide">Syncing with global fulfillment centers...</p>
+                    <p className="text-slate-400 font-bold mt-3 leading-none tracking-wide">Syncing with global fulfillment centers...</p>
                 </div>
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-64 h-64 text-slate-50 opacity-10 rotate-12 group-hover:rotate-0 transition-all duration-700 pointer-events-none">
                     <span className="material-symbols-outlined text-[150px] md:text-[200px] leading-none select-none">inventory</span>
@@ -625,7 +630,16 @@ export default function Products() {
             </div>
 
             {/* Desktop Table View / Mobile Card View Wrapper */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px] relative">
+                {/* Inline Loading Overlay */}
+                {loading && products.length > 0 && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></span>
+                        </div>
+                    </div>
+                )}
+
                 <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="relative w-full lg:w-96 group">
                         <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-lg group-focus-within:text-primary transition-colors">search</span>
@@ -643,207 +657,162 @@ export default function Products() {
                             <span className="material-symbols-outlined font-bold">tune</span>
                         </button>
                         <div className="hidden md:block w-px h-8 bg-slate-100 mx-2"></div>
-                        <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">
-                            Showing {filteredProducts.length > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + itemsPerPage, filteredProducts.length)} of {filteredProducts.length} results
-                        </p>
                     </div>
                 </div>
 
-                {/* Mobile Grid Layout (Visible on small screens) */}
-                <div className="block md:hidden p-4 space-y-4">
-                    {paginatedProducts.map((prod, i) => {
-                        const images = getProductImages(prod);
-                        const imageUrl = getFirstImageUrl(images);
-
-                        return (
-                            <div key={i} className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 space-y-5">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden shadow-sm border border-slate-200/50 shrink-0">
-                                        <img src={imageUrl} className="w-full h-full object-cover" alt="" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-base font-black text-[#172b4d] truncate">{prod.name}</h4>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">SKU: {prod.slug.toUpperCase()}</p>
-                                    </div>
-                                    <div className="flex flex-col items-end gap-2">
-                                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${prod.is_active ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
-                                            {prod.is_active ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4 h-px bg-slate-100/50 w-full"></div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price & Reward</p>
-                                        <div className="flex flex-col">
-                                            <span className="text-base font-black text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</span>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1 text-right">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory</p>
-                                        <div className="flex items-center justify-end gap-2">
-                                            <span className={`text-base font-bold ${prod.stock <= prod.low_stock_alert ? 'text-amber-600' : 'text-slate-600'}`}>{prod.stock} Units</span>
-                                            {prod.stock <= prod.low_stock_alert && (
-                                                <span className="material-symbols-outlined text-amber-500 text-lg animate-pulse">report_problem</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-2">
-                                    <button
-                                        onClick={() => handleEdit(prod)}
-                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all shadow-sm"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">edit</span>
-                                        Edit Product
-                                    </button>
-                                    <div className="w-4"></div>
-                                    <button
-                                        onClick={() => handleDelete(prod.id)}
-                                        className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-500 border border-red-100 rounded-xl hover:bg-red-100 transition-all active:scale-95 shadow-sm"
-                                    >
-                                        <span className="material-symbols-outlined text-xl">delete</span>
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Desktop Table Layout (Visible on md and up) */}
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-slate-50/70 border-b border-slate-50">
-                            <tr>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRODUCT DETAILS</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">PRICING</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">INVENTORY</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">STATUS</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {paginatedProducts.map((prod, i) => {
+                {isInitialLoading ? (
+                    <div className="flex flex-col items-center justify-center py-24 gap-4 animate-in fade-in duration-500">
+                        <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
+                        <p className="text-slate-500 font-bold uppercase tracking-widest">Loading Product Catalog...</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Mobile Grid Layout (Visible on small screens) */}
+                        <div className="block md:hidden p-4 space-y-4">
+                            {products.map((prod, i) => {
                                 const images = getProductImages(prod);
                                 const imageUrl = getFirstImageUrl(images);
 
                                 return (
-                                    <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-slate-200 overflow-hidden shadow-sm border border-slate-100 shrink-0">
-                                                    <img src={imageUrl} className="w-full h-full object-cover" alt="" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-sm font-black text-[#172b4d]">{prod.name}</h4>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 leading-none">SKU: {prod.slug.toUpperCase()}</p>
-                                                </div>
+                                    <div key={i} className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 space-y-5">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden shadow-sm border border-slate-200/50 shrink-0">
+                                                <img src={imageUrl} className="w-full h-full object-cover" alt="" />
                                             </div>
-                                        </td>
-                                        <td className="px-8 py-6">
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-[#172b4d] truncate">{prod.name}</h4>
+                                                <p className="text-slate-400 font-bold uppercase tracking-wider mt-1">SKU: {prod.slug.toUpperCase()}</p>
+                                            </div>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <span className={`px-2.5 py-1 rounded-full font-bold uppercase tracking-widest ${prod.is_active ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
+                                                    {prod.is_active ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 h-px bg-slate-100/50 w-full"></div>
+
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-1">
-                                                <p className="text-sm font-black text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</p>
+                                                <p className="font-bold text-slate-400 uppercase tracking-widest">Price & Reward</p>
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</span>
+                                                </div>
                                             </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm font-bold text-slate-600">{prod.stock} Units</span>
-                                                {(prod.stock <= prod.low_stock_alert) && (
-                                                    <span className="material-symbols-outlined text-amber-500 text-lg font-black animate-pulse">report_problem</span>
-                                                )}
+                                            <div className="space-y-1 text-right">
+                                                <p className="font-bold text-slate-400 uppercase tracking-widest">Inventory</p>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <span className={`font-bold ${prod.stock <= prod.low_stock_alert ? 'text-amber-600' : 'text-slate-600'}`}>{prod.stock} Units</span>
+                                                    {prod.stock <= prod.low_stock_alert && (
+                                                        <span className="material-symbols-outlined text-amber-500 animate-pulse">report_problem</span>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${prod.is_active ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                                                }`}>
-                                                {prod.is_active ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-3 text-slate-400">
-                                                <button
-                                                    onClick={() => handleEdit(prod)}
-                                                    className="hover:text-primary transition-all hover:scale-110"
-                                                >
-                                                    <span className="material-symbols-outlined text-[20px] font-bold">edit</span>
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(prod.id)}
-                                                    className="hover:text-red-500 transition-all hover:scale-110"
-                                                >
-                                                    <span className="material-symbols-outlined text-[20px] font-bold">delete</span>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-2">
+                                            <button
+                                                onClick={() => handleEdit(prod)}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 text-slate-600 font-bold uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                                            >
+                                                <span className="material-symbols-outlined">edit</span>
+                                                Edit Product
+                                            </button>
+                                            <div className="w-4"></div>
+                                            <button
+                                                onClick={() => handleDelete(prod.id)}
+                                                className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-500 border border-red-100 rounded-xl hover:bg-red-100 transition-all active:scale-95 shadow-sm"
+                                            >
+                                                <span className="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 );
                             })}
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
 
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                    <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-                            >
-                                <span className="material-symbols-outlined font-bold">chevron_left</span>
-                            </button>
+                        {/* Desktop Table Layout (Visible on md and up) */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left min-w-[800px]">
+                                <thead className="bg-slate-50/70 border-b border-slate-50">
+                                    <tr>
+                                        <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">PRODUCT DETAILS</th>
+                                        <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">PRICING</th>
+                                        <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">INVENTORY</th>
+                                        <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest">STATUS</th>
+                                        <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {products.map((prod, i) => {
+                                        const images = getProductImages(prod);
+                                        const imageUrl = getFirstImageUrl(images);
 
-                            <div className="flex items-center gap-1">
-                                {[...Array(totalPages)].map((_, i) => {
-                                    const pageNum = i + 1;
-                                    // Basic logic to show limited page numbers if there are too many
-                                    if (
-                                        totalPages <= 7 ||
-                                        pageNum === 1 ||
-                                        pageNum === totalPages ||
-                                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                                    ) {
                                         return (
-                                            <button
-                                                key={pageNum}
-                                                onClick={() => setCurrentPage(pageNum)}
-                                                className={`w-10 h-10 flex items-center justify-center rounded-xl text-[11px] font-black transition-all ${currentPage === pageNum
-                                                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
-                                                    }`}
-                                            >
-                                                {pageNum}
-                                            </button>
+                                            <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-slate-200 overflow-hidden shadow-sm border border-slate-100 shrink-0">
+                                                            <img src={imageUrl} className="w-full h-full object-cover" alt="" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-[#172b4d]">{prod.name}</h4>
+                                                            <p className="text-slate-400 font-bold uppercase tracking-wider mt-1 leading-none">SKU: {prod.slug.toUpperCase()}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className="space-y-1">
+                                                        <p className="font-bold text-[#172b4d]">₹{Number(prod.sale_price).toLocaleString()}</p>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-slate-600">{prod.stock} Units</span>
+                                                        {(prod.stock <= prod.low_stock_alert) && (
+                                                            <span className="material-symbols-outlined text-amber-500 font-bold animate-pulse">report_problem</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <span className={`px-3 py-1 rounded-full font-bold uppercase tracking-widest ${prod.is_active ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                                                        }`}>
+                                                        {prod.is_active ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-6 text-right">
+                                                    <div className="flex items-center justify-end gap-3 text-slate-400">
+                                                        <button
+                                                            onClick={() => handleEdit(prod)}
+                                                            className="hover:text-primary transition-all hover:scale-110"
+                                                        >
+                                                            <span className="material-symbols-outlined font-bold">edit</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(prod.id)}
+                                                            className="hover:text-red-500 transition-all hover:scale-110"
+                                                        >
+                                                            <span className="material-symbols-outlined font-bold">delete</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         );
-                                    } else if (
-                                        (pageNum === currentPage - 2 && pageNum > 1) ||
-                                        (pageNum === currentPage + 2 && pageNum < totalPages)
-                                    ) {
-                                        return <span key={pageNum} className="px-1 text-slate-400">...</span>;
-                                    }
-                                    return null;
-                                })}
-                            </div>
-
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-                            >
-                                <span className="material-symbols-outlined font-bold">chevron_right</span>
-                            </button>
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
 
-                        <div className="hidden sm:block">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                Page {currentPage} of {totalPages}
-                            </p>
-                        </div>
-                    </div>
+                        {/* Pagination Controls */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={totalProducts}
+                            limit={limit}
+                            onPageChange={setCurrentPage}
+                            onLimitChange={setLimit}
+                        />
+                    </>
                 )}
             </div>
 

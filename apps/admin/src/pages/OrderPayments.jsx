@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import orderApiService from "../services/orderApiService";
 import { toast } from "react-toastify";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../components/common/Pagination";
 
 const StatusBadge = ({ status }) => {
     const styles = {
@@ -10,7 +12,7 @@ const StatusBadge = ({ status }) => {
         REJECTED: "bg-rose-100 text-rose-700 border-rose-200",
     };
     return (
-        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${styles[status] || "bg-slate-100 text-slate-700 border-slate-200"}`}>
+        <span className={`px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border ${styles[status] || "bg-slate-100 text-slate-700 border-slate-200"}`}>
             {status}
         </span>
     );
@@ -28,17 +30,22 @@ export default function OrderPayments() {
     const orderNumberParam = searchParams.get("orderNumber");
 
     const [searchQuery, setSearchQuery] = useState(orderNumberParam || "");
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
     // Modal state
     const [selectedProof, setSelectedProof] = useState(null);
     const [actionModal, setActionModal] = useState({ show: false, payment: null, action: '', comment: '' });
 
-    // Handle auto-update from URL param if it changes
     useEffect(() => {
         if (orderNumberParam) {
             setSearchQuery(orderNumberParam);
         }
     }, [orderNumberParam]);
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedSearchQuery, statusFilter]);
 
     const fetchPayments = async () => {
         setLoading(true);
@@ -47,7 +54,7 @@ export default function OrderPayments() {
                 page: currentPage,
                 limit: itemsPerPage,
                 status: statusFilter,
-                search: searchQuery
+                search: debouncedSearchQuery
             });
             setPayments(data.payments);
             setTotalPages(data.pagination.totalPages);
@@ -61,7 +68,7 @@ export default function OrderPayments() {
 
     useEffect(() => {
         fetchPayments();
-    }, [currentPage, statusFilter, searchQuery]);
+    }, [currentPage, statusFilter, debouncedSearchQuery]);
 
     const handleSearch = (e) => {
         if (e) e.preventDefault();
@@ -94,13 +101,13 @@ export default function OrderPayments() {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-8">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
+                    <div className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest leading-none">
                         <span className="hover:text-primary cursor-pointer transition-colors">Admin</span>
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <span className="material-symbols-outlined font-bold">chevron_right</span>
                         <span className="text-primary">Order Payment</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Order Payment</h2>
-                    <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">View and verify manual payment submissions from users.</p>
+                    <h2 className="font-bold text-slate-800 tracking-tight">Order Payment</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">View and verify manual payment submissions from users.</p>
                 </div>
 
                 {/* Filters */}
@@ -110,7 +117,7 @@ export default function OrderPayments() {
                         <input
                             type="text"
                             placeholder="Order #, User, Reference..."
-                            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium shadow-sm"
+                            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium shadow-sm"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -119,7 +126,7 @@ export default function OrderPayments() {
                     <select
                         value={statusFilter}
                         onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                        className="px-6 py-3.5 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-600 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all shadow-sm appearance-none min-w-[160px]"
+                        className="px-6 py-3.5 bg-white border border-slate-100 rounded-2xl font-bold text-slate-600 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all shadow-sm appearance-none min-w-[160px]"
                     >
                         <option value="">All Status</option>
                         <option value="PENDING">Pending</option>
@@ -135,12 +142,12 @@ export default function OrderPayments() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Order Info</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">User Details</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Info</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Proof</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                <th className="px-8 py-6 font-bold text-slate-400 uppercase tracking-widest">Order Info</th>
+                                <th className="px-8 py-6 font-bold text-slate-400 uppercase tracking-widest">User Details</th>
+                                <th className="px-8 py-6 font-bold text-slate-400 uppercase tracking-widest">Payment Info</th>
+                                <th className="px-8 py-6 font-bold text-slate-400 uppercase tracking-widest">Proof</th>
+                                <th className="px-8 py-6 font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-6 font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -154,20 +161,20 @@ export default function OrderPayments() {
                                 <tr key={payment.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-6">
                                         <div className="space-y-1">
-                                            <div className="text-sm font-bold text-slate-700">#{payment.order_number}</div>
-                                            <div className="text-[10px] font-black text-primary tracking-widest uppercase">₹{payment.total_amount}</div>
+                                            <div className="font-bold text-slate-700">#{payment.order_number}</div>
+                                            <div className="font-bold text-primary tracking-widest uppercase">₹{payment.total_amount}</div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="space-y-1">
-                                            <div className="text-sm font-bold text-slate-700">{payment.user_name}</div>
-                                            <div className="text-xs text-slate-400 font-medium">{payment.user_email}</div>
+                                            <div className="font-bold text-slate-700">{payment.user_name}</div>
+                                            <div className="text-slate-400 font-bold">{payment.user_email}</div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="space-y-1">
-                                            <div className="text-xs font-bold text-slate-600">{payment.payment_type}</div>
-                                            <div className="text-[10px] text-slate-400 font-medium tracking-wider">Ref: {payment.transaction_reference}</div>
+                                            <div className="font-bold text-slate-600">{payment.payment_type}</div>
+                                            <div className="text-slate-400 font-bold tracking-wider">Ref: {payment.transaction_reference}</div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
@@ -205,7 +212,7 @@ export default function OrderPayments() {
                                                 </button>
                                             </div>
                                         )}
-                                        <div className="text-[10px] text-slate-400 font-medium group-hover:hidden uppercase tracking-widest">
+                                        <div className="font-bold text-slate-400 group-hover:hidden uppercase tracking-widest">
                                             {new Date(payment.created_at).toLocaleDateString()}
                                         </div>
                                     </td>
@@ -222,38 +229,14 @@ export default function OrderPayments() {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                        <p className="text-xs font-bold text-slate-400">
-                            Showing page <span className="text-primary">{currentPage}</span> of {totalPages}
-                        </p>
-                        <div className="flex items-center gap-2">
-                            <button
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => prev - 1)}
-                                className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                            >
-                                <span className="material-symbols-outlined">chevron_left</span>
-                            </button>
-                            {Array.from({ length: totalPages }).map((_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setCurrentPage(i + 1)}
-                                    className={`w-10 h-10 rounded-xl text-xs font-bold transition-all ${currentPage === i + 1 ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:bg-white hover:text-primary border border-transparent hover:border-slate-200'}`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                            <button
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                                className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                            >
-                                <span className="material-symbols-outlined">chevron_right</span>
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={payments.length * totalPages} // Approximation since we don't have total count in state
+                    itemsPerPage={itemsPerPage}
+                    label="payments"
+                />
             </div>
 
             {/* Image Preview Modal */}
@@ -287,19 +270,19 @@ export default function OrderPayments() {
                             </span>
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-slate-800">
+                            <h3 className="font-bold text-slate-800">
                                 {actionModal.action === 'APPROVE' ? 'Approve Payment?' : 'Reject Payment?'}
                             </h3>
-                            <p className="text-xs text-slate-500 font-medium px-4">
+                            <p className="font-bold text-slate-500 px-4">
                                 Confirm the manual payment for Order <span className="font-bold">#{actionModal.payment.order_number}</span>.
                             </p>
                         </div>
 
                         <div className="space-y-2 text-left">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">Comment (Optional)</label>
+                            <label className="font-bold text-slate-400 uppercase tracking-widest ml-1 block">Comment (Optional)</label>
                             <textarea
                                 placeholder="Add a reason or transaction info..."
-                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium resize-none"
+                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium resize-none"
                                 value={actionModal.comment}
                                 onChange={(e) => setActionModal({ ...actionModal, comment: e.target.value })}
                             />

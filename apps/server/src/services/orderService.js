@@ -330,8 +330,10 @@ export const getAllOrders = async (filters = {}, limit = 50, offset = 0) => {
         params.push(filters.orderType);
     }
     if (filters.search) {
+        // Clean search term (remove leading #)
+        const cleanSearch = filters.search.startsWith('#') ? filters.search.substring(1) : filters.search;
         conditions.push("(o.order_number LIKE ? OR u.name LIKE ? OR u.phone LIKE ?)");
-        const searchPattern = `%${filters.search}%`;
+        const searchPattern = `%${cleanSearch}%`;
         params.push(searchPattern, searchPattern, searchPattern);
     }
 
@@ -431,8 +433,10 @@ export const getAllOrderPayments = async (filters = {}, limit = 50, offset = 0) 
         params.push(filters.status);
     }
     if (filters.search) {
+        // Clean search term (remove leading #)
+        const cleanSearch = filters.search.startsWith('#') ? filters.search.substring(1) : filters.search;
         conditions.push("(o.order_number LIKE ? OR u.name LIKE ? OR op.transaction_reference LIKE ?)");
-        const searchPattern = `%${filters.search}%`;
+        const searchPattern = `%${cleanSearch}%`;
         params.push(searchPattern, searchPattern, searchPattern);
     }
 

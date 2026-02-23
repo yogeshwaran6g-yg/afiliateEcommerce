@@ -21,7 +21,11 @@ export default function Products() {
         isError: isProductsError
     } = useGetProducts(filters);
 
-    const products = productsData?.success ? productsData.data : [];
+    const products = productsData?.success
+        ? (Array.isArray(productsData.data)
+            ? productsData.data
+            : (productsData.data?.products || []))
+        : [];
 
     const sortBy = filters.sort;
     const selectedCategory = filters.category_id;
@@ -71,7 +75,7 @@ export default function Products() {
                     /> */}
 
                     {/* Sort Dropdown */}
-                    <SortFilter 
+                    <SortFilter
                         activeSort={sortBy}
                         onSortChange={setSortBy}
                     />

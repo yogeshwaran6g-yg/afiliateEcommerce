@@ -1,16 +1,34 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserNotification } from "../hooks/useUserNotification";
 import { toast } from "react-toastify";
 
 export default function Header({ title = "Analytics Overview", onMenuClick }) {
     // Use unread_only to get the count for the bell
     const { data } = useUserNotification({ unread_only: true, limit: 100 });
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const [headerSearch, setHeaderSearch] = useState("");
+
     // Calculate count from items to be safer than total
     // If we have items but no total, use items length. 
     // If we have no items but server says total=5, we trust items (0) because it means 5 are likely not reachable or already read.
     const unreadCount = data?.items?.filter(n => !n.is_read).length || 0;
     const [hasToastShown, setHasToastShown] = useState(false);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (headerSearch.trim()) {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/orders')) {
+                navigate(`/orders?search=${encodeURIComponent(headerSearch)}`);
+            } else if (currentPath.includes('/order-payment')) {
+                navigate(`/order-payment?orderNumber=${encodeURIComponent(headerSearch)}`);
+            } else {
+                navigate(`/users?search=${encodeURIComponent(headerSearch)}`);
+            }
+        }
+    };
 
     // Show toast on refresh if there are unread notifications
     useEffect(() => {
@@ -38,14 +56,18 @@ export default function Header({ title = "Analytics Overview", onMenuClick }) {
             <div className="flex items-center gap-1.5 md:gap-6 shrink-0">
                 {/* Search Bar - Hidden on mobile/tablet */}
                 <div className="relative hidden lg:block w-64 xl:w-96">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
-                        search
-                    </span>
-                    <input
-                        type="text"
-                        placeholder="Search accounts, txns..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm transition-all"
-                    />
+                    <form onSubmit={handleSearch}>
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
+                            search
+                        </span>
+                        <input
+                            type="text"
+                            placeholder="Search accounts, txns..."
+                            value={headerSearch}
+                            onChange={(e) => setHeaderSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm transition-all"
+                        />
+                    </form>
                 </div>
 
                 {/* Date Selector - Compact on mobile */}
