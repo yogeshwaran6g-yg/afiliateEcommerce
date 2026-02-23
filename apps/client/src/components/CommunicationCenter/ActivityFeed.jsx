@@ -28,7 +28,7 @@ const ActivityFeed = ({
                     </span>
                 </div>
                 <div className="flex border-b border-slate-200 gap-6 overflow-x-auto no-scrollbar">
-                    {["All", "Unread", "Earnings", "Announcements"].map((tab) => (
+                    {["All", "Unread", "Announcements"].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
