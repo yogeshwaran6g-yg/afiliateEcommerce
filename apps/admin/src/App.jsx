@@ -22,6 +22,8 @@ import UserNotifications from "./pages/UserNotifications";
 import Notifications from "./pages/Notifications";
 import Categories from "./pages/Categories";
 import ReferralLink from "./pages/ReferralLink";
+import OrderTracking from "./pages/OrderTracking";
+import OrderPayments from "./pages/OrderPayments";
 
 import Layout from "./components/Layout";
 
@@ -68,6 +70,8 @@ function App() {
             <Route path="/kyc/:userId" element={<KYCDetails />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
+            <Route path="/order-tracking" element={<OrderTracking />} />
+            <Route path="/order-payment" element={<OrderPayments />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/user-notifications/send/:userId" element={<UserNotifications />} />

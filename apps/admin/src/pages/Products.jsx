@@ -372,7 +372,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">AVAILABILITY STATUS</label>
                             <div className="h-px flex-1 bg-slate-100"></div>
                         </div>
-                        <div className="flex items-center gap-6 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 inline-flex">
+                        <div className="flex items-center gap-6 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                             <label className="flex items-center gap-2.5 cursor-pointer group">
                                 <div className="relative flex items-center">
                                     <input
@@ -445,6 +445,8 @@ export default function Products() {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const IMAGE_BASE_URL = 'http://localhost:4000/uploads/products/';
 
     const getProductImages = (prod) => {
@@ -532,6 +534,16 @@ export default function Products() {
         p.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (p.category_name && p.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+    // Reset to first page when searching
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     if (loading) {
         return (
@@ -631,13 +643,15 @@ export default function Products() {
                             <span className="material-symbols-outlined font-bold">tune</span>
                         </button>
                         <div className="hidden md:block w-px h-8 bg-slate-100 mx-2"></div>
-                        <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">Showing {filteredProducts.length} of {products.length} results</p>
+                        <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">
+                            Showing {filteredProducts.length > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + itemsPerPage, filteredProducts.length)} of {filteredProducts.length} results
+                        </p>
                     </div>
                 </div>
 
                 {/* Mobile Grid Layout (Visible on small screens) */}
                 <div className="block md:hidden p-4 space-y-4">
-                    {filteredProducts.map((prod, i) => {
+                    {paginatedProducts.map((prod, i) => {
                         const images = getProductImages(prod);
                         const imageUrl = getFirstImageUrl(images);
 
@@ -712,7 +726,7 @@ export default function Products() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {filteredProducts.map((prod, i) => {
+                            {paginatedProducts.map((prod, i) => {
                                 const images = getProductImages(prod);
                                 const imageUrl = getFirstImageUrl(images);
 
@@ -770,6 +784,67 @@ export default function Products() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                <span className="material-symbols-outlined font-bold">chevron_left</span>
+                            </button>
+
+                            <div className="flex items-center gap-1">
+                                {[...Array(totalPages)].map((_, i) => {
+                                    const pageNum = i + 1;
+                                    // Basic logic to show limited page numbers if there are too many
+                                    if (
+                                        totalPages <= 7 ||
+                                        pageNum === 1 ||
+                                        pageNum === totalPages ||
+                                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                    ) {
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => setCurrentPage(pageNum)}
+                                                className={`w-10 h-10 flex items-center justify-center rounded-xl text-[11px] font-black transition-all ${currentPage === pageNum
+                                                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
+                                                    }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        );
+                                    } else if (
+                                        (pageNum === currentPage - 2 && pageNum > 1) ||
+                                        (pageNum === currentPage + 2 && pageNum < totalPages)
+                                    ) {
+                                        return <span key={pageNum} className="px-1 text-slate-400">...</span>;
+                                    }
+                                    return null;
+                                })}
+                            </div>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                <span className="material-symbols-outlined font-bold">chevron_right</span>
+                            </button>
+                        </div>
+
+                        <div className="hidden sm:block">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                Page {currentPage} of {totalPages}
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <ProductDrawer

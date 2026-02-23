@@ -442,3 +442,76 @@ export const getOrderByIdAdmin = async (orderId) => {
 
   return { ...order, items, tracking };
 };
+
+/**
+ * Adds a new tracking update for an order.
+ */
+export const addOrderTracking = async (orderId, title, description) => {
+    const [result] = await pool.execute(
+        `INSERT INTO order_tracking (order_id, title, description, status_time) 
+         VALUES (?, ?, ?, NOW())`,
+        [orderId, title, description]
+    );
+
+    // Also update order status if title matches certain keywords (optional but helpful)
+    const upperTitle = title.toUpperCase();
+    let newStatus = null;
+    if (upperTitle.includes('SHIPPED')) newStatus = 'SHIPPED';
+    else if (upperTitle.includes('OUT FOR DELIVERY')) newStatus = 'OUT_FOR_DELIVERY';
+    else if (upperTitle.includes('DELIVERED')) newStatus = 'DELIVERED';
+    else if (upperTitle.includes('CANCEL')) newStatus = 'CANCELLED';
+
+    if (newStatus) {
+        await pool.execute('UPDATE orders SET status = ? WHERE id = ?', [newStatus, orderId]);
+    }
+
+    return { id: result.insertId, orderId, title, description };
+};
+
+/**
+ * Fetches all order payments (admin view) with pagination and basic filters.
+ */
+export const getAllOrderPayments = async (filters = {}, limit = 50, offset = 0) => {
+    let query = `
+        SELECT op.*, o.order_number, o.total_amount, u.name as user_name, u.email as user_email, u.phone as user_phone
+        FROM order_payments op
+        JOIN orders o ON op.order_id = o.id
+        JOIN users u ON o.user_id = u.id
+    `;
+    const params = [];
+    const conditions = [];
+
+    if (filters.status) {
+        conditions.push("op.status = ?");
+        params.push(filters.status);
+    }
+    if (filters.search) {
+        conditions.push("(o.order_number LIKE ? OR u.name LIKE ? OR op.transaction_reference LIKE ?)");
+        const searchPattern = `%${filters.search}%`;
+        params.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
+    query += " ORDER BY op.created_at DESC LIMIT ? OFFSET ?";
+    params.push(parseInt(limit), parseInt(offset));
+
+    const [payments] = await pool.query(query, params);
+
+    // Count total for pagination
+    let countQuery = `
+        SELECT COUNT(*) as total 
+        FROM order_payments op 
+        JOIN orders o ON op.order_id = o.id 
+        JOIN users u ON o.user_id = u.id
+    `;
+    if (conditions.length > 0) {
+        countQuery += " WHERE " + conditions.join(" AND ");
+    }
+    const [countResult] = await pool.query(countQuery, params.slice(0, -2));
+    const total = countResult[0]?.total || 0;
+
+    return { payments, total };
+};

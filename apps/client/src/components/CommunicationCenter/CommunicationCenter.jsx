@@ -32,11 +32,6 @@ const CommunicationCenter = () => {
 
         if (activeTab === "Unread") {
             filtered = userNotifications.filter(n => !n.is_read);
-        } else if (activeTab === "Earnings") {
-            filtered = userNotifications.filter(n =>
-                n.type?.toLowerCase() === 'earning' ||
-                n.type?.toLowerCase() === 'commission'
-            );
         }
 
         return filtered.map(notif => {

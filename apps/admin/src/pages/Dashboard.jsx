@@ -37,85 +37,112 @@ export default function Dashboard() {
         );
     }
 
-    const cards = [
+    const categories = [
         {
-            title: "Active Users",
-            value: stats?.activeUsers || 0,
-            icon: "person_check",
-            iconBg: "bg-emerald-100",
-            iconColor: "text-emerald-600",
-            showPulse: true
+            name: "User Statistics",
+            cards: [
+                {
+                    title: "Active Users",
+                    value: stats?.activeUsers || 0,
+                    icon: "person_check",
+                    iconBg: "bg-emerald-100",
+                    iconColor: "text-emerald-600",
+                    showPulse: true
+                },
+                {
+                    title: "Pending Users",
+                    value: stats?.pendingUsers || 0,
+                    icon: "person_search",
+                    iconBg: "bg-amber-100",
+                    iconColor: "text-amber-600"
+                },
+                {
+                    title: "Total Users",
+                    value: stats?.totalUsers || 0,
+                    icon: "group",
+                    iconBg: "bg-blue-100",
+                    iconColor: "text-blue-600"
+                }
+            ]
         },
         {
-            title: "Pending Users",
-            value: stats?.pendingUsers || 0,
-            icon: "person_search",
-            iconBg: "bg-amber-100",
-            iconColor: "text-amber-600"
+            name: "Recharge Statistics",
+            cards: [
+                {
+                    title: "Total Recharges",
+                    value: stats?.totalRecharges || 0,
+                    icon: "account_balance_wallet",
+                    iconBg: "bg-indigo-100",
+                    iconColor: "text-indigo-600"
+                },
+                {
+                    title: "Pending Recharges",
+                    value: stats?.pendingRecharges || 0,
+                    icon: "pending_actions",
+                    iconBg: "bg-orange-100",
+                    iconColor: "text-orange-600"
+                },
+                {
+                    title: "Today Pending Recharge",
+                    value: stats?.todayPendingRecharges || 0,
+                    icon: "update",
+                    iconBg: "bg-rose-100",
+                    iconColor: "text-rose-600"
+                }
+            ]
         },
         {
-            title: "Total Users",
-            value: stats?.totalUsers || 0,
-            icon: "group",
-            iconBg: "bg-blue-100",
-            iconColor: "text-blue-600"
+            name: "Withdrawal Statistics",
+            cards: [
+                {
+                    title: "Total Withdrawals",
+                    value: stats?.totalWithdrawals || 0,
+                    icon: "payments",
+                    iconBg: "bg-cyan-100",
+                    iconColor: "text-cyan-600"
+                },
+                {
+                    title: "Pending Withdrawals",
+                    value: stats?.pendingWithdrawals || 0,
+                    icon: "hourglass_empty",
+                    iconBg: "bg-yellow-100",
+                    iconColor: "text-yellow-600"
+                },
+                {
+                    title: "Today Pending Withdrawal",
+                    value: stats?.todayPendingWithdrawals || 0,
+                    icon: "event_repeat",
+                    iconBg: "bg-red-100",
+                    iconColor: "text-red-600"
+                }
+            ]
         },
         {
-            title: "Total Orders",
-            value: stats?.totalOrders || 0,
-            icon: "shopping_bag",
-            iconBg: "bg-purple-100",
-            iconColor: "text-purple-600"
-        },
-        {
-            title: "Today's Orders",
-            value: stats?.todayOrders || 0,
-            icon: "today",
-            iconBg: "bg-pink-100",
-            iconColor: "text-pink-600",
-            showPulse: true
-        },
-        {
-            title: "Total Recharges",
-            value: stats?.totalRecharges || 0,
-            icon: "account_balance_wallet",
-            iconBg: "bg-indigo-100",
-            iconColor: "text-indigo-600"
-        },
-        {
-            title: "Pending Recharges",
-            value: stats?.pendingRecharges || 0,
-            icon: "pending_actions",
-            iconBg: "bg-orange-100",
-            iconColor: "text-orange-600"
-        },
-        {
-            title: "Today Pending Recharge",
-            value: stats?.todayPendingRecharges || 0,
-            icon: "update",
-            iconBg: "bg-rose-100",
-            iconColor: "text-rose-600"
-        },
-        {
-            title: "Total Withdrawals",
-            value: stats?.totalWithdrawals || 0,
-            icon: "payments",
-            iconBg: "bg-cyan-100",
-            iconColor: "text-cyan-600"
-        },
-        {
-            title: "Pending Withdrawals",
-            value: stats?.pendingWithdrawals || 0,
-            icon: "hourglass_empty",
-            iconBg: "bg-yellow-100",
-            iconColor: "text-yellow-600"
-        },
-        {
-            title: "Today Pending Withdrawal",
-            value: stats?.todayPendingWithdrawals || 0,
-            icon: "event_repeat",
-            iconBg: "bg-red-100",
-            iconColor: "text-red-600"
+            name: "Order Statistics",
+            cards: [
+                {
+                    title: "Successful Orders",
+                    value: stats?.successfulOrders || 0,
+                    icon: "task_alt",
+                    iconBg: "bg-emerald-100",
+                    iconColor: "text-emerald-600"
+                },
+                {
+                    title: "Pending Orders",
+                    value: stats?.pendingOrders || 0,
+                    icon: "shopping_cart",
+                    iconBg: "bg-amber-100",
+                    iconColor: "text-amber-600"
+                },
+                {
+                    title: "Today's Orders",
+                    value: stats?.todayOrders || 0,
+                    icon: "today",
+                    iconBg: "bg-pink-100",
+                    iconColor: "text-pink-600",
+                    showPulse: true
+                }
+            ]
         }
     ];
 
@@ -135,10 +162,20 @@ export default function Dashboard() {
                 </button>
             </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {cards.map((card, index) => (
-                    <MetricCard key={index} {...card} />
+            {/* Categorized Metrics Grid */}
+            <div className="space-y-8">
+                {categories.map((category, catIndex) => (
+                    <div key={catIndex} className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl font-bold text-[#172b4d]">{category.name}</h2>
+                            <div className="h-[1px] flex-grow bg-slate-200"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {category.cards.map((card, index) => (
+                                <MetricCard key={index} {...card} />
+                            ))}
+                        </div>
+                    </div>
                 ))}
             </div>
         </div>

@@ -24,7 +24,7 @@ const withdrawalController = {
         try {
             const filters = {};
             if (req.user.role !== 'ADMIN') {
-                filters.userId = req.user.id; // Future proofing: filter by user if not admin
+                filters.userId = req.user.id;
             }
             if (req.query.status) filters.status = req.query.status;
 

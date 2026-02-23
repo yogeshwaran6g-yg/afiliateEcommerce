@@ -39,6 +39,26 @@ const orderApiService = {
             console.error('Error in orderApiService.getOrderDetails:', error);
             throw error;
         }
+    },
+
+    addOrderTracking: async (orderId, title, description) => {
+        try {
+            const data = await api.post(`/admin/orders/${orderId}/tracking`, { title, description });
+            return data.data;
+        } catch (error) {
+            console.error('Error in orderApiService.addOrderTracking:', error);
+            throw error;
+        }
+    },
+
+    getOrderPayments: async (filters = {}) => {
+        try {
+            const data = await api.get("/admin/order-payments", { params: filters });
+            return data.data;
+        } catch (error) {
+            console.error('Error in orderApiService.getOrderPayments:', error);
+            throw error;
+        }
     }
 };
 

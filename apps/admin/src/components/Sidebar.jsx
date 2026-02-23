@@ -5,7 +5,11 @@ import { useAuth } from "../context/AuthContext";
 export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }) {
     const location = useLocation();
     const { user, logout } = useAuth();
-    const [openDropdown, setOpenDropdown] = useState(location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') || location.pathname.includes('wallet-transactions') ? 'Transactions' : null);
+    const [openDropdown, setOpenDropdown] = useState(
+        location.pathname.includes('recharges') || location.pathname.includes('withdrawals') || location.pathname.includes('transactions') || location.pathname.includes('wallet-transactions') ? 'Transactions' :
+            location.pathname.includes('orders') || location.pathname.includes('order-payment') ? 'Orders' :
+                null
+    );
 
     const sections = [
         {
@@ -13,7 +17,14 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
             items: [
                 { icon: "dashboard", label: "Dashboard", path: "/" },
                 { icon: "inventory_2", label: "Products", path: "/products" },
-                { icon: "shopping_cart", label: "Orders", path: "/orders" },
+                {
+                    icon: "shopping_cart",
+                    label: "Orders",
+                    subItems: [
+                        { label: "Order Management", path: "/orders" },
+                        { label: "Order Payment", path: "/order-payment" },
+                    ]
+                },
                 { icon: "campaign", label: "Announcements", path: "/announcements" },
                 { icon: "person_search", label: "User Management", path: "/users" },
                 { icon: "confirmation_number", label: "Tickets", path: "/tickets" },

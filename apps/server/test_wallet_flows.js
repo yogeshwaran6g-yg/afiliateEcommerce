@@ -13,7 +13,7 @@ async function testFlows() {
         // --- Withdrawal Approval Test ---
         console.log("\nTesting Withdrawal Approval...");
         // Mock a request by inserting into DB directly for test
-        const [wrResult] = await queryRunner(
+        const wrResult = await queryRunner(
             'INSERT INTO withdrawal_requests (user_id, amount, platform_fee, net_amount, status) VALUES (?, ?, ?, ?, "REVIEW_PENDING")',
             [userId, 1000, 50, 950]
         );

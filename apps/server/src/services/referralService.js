@@ -175,20 +175,20 @@ export const getReferralOverview = async (uplineId) => {
     const levelsData = statsResult.data.map((lvlStat) => {
       const levelMembers = allReferrals
         ? allReferrals
-            .filter((r) => r.level === lvlStat.level)
-            .map((r) => ({
-              id: r.downline_id,
-              name: r.name,
-              email: r.email,
-              joinedAt: r.joined_at,
-              referrer: r.referrer_id
-                ? {
-                    id: r.referrer_id,
-                    name: r.referrer_name,
-                  }
-                : null,
-              downlineEarnings: Number(r.downline_earnings),
-            }))
+          .filter((r) => r.level === lvlStat.level)
+          .map((r) => ({
+            id: r.downline_id,
+            name: r.name,
+            email: r.email,
+            joinedAt: r.joined_at,
+            referrer: r.referrer_id
+              ? {
+                id: r.referrer_id,
+                name: r.referrer_name,
+              }
+              : null,
+            downlineEarnings: Number(r.downline_earnings),
+          }))
         : [];
 
       return {
@@ -261,7 +261,7 @@ export const getDirectReferrals = async (uplineId, page = 1, limit = 10) => {
       JOIN users u ON u.id = rt.downline_id
       WHERE rt.upline_id = ? AND rt.level = 1
       ORDER BY u.created_at DESC
-      LIMIT ? OFFSET ?;
+      LIMIT ${l} OFFSET ${offset};
     `;
 
     const statsSql = `
@@ -273,7 +273,7 @@ export const getDirectReferrals = async (uplineId, page = 1, limit = 10) => {
     `;
 
     const [directReferrals, [stats]] = await Promise.all([
-      queryRunner(referralsSql, [uplineId, uplineId, Number(limit), Number(offset)]),
+      queryRunner(referralsSql, [uplineId, uplineId]),
       queryRunner(statsSql, [uplineId]),
     ]);
 
@@ -306,12 +306,13 @@ export const getDirectReferrals = async (uplineId, page = 1, limit = 10) => {
     throw error;
   }
 };
+
 export const getTeamMembersByLevel = async (uplineId, level, page = 1, limit = 10) => {
   try {
     const p = Math.max(1, Number(page));
     const l = Math.max(1, Number(limit));
     const offset = (p - 1) * l;
-    
+
     // 1. Get total count for pagination
     const countSql = `
       SELECT COUNT(DISTINCT rt.downline_id) as total
@@ -356,10 +357,10 @@ export const getTeamMembersByLevel = async (uplineId, level, page = 1, limit = 1
         ON referrer.id = direct_referrer_tree.upline_id
       WHERE rt.upline_id = ? AND rt.level = ?
       ORDER BY u.created_at DESC
-      LIMIT ? OFFSET ?;
+      LIMIT ${l} OFFSET ${offset};
     `;
 
-    const members = await queryRunner(sql, [uplineId, uplineId, level, Number(limit), Number(offset)]);
+    const members = await queryRunner(sql, [uplineId, uplineId, level]);
 
     return {
       success: true,
@@ -414,9 +415,9 @@ export const getRecursiveTree = async (uplineId, maxDepth = 6) => {
         JOIN users u ON u.id = rt.downline_id
         WHERE rt.upline_id = ? AND rt.level = 1
       `;
-      
+
       const children = await queryRunner(sql, [currentId, currentId]);
-      
+
       const treeChildren = await Promise.all(
         (children || []).map(async (child) => {
           const subChildren = await buildTree(child.id, currentLevel + 1, targetLevel);

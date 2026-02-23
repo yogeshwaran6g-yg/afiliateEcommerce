@@ -351,6 +351,8 @@ const adminService = {
                 pendingWithdrawals: "SELECT COUNT(*) as count FROM withdrawal_requests WHERE status = 'REVIEW_PENDING'",
                 todayPendingWithdrawals: `SELECT COUNT(*) as count FROM withdrawal_requests WHERE status = 'REVIEW_PENDING' AND created_at >= '${todayStr}'`,
                 totalOrders: "SELECT COUNT(*) as count FROM orders",
+                successfulOrders: "SELECT COUNT(*) as count FROM orders WHERE status = 'COMPLETED'",
+                pendingOrders: "SELECT COUNT(*) as count FROM orders WHERE status = 'PENDING'",
                 todayOrders: `SELECT COUNT(*) as count FROM orders WHERE created_at >= '${todayStr}'`
             };
 
@@ -367,7 +369,8 @@ const adminService = {
             return stats;
         } catch (error) {
             log(`Error in getDashboardStats Service: ${error.message}`, "error");
-        }},
+        }
+    },
     getTransactionMetrics: async () => {
         try {
             // Gross Volume (24h) - total credits in last 24h
