@@ -5,7 +5,7 @@ export const REFERRAL_KEYS = {
     overview: ["referral", "overview"],
     direct: ["referral", "direct"],
     teamMembers: (level, page, limit) => ["referral", "team", level, page, limit],
-    tree: (depth) => ["referral", "tree", depth],
+    tree: (uplineId, depth) => ["referral", "tree", uplineId, depth],
 };
 
 export const useReferralOverview = () => {
@@ -32,11 +32,11 @@ export const useTeamMembers = (level, page = 1, limit = 10) => {
     });
 };
 
-export const useNetworkTree = (depth = 6) => {
+export const useNetworkTree = (uplineId = null, depth = 1) => {
     return useQuery({
-        queryKey: REFERRAL_KEYS.tree(depth),
+        queryKey: REFERRAL_KEYS.tree(uplineId, depth),
         queryFn: async () => {
-            const response = await referralService.getNetworkTree(depth);
+            const response = await referralService.getNetworkTree(uplineId, depth);
             return response?.data || response;
         },
         staleTime: 1000 * 60 * 5, // 5 minutes

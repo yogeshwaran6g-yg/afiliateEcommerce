@@ -218,7 +218,10 @@ const UserDetailsContent = ({
                                 <p className="text-[10px] text-slate-500">History for current node</p>
                             </div>
                         </div>
-                        <button className="px-4 py-2 border border-slate-200 text-xs font-bold text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
+                        <button
+                            onClick={() => navigate(`/transactions?userId=${userId}`)}
+                            className="px-4 py-2 border border-slate-200 text-xs font-bold text-slate-600 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
                             View All
                         </button>
                     </div>

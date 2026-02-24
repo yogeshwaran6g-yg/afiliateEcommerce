@@ -8,7 +8,7 @@ import Products from "./pages/Products";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
 import UserDetails from "./pages/UserDetails";
-import Transactions from "./pages/Transactions";
+import WalletTransactions from "./pages/WalletTransactions";
 import Recharges from "./pages/Recharges";
 import Withdrawals from "./pages/Withdrawals";
 import KYCVerification from "./pages/KYCVerification";
@@ -17,7 +17,7 @@ import Login from "./pages/Login";
 import Tickets from "./pages/Tickets";
 import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
-import WalletTransactions from "./pages/WalletTransactions";
+
 import UserNotifications from "./pages/UserNotifications";
 import Notifications from "./pages/Notifications";
 import Categories from "./pages/Categories";
@@ -54,13 +54,13 @@ function App() {
             <Route path="/genealogy" element={<Genealogy />} />
             <Route path="/genealogy/:userId" element={<Genealogy />} />
             <Route path="/payouts" element={<Payouts />} />
-            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/transactions" element={<WalletTransactions />} />
             <Route path="/products" element={<Products />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/recharges" element={<Recharges />} />
             <Route path="/withdrawals" element={<Withdrawals />} />
-            <Route path="/wallet-transactions" element={<WalletTransactions />} />
+
 
             <Route path="/users" element={<Users />} />
             <Route path="/users/:userId" element={<UserDetails />} />

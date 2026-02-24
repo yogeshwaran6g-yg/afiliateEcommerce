@@ -27,61 +27,92 @@ import NetworkStats from "./components/NetworkStats";
 import TreeNode from "./components/TreeNode";
 import MemberDetailsModal from "./components/MemberDetailsModal";
 import { useNetworkTree } from "../../hooks/useReferrals";
+import referralService from "../../services/referralService";
 
 const NetworkTree = () => {
-  const { data: treeData, isLoading, isError, refetch } = useNetworkTree();
+  const { data: initialData, isLoading: initialLoading, isError, refetch } = useNetworkTree(null, 1);
   const [currentRoot, setCurrentRoot] = useState(null);
-  const [maxVisibleDepth, setMaxVisibleDepth] = useState(1);
-  const [currentLevel, setCurrentLevel] = useState(0);
+  const [viewPath, setViewPath] = useState([]); // Array of {id, name, node}
+  const [maxVisibleDepth] = useState(6);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [expandedNodes, setExpandedNodes] = useState(new Set());
+  const [loadingNodes, setLoadingNodes] = useState(new Set());
 
   useEffect(() => {
-    if (treeData) {
-      setCurrentRoot(treeData);
-      setExpandedNodes(new Set([treeData.id]));
+    if (initialData && viewPath.length === 0) {
+      setCurrentRoot(initialData);
+      setExpandedNodes(new Set([initialData.id]));
     }
-  }, [treeData]);
+  }, [initialData, viewPath]);
 
-  const handleToggleExpand = (nodeId) => {
-    setExpandedNodes((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(nodeId)) {
-        newSet.delete(nodeId);
-      } else {
-        newSet.add(nodeId);
+  const handleToggleExpand = async (nodeId, shouldFetch = false) => {
+    // Only the current root should be expanded in the drill-down view
+    if (nodeId !== currentRoot?.id) return;
+
+    if (shouldFetch) {
+      setLoadingNodes((prev) => new Set(prev).add(nodeId));
+      try {
+        const response = await referralService.getNetworkTree(nodeId, 1);
+        const subTree = response?.data || response;
+        if (subTree) {
+          setCurrentRoot(subTree);
+        }
+      } catch (error) {
+        console.error("Failed to fetch sub-tree:", error);
+      } finally {
+        setLoadingNodes((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(nodeId);
+          return newSet;
+        });
       }
-      return newSet;
-    });
+    }
+    setExpandedNodes(new Set([nodeId]));
   };
 
-  const expandAll = () => {
-    const allIds = [];
-    const traverse = (node) => {
-      allIds.push(node.id);
-      node.children?.forEach(traverse);
-    };
-    if (currentRoot) traverse(currentRoot);
-    setExpandedNodes(new Set(allIds));
+  const handleViewTree = async (node) => {
+    // Move current root to view path
+    setViewPath((prev) => [...prev, currentRoot]);
+    
+    setLoadingNodes((prev) => new Set(prev).add(node.id));
+    try {
+      // Fetch directs for the selected node
+      const response = await referralService.getNetworkTree(node.id, 1);
+      const subTree = response?.data || response;
+      if (subTree) {
+        setCurrentRoot(subTree);
+        setExpandedNodes(new Set([subTree.id]));
+      }
+    } catch (error) {
+      console.error("Failed to fetch downline:", error);
+    } finally {
+      setLoadingNodes((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(node.id);
+        return newSet;
+      });
+    }
   };
 
-  const collapseAll = () => {
-    if (currentRoot) setExpandedNodes(new Set([currentRoot.id]));
-  };
-
-  const handleViewTree = (node) => {
-    setCurrentRoot(node);
-    setCurrentLevel(node.level);
-    setMaxVisibleDepth(1);
-    setExpandedNodes(new Set([node.id]));
+  const navigateBack = (index) => {
+    if (index === -1) {
+      setCurrentRoot(initialData);
+      setViewPath([]);
+      setExpandedNodes(new Set([initialData.id]));
+    } else {
+      const newPath = viewPath.slice(0, index);
+      const targetNode = viewPath[index];
+      setCurrentRoot(targetNode);
+      setViewPath(newPath);
+      setExpandedNodes(new Set([targetNode.id]));
+    }
   };
 
   const returnToFullTree = () => {
-    setCurrentRoot(treeData);
-    setCurrentLevel(0);
-    setMaxVisibleDepth(1);
-    setExpandedNodes(new Set([treeData.id]));
+    setCurrentRoot(initialData);
+    setViewPath([]);
+    setExpandedNodes(new Set([initialData.id]));
   };
 
   const handleOpenModal = (node) => {
@@ -89,7 +120,7 @@ const NetworkTree = () => {
     setIsModalOpen(true);
   };
 
-  if (isLoading) {
+  if (initialLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
@@ -149,108 +180,122 @@ const NetworkTree = () => {
                 onClick={() => refetch()}
                 className="p-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg transition-all shadow-sm hover:bg-slate-50 active:scale-95"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${initialLoading ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Breadcrumbs Navigation */}
+        <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button
+            onClick={() => navigateBack(-1)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${viewPath.length === 0 ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+          >
+            <Home className="w-3.5 h-3.5" />
+            My Network
+          </button>
+          
+          {viewPath.map((node, index) => (
+            <React.Fragment key={node.id}>
+              <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+              <button
+                onClick={() => navigateBack(index)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-slate-500 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all whitespace-nowrap"
+              >
+                {node.name}
+              </button>
+            </React.Fragment>
+          ))}
+
+          {viewPath.length > 0 && (
+            <>
+              <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold whitespace-nowrap">
+                {currentRoot.name}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Ultra-Compact Stats Row */}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 py-1.5 border-y border-slate-100 mb-3 min-h-[32px]">
           <div className="flex items-center gap-1">
             <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Total People:</span>
-            <span className="text-xs font-bold text-slate-700">{treeData ? (treeData.networkSize + 1).toLocaleString() : "0"}</span>
+            <span className="text-xs font-bold text-slate-700">{initialData ? (initialData.networkSize + 1).toLocaleString() : "0"}</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Direct Referrals:</span>
-            <span className="text-xs font-bold text-slate-700">{treeData?.directRefs || "0"}</span>
+            <span className="text-xs font-bold text-slate-700">{initialData?.directRefs || "0"}</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Active Members:</span>
-            <span className="text-xs font-bold text-slate-700">{treeData?.activeMembers || "0"}</span>
+            <span className="text-xs font-bold text-slate-700">{initialData?.activeMembers || "0"}</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Commission:</span>
-            <span className="text-xs font-bold text-slate-700">₹{treeData?.earnings?.toLocaleString() || "0"}</span>
+            <span className="text-xs font-bold text-slate-700">₹{initialData?.earnings?.toLocaleString() || "0"}</span>
           </div>
         </div>
 
         {/* Depth Limit Banner - Simplified */}
-        {currentLevel > 0 && (
-          <div className="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 md:p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="p-3 bg-amber-100 rounded-lg">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
+        {viewPath.length > 0 && (
+          <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-100 rounded-lg">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
               </div>
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="font-bold text-slate-900 text-lg">
-                  Focused View Active
-                </h3>
-                <p className="text-sm text-slate-600">
-                  Currently exploring <span className="text-amber-700 font-bold">{currentRoot.name}'s</span> downline.
-                  Showing up to <span className="font-bold">{maxVisibleDepth} deep</span>.
+              <div className="flex-1">
+                <p className="text-xs text-slate-600">
+                  Exploring <span className="text-amber-700 font-bold">{currentRoot.name}'s</span> downline.
+                  Currently at <span className="font-bold text-amber-700">Level {currentRoot.level}</span>.
                 </p>
               </div>
               <button
                 onClick={returnToFullTree}
-                className="px-6 py-2 bg-white hover:bg-amber-100/50 text-amber-600 border border-amber-200 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95"
+                className="px-3 py-1 bg-white hover:bg-amber-100/50 text-amber-600 border border-amber-200 rounded-lg text-[10px] font-bold transition-all shadow-sm active:scale-95"
               >
-                Return Home
+                Return to Root
               </button>
             </div>
           </div>
         )}
 
-        {/* Tree Controls - Simplified Toolbar */}
-        <div className="mb-8 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm sticky top-4 z-40">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <button
-                onClick={expandAll}
-                className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold transition-all border border-slate-200 active:scale-95 uppercase tracking-wide"
-              >
-                <ChevronsDown className="w-3.5 h-3.5 text-primary" />
-                Expand
-              </button>
-              <button
-                onClick={collapseAll}
-                className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold transition-all border border-slate-200 active:scale-95 uppercase tracking-wide"
-              >
-                <ChevronsUp className="w-3.5 h-3.5 text-slate-400" />
-                Collapse
-              </button>
-              <div className="h-8 w-px bg-slate-200 hidden md:block mx-2"></div>
-              <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary rounded-lg border border-primary/10">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <span className="text-xs font-bold uppercase tracking-wider">
-                  LVL {currentLevel} • {currentRoot.networkSize} Members
-                </span>
-              </div>
+        {/* Simplified Toolbar */}
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/5 text-primary rounded-lg border border-primary/10">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              <span className="text-[10px] font-bold uppercase tracking-wider">
+                Showing {currentRoot.directRefs} Direct Referrals
+              </span>
             </div>
+            {loadingNodes.size > 0 && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
+          </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <button className="flex-1 md:w-10 md:h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 rounded-lg transition-all border border-slate-200 text-slate-500">
-                <Filter className="w-4 h-4" />
-              </button>
-              <button className="flex-1 md:w-10 md:h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 rounded-lg transition-all border border-slate-200 text-slate-500">
-                <Download className="w-4 h-4" />
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <button className="p-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg transition-all shadow-sm hover:bg-slate-50">
+              <Filter className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg transition-all shadow-sm hover:bg-slate-50">
+              <Download className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
         {/* Tree View Container - Maximized Height */}
         <div className="relative border border-slate-200 bg-white rounded-2xl p-3 md:p-6 shadow-sm overflow-auto flex-1 h-full scrollbar-hide mb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           <div className="inline-flex min-w-full justify-start items-start py-2">
-            <TreeNode
-              node={currentRoot}
-              maxDepth={maxVisibleDepth + currentLevel}
-              isRoot={currentLevel === 0}
-              expandedNodes={expandedNodes}
-              onToggleExpand={handleToggleExpand}
-              onViewTree={handleViewTree}
-              onOpenModal={handleOpenModal}
-            />
+    <TreeNode
+      node={currentRoot}
+      maxDepth={maxVisibleDepth}
+      isRoot={true}
+      expandedNodes={expandedNodes}
+      loadingNodes={loadingNodes}
+      onToggleExpand={handleToggleExpand}
+      onViewTree={handleViewTree}
+      onOpenModal={handleOpenModal}
+    />
           </div>
         </div>
       </div>

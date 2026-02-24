@@ -457,7 +457,7 @@ export const getRecursiveTree = async (uplineId, maxDepth = 6) => {
       directRefs: rootStats.directRefs,
       networkSize: rootStats.networkSize,
       earnings: Number(rootStats.earnings),
-      children: await buildTree(uplineId, 0, maxDepth)
+      children: maxDepth > 0 ? await buildTree(uplineId, 0, maxDepth) : []
     };
 
     return {

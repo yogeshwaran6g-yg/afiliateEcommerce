@@ -52,6 +52,21 @@ export const queryRunner = async (sql, params = []) => {
 };
 
 
+export const BulkQueryRunner = async (sql, params = []) => {
+  let connection;
+  try {
+    connection = await getConnection();
+    const [rows, fields] = await connection.query(sql, params);
+    return rows;
+  } catch (error) {
+    log(`Query Error: ${error.message}`, "error", { sql, params });
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+
 export const callSP = async (procName, params = [], connection = null) => {
   try {
     const runner = connection || pool;

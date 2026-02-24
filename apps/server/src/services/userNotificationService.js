@@ -1,4 +1,4 @@
-import { queryRunner } from "#src/config/db.js";
+import { queryRunner, BulkQueryRunner } from "#src/config/db.js";
 import { srvRes } from "#src/utils/helper.js";
 
 const userNotificationService = {
@@ -86,7 +86,7 @@ const userNotificationService = {
                 (user_id, title, type, description)
                 VALUES ?
             `;
-      const result = await queryRunner(sql, [values]);
+      const result = await BulkQueryRunner(sql, [values]);
 
       return srvRes(201, `Notified ${result?.affectedRows || 0} admins`);
     } catch (e) {

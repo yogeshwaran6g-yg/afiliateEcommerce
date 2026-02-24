@@ -6,6 +6,7 @@ import {
   MessageCircle,
   Lock,
   Calendar,
+  Loader2,
 } from "lucide-react";
 
 // Simplified level badge colors
@@ -14,13 +15,16 @@ const TreeNode = ({
   maxDepth,
   isRoot = false,
   expandedNodes,
+  loadingNodes = new Set(),
   onToggleExpand,
   onViewTree,
   onOpenModal,
 }) => {
-  const hasChildren = node.children && node.children.length > 0;
+  const isLoading = loadingNodes.has(node.id);
+  const hasLoadedChildren = node.children && node.children.length > 0;
   const isExpanded = expandedNodes.has(node.id);
-  const canExpand = hasChildren && node.level < maxDepth;
+  // canExpand should be true if it has children OR if it has directRefs > 0 (for lazy loading)
+  const canExpand = (hasLoadedChildren || (node.directRefs > 0)) && node.level < maxDepth;
 
   const getLevelBadgeClass = (level) => {
     if (level === 0) return "bg-amber-500";
@@ -92,15 +96,20 @@ const TreeNode = ({
               </div>
             </div>
 
-            {canExpand && (
+            {canExpand && isRoot && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onToggleExpand(node.id);
+                  onToggleExpand(node.id, !hasLoadedChildren);
                 }}
+                disabled={isLoading}
                 className={`p-0.5 md:p-1 rounded-md md:rounded-lg transition-all border shrink-0 ${isExpanded ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100"}`}
               >
-                <ChevronRight className={`w-3 md:w-4 h-3 md:h-4 transition-transform duration-300 ${isExpanded ? "rotate-90" : ""}`} />
+                {isLoading ? (
+                    <Loader2 className="w-3 md:w-4 h-3 md:h-4 animate-spin" />
+                ) : (
+                    <ChevronRight className={`w-3 md:w-4 h-3 md:h-4 transition-transform duration-300 ${isExpanded ? "rotate-90" : ""}`} />
+                )}
               </button>
             )}
           </div>
@@ -135,7 +144,7 @@ const TreeNode = ({
 
           {/* Footer Actions */}
           <div className="flex items-center gap-0.5 md:gap-1 relative z-10">
-            {!isRoot && (
+            {!isRoot && node.level < 6 && node.directRefs > 0 && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -161,7 +170,7 @@ const TreeNode = ({
         </div>
 
         {/* Horizontal connector to Right (Outgoing) */}
-        {isExpanded && hasChildren && (
+        {isExpanded && hasLoadedChildren && (
           <div className="absolute right-[-16px] md:right-[-20px] top-1/2 -translate-y-1/2 flex items-center">
             <div className="w-1.5 h-1.5 rounded-full bg-primary -mr-0.5 z-20" />
             <div className="w-[16px] md:w-[20px] h-px bg-primary/40 shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]" />
@@ -170,7 +179,7 @@ const TreeNode = ({
       </div>
 
       {/* Children Container - Vertical stack on the right */}
-      {isExpanded && hasChildren && (
+      {isExpanded && hasLoadedChildren && (
         <div className="flex flex-col ml-[16px] md:ml-[20px] pl-[16px] md:pl-[20px] border-l border-dashed border-slate-300 space-y-0 py-1">
           {node.children.map((child) => (
             <TreeNode
@@ -178,6 +187,7 @@ const TreeNode = ({
               node={child}
               maxDepth={maxDepth}
               expandedNodes={expandedNodes}
+              loadingNodes={loadingNodes}
               onToggleExpand={onToggleExpand}
               onViewTree={onViewTree}
               onOpenModal={onOpenModal}
@@ -187,7 +197,7 @@ const TreeNode = ({
       )}
 
       {/* Depth Limit Placeholder */}
-      {isExpanded && hasChildren && node.level >= maxDepth && (
+      {isExpanded && hasLoadedChildren && node.level >= maxDepth && (
         <div className="flex flex-col ml-[16px] md:ml-[20px] pl-[16px] md:pl-[20px] border-l border-dashed border-slate-300 py-4">
           <div className="bg-white/50 backdrop-blur-md rounded-2xl border border-slate-200 border-dashed p-5 flex items-center gap-4 max-w-sm shadow-sm group/limit hover:border-primary/40 transition-colors">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-100 shrink-0 group-hover/limit:scale-110 transition-transform">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import walletApiService from "../services/walletApiService";
 
 const STATUS_COLORS = {
@@ -278,12 +279,15 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }) => {
 const TOTAL_PAGES = 5; // Replace with actual pagination logic
 
 export default function WalletTransactions() {
+    const [searchParams] = useSearchParams();
+    const urlUserId = searchParams.get('userId');
+
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
     const [filters, setFilters] = useState({
         search: '',
-        userId: '',
+        userId: urlUserId || '',
         transactionType: '',
         entryType: '',
         status: '',
@@ -303,6 +307,14 @@ export default function WalletTransactions() {
         setIsDetailsModalOpen(false);
         setSelectedTransaction(null);
     };
+
+    useEffect(() => {
+        // Sync urlUserId if it changes (e.g. clicking "View All" from different user profiles without reload)
+        if (urlUserId && filters.userId !== urlUserId) {
+            setFilters(prev => ({ ...prev, userId: urlUserId }));
+            setPagination(prev => ({ ...prev, page: 1 }));
+        }
+    }, [urlUserId]);
 
     useEffect(() => {
         fetchTransactions();

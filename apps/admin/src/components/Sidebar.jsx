@@ -42,8 +42,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
                     icon: "swap_horiz",
                     label: "Transactions",
                     subItems: [
-                        { label: "Record History", path: "/transactions" },
-                        { label: "Wallet Transactions", path: "/wallet-transactions" },
+                        { label: "All Transactions", path: "/transactions" },
                         { label: "Recharges", path: "/recharges" },
                         { label: "Withdrawals", path: "/withdrawals" },
                     ]

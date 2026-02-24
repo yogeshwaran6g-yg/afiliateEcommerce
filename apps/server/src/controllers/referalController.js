@@ -7,6 +7,8 @@ import {
   getTeamMembersByLevel,
   getRecursiveTree,
 } from "#services/referralService.js";
+import { queryRunner } from '#config/db.js';
+
 
 const referalController = {
   createReferral: async (req, res) => {
@@ -103,8 +105,19 @@ const referalController = {
         return rtnRes(res, 401, "Unauthorized");
       }
 
-      const { depth } = req.query;
-      const result = await getRecursiveTree(userId, depth ? Number(depth) : 6);
+      const { depth, uplineId } = req.query;
+      const targetUplineId = uplineId ? Number(uplineId) : userId;
+
+      // Security check: Ensure targetUplineId is the user themselves or in their downline
+      if (targetUplineId !== userId) {
+        const checkSql = `SELECT 1 FROM referral_tree WHERE upline_id = ? AND downline_id = ? LIMIT 1`;
+        const [isDownline] = await queryRunner(checkSql, [userId, targetUplineId]);
+        if (!isDownline) {
+          return rtnRes(res, 403, "Forbidden: You can only view your own downline");
+        }
+      }
+
+      const result = await getRecursiveTree(targetUplineId, depth ? Number(depth) : 1);
       return rtnRes(res, 200, "Network tree fetched successfully", result.data);
     } catch (error) {
       console.error("Error in getNetworkTree:", error);

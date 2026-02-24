@@ -157,19 +157,20 @@ const MemberDetailsModal = ({ member, isOpen, onClose, onViewTree }) => {
           </div>
         </div>
 
-        {/* Action Footer */}
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-slate-100 p-8">
-          <button
-            onClick={() => {
-              onViewTree(member);
-              onClose();
-            }}
-            className="w-full px-6 py-4 bg-primary text-white font-black rounded-2xl transition-all shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 group"
-          >
-            <GitBranch className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            EXPLORE NETWORK
-          </button>
-        </div>
+        {member.level < 6 && member.directRefs > 0 && (
+          <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-slate-100 p-8">
+            <button
+              onClick={() => {
+                onViewTree(member);
+                onClose();
+              }}
+              className="w-full px-6 py-4 bg-primary text-white font-black rounded-2xl transition-all shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 group"
+            >
+              <GitBranch className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              EXPLORE NETWORK
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

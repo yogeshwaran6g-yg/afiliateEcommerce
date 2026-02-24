@@ -20,7 +20,7 @@ const productController = {
             }
 
             // 3. Handle Images
-            const images = req.files ? req.files.map(file => `/uploads/products/${file.filename}`) : [];
+            const images = req.files ? req.files.map(file => file.filename) : [];
             const productData = { ...req.body, images };
 
             const result = await productService.create(productData);
@@ -63,21 +63,25 @@ const productController = {
 
             // Optional price validation
             if (original_price !== undefined || sale_price !== undefined) {
-                const currentProduct = await productService.get({ id });
-                if (!currentProduct.success) return rtnRes(res, 404, "Product not found");
+                const currentProductResult = await productService.get({ id });
+                if (currentProductResult.code !== 200) return rtnRes(res, 404, "Product not found");
 
-                const orig = original_price !== undefined ? parseFloat(original_price) : parseFloat(currentProduct.data[0].original_price);
-                const sale = sale_price !== undefined ? parseFloat(sale_price) : parseFloat(currentProduct.data[0].sale_price);
+                const product = currentProductResult.data[0];
+                const orig = (original_price !== undefined && original_price !== "") ? parseFloat(original_price) : parseFloat(product.original_price);
+                const sale = (sale_price !== undefined && sale_price !== "") ? parseFloat(sale_price) : parseFloat(product.sale_price);
 
-                if (isNaN(orig) || isNaN(sale) || sale > orig) {
-                    return rtnRes(res, 400, "Invalid price values");
+                if (isNaN(orig) || isNaN(sale) || sale > orig || orig < 0 || sale < 0) {
+                    return rtnRes(res, 400, "Invalid price values: Sale price cannot exceed original price and prices must be positive.");
                 }
             }
 
-            // Handle Images (if new images uploaded, potentially merge or replace)
+            // Handle Images (if new images uploaded, replace)
             const productData = { ...req.body };
             if (req.files && req.files.length > 0) {
-                productData.images = req.files.map(file => `/uploads/products/${file.filename}`);
+                productData.images = req.files.map(file => file.filename);
+            } else {
+                // Remove images from payload if no file was uploaded to avoid overwriting existing
+                delete productData.images;
             }
 
             const result = await productService.update(id, productData);

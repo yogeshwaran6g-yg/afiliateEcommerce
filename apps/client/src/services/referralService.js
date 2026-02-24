@@ -34,10 +34,11 @@ export const getTeamMembersByLevel = async (level, page = 1, limit = 10) => {
     }
 };
 
-export const getNetworkTree = async (depth = 6) => {
+export const getNetworkTree = async (uplineId = null, depth = 1) => {
     try {
         const response = await api.get(referralEndpoints.tree, {
-             depth 
+             depth,
+             uplineId
         });
         return response;
     } catch (error) {
