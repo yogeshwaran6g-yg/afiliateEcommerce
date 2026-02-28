@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
-import Reports from "./pages/Reports";
+import React, { Suspense, lazy } from "react";
+const PopupNotices = lazy(() => import("./pages/PopupNotices"));
 import CommissionStructure from "./pages/CommissionStructure";
 import Genealogy from "./pages/Genealogy";
 import Payouts from "./pages/Payouts";
@@ -8,9 +9,9 @@ import Products from "./pages/Products";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
 import UserDetails from "./pages/UserDetails";
-import WalletTransactions from "./pages/WalletTransactions";
-import Recharges from "./pages/Recharges";
-import Withdrawals from "./pages/Withdrawals";
+import WalletTransactions from "./pages/transactions/index.jsx";
+import Recharges from "./pages/recharges/index.jsx";
+import Withdrawals from "./pages/withdrawals/index.jsx";
 import KYCVerification from "./pages/KYCVerification";
 import KYCDetails from "./pages/KYCDetails";
 import Login from "./pages/Login";
@@ -23,7 +24,7 @@ import Notifications from "./pages/Notifications";
 import Categories from "./pages/Categories";
 import ReferralLink from "./pages/ReferralLink";
 import OrderTracking from "./pages/OrderTracking";
-import OrderPayments from "./pages/OrderPayments";
+import OrderPayments from "./pages/order-payments/index.jsx";
 
 import Layout from "./components/Layout";
 
@@ -49,7 +50,11 @@ function App() {
             }
           >
             <Route path="/" element={<Dashboard />} />
-            <Route path="/reports" element={<Reports />} />
+            <Route path="/popup-notices" element={
+              <Suspense fallback={<div className="p-8 text-center text-slate-500 font-bold animate-pulse">Loading Popup Notices...</div>}>
+                <PopupNotices />
+              </Suspense>
+            } />
             <Route path="/settings/commission" element={<CommissionStructure />} />
             <Route path="/genealogy" element={<Genealogy />} />
             <Route path="/genealogy/:userId" element={<Genealogy />} />
@@ -83,4 +88,4 @@ function App() {
   );
 }
 
-export default App;
+export default App

@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import categoryApiService from "../services/categoryApiService";
+import { 
+    useCategories, 
+    useCreateCategoryMutation, 
+    useUpdateCategoryMutation, 
+    useDeleteCategoryMutation 
+} from "../hooks/useCategory.hook";
 import { toast } from "react-toastify";
 
 export default function Categories() {
     const navigate = useNavigate();
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+
+    const { data: categories = [], isLoading } = useCategories();
+    const createMutation = useCreateCategoryMutation();
+    const updateMutation = useUpdateCategoryMutation();
+    const deleteMutation = useDeleteCategoryMutation();
 
     // Form State
     const [formData, setFormData] = useState({
@@ -18,22 +26,6 @@ export default function Categories() {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [saving, setSaving] = useState(false);
-
-    const fetchCategories = async () => {
-        try {
-            setLoading(true);
-            const data = await categoryApiService.getAllCategories();
-            setCategories(data);
-        } catch (err) {
-            console.error("Failed to fetch categories:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -55,11 +47,10 @@ export default function Categories() {
             }
 
             if (formData.id) {
-                await categoryApiService.updateCategory(formData.id, data);
+                await updateMutation.mutateAsync({ id: formData.id, categoryData: data });
             } else {
-                await categoryApiService.createCategory(data);
+                await createMutation.mutateAsync(data);
             }
-            fetchCategories();
             handleReset();
             toast.success(`Category ${formData.id ? 'updated' : 'created'} successfully`);
         } catch (err) {
@@ -107,8 +98,7 @@ export default function Categories() {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this category? This might affect products in this category.")) {
             try {
-                await categoryApiService.deleteCategory(id);
-                fetchCategories();
+                await deleteMutation.mutateAsync(id);
                 if (formData.id === id) handleReset();
                 toast.success("Category deleted successfully");
             } catch (err) {
@@ -121,7 +111,7 @@ export default function Categories() {
         cat.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading && categories.length === 0) {
+    if (isLoading && categories.length === 0) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">

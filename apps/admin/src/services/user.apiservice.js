@@ -1,9 +1,10 @@
 import { api } from "../util/axios";
+import { API_ENDPOINTS } from "../util/constants";
 
 const userApiService = {
     getUsers: async () => {
         try {
-            const data = await api.get("/admin/users");
+            const data = await api.get(API_ENDPOINTS.USERS.BASE);
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.getUsers:', error);
@@ -13,7 +14,7 @@ const userApiService = {
 
     getUserDetails: async (userId) => {
         try {
-            const data = await api.get(`/admin/users/${userId}`);
+            const data = await api.get(API_ENDPOINTS.USERS.BY_ID(userId));
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.getUserDetails:', error);
@@ -23,7 +24,7 @@ const userApiService = {
 
     updateUser: async (userId, userData) => {
         try {
-            const data = await api.put(`/admin/users/${userId}`, userData);
+            const data = await api.put(API_ENDPOINTS.USERS.BY_ID(userId), userData);
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.updateUser:', error);
@@ -33,7 +34,7 @@ const userApiService = {
 
     getKYCRecords: async (status) => {
         try {
-            const data = await api.get("/admin/kyc", { status });
+            const data = await api.get(API_ENDPOINTS.USERS.KYC, { status });
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.getKYCRecords:', error);
@@ -43,7 +44,7 @@ const userApiService = {
 
     updateKYCStatus: async (userId, type, status) => {
         try {
-            const data = await api.put(`/admin/kyc/${userId}`, { type, status });
+            const data = await api.put(API_ENDPOINTS.USERS.KYC_BY_ID(userId), { type, status });
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.updateKYCStatus:', error);
@@ -53,7 +54,7 @@ const userApiService = {
 
     getUserReferralOverview: async (userId) => {
         try {
-            const data = await api.get(`/admin/users/${userId}/referral-overview`);
+            const data = await api.get(API_ENDPOINTS.USERS.REFERRAL_OVERVIEW(userId));
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.getUserReferralOverview:', error);
@@ -63,7 +64,7 @@ const userApiService = {
 
     getTeamMembers: async (userId, level, page = 1, limit = 10) => {
         try {
-            const data = await api.get(`/admin/users/${userId}/team/${level}`, { page, limit });
+            const data = await api.get(API_ENDPOINTS.USERS.TEAM_MEMBERS(userId, level), { page, limit });
             return data.data;
         } catch (error) {
             console.error('Error in userApiService.getTeamMembers:', error);

@@ -47,7 +47,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
                         { label: "Withdrawals", path: "/withdrawals" },
                     ]
                 },
-                { icon: "analytics", label: "Reports", path: "/reports" },
+                { icon: "analytics", label: "Popup Notices", path: "/popup-notices" },
             ]
         }
     ];

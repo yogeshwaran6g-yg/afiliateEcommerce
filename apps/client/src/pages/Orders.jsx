@@ -126,19 +126,17 @@ export default function Orders() {
         {tabs.map((tab) => (
           <button
             key={tab.name}
-            onClick={() => setActiveTab(tab.name)}
+            onClick={() => {
+              if (tab.name === activeTab) return;
+              setActiveTab(tab.name);
+              setPage(1);
+            }}
             className={`px-4 md:px-6 py-3 text-xs md:text-sm font-semibold whitespace-nowrap transition-colors relative ${activeTab === tab.name
               ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
               : "text-slate-500 hover:text-slate-700"
               }`}
           >
-            <div
-              onClick={() => {
-                setActiveTab(tab.name);
-                setPage(1); // Reset to first page on tab change
-              }}
-              className="flex items-center"
-            >
+            <div className="flex items-center">
               {tab.name}
               <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
                 {tab.count}

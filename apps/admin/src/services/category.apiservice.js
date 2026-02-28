@@ -1,9 +1,10 @@
 import { api } from "../util/axios";
+import { API_ENDPOINTS } from "../util/constants";
 
 const categoryApiService = {
     getAllCategories: async (params = {}) => {
         try {
-            const data = await api.get("/categories", { params });
+            const data = await api.get(API_ENDPOINTS.CATEGORIES.BASE, { params });
             return data.data;
         } catch (error) {
             console.error('Error in categoryApiService.getAllCategories:', error);
@@ -13,7 +14,7 @@ const categoryApiService = {
 
     getCategoryById: async (id) => {
         try {
-            const data = await api.get(`/categories/${id}`);
+            const data = await api.get(API_ENDPOINTS.CATEGORIES.BY_ID(id));
             return data.data;
         } catch (error) {
             console.error('Error in categoryApiService.getCategoryById:', error);
@@ -23,7 +24,7 @@ const categoryApiService = {
 
     createCategory: async (categoryData) => {
         try {
-            const data = await api.post("/categories", categoryData);
+            const data = await api.post(API_ENDPOINTS.CATEGORIES.BASE, categoryData);
             return data.data;
         } catch (error) {
             console.error('Error in categoryApiService.createCategory:', error);
@@ -33,7 +34,7 @@ const categoryApiService = {
 
     updateCategory: async (id, categoryData) => {
         try {
-            const data = await api.put(`/categories/${id}`, categoryData);
+            const data = await api.put(API_ENDPOINTS.CATEGORIES.BY_ID(id), categoryData);
             return data.data;
         } catch (error) {
             console.error('Error in categoryApiService.updateCategory:', error);
@@ -43,7 +44,7 @@ const categoryApiService = {
 
     deleteCategory: async (id) => {
         try {
-            const data = await api.delete(`/categories/${id}`);
+            const data = await api.delete(API_ENDPOINTS.CATEGORIES.BY_ID(id));
             return data.data;
         } catch (error) {
             console.error('Error in categoryApiService.deleteCategory:', error);

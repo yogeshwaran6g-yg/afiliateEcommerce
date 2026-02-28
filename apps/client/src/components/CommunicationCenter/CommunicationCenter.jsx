@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useNotifications } from "../../hooks/useNotificationService";
 import { useUserNotification, useMarkAsReadMutation, useDeleteNotificationMutation } from "../../hooks/useUserNotification";
 
+
 const CommunicationCenter = () => {
     const [activeTab, setActiveTab] = useState("All");
     const [selectedAnnouncementId, setSelectedAnnouncementId] = useState(null);
@@ -123,7 +124,7 @@ const CommunicationCenter = () => {
     };
 
     return (
-        <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-slate-50">
+        <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-slate-50" style={{ fontFamily: '"Inter", sans-serif' }}>
             <ActivityFeed
                 notifications={activityNotifications}
                 announcements={announcements}

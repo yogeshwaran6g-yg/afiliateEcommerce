@@ -1,83 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import userApiService from "../services/userApiService";
+import { 
+    useUsers, 
+    useUserDetails, 
+    useUpdateUserMutation 
+} from "../hooks/useUserService";
 import { toast } from "react-toastify";
 
 
 export default function Users() {
     const navigate = useNavigate();
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
     // Modal states
-    const [viewUser, setViewUser] = useState(null);
-    const [editUser, setEditUser] = useState(null);
+    const [viewUserId, setViewUserId] = useState(null);
+    const [editUserId, setEditUserId] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [modalActionLoading, setModalActionLoading] = useState(false);
 
+    const { data: users = [], isLoading, error } = useUsers();
+    const { data: viewUserDetails, isLoading: isUserDetailsLoading } = useUserDetails(viewUserId);
+    const { data: editUserDetails, isLoading: isEditDetailsLoading } = useUserDetails(editUserId);
+    const updateUserMutation = useUpdateUserMutation();
+
+    const [editFormData, setEditFormData] = useState(null);
+
     useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
-        try {
-            setLoading(true);
-            const data = await userApiService.getUsers();
-            setUsers(data);
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load users");
-        } finally {
-            setLoading(false);
+        if (editUserDetails) {
+            setEditFormData({ ...editUserDetails });
         }
+    }, [editUserDetails]);
+
+    const handleViewUser = (dbId) => {
+        setViewUserId(dbId);
+        setIsViewModalOpen(true);
     };
 
-    const handleViewUser = async (dbId) => {
-        try {
-            setModalActionLoading(true);
-            const details = await userApiService.getUserDetails(dbId);
-            setViewUser(details);
-            setIsViewModalOpen(true);
-        } catch (err) {
-            toast.error(err.message || "Failed to fetch user details");
-        } finally {
-            setModalActionLoading(false);
-        }
-    };
-
-    const handleEditUser = async (dbId) => {
-        try {
-            setModalActionLoading(true);
-            const details = await userApiService.getUserDetails(dbId);
-            setEditUser(details);
-            setIsEditModalOpen(true);
-        } catch (err) {
-            toast.error(err.message || "Failed to fetch user details");
-        } finally {
-            setModalActionLoading(false);
-        }
+    const handleEditUser = (dbId) => {
+        setEditUserId(dbId);
+        setIsEditModalOpen(true);
     };
 
     const handleUpdateUser = async (e) => {
         e.preventDefault();
         try {
             setModalActionLoading(true);
-            await userApiService.updateUser(editUser.id, {
-                name: editUser.name,
-                email: editUser.email,
-                phone: editUser.phone,
-                account_activation_status: editUser.account_activation_status,
-                is_blocked: editUser.is_blocked
+            await updateUserMutation.mutateAsync({
+                userId: editUserId,
+                userData: {
+                    name: editFormData.name,
+                    email: editFormData.email,
+                    phone: editFormData.phone,
+                    account_activation_status: editFormData.account_activation_status,
+                    is_blocked: editFormData.is_blocked
+                }
             });
             toast.success("User updated successfully");
             setIsEditModalOpen(false);
-            fetchUsers(); // Refresh the list
         } catch (err) {
             toast.error(err.message || "Failed to update user");
         } finally {
@@ -85,31 +68,23 @@ export default function Users() {
         }
     };
 
-
-
     const handleBlockUser = async (dbId) => {
         if (!confirm("Are you sure you want to DENY access for this distributor?")) return;
         try {
-            setLoading(true);
-            await userApiService.updateUser(dbId, { is_blocked: true });
+            await updateUserMutation.mutateAsync({ userId: dbId, userData: { is_blocked: true } });
             toast.success("User access denied successfully");
-            fetchUsers();
         } catch (err) {
             toast.error(err.message || "Failed to block user");
-            setLoading(false);
         }
     };
 
     const handleUnblockUser = async (dbId) => {
         if (!confirm("Are you sure you want to RESTORE access for this distributor?")) return;
         try {
-            setLoading(true);
-            await userApiService.updateUser(dbId, { is_blocked: false });
+            await updateUserMutation.mutateAsync({ userId: dbId, userData: { is_blocked: false } });
             toast.success("User access restored successfully");
-            fetchUsers();
         } catch (err) {
             toast.error(err.message || "Failed to unblock user");
-            setLoading(false);
         }
     };
 
@@ -132,7 +107,7 @@ export default function Users() {
         setCurrentPage(1);
     }, [searchQuery, statusFilter]);
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">

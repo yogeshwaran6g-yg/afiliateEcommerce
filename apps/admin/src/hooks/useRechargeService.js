@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import rechargeApiService from "../services/rechargeApiService";
+import rechargeApiService from "../services/recharge.apiservice";
 
 export const RECHARGES_QUERY_KEY = ["recharges"];
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import userApiService from "../services/userApiService";
+import userApiService from "../services/user.apiservice";
 
 const ReferralLink = () => {
     const { userId } = useParams();

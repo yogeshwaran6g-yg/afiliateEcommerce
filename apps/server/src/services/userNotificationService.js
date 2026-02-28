@@ -60,7 +60,7 @@ const userNotificationService = {
     }
   },
 
-  notifyAdmins: async function ({ type, title, description }) {
+  notifyAdmins: async function ({ type, title, description, link = null }) {
     try {
       if (!type || !title) {
         throw new Error("Missing required fields: type, title");
@@ -75,11 +75,16 @@ const userNotificationService = {
         return srvRes(200, "No admins found to notify");
       }
 
+      // If link is provided, we store description as JSON metadata
+      const finalDescription = link 
+        ? JSON.stringify({ text: description, link: link })
+        : description;
+
       const values = admins.map((admin) => [
         admin.id,
         title,
         type,
-        description || null,
+        finalDescription || null,
       ]);
       const sql = `
                 INSERT INTO user_notifications 

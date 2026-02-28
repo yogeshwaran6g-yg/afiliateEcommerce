@@ -1,9 +1,10 @@
 import { api } from "../util/axios";
+import { API_ENDPOINTS } from "../util/constants";
 
 const walletApiService = {
     getWalletTransactions: async (filters = {}) => {
         try {
-            const data = await api.get("/admin/wallet-transactions", filters);
+            const data = await api.get(API_ENDPOINTS.WALLET.TRANSACTIONS, filters);
             return data;
         } catch (error) {
             console.error('Error in walletApiService.getWalletTransactions:', error);
@@ -13,7 +14,7 @@ const walletApiService = {
 
     getTransactionMetrics: async () => {
         try {
-            const data = await api.get("/admin/transaction-metrics");
+            const data = await api.get(API_ENDPOINTS.WALLET.METRICS);
             return data;
         } catch (error) {
             console.error('Error in walletApiService.getTransactionMetrics:', error);

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import productApiService from "../services/productApiService";
-import categoryApiService from "../services/categoryApiService";
+import { 
+    useProducts, 
+    useDeleteProductMutation 
+} from "../hooks/useProductService";
+import { useCategories } from "../hooks/useCategory.hook";
 import { toast } from "react-toastify";
 
 // Components
@@ -13,41 +16,14 @@ import ProductDrawer from "./products/components/ProductDrawer";
 export default function Products() {
     const navigate = useNavigate();
     const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    useEffect(() => {
-        fetchProducts();
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
-            const data = await categoryApiService.getAllCategories();
-            setCategories(data);
-        } catch (err) {
-            console.error("Failed to fetch categories:", err);
-        }
-    };
-
-    const fetchProducts = async () => {
-        try {
-            setLoading(true);
-            const data = await productApiService.getProducts();
-            setProducts(data);
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load products");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: products = [], isLoading, error } = useProducts();
+    const { data: categories = [] } = useCategories();
+    const deleteProductMutation = useDeleteProductMutation();
 
     const handleEdit = (product) => {
         setSelectedProduct(product);
@@ -57,9 +33,8 @@ export default function Products() {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
-                await productApiService.deleteProduct(id);
+                await deleteProductMutation.mutateAsync(id);
                 toast.success("Product deleted successfully");
-                fetchProducts();
             } catch (err) {
                 toast.error(err.message || "Failed to delete product");
             }
@@ -87,7 +62,7 @@ export default function Products() {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
@@ -106,7 +81,7 @@ export default function Products() {
                     <h3 className="text-xl font-black text-red-900 mb-2">Sync Failure</h3>
                     <p className="text-red-700 font-medium mb-6">{error}</p>
                     <button
-                        onClick={fetchProducts}
+                        onClick={() => window.location.reload()}
                         className="px-6 py-3 bg-red-500 text-white text-sm font-black rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
                     >
                         Retry Sync
@@ -163,7 +138,6 @@ export default function Products() {
                 onClose={() => setDrawerOpen(false)}
                 product={selectedProduct}
                 categories={categories}
-                onSuccess={fetchProducts}
             />
         </div>
     );

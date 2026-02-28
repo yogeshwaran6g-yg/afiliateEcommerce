@@ -48,8 +48,8 @@ export const seedSamples = async (connection, adminId, adminWalletId) => {
     const status = i % 2 === 0 ? "APPROVED" : "REVIEW_PENDING";
     
     const [rechargeResult] = await connection.execute(
-      `INSERT INTO recharge_requests (user_id, amount, payment_method, payment_reference, status) VALUES (?, ?, ?, ?, ?)`,
-      [userId, amount, "UPI", `REF-${userId}-${i}`, status]
+      `INSERT INTO recharge_requests (user_id, amount, payment_method, payment_reference, proof_image, status) VALUES (?, ?, ?, ?, ?, ?)`,
+      [userId, amount, "UPI", `REF-${userId}-${i}`, "/uploads/mock/proof.jpg", status]
     );
 
     if (status === "APPROVED") {

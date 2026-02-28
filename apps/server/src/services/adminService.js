@@ -130,9 +130,9 @@ const adminService = {
     /**
      * Get wallet transactions with user details (admin view).
      */
-    getWalletTransactions: async (filters = {}, limit = 50, offset = 0) => {
+    getWalletTransactions: async (filters = {}, limit = 10, offset = 0) => {
         try {
-            const { userId, transactionType, entryType, status, startDate, endDate } = filters;
+            const { userId, transactionType, entryType, status, startDate, endDate, search } = filters;
             let whereConditions = [];
             let queryParams = [];
 
@@ -159,6 +159,11 @@ const adminService = {
             if (endDate) {
                 whereConditions.push('wt.created_at <= ?');
                 queryParams.push(endDate);
+            }
+            if (search) {
+                whereConditions.push('(u.name LIKE ? OR u.phone LIKE ? OR u.email LIKE ?)');
+                const pattern = `%${search}%`;
+                queryParams.push(pattern, pattern, pattern);
             }
 
             const whereClause = whereConditions.length > 0

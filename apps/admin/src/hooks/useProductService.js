@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import productApiService from "../services/productApiService";
+import productApiService from "../services/product.apiservice";
 
 export const PRODUCTS_QUERY_KEY = ["products"];
 

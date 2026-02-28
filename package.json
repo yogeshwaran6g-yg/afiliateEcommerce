@@ -9,7 +9,8 @@
     "all": "pnpm -r dev",
     "seed": "pnpm --filter server db:setup",
     "seed:procedure": "pnpm --filter server seedProcedure",
-    "expectedOutput": "pnpm --filter server expectedOutput"
+    "expectedOutput": "pnpm --filter server expectedOutput",
+    "truncate": "node apps/server/src/scripts/truncateTables.js"
   },
   "packageManager": "pnpm@10.19.0",
   "engines": {

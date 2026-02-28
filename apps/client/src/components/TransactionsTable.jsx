@@ -170,8 +170,14 @@ export default function TransactionsTable() {
                             })
                         ) : (
                             <tr>
-                                <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
-                                    No Recent Transactions found
+                                <td colSpan="5" className="px-6 py-16 text-center">
+                                    <div className="flex flex-col items-center justify-center space-y-3">
+                                        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-slate-300 text-3xl">receipt_long</span>
+                                        </div>
+                                        <div className="text-slate-500 font-medium">No recent transactions</div>
+                                        <p className="text-slate-400 text-sm max-w-sm mx-auto">When you start receiving commissions or making withdrawals, they will appear here.</p>
+                                    </div>
                                 </td>
                             </tr>
                         )}

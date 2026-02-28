@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { useWithdrawals, useApproveWithdrawalMutation, useRejectWithdrawalMutation } from "../hooks/useWithdrawalService";
 
-const PayoutRow = ({ request, isSelected, onSelect }) => (
+const PayoutRow = ({ request, isSelected, onSelect, onApprove, onReject }) => (
     <tr className={`hover:bg-slate-50/50 transition-colors ${isSelected ? 'bg-blue-50/30' : ''}`}>
         <td className="px-8 py-5">
             <input
@@ -12,12 +14,16 @@ const PayoutRow = ({ request, isSelected, onSelect }) => (
         </td>
         <td className="px-8 py-5">
             <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white overflow-hidden shadow-sm shrink-0">
-                    <img src={request.avatar} className="w-full h-full object-cover" alt="" />
+                <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white overflow-hidden shadow-sm shrink-0 flex items-center justify-center">
+                    {request.avatar ? (
+                        <img src={request.avatar} className="w-full h-full object-cover" alt="" />
+                    ) : (
+                        <span className="material-symbols-outlined text-slate-400">person</span>
+                    )}
                 </div>
                 <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-[#172b4d] truncate">{request.userName}</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">ID: {request.userId}</p>
+                    <h4 className="text-sm font-bold text-[#172b4d] truncate">{request.user_name || "Unknown"}</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">ID: {request.user_id}</p>
                 </div>
             </div>
         </td>
@@ -27,16 +33,18 @@ const PayoutRow = ({ request, isSelected, onSelect }) => (
         <td className="px-8 py-5">
             <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
-                    <span className="material-symbols-outlined text-lg">{request.methodIcon}</span>
+                    <span className="material-symbols-outlined text-lg">
+                        {request.payment_method?.toLowerCase()?.includes('bank') ? 'account_balance' : 'payments'}
+                    </span>
                 </div>
                 <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#172b4d] truncate">{request.method}</p>
-                    <p className="text-[9px] text-slate-400 font-medium font-mono truncate">{request.methodDetail}</p>
+                    <p className="text-xs font-bold text-[#172b4d] truncate">{request.payment_method}</p>
+                    <p className="text-[9px] text-slate-400 font-medium font-mono truncate">{request.account_details || request.upi_id}</p>
                 </div>
             </div>
         </td>
         <td className="px-8 py-5 text-sm text-slate-500 font-medium whitespace-nowrap">
-            {request.date}
+            {new Date(request.created_at).toLocaleDateString()}
         </td>
         <td className="px-8 py-5">
             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${request.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
@@ -48,10 +56,16 @@ const PayoutRow = ({ request, isSelected, onSelect }) => (
         <td className="px-8 py-5 text-right">
             {request.status === 'PENDING' ? (
                 <div className="flex items-center justify-end gap-2">
-                    <button className="w-8 h-8 flex items-center justify-center bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm transition-all hover:scale-105 active:scale-95">
+                    <button 
+                        onClick={() => onApprove(request.id)}
+                        className="w-8 h-8 flex items-center justify-center bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm transition-all hover:scale-105 active:scale-95"
+                    >
                         <span className="material-symbols-outlined text-lg font-bold">check</span>
                     </button>
-                    <button className="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm transition-all hover:scale-105 active:scale-95">
+                    <button 
+                        onClick={() => onReject(request.id)}
+                        className="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm transition-all hover:scale-105 active:scale-95"
+                    >
                         <span className="material-symbols-outlined text-lg font-bold">close</span>
                     </button>
                 </div>
@@ -68,12 +82,32 @@ export default function Payouts() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [activeTab, setActiveTab] = useState("All");
 
-    const requests = [
-        { id: 1, userName: "Marcus Thorne", userId: "UL-992341", avatar: "https://i.pravatar.cc/150?u=Marcus", amount: "12,450.00", method: "USDT (ERC20)", methodIcon: "currency_bitcoin", methodDetail: "0x71C...39A1", date: "Oct 24, 2023", status: "PENDING" },
-        { id: 2, userName: "Sarah Jenkins", userId: "UL-882103", avatar: "https://i.pravatar.cc/150?u=Sarah", amount: "3,200.00", method: "Bank Transfer", methodIcon: "account_balance", methodDetail: "Chase Bank · ****4521", date: "Oct 24, 2023", status: "PENDING" },
-        { id: 3, userName: "David Chen", userId: "UL-771920", avatar: "https://i.pravatar.cc/150?u=David", amount: "8,900.00", method: "BTC", methodIcon: "currency_bitcoin", methodDetail: "1BvBM...72pC", date: "Oct 23, 2023", status: "APPROVED" },
-        { id: 4, userName: "Elena Rodriguez", userId: "UL-125582", avatar: "https://i.pravatar.cc/150?u=Elena", amount: "550.00", method: "Bank Transfer", methodIcon: "account_balance", methodDetail: "Wells Fargo · ****8812", date: "Oct 24, 2023", status: "PENDING" },
-    ];
+    const { data: withdrawalsData, isLoading, refetch } = useWithdrawals(activeTab === "All" ? null : activeTab.toUpperCase());
+    const approveMutation = useApproveWithdrawalMutation();
+    const rejectMutation = useRejectWithdrawalMutation();
+
+    const requests = Array.isArray(withdrawalsData?.items) ? withdrawalsData.items : (Array.isArray(withdrawalsData) ? withdrawalsData : []);
+    const stats = withdrawalsData?.stats || { pendingCount: 0, pendingAmount: 0, settledAmount: 0 };
+
+    const handleApprove = async (id) => {
+        try {
+            await approveMutation.mutateAsync({ requestId: id, adminComment: "Approved by admin" });
+            toast.success("Withdrawal approved");
+        } catch (err) {
+            toast.error("Failed to approve withdrawal");
+        }
+    };
+
+    const handleReject = async (id) => {
+        const reason = prompt("Enter reason for rejection:");
+        if (reason === null) return;
+        try {
+            await rejectMutation.mutateAsync({ requestId: id, adminComment: reason });
+            toast.success("Withdrawal rejected");
+        } catch (err) {
+            toast.error("Failed to reject withdrawal");
+        }
+    };
 
     const toggleSelect = (id) => {
         setSelectedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -83,6 +117,17 @@ export default function Payouts() {
         if (selectedItems.length === requests.length) setSelectedItems([]);
         else setSelectedItems(requests.map(r => r.id));
     };
+
+    if (isLoading) {
+        return (
+            <div className="p-12 flex items-center justify-center min-h-[400px]">
+                <div className="flex flex-col items-center gap-4">
+                    <span className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></span>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Fetching Payout Records...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 md:p-8 lg:p-12 space-y-10">
@@ -98,10 +143,18 @@ export default function Payouts() {
                     <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">Manage member withdrawal requests and monitor platform liquidity.</p>
                 </div>
 
-                <button className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none">
-                    <span className="material-symbols-outlined font-bold group-hover:rotate-12 transition-transform text-lg">account_balance_wallet</span>
-                    <span>Batch Process All</span>
-                </button>
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => refetch()}
+                        className="p-4 bg-white border border-slate-200 text-slate-400 rounded-2xl hover:text-primary transition-all active:scale-95"
+                    >
+                        <span className="material-symbols-outlined">refresh</span>
+                    </button>
+                    <button className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group leading-none">
+                        <span className="material-symbols-outlined font-bold group-hover:rotate-12 transition-transform text-lg">account_balance_wallet</span>
+                        <span>Batch Process All</span>
+                    </button>
+                </div>
             </div>
 
             {/* Stats Layout */}
@@ -110,20 +163,12 @@ export default function Payouts() {
                     <div className="relative z-10 flex flex-col justify-center h-full">
                         <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Pending Amount</h5>
                         <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-4">
-                            <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">₹124,500.00</div>
-                            <div className="mb-0.5 w-fit flex items-center gap-1 text-green-600 font-bold text-[10px] bg-green-50 px-2 py-0.5 rounded-lg border border-green-100">
-                                <span className="material-symbols-outlined text-xs">trending_up</span>
-                                <span>+12.5%</span>
-                            </div>
+                            <div className="text-3xl md:text-4xl font-black text-[#172b4d] tracking-tighter leading-tight">₹{parseFloat(stats.pendingAmount || 0).toLocaleString()}</div>
                         </div>
                         <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-6">
                             <div className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 bg-amber-500 rounded-full"></div>
-                                <p className="text-xs font-bold text-[#172b4d]">42 Requests Pending</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-slate-400 text-lg">schedule</span>
-                                <p className="text-xs font-bold text-slate-400">Syncing...</p>
+                                <p className="text-xs font-bold text-[#172b4d]">{stats.pendingCount || 0} Requests Pending</p>
                             </div>
                         </div>
                     </div>
@@ -133,17 +178,9 @@ export default function Payouts() {
                 </div>
 
                 <div className="bg-primary p-10 rounded-[2.5rem] shadow-2xl shadow-primary/30 relative overflow-hidden group">
-                    <div className="relative z-10">
-                        <h5 className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-6">Settled Last 24h</h5>
-                        <div className="text-3xl font-black text-white mb-8 tracking-tight">₹45,210.32</div>
-
-                        <div className="space-y-3">
-                            <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                                <div className="h-full bg-white w-3/4 rounded-full"></div>
-                            </div>
-                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">75% Daily Target</p>
-
-                        </div>
+                    <div className="relative z-10 text-white">
+                        <h5 className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-6">Settled Amount</h5>
+                        <div className="text-3xl font-black text-white mb-8 tracking-tight">₹{parseFloat(stats.settledAmount || 0).toLocaleString()}</div>
                     </div>
                     <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
@@ -183,7 +220,9 @@ export default function Payouts() {
                 <div className="p-0">
                     {/* Mobile Card View */}
                     <div className="block lg:hidden divide-y divide-slate-50">
-                        {requests.map(req => (
+                        {requests.length === 0 ? (
+                            <div className="p-8 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No payout requests found</div>
+                        ) : requests.map(req => (
                             <div key={req.id} className={`p-4 md:p-6 space-y-4 hover:bg-slate-50/30 transition-colors ${selectedItems.includes(req.id) ? 'bg-primary/5' : ''}`}>
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex items-center gap-3 min-w-0">
@@ -194,13 +233,17 @@ export default function Payouts() {
                                                 onChange={() => toggleSelect(req.id)}
                                                 className="absolute -top-1 -left-1 w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer z-10"
                                             />
-                                            <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white overflow-hidden shadow-sm">
-                                                <img src={req.avatar} className="w-full h-full object-cover" alt="" />
+                                            <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white overflow-hidden shadow-sm flex items-center justify-center">
+                                                {req.avatar ? (
+                                                    <img src={req.avatar} className="w-full h-full object-cover" alt="" />
+                                                ) : (
+                                                    <span className="material-symbols-outlined text-slate-400">person</span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="min-w-0">
-                                            <h4 className="text-xs font-bold text-[#172b4d] tracking-tight truncate">{req.userName}</h4>
-                                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">ID: {req.userId}</p>
+                                            <h4 className="text-xs font-bold text-[#172b4d] tracking-tight truncate">{req.user_name || "Unknown"}</h4>
+                                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">ID: {req.user_id}</p>
                                         </div>
                                     </div>
                                     <div className="text-right shrink-0">
@@ -216,22 +259,30 @@ export default function Payouts() {
                                 <div className="bg-slate-50/50 rounded-2xl p-3 flex items-center justify-between border border-slate-100/50 gap-4">
                                     <div className="flex items-center gap-2 min-w-0">
                                         <div className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-slate-400 border border-slate-100 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">{req.methodIcon}</span>
+                                            <span className="material-symbols-outlined text-sm">
+                                                {req.payment_method?.toLowerCase()?.includes('bank') ? 'account_balance' : 'payments'}
+                                            </span>
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-[10px] font-bold text-[#172b4d] truncate">{req.method}</p>
-                                            <p className="text-[8px] text-slate-400 font-medium font-mono truncate">{req.methodDetail}</p>
+                                            <p className="text-[10px] font-bold text-[#172b4d] truncate">{req.payment_method}</p>
+                                            <p className="text-[8px] text-slate-400 font-medium font-mono truncate">{req.account_details || req.upi_id}</p>
                                         </div>
                                     </div>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest shrink-0">{req.date}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest shrink-0">{new Date(req.created_at).toLocaleDateString()}</p>
                                 </div>
 
                                 {req.status === 'PENDING' && (
                                     <div className="flex items-center gap-2 pt-1">
-                                        <button className="flex-1 py-2 bg-green-500 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all shadow-md shadow-green-500/10 uppercase">
+                                        <button 
+                                            onClick={() => handleApprove(req.id)}
+                                            className="flex-1 py-2 bg-green-500 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all shadow-md shadow-green-500/10 uppercase"
+                                        >
                                             APPROVE
                                         </button>
-                                        <button className="flex-1 py-2 bg-red-50 text-red-600 text-[9px] font-black rounded-lg active:scale-95 transition-all uppercase">
+                                        <button 
+                                            onClick={() => handleReject(req.id)}
+                                            className="flex-1 py-2 bg-red-50 text-red-600 text-[9px] font-black rounded-lg active:scale-95 transition-all uppercase"
+                                        >
                                             REJECT
                                         </button>
                                     </div>
@@ -248,7 +299,7 @@ export default function Payouts() {
                                     <th className="px-8 py-5 text-center">
                                         <input
                                             type="checkbox"
-                                            checked={selectedItems.length === requests.length}
+                                            checked={requests.length > 0 && selectedItems.length === requests.length}
                                             onChange={toggleAll}
                                             className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
                                         />
@@ -262,12 +313,18 @@ export default function Payouts() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {requests.map(req => (
+                                {requests.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="px-8 py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">No payout requests found</td>
+                                    </tr>
+                                ) : requests.map(req => (
                                     <PayoutRow
                                         key={req.id}
                                         request={req}
                                         isSelected={selectedItems.includes(req.id)}
                                         onSelect={toggleSelect}
+                                        onApprove={handleApprove}
+                                        onReject={handleReject}
                                     />
                                 ))}
                             </tbody>
@@ -276,12 +333,13 @@ export default function Payouts() {
                 </div>
 
                 <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Showing 1 to 4 of 42 results</p>
-                    <div className="flex items-center gap-1.5 resize-none">
-                        <button className="px-3 py-2 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-all uppercase">Prev</button>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Total {requests.length} results matching filter
+                    </p>
+                    <div className="flex items-center gap-1.5 grayscale opacity-50 pointer-events-none">
+                        <button className="px-3 py-2 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500 uppercase">Prev</button>
                         <button className="w-8 h-8 rounded-xl text-[10px] font-bold flex items-center justify-center bg-primary text-white shadow-lg shadow-primary/20">1</button>
-                        <button className="w-8 h-8 rounded-xl text-[10px] font-bold flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-all">2</button>
-                        <button className="px-3 py-2 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-all uppercase">Next</button>
+                        <button className="px-3 py-2 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500 uppercase">Next</button>
                     </div>
                 </div>
             </div>

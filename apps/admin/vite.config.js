@@ -8,4 +8,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server:{
+    hmr:true,
+    host:true,
+    port:3500,
+    
+  }
 })

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import authApiService from '../services/authApiService';
+import authApiService from '../services/auth.apiservice';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext();

@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import orderApiService from "../services/orderApiService";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useOrderDetails, useAddOrderTrackingMutation, useOrders } from "../hooks/useOrder.hook";
 
 export default function OrderTracking() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [order, setOrder] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [submitLoading, setSubmitLoading] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
     // URL params for deep linking
     const [searchParams] = useSearchParams();
@@ -17,64 +15,38 @@ export default function OrderTracking() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
+    const { data: searchResults, isLoading: searching } = useOrders({ search: searchQuery });
+    const { data: order, isLoading: loadingOrder } = useOrderDetails(selectedOrderId);
+    const addTrackingMutation = useAddOrderTrackingMutation();
+
     // Handle auto-search from URL param
     useEffect(() => {
-        if (orderNumberParam) {
+        if (orderNumberParam && searchQuery !== orderNumberParam) {
             setSearchQuery(orderNumberParam);
         }
     }, [orderNumberParam]);
 
     useEffect(() => {
-        if (searchQuery && orderNumberParam === searchQuery) {
-            handleSearch();
+        if (searchResults?.orders?.length > 0 && searchQuery) {
+            setSelectedOrderId(searchResults.orders[0].id);
+        } else if (searchResults?.orders?.length === 0 && searchQuery) {
+            setSelectedOrderId(null);
+            toast.error("No order found");
         }
-    }, [searchQuery]);
-
-    const handleSearch = async (e) => {
-        if (e) e.preventDefault();
-        if (!searchQuery) return;
-
-        setLoading(true);
-        try {
-            const data = await orderApiService.getOrders({ search: searchQuery });
-            if (data.orders.length > 0) {
-                // Fetch full details for the first matching order
-                const fullOrder = await orderApiService.getOrderDetails(data.orders[0].id);
-                setOrder(fullOrder);
-                toast.success("Order found");
-            } else {
-                setOrder(null);
-                toast.error("No order found with that number or ID");
-            }
-        } catch (err) {
-            toast.error("Failed to search order");
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [searchResults, searchQuery]);
 
     const handleAddTracking = async (e) => {
         e.preventDefault();
         if (!order || !title) return;
 
-        setSubmitLoading(true);
         try {
-            await orderApiService.addOrderTracking(order.id, title, description);
+            await addTrackingMutation.mutateAsync({ orderId: order.id, title, description });
             toast.success("Tracking update added successfully");
-
-            // Refresh order data
-            const updatedOrder = await orderApiService.getOrderDetails(order.id);
-            setOrder(updatedOrder);
-
-            // Clear form
             setTitle("");
             setDescription("");
         } catch (err) {
             toast.error("Failed to add tracking update");
             console.error(err);
-        } finally {
-            setSubmitLoading(false);
         }
     };
 
@@ -108,18 +80,14 @@ export default function OrderTracking() {
                 <div className="lg:col-span-1 space-y-8">
                     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 space-y-6">
                         <h3 className="text-lg font-bold text-slate-800">Search Order</h3>
-                        <form onSubmit={handleSearch} className="relative group">
+                        <form onSubmit={(e) => e.preventDefault()} className="relative group">
                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
                             <input
                                 type="text"
                                 placeholder="Order # or User Name..."
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium"
+                                className={`w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-medium ${searching ? 'animate-pulse' : ''}`}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <button
-                                type="submit"
-                                hidden
                             />
                         </form>
 
@@ -206,10 +174,10 @@ export default function OrderTracking() {
 
                                     <button
                                         type="submit"
-                                        disabled={submitLoading}
+                                        disabled={addTrackingMutation.isPending}
                                         className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
                                     >
-                                        {submitLoading ? (
+                                        {addTrackingMutation.isPending ? (
                                             <div className="flex items-center justify-center gap-2">
                                                 <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
                                                 UPDATING...

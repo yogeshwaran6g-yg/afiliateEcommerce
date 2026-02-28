@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { useTickets, useUpdateTicketStatusMutation } from "../hooks/useTicketService";
 
 const STATUS_COLORS = {
     OPEN: 'bg-blue-100 text-blue-700',
@@ -98,9 +99,7 @@ const TicketRow = ({ ticket, onUpdateStatus }) => {
 };
 
 export default function Tickets() {
-    const [tickets, setTickets] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
+    const [pagination, setPagination] = useState({ page: 1, limit: 50 });
     const [filters, setFilters] = useState({
         search: '',
         userId: '',
@@ -111,57 +110,23 @@ export default function Tickets() {
         endDate: ''
     });
 
-    useEffect(() => {
-        fetchTickets();
-    }, [pagination.page, filters]);
+    const { data, isLoading: loading, refetch } = useTickets({
+        page: pagination.page,
+        limit: pagination.limit,
+        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== ''))
+    });
 
-    const fetchTickets = async () => {
-        try {
-            setLoading(true);
-            const queryParams = new URLSearchParams({
-                page: pagination.page,
-                limit: pagination.limit,
-                ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== ''))
-            });
+    const updateStatusMutation = useUpdateTicketStatusMutation();
 
-            const response = await fetch(`http://localhost:4000/api/v1/admin/tickets?${queryParams}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                setTickets(data.data.tickets);
-                setPagination(prev => ({ ...prev, ...data.data.pagination }));
-            }
-        } catch (error) {
-            console.error('Error fetching tickets:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const tickets = data?.tickets || [];
+    const serverPagination = data?.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 };
 
     const handleUpdateStatus = async (ticketId, newStatus) => {
         try {
-            const response = await fetch('http://localhost:4000/api/v1/admin/tickets/update-status', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                },
-                body: JSON.stringify({ ticketId, status: newStatus })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                // Update local state
-                setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
-                toast.success("Ticket status updated successfully");
-            } else {
-                toast.error(data.message || 'Failed to update status');
-            }
+            await updateStatusMutation.mutateAsync({ ticketId, status: newStatus });
+            toast.success("Ticket status updated successfully");
         } catch (error) {
-            console.error('Error updating ticket status:', error);
-            toast.error('Error updating ticket status');
+            toast.error(error.message || 'Failed to update status');
         }
     };
 
@@ -200,7 +165,7 @@ export default function Tickets() {
                 </div>
 
                 <button
-                    onClick={fetchTickets}
+                    onClick={() => refetch()}
                     className="flex items-center gap-2 px-6 py-3.5 bg-primary text-white text-sm font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
                 >
                     <span className="material-symbols-outlined font-bold group-hover:rotate-180 transition-transform">refresh</span>
@@ -212,7 +177,7 @@ export default function Tickets() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <StatCard
                     title="Total Tickets"
-                    value={pagination.total}
+                    value={serverPagination.total}
                     subtitle="All time requests"
                     bgColor="bg-white border border-slate-100 shadow-sm"
                     icon="confirmation_number"
@@ -357,31 +322,31 @@ export default function Tickets() {
                 </div>
 
                 {/* Pagination */}
-                {pagination.totalPages > 0 && (
+                {serverPagination.totalPages > 0 && (
                     <div className="p-8 border-t border-slate-50 flex items-center justify-between">
                         <p className="text-xs font-bold text-slate-400">
-                            Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} tickets
+                            Showing {((serverPagination.page - 1) * serverPagination.limit) + 1} to {Math.min(serverPagination.page * serverPagination.limit, serverPagination.total)} of {serverPagination.total} tickets
                         </p>
                         <div className="flex items-center gap-1.5">
                             <button
                                 onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-                                disabled={pagination.page === 1}
+                                disabled={serverPagination.page === 1}
                                 className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Previous
                             </button>
-                            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => i + 1).map(p => (
+                            {Array.from({ length: Math.min(5, serverPagination.totalPages) }, (_, i) => i + 1).map(p => (
                                 <button
                                     key={p}
                                     onClick={() => setPagination(prev => ({ ...prev, page: p }))}
-                                    className={`w-10 h-10 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${p === pagination.page ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:bg-slate-50'}`}
+                                    className={`w-10 h-10 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${p === serverPagination.page ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:bg-slate-50'}`}
                                 >
                                     {p}
                                 </button>
                             ))}
                             <button
-                                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(pagination.totalPages, prev.page + 1) }))}
-                                disabled={pagination.page === pagination.totalPages}
+                                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(serverPagination.totalPages, prev.page + 1) }))}
+                                disabled={serverPagination.page === serverPagination.totalPages}
                                 className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Next

@@ -118,6 +118,8 @@ CREATE TABLE orders (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_orders_user_id (user_id),
+    KEY idx_orders_user_created (user_id, created_at),
+    KEY idx_orders_user_status (user_id, status),
     KEY idx_orders_status (status),
     KEY idx_orders_stats (
         user_id,
@@ -438,7 +440,7 @@ CREATE TABLE `recharge_requests` (
     `amount` DECIMAL(10, 2) NOT NULL,
     `payment_method` VARCHAR(50) NOT NULL,
     `payment_reference` VARCHAR(100) NULL,
-    `proof_image` VARCHAR(255) NULL,
+    `proof_image` VARCHAR(255) NOT NULL,
     `status` ENUM(
         'REVIEW_PENDING',
         'APPROVED',

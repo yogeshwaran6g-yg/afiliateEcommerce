@@ -6,6 +6,7 @@ import {
 import walletService from "#services/walletService.js";
 import userNotificationService from "#services/userNotificationService.js";
 import { log } from "#utils/helper.js";
+import {queryRunner } from "#config/db.js"
 
 /**
  * Creates a new order with items and initial tracking.
@@ -31,6 +32,9 @@ export const createOrder = async (orderData) => {
   try {
     await connection.beginTransaction();
 
+    if (items && items.length <= 0) {
+      throw new Error("unable to make a order with empty items")
+    }
     // 1. Generate Order Number
     const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -41,6 +45,8 @@ export const createOrder = async (orderData) => {
     );
 
     let paymentStatus = "PENDING";
+    let walletTransactionId = null;
+
     if (paymentMethod === "WALLET") {
       // Check if user is activated for non-activation orders
       if (orderType !== "ACTIVATION") {
@@ -59,7 +65,20 @@ export const createOrder = async (orderData) => {
       if (parseFloat(wallet.balance) < totalAmount) {
         throw new Error("Insufficient wallet balance");
       }
-      paymentStatus = "PAID";
+      
+      const transactionType =
+        orderType === "ACTIVATION" ? "ACTIVATION_PURCHASE" : "PRODUCT_PURCHASE";
+      
+      const holdResult = await walletService.holdBalance(
+        userId,
+        totalAmount,
+        transactionType,
+        "orders",
+        null, // Will update with orderId later
+        `Holding payment for ${orderType} order`,
+        connection
+      );
+      walletTransactionId = holdResult.transactionId;
     }
 
     const [orderResult] = await connection.query(
@@ -80,6 +99,14 @@ export const createOrder = async (orderData) => {
     const orderId = orderResult.insertId;
     log(`Order ${orderNumber} (ID: ${orderId}) record created in DB.`, "info");
 
+    // Update wallet transaction with orderId if it was a wallet purchase
+    if (walletTransactionId) {
+      await connection.query(
+        "UPDATE wallet_transactions SET reference_id = ?, description = ? WHERE id = ?",
+        [orderId, `Payment for ${orderType} order ${orderNumber}`, walletTransactionId]
+      );
+    }
+
     // 3. Insert Order Items
     if (items && items.length > 0) {
       const itemValues = items.map((item) => [
@@ -96,7 +123,7 @@ export const createOrder = async (orderData) => {
     }
 
     // 4. Handle Payment Details
-    if (paymentMethod === "MANUAL" && proofUrl) {
+    if (paymentMethod === "MANUAL") {
       await connection.query(
         `INSERT INTO order_payments (order_id, payment_type, transaction_reference, proof_url, status) 
                  VALUES (?, ?, ?, ?, 'PENDING')`,
@@ -110,43 +137,37 @@ export const createOrder = async (orderData) => {
           ["UNDER_REVIEW", userId]
         );
       }
+
+      // Notify admins about new manual payment order
+      const [currentUser] = await connection.execute('SELECT name FROM users WHERE id = ?', [userId]);
+      await userNotificationService.notifyAdmins({
+        type: 'PAYMENT',
+        title: orderType === 'ACTIVATION' ? 'New Activation Request' : 'New Manual Payment Order',
+        description: `User ${currentUser[0]?.name || 'Unknown'} has placed an order (${orderNumber}) with manual payment proof.`,
+        link: '/order-payment'
+      });
     } else if (paymentMethod === "WALLET") {
-      const transactionType =
-        orderType === "ACTIVATION" ? "ACTIVATION_PURCHASE" : "PRODUCT_PURCHASE";
-      await walletService.updateWalletBalance(
-        userId,
-        totalAmount,
-        "DEBIT",
-        transactionType,
-        "orders",
-        orderId,
-        `Payment for ${orderType} order ${orderNumber}`,
-        "SUCCESS",
-        null,
-        connection
+       // Also insert into order_payments for visibility in order payments page
+       await connection.query(
+        `INSERT INTO order_payments (order_id, payment_type, transaction_reference, proof_url, status) 
+                 VALUES (?, ?, ?, ?, 'PENDING')`,
+        [orderId, 'WALLET', `WALLET-${orderNumber}`, 'wallet_payment']
       );
 
       if (orderType === "ACTIVATION") {
         await connection.query(
-          'UPDATE users SET account_activation_status = "ACTIVATED", is_active = TRUE WHERE id = ?',
+          'UPDATE users SET account_activation_status = "UNDER_REVIEW" WHERE id = ?',
           [userId]
         );
-
-        if (userRows[0]?.referred_by) {
-          await connection.query("CALL sp_add_referral(?, ?)", [
-            userRows[0].referred_by,
-            userId,
-          ]);
-        }
-        const [currentUser] = await connection.execute('SELECT name FROM users WHERE id = ?', [userId]);
-                await userNotificationService.notifyAdmins({
-                    type: 'ACCOUNT',
-                    title: 'New User Activation',
-                    description: `User ${currentUser[0]?.name || 'Unknown'} has successfully activated their account via wallet payment.`
-                });
       }
 
-      await distributeCommission(orderId, userId, totalAmount, connection);
+      const [currentUser] = await connection.execute('SELECT name FROM users WHERE id = ?', [userId]);
+      await userNotificationService.notifyAdmins({
+        type: 'PAYMENT',
+        title: orderType === 'ACTIVATION' ? 'New Activation Request (Wallet)' : 'New Wallet Payment Order',
+        description: `User ${currentUser[0]?.name || 'Unknown'} has placed an order (${orderNumber}) via Wallet.`,
+        link: '/order-payment'
+      });
     }
 
     // 5. Insert Initial Tracking
@@ -187,16 +208,66 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
     if (orders.length === 0) throw new Error("Order not found");
     const order = orders[0];
 
+    const [orderPayment] = await connection.query(
+      "SELECT * FROM order_payments WHERE order_id = ?",
+      [orderId]
+    );
+
+    if (orderPayment.length === 0) throw new Error("Order payment details not found");
+
+    if (orderPayment[0].status === "APPROVED") {
+      throw new Error("unable change the approved order");
+    }
+
     await connection.query(
       "UPDATE order_payments SET status = ?, admin_comment = ? WHERE order_id = ?",
       [status, adminComment, orderId]
     );
 
     if (status === "APPROVED") {
+      // Update Payment Status
       await connection.query(
         'UPDATE orders SET payment_status = "PAID" WHERE id = ?',
         [orderId]
       );
+
+      if (order.payment_method === "WALLET") {
+        // Release Held Balance
+        const [wallet] = await connection.query("SELECT id FROM wallets WHERE user_id = ?", [order.user_id]);
+        await walletService.releaseHeldBalance(wallet[0].id, order.total_amount, connection);
+
+        // Update Wallet Transaction Status
+        await connection.query(
+          "UPDATE wallet_transactions SET status = 'SUCCESS' WHERE reference_table = 'orders' AND reference_id = ? AND wallet_id = ?",
+          [orderId, wallet[0].id]
+        );
+      } else {
+        // Record Wallet Transaction for Manual Payment to unify history
+        // Without affecting actual wallet balance (direct log)
+        const [wallet] = await connection.query("SELECT id, balance, locked_balance FROM wallets WHERE user_id = ?", [order.user_id]);
+        if (wallet.length === 0) throw new Error("Wallet not found");
+
+        const transactionType =
+          order.order_type === "ACTIVATION" ? "ACTIVATION_PURCHASE" : "PRODUCT_PURCHASE";
+
+        await connection.query(
+          `INSERT INTO wallet_transactions (
+                    wallet_id, entry_type, transaction_type, amount, balance_before, balance_after,
+                    locked_after, locked_before, reference_table, reference_id, status, description
+                ) VALUES (?, 'DEBIT', ?, ?, ?, ?, ?, ?, 'orders', ?, 'SUCCESS', ?)`,
+          [
+            wallet[0].id,
+            transactionType,
+            order.total_amount,
+            wallet[0].balance,
+            wallet[0].balance, // Balance remains the same
+            wallet[0].locked_balance,
+            wallet[0].locked_balance,
+            orderId,
+            `Manual payment for ${order.order_type} order ${order.order_number}`
+          ]
+        );
+      }
 
       if (order.order_type === "ACTIVATION") {
         await connection.query(
@@ -209,11 +280,15 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
           [order.user_id]
         );
         if (userRows[0]?.referred_by) {
-          await createReferral(
-            userRows[0].referred_by,
-            order.user_id,
-            connection
-          );
+      
+          const [exists] = await connection.query("SELECT 1 FROM referral_tree WHERE upline_id = ? AND downline_id = ? AND level = 1", [userRows[0].referred_by, order.user_id]);
+          if (exists.length === 0) {
+            await createReferral(
+              userRows[0].referred_by,
+              order.user_id,
+              connection
+            );
+          }
         }
       }
 
@@ -229,9 +304,22 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
         [orderId]
       );
     } else {
+      // REJECTED
+      if (order.payment_method === "WALLET") {
+        // Rollback Held Balance
+        const [wallet] = await connection.query("SELECT id FROM wallets WHERE user_id = ?", [order.user_id]);
+        await walletService.rollbackHeldBalance(wallet[0].id, order.total_amount, connection);
+        
+        // Update Wallet Transaction Status
+        await connection.query(
+          "UPDATE wallet_transactions SET status = 'REVERSED' WHERE reference_table = 'orders' AND reference_id = ? AND wallet_id = ?",
+          [orderId, wallet[0].id]
+        );
+      }
+
       if (order.order_type === "ACTIVATION") {
         await connection.query(
-          'UPDATE users SET account_activation_status = "REJECTED" WHERE id = ?',
+          'UPDATE users SET account_activation_status = "REJECTED", is_blocked = TRUE WHERE id = ?',
           [order.user_id]
         );
       }
@@ -253,14 +341,17 @@ export const verifyOrderPayment = async (orderId, status, adminComment) => {
   }
 };
 
-/**
- * Fetches orders for a specific user with pagination and filtering.
- * @param {number} userId - The ID of the user.
- * @param {object} options - Pagination and filter options.
- * @returns {Promise<object>} - List of orders and metadata.
- */
 export const getOrdersByUserId = async (userId, options = {}) => {
-  const { page = 1, limit = 10, status, date } = options;
+  let { page = 1, limit = 10, status, date } = options;
+
+  // Normalize and clamp pagination values for safety
+  page = Number.isFinite(Number(page)) && Number(page) > 0 ? Number(page) : 1;
+  limit = Number.isFinite(Number(limit)) && Number(limit) > 0 ? Number(limit) : 10;
+  const MAX_LIMIT = 50;
+  if (limit > MAX_LIMIT) {
+    limit = MAX_LIMIT;
+  }
+
   const offset = (page - 1) * limit;
 
   let query = `
@@ -276,14 +367,16 @@ export const getOrdersByUserId = async (userId, options = {}) => {
   }
 
   if (date) {
-    query += " AND DATE(created_at) = ?";
-    params.push(date);
+    // Use a range filter so MySQL can leverage (user_id, created_at) index
+    query += " AND created_at >= ? AND created_at < DATE_ADD(?, INTERVAL 1 DAY)";
+    params.push(date, date);
   }
 
   query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
   params.push(parseInt(limit), parseInt(offset));
-
-  const [rows] = await pool.execute(query, params);
+  console.log(query, params);
+  const rows = await queryRunner(query, params);
+  console.log(rows)
 
   // Get total count for pagination
   let countQuery = "SELECT COUNT(*) as total FROM orders WHERE user_id = ?";
@@ -295,8 +388,8 @@ export const getOrdersByUserId = async (userId, options = {}) => {
   }
 
   if (date) {
-    countQuery += " AND DATE(created_at) = ?";
-    countParams.push(date);
+    countQuery += " AND created_at >= ? AND created_at < DATE_ADD(?, INTERVAL 1 DAY)";
+    countParams.push(date, date);
   }
 
   const [countResult] = await pool.execute(countQuery, countParams);
@@ -327,12 +420,7 @@ export const getOrdersByUserId = async (userId, options = {}) => {
   return { orders: rows, total, counts };
 };
 
-/**
- * Fetches a single order by ID with items and tracking.
- * @param {number} orderId - The ID of the order.
- * @param {number} userId - The ID of the user (for ownership check).
- * @returns {Promise<object>} - Order details.
- */
+
 export const getOrderById = async (orderId, userId) => {
   const [orders] = await pool.execute(
     `SELECT o.*, op.payment_type, op.transaction_reference, op.proof_url, op.status as verification_status, op.admin_comment 
@@ -513,5 +601,24 @@ export const getAllOrderPayments = async (filters = {}, limit = 50, offset = 0) 
     const [countResult] = await pool.query(countQuery, params.slice(0, -2));
     const total = countResult[0]?.total || 0;
 
-    return { payments, total };
+    // Get status counts for tabs
+    const [statusCounts] = await pool.execute(
+        `SELECT status, COUNT(*) as count FROM order_payments GROUP BY status`
+    );
+
+    const counts = {
+        ALL: 0,
+        PENDING: 0,
+        APPROVED: 0,
+        REJECTED: 0,
+    };
+
+    let allTotal = 0;
+    statusCounts.forEach((row) => {
+        counts[row.status] = row.count;
+        allTotal += row.count;
+    });
+    counts["ALL"] = allTotal;
+
+    return { payments, total, counts };
 };

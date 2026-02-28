@@ -114,7 +114,11 @@ export default function Charts() {
                             </AreaChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="h-full flex items-center justify-center text-slate-400 italic">No income data yet</div>
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 pb-6">
+                            <span className="material-symbols-outlined text-5xl text-slate-200">monitoring</span>
+                            <div className="font-medium text-slate-500">No income data yet</div>
+                            <p className="text-sm text-slate-400 text-center max-w-[200px]">Start building your network to see income trends here.</p>
+                        </div>
                     )}
                 </div>
             </div>
@@ -174,7 +178,11 @@ export default function Charts() {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="h-full flex items-center justify-center text-slate-400 italic">No growth data yet</div>
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 pb-6">
+                            <span className="material-symbols-outlined text-5xl text-slate-200">groups</span>
+                            <div className="font-medium text-slate-500">No growth data yet</div>
+                            <p className="text-sm text-slate-400 text-center max-w-[200px]">Invite people to your network to track your team's growth.</p>
+                        </div>
                     )}
                 </div>
             </div>

@@ -1,9 +1,10 @@
 import { api } from "../util/axios";
+import { API_ENDPOINTS } from "../util/constants";
 
 const announcementApiService = {
     getAnnouncements: async () => {
         try {
-            const data = await api.get("/admin/notifications");
+            const data = await api.get(API_ENDPOINTS.ANNOUNCEMENTS.BASE);
             return data.data;
         } catch (error) {
             console.error('Error in announcementApiService.getAnnouncements:', error);
@@ -13,7 +14,7 @@ const announcementApiService = {
 
     getAnnouncementById: async (id) => {
         try {
-            const data = await api.get(`/admin/notifications/${id}`);
+            const data = await api.get(API_ENDPOINTS.ANNOUNCEMENTS.BY_ID(id));
             return data.data;
         } catch (error) {
             console.error('Error in announcementApiService.getAnnouncementById:', error);
@@ -23,7 +24,7 @@ const announcementApiService = {
 
     createAnnouncement: async (announcementData) => {
         try {
-            const data = await api.post("/admin/notifications", announcementData);
+            const data = await api.post(API_ENDPOINTS.ANNOUNCEMENTS.BASE, announcementData);
             return data.data;
         } catch (error) {
             console.error('Error in announcementApiService.createAnnouncement:', error);
@@ -33,7 +34,7 @@ const announcementApiService = {
 
     updateAnnouncement: async (id, announcementData) => {
         try {
-            const data = await api.put(`/admin/notifications/${id}`, announcementData);
+            const data = await api.put(API_ENDPOINTS.ANNOUNCEMENTS.BY_ID(id), announcementData);
             return data.data;
         } catch (error) {
             console.error('Error in announcementApiService.updateAnnouncement:', error);
@@ -43,7 +44,7 @@ const announcementApiService = {
 
     deleteAnnouncement: async (id) => {
         try {
-            const data = await api.delete(`/admin/notifications/${id}`);
+            const data = await api.delete(API_ENDPOINTS.ANNOUNCEMENTS.BY_ID(id));
             return data.data;
         } catch (error) {
             console.error('Error in announcementApiService.deleteAnnouncement:', error);

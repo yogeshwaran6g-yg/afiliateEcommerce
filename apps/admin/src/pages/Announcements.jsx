@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import announcementApiService from "../services/announcementApiService";
+import { 
+    useAnnouncements, 
+    useCreateAnnouncementMutation, 
+    useUpdateAnnouncementMutation, 
+    useDeleteAnnouncementMutation 
+} from "../hooks/useAnnouncementService";
 import { toast } from "react-toastify";
 
 const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) => {
@@ -13,7 +18,7 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
-    const IMAGE_BASE_URL = 'http://localhost:4000';
+    const IMAGE_BASE_URL = import .meta.env.VITE_BASE_URL;
 
     useEffect(() => {
         if (announcement) {
@@ -196,30 +201,14 @@ const AnnouncementDrawer = ({ isOpen, onClose, announcement, onSave, loading }) 
 
 export default function Announcements() {
     const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [announcements, setAnnouncements] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [drawerLoading, setDrawerLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
 
+    const { data: announcements = [], isLoading, error } = useAnnouncements();
+    const createMutation = useCreateAnnouncementMutation();
+    const updateMutation = useUpdateAnnouncementMutation();
+    const deleteMutation = useDeleteAnnouncementMutation();
+
     const IMAGE_BASE_URL = 'http://localhost:4000';
-
-    useEffect(() => {
-        fetchAnnouncements();
-    }, []);
-
-    const fetchAnnouncements = async () => {
-        try {
-            setLoading(true);
-            const data = await announcementApiService.getAnnouncements();
-            setAnnouncements(data);
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load announcements");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleOpenDrawer = (announcement = null) => {
         setSelectedAnnouncement(announcement);
@@ -228,37 +217,30 @@ export default function Announcements() {
 
     const handleSave = async (formData) => {
         try {
-            setDrawerLoading(true);
             if (selectedAnnouncement) {
-                await announcementApiService.updateAnnouncement(selectedAnnouncement.id, formData);
+                await updateMutation.mutateAsync({ id: selectedAnnouncement.id, announcementData: formData });
                 toast.success("Announcement updated successfully");
             } else {
-                await announcementApiService.createAnnouncement(formData);
+                await createMutation.mutateAsync(formData);
                 toast.success("Announcement created successfully");
             }
             setDrawerOpen(false);
-            fetchAnnouncements();
         } catch (err) {
             toast.error(err.message || "Failed to save announcement");
-        } finally {
-            setDrawerLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
         if (!confirm("Are you sure you want to delete this announcement?")) return;
         try {
-            setLoading(true);
-            await announcementApiService.deleteAnnouncement(id);
+            await deleteMutation.mutateAsync(id);
             toast.success("Announcement deleted successfully");
-            fetchAnnouncements();
         } catch (err) {
             toast.error(err.message || "Failed to delete announcement");
-            setLoading(false);
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
@@ -417,7 +399,7 @@ export default function Announcements() {
                 onClose={() => setDrawerOpen(false)}
                 announcement={selectedAnnouncement}
                 onSave={handleSave}
-                loading={drawerLoading}
+                loading={createMutation.isPending || updateMutation.isPending}
             />
         </div>
     );

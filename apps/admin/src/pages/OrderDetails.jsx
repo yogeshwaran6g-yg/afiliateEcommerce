@@ -1,30 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import orderApiService from "../services/orderApiService";
+import { useOrderDetails } from "../hooks/useOrder.hook";
 
 export default function OrderDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [order, setOrder] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchOrderDetails();
-    }, [id]);
-
-    const fetchOrderDetails = async () => {
-        try {
-            setLoading(true);
-            const data = await orderApiService.getOrderDetails(id);
-            setOrder(data);
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load order details");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: order, isLoading: loading, error } = useOrderDetails(id);
 
     const getStatusColor = (status) => {
         switch (status) {

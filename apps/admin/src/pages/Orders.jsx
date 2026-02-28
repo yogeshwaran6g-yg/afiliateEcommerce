@@ -1,43 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import orderApiService from "../services/orderApiService";
+import { useOrders } from "../hooks/useOrder.hook";
 
 export default function Orders() {
     const navigate = useNavigate();
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
-    const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
+    const [page, setPage] = useState(1);
+    const limit = 50;
 
-    useEffect(() => {
-        fetchOrders();
-    }, [pagination.page, statusFilter]);
+    const { data, isLoading, error } = useOrders({
+        page,
+        limit,
+        status: statusFilter,
+        search: searchTerm
+    });
 
-    const fetchOrders = async () => {
-        try {
-            setLoading(true);
-            const data = await orderApiService.getOrders({
-                page: pagination.page,
-                limit: pagination.limit,
-                status: statusFilter,
-                search: searchTerm
-            });
-            setOrders(data.orders);
-            setPagination(prev => ({ ...prev, total: data.pagination.total, totalPages: data.pagination.totalPages }));
-            setError(null);
-        } catch (err) {
-            setError(err.message || "Failed to load orders");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const orders = data?.orders || [];
+    const total = data?.pagination?.total || 0;
+    const totalPages = data?.pagination?.totalPages || 0;
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setPagination(prev => ({ ...prev, page: 1 }));
-        fetchOrders();
+        setPage(1);
     };
 
     const getStatusColor = (status) => {
@@ -50,7 +35,7 @@ export default function Orders() {
         }
     };
 
-    if (loading && pagination.page === 1) {
+    if (isLoading && page === 1) {
         return (
             <div className="p-4 md:p-8 lg:p-12 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
@@ -84,7 +69,7 @@ export default function Orders() {
                     </div>
                     <div>
                         <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Orders</h5>
-                        <div className="text-2xl font-black text-[#172b4d] tracking-tighter">{pagination.total}</div>
+                        <div className="text-2xl font-black text-[#172b4d] tracking-tighter">{total}</div>
                     </div>
                 </div>
                 {/* Add more stats if needed */}
@@ -110,7 +95,7 @@ export default function Orders() {
                             value={statusFilter}
                             onChange={(e) => {
                                 setStatusFilter(e.target.value);
-                                setPagination(prev => ({ ...prev, page: 1 }));
+                                setPage(1);
                             }}
                             className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-[#172b4d] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all appearance-none cursor-pointer pr-10 relative"
                             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.25rem' }}
@@ -220,18 +205,18 @@ export default function Orders() {
 
                 {/* Pagination */}
                 <div className="p-6 md:p-8 border-t border-slate-50 flex items-center justify-between bg-slate-50/50">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page {pagination.page} of {pagination.totalPages || 1}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page {page} of {totalPages || 1}</p>
                     <div className="flex items-center gap-2">
                         <button
-                            disabled={pagination.page === 1}
-                            onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                            disabled={page === 1}
+                            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
                             className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-all active:scale-95"
                         >
                             <span className="material-symbols-outlined text-sm font-bold">chevron_left</span>
                         </button>
                         <button
-                            disabled={pagination.page >= pagination.totalPages}
-                            onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                            disabled={page >= totalPages}
+                            onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
                             className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-all active:scale-95"
                         >
                             <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>

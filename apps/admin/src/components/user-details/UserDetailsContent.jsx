@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import userApiService from '../../services/userApiService';
+import userApiService from '../../services/user.apiservice';
 import { toast } from 'react-toastify';
 
 const UserDetailsContent = ({

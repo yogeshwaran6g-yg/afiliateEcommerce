@@ -1,9 +1,10 @@
 import { api } from "../util/axios";
+import { API_ENDPOINTS } from "../util/constants";
 
 const orderApiService = {
     getOrders: async (filters = {}) => {
         try {
-            const data = await api.get("/admin/orders", { params: filters });
+            const data = await api.get(API_ENDPOINTS.ORDERS.BASE, { params: filters });
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.getOrders:', error);
@@ -13,7 +14,7 @@ const orderApiService = {
 
     approvePayment: async (orderId, adminComment) => {
         try {
-            const data = await api.post("/admin/approve-payment", { orderId, adminComment });
+            const data = await api.post(API_ENDPOINTS.ORDERS.APPROVE_PAYMENT, { orderId, adminComment });
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.approvePayment:', error);
@@ -23,7 +24,7 @@ const orderApiService = {
 
     rejectPayment: async (orderId, reason) => {
         try {
-            const data = await api.post("/admin/reject-payment", { orderId, reason });
+            const data = await api.post(API_ENDPOINTS.ORDERS.REJECT_PAYMENT, { orderId, reason });
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.rejectPayment:', error);
@@ -33,7 +34,7 @@ const orderApiService = {
 
     getOrderDetails: async (orderId) => {
         try {
-            const data = await api.get(`/admin/orders/${orderId}`);
+            const data = await api.get(API_ENDPOINTS.ORDERS.BY_ID(orderId));
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.getOrderDetails:', error);
@@ -43,7 +44,7 @@ const orderApiService = {
 
     addOrderTracking: async (orderId, title, description) => {
         try {
-            const data = await api.post(`/admin/orders/${orderId}/tracking`, { title, description });
+            const data = await api.post(API_ENDPOINTS.ORDERS.TRACKING(orderId), { title, description });
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.addOrderTracking:', error);
@@ -53,7 +54,7 @@ const orderApiService = {
 
     getOrderPayments: async (filters = {}) => {
         try {
-            const data = await api.get("/admin/order-payments", { params: filters });
+            const data = await api.get(API_ENDPOINTS.ORDERS.PAYMENTS, { params: filters });
             return data.data;
         } catch (error) {
             console.error('Error in orderApiService.getOrderPayments:', error);

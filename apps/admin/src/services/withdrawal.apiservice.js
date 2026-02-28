@@ -1,10 +1,13 @@
 import { api } from "../util/axios";
+import { API_ENDPOINTS } from "../util/constants";
 
 const withdrawalApiService = {
     getWithdrawals: async (status = null) => {
         try {
-            const data = await api.get("/admin/withdrawals", { status });
-            return data.data;
+            const response = await api.get(API_ENDPOINTS.WITHDRAWAL.BASE, { 
+                params: { status: status === 'All' ? null : status } 
+            });
+            return response.data;
         } catch (error) {
             console.error('Error in withdrawalApiService.getWithdrawals:', error);
             throw error;
@@ -13,7 +16,7 @@ const withdrawalApiService = {
 
     approveWithdrawal: async (requestId, adminComment) => {
         try {
-            return await api.post("/admin/approve-withdrawal", { requestId, adminComment });
+            return await api.post(API_ENDPOINTS.WITHDRAWAL.APPROVE, { requestId, adminComment });
         } catch (error) {
             console.error('Error in withdrawalApiService.approveWithdrawal:', error);
             throw error;
@@ -22,7 +25,7 @@ const withdrawalApiService = {
 
     rejectWithdrawal: async (requestId, adminComment) => {
         try {
-            return await api.post("/admin/reject-withdrawal", { requestId, adminComment });
+            return await api.post(API_ENDPOINTS.WITHDRAWAL.REJECT, { requestId, adminComment });
         } catch (error) {
             console.error('Error in withdrawalApiService.rejectWithdrawal:', error);
             throw error;

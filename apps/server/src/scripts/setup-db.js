@@ -126,6 +126,7 @@ const setupDB = async (connection) => {
   
   // 5.1 System Settings
   await seedSettings(connection);
+  // return;
 
   // 5.2 Core System Data (Configs, Categories, Products)
   await seedCore(connection);

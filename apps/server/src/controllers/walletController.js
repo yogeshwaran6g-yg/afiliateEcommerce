@@ -15,7 +15,11 @@ const walletController = {
 
   getTransactions: async function (req, res) {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      if(!userId){
+        return rtnRes(res,400, "user not found");
+      }
+      
       const { limit = 20, offset = 0, searchTerm, status, type } = req.query;
       const result = await walletService.getWalletTransactions(
         userId,

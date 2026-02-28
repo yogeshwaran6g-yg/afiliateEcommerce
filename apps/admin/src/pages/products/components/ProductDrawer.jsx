@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import productApiService from "../../../services/productApiService";
+import { 
+    useCreateProductMutation, 
+    useUpdateProductMutation 
+} from "../../../hooks/useProductService";
 import { toast } from "react-toastify";
 
 const BACKEND_URL = "http://localhost:4000";
 
-const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
+const ProductDrawer = ({ isOpen, onClose, product, categories }) => {
     const [formData, setFormData] = useState({
         name: "",
         slug: "",
@@ -19,7 +22,10 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
     });
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-    const [loading, setLoading] = useState(false);
+    
+    const createProductMutation = useCreateProductMutation();
+    const updateProductMutation = useUpdateProductMutation();
+    const loading = createProductMutation.isPending || updateProductMutation.isPending;
 
     useEffect(() => {
         if (product) {
@@ -114,7 +120,6 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(true);
             const data = new FormData();
             
             // Check if we are updating and only send changed fields
@@ -142,7 +147,7 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                     return;
                 }
 
-                await productApiService.updateProduct(product.id, data);
+                await updateProductMutation.mutateAsync({ id: product.id, productData: data });
                 toast.success("Product updated successfully");
             } else {
                 // Creation: send everything
@@ -157,16 +162,13 @@ const ProductDrawer = ({ isOpen, onClose, product, categories, onSuccess }) => {
                 if (imageFile) {
                     data.append('images', imageFile);
                 }
-                await productApiService.createProduct(data);
+                await createProductMutation.mutateAsync(data);
                 toast.success("Product published successfully");
             }
-            onSuccess();
             onClose();
         } catch (err) {
             const errorMsg = err.message || "Failed to save product";
             toast.error(errorMsg);
-        } finally {
-            setLoading(false);
         }
     };
 

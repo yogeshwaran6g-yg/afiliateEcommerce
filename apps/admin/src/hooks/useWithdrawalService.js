@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import withdrawalApiService from "../services/withdrawalApiService";
+import withdrawalApiService from "../services/withdrawal.apiservice";
 
 export const WITHDRAWALS_QUERY_KEY = ["withdrawals"];
 

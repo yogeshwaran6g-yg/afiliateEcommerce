@@ -23,6 +23,32 @@ const DirectReferrals = () => {
   // Full page loading handled by skeletons inside the layout
 
   if (error) {
+    if (error?.response?.status === 403) {
+      return (
+        <div className="flex min-h-[400px] items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 text-center max-w-md animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-100">
+              <span className="material-symbols-outlined text-amber-500 text-4xl">
+                lock
+              </span>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">
+              Activation Required
+            </h2>
+            <p className="text-slate-500 mb-8 font-medium leading-relaxed">
+              You must activate your account by purchasing an activation package before you can view and manage direct referrals.
+            </p>
+            <button
+              onClick={() => window.location.href = '/shop'}
+              className="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/30 active:scale-95 w-full"
+            >
+              Activate Account Now
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex min-h-[400px] items-center justify-center p-4">
         <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 text-center max-w-md animate-in fade-in zoom-in duration-300">

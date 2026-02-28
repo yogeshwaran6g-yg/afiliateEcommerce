@@ -108,6 +108,7 @@ export const createWithdrawalRequest = async (userId, amount) => {
       type: "WALLET",
       title: "New Withdrawal Request",
       description: `User ${userRows[0].name} has requested a withdrawal of ₹${amount}.`,
+      link: "/withdrawals",
     });
 
     return {

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getNotifications, getMyNotifications, markAsRead, markAllAsRead, sendNotification, broadcastNotification, deleteNotification, markUserNotificationAsRead, markAllUserNotificationsAsRead } from "../services/userNotificationService";
+import { getNotifications, getMyNotifications, markAsRead, markAllAsRead, sendNotification, broadcastNotification, deleteNotification, markUserNotificationAsRead, markAllUserNotificationsAsRead } from "../services/userNotification.apiservice";
 import { toast } from "react-toastify";
 
 export const USER_NOTIFICATION_QUERY_KEY = "adminUserNotifications";

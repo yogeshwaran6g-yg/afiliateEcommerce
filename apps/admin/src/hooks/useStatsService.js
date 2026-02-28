@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import statsApiService from "../services/statsApiService";
+import statsApiService from "../services/stats.apiservice";
 
 export const DASHBOARD_STATS_QUERY_KEY = ["dashboardStats"];
 

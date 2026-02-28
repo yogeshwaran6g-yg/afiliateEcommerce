@@ -54,13 +54,26 @@ const createOrder = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
     try {
+        const startTime = Date.now();
         const userId = req.user.id;
         const { page, limit, status, date } = req.query;
+
+        // Basic normalization and server-side safety limits
+        const parsedPage = parseInt(page, 10);
+        const parsedLimit = parseInt(limit, 10);
+        
         const result = await orderService.getOrdersByUserId(userId, {
-            page: parseInt(page) || 1,
-            limit: parseInt(limit) || 10,
+            page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1,
+            limit: Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10,
             status,
             date
+        });
+        console.log(result)
+        const durationMs = Date.now() - startTime;
+        log(`getMyOrders completed in ${durationMs}ms`, "debug", {
+            userId,
+            page: result?.page,
+            limit: result?.limit,
         });
         return rtnRes(res, 200, "Orders fetched successfully", result);
     } catch (error) {

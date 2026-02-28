@@ -213,7 +213,9 @@ export const getWalletTransactions = async (
 ) => {
   try {
     const wallet = await getWalletByUserId(userId);
-
+    if(!wallet){
+      throw new Error("wallet not found");
+    }
     // Base query conditions
     let conditions = "WHERE wallet_id = ?";
     let params = [wallet.id];
@@ -335,7 +337,7 @@ export const updateWalletBalance = async (
     let currentLockedBalance;
 
     if (!walletRows || walletRows.length === 0) {
-      // Create wallet if missing
+      throw new Error("wallet not found")
       const [result] = await runner.execute(
         "INSERT INTO wallets (user_id, balance, locked_balance) VALUES (?, ?, ?)",
         [userId, 0.0, 0.0],
@@ -379,9 +381,9 @@ export const updateWalletBalance = async (
     // 4. Record transaction
     const [transResult] = await runner.execute(
       `INSERT INTO wallet_transactions (
-                wallet_id, entry_type, transaction_type, amount, balance_before, balance_after, 
-                reference_table, reference_id, status, description, metadata
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                wallet_id, entry_type, transaction_type, amount, balance_before, balance_after,
+                locked_after, locked_before, reference_table, reference_id, status, description, metadata
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         walletId,
         type,
@@ -389,6 +391,8 @@ export const updateWalletBalance = async (
         numAmount,
         currentBalance,
         newBalance,
+        newLockedBalance,
+        currentLockedBalance,
         referenceTable,
         referenceId,
         status,
@@ -410,6 +414,14 @@ export const updateWalletBalance = async (
     return await transactionRunner(executeUpdate);
   }
 };
+//  userId,
+//         totalAmount,
+//         transactionType,
+//         "orders",
+//         null, // Will update with orderId later
+//         `Holding payment for ${orderType} order`,
+//         connection
+//       );
 
 export const holdBalance = async (
   userId,

@@ -1,28 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import userApiService from "../services/userApiService";
+import { useKYCRecords } from "../hooks/useUserService";
 
 export default function KYCVerification() {
     const navigate = useNavigate();
-    const [records, setRecords] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("");
 
-    useEffect(() => {
-        fetchRecords();
-    }, [filter]);
-
-    const fetchRecords = async () => {
-        try {
-            setLoading(true);
-            const data = await userApiService.getKYCRecords(filter);
-            setRecords(data);
-        } catch (error) {
-            console.error("Failed to fetch KYC records:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: records = [], isLoading: loading } = useKYCRecords(filter);
 
     const getStatusColor = (status) => {
         switch (status) {
